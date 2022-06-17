@@ -1,0 +1,25 @@
+{
+  "template": "ssh://git@lab.analogparadigm.com/tools/cookiecutter-templates.git",
+  "commit": "0f2db6c9601aa5b7c9bc35720315b2f724b9a5b7",
+  "checkout": "python-poetry-namespaced",
+  "context": {
+    "cookiecutter": {
+      "project_slug": "pyanabrid-hybrid-controller",
+      "output_dir": "controller",
+      "license": "GPL3+anabrid",
+      "full_name": "Michael Steck",
+      "email": "steck@anabrid.com",
+      "namespace": "pyanabrid.hybrid.controller",
+      "module_name": "controller",
+      "version": "0.1.0",
+      "description": "anabrid hybrid controller abstraction",
+      "required_python_version": "^3.9",
+      "gitignore_templates": "python pycharm",
+      "precommit": true,
+      "precommit_default": true,
+      "_json_trailing_comma": "null",
+      "_template": "ssh://git@lab.analogparadigm.com/tools/cookiecutter-templates.git"
+    }
+  },
+  "directory": null
+}
