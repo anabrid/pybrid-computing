@@ -45,13 +45,15 @@ class RunIdPool:
         return next(self.iter)
 
 
+_run_id_pool = RunIdPool()
+
+
 class Run(BaseRun):
-    run_id: int
-    _run_id_pool = RunIdPool()
+    run_id: int = Field(default_factory=lambda: _run_id_pool.next())
 
 
 class AwaitableRun(Run):
-    _done_future: asyncio.Future
+    _done_future: asyncio.Future = PrivateAttr()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -85,7 +87,7 @@ class ModelOneController(BaseController):
         return await self.runs[new_run.run_id]._done_future
 
     async def start_run(self, run) -> bool:
-        response = await self.protocol.start_run(run_id=run.run_id)
+        response = await self.protocol.start_run(**run.dict())
         if not response.accepted:
             run.state = RunState.ERROR
             return False

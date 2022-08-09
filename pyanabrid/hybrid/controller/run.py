@@ -26,6 +26,7 @@
 import typing
 from collections import defaultdict
 from enum import Enum, auto
+from pydantic import BaseModel, Field
 
 from pyanabrid.hybrid.protocol.v1.types import RunState as ProtocolRunState
 
@@ -42,7 +43,9 @@ class RunState(Enum):
 
     @classmethod
     def from_v1_protocol(cls, v1_run_state):
+        # TODO: All (machine_type, protocol_version) conversion should be abstracted
         return {
+            ProtocolRunState.ERROR: RunState.ERROR,
             ProtocolRunState.QUEUED: RunState.QUEUED,
             ProtocolRunState.TAKE_OFF: RunState.TAKE_OFF,
             ProtocolRunState.IC: RunState.IC,
@@ -52,20 +55,15 @@ class RunState(Enum):
         }[v1_run_state]
 
 
-class BaseRun:
+class BaseRun(BaseModel):
     run_id: typing.Any
-    _run_id_pool = None
+    state: RunState = RunState.NEW
 
-    state: RunState
-    data: typing.Dict[RunState, typing.List[typing.Any]]
+    ctrl_period: int = 1_000
+    ic_time: int = 50_000
+    op_time: int = 100_000
 
-    def __init__(self, run_id=None):
-        if run_id is not None:
-            self.run_id = run_id
-        else:
-            self.run_id = self._run_id_pool.next()
-        self.state = RunState.NEW
-        self.data = defaultdict(lambda: list())
+    data: typing.Dict[RunState, typing.List[typing.Any]] = Field(default_factory=lambda: defaultdict(lambda: list()))
 
     def __str__(self):
         return f"Run {self.run_id} @{self.state}"

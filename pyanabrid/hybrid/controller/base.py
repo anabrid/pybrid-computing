@@ -30,6 +30,8 @@ from pyanabrid.analog.base import AliasedModulesType
 from pyanabrid.hybrid.protocol import BaseProtocol
 from pyanabrid.hybrid.protocol.v1 import Protocol as Protocol_v1
 
+from .run import BaseRun
+
 
 class BaseController(ABC):
     protocol: typing.Union[BaseProtocol, Protocol_v1]
@@ -42,7 +44,7 @@ class BaseController(ABC):
         return cls(protocol)
 
     @abstractmethod
-    async def new_run(self, *args, **kwargs):
+    async def new_run(self, *args, **kwargs) -> BaseRun:
         ...
 
     @abstractmethod
