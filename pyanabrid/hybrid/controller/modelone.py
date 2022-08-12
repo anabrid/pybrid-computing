@@ -25,15 +25,38 @@
 import asyncio
 import itertools
 import typing
+from pydantic import BaseModel, Field, PrivateAttr
 
-from pyanabrid.analog.base import AliasedModulesType, AliasedDict
+from pyanabrid.analog.base import AliasedModulesType, AliasedList, AnalogComputationElement
 from pyanabrid.analog.modelone.modules import Module, ModuleType, ModuleIdentifier
 # TODO: This should be protocol-agnostic
-from pyanabrid.hybrid.protocol.v1.messages import RunStateChangeMessage, RunDataMessage
-# END TODO
+#       Not really. Model-1 controller will only ever talk via v1 Protocol
+#       Though it would be nicer to have it somewhere else maybe :)
+from pyanabrid.hybrid.protocol.v1.messages import (
+    RunStateChangeMessage, RunDataMessage,
+    SetConfigRequest, SetConfigResponse,
+    SetDAQRequest, SetDAQResponse,
+)
 
 from .base import BaseController
 from .run import BaseRun, RunState
+
+
+class DAQChannel(BaseModel):
+    element: AnalogComputationElement
+
+
+class DAQConfiguration(BaseModel):
+    channels: typing.List[DAQChannel] = list()
+
+    def add_element(self, element: AnalogComputationElement):
+        self.channels.append(DAQChannel(element=element))
+
+    def to_request_payload(self):
+        return [
+            {"element": channel.element.element_id}
+            for channel in self.channels
+        ]
 
 
 class RunIdPool:
@@ -50,14 +73,20 @@ _run_id_pool = RunIdPool()
 
 class Run(BaseRun):
     run_id: int = Field(default_factory=lambda: _run_id_pool.next())
+    daq_config: DAQConfiguration = DAQConfiguration()
 
 
 class AwaitableRun(Run):
+    # TODO: This should be a wrapper, not a subclass to preserve original run object (so people can compare, serach, ...)
     _done_future: asyncio.Future = PrivateAttr()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._done_future = asyncio.get_event_loop().create_future()
+
+    @classmethod
+    def from_run(cls, run: Run):
+        return cls(**run.dict(exclude={'data'}))
 
 
 class ModelOneController(BaseController):
@@ -69,19 +98,33 @@ class ModelOneController(BaseController):
         self.protocol.add_incoming_msg_handler(RunStateChangeMessage, self._run_state_change_msg_handler)
         self.protocol.add_incoming_msg_handler(RunDataMessage, self._run_data_msg_handler)
 
+        self._run_data_msg_last_state = None
+
     def _run_state_change_msg_handler(self, msg: RunStateChangeMessage):
         run = self.runs[msg.run_id]
         run.state = RunState.from_v1_protocol(msg.new)
-        print("Run ", run, " changed to state ", run.state)
+        run.overload = msg.overload
+        run.external_halt = msg.external_halt
         if run.state is RunState.DONE:
             run._done_future.set_result(run)
 
     def _run_data_msg_handler(self, msg: RunDataMessage):
         run = self.runs[msg.run_id]
-        run.data[RunState.from_v1_protocol(msg.state)].extend(msg.data)
+        if run.state != self._run_data_msg_last_state:
+            self._run_data_msg_last_state = run.state
+            channel_idx = 0
+        else:
+            channel_idx = run.total_data_samples_in_state(run.state) % len(run.daq_config.channels)
 
-    async def new_run(self):
-        new_run = AwaitableRun()
+        for d in msg.data:
+            run.data[run.daq_config.channels[channel_idx].element][run.state].append(d)
+            channel_idx = (channel_idx + 1) % len(run.daq_config.channels)
+
+    async def new_run(self, run=None):
+        if run is None:
+            new_run = AwaitableRun()
+        else:
+            new_run = AwaitableRun.from_run(run)
         self.runs.update({new_run.run_id: new_run})
         await self.start_run(new_run)
         return await self.runs[new_run.run_id]._done_future
@@ -101,9 +144,30 @@ class ModelOneController(BaseController):
         def _convert_to_module(id_, module_data):
             module_type = ModuleType(module_data["type"])
             module_class = Module.get_module_class(module_type)
-            return module_class.parse_obj({"module_id": id_})
+            module = module_class.parse_obj({"module_id": id_})
+            return module
 
-        return AliasedDict({
-            ModuleIdentifier(_id): _convert_to_module(ModuleIdentifier(_id), module_data)
+        module_list = AliasedList(
+            _convert_to_module(ModuleIdentifier(_id), module_data)
             for _id, module_data in response.items()
-        })
+        )
+        for idx, module in enumerate(module_list):
+            module_list.add_alias(module.module_id, idx)
+        return module_list
+
+    async def set_module_config(self, module_configs: typing.List[Module]) -> bool:
+        request: SetConfigRequest = SetConfigRequest.parse_obj([
+            module.dict(exclude={'elements': {'__all__': {'element_id'}}})
+            for module in module_configs if module.elements
+        ])
+        response: SetConfigResponse = await self.protocol.send_message_and_wait_response(request)
+        # TODO: Handle response errors
+
+    async def set_daq_config(self, daq_config: DAQConfiguration):
+        request: SetDAQRequest = SetDAQRequest.parse_obj(
+            daq_config.to_request_payload()
+        )
+        response: SetDAQResponse = await self.protocol.send_message_and_wait_response(request)
+        if not response.was_successful():
+            raise RuntimeError("Setting DAQ Configuration failed")
+        return response.__root__

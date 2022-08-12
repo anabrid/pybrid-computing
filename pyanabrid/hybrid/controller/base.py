@@ -54,3 +54,7 @@ class BaseController(ABC):
     @abstractmethod
     async def get_modules(self) -> AliasedModulesType:
         ...
+
+    @abstractmethod
+    async def set_module_config(self, *args, **kwargs) -> bool:
+        ...
