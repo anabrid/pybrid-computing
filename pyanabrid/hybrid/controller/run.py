@@ -28,6 +28,7 @@ from collections import defaultdict
 from enum import Enum, auto
 from pydantic import BaseModel, Field
 
+from pyanabrid.analog.base.elements import AnalogComputationElement
 from pyanabrid.hybrid.protocol.v1.types import RunState as ProtocolRunState
 
 
@@ -63,7 +64,22 @@ class BaseRun(BaseModel):
     ic_time: int = 50_000
     op_time: int = 100_000
 
-    data: typing.Dict[RunState, typing.List[typing.Any]] = Field(default_factory=lambda: defaultdict(lambda: list()))
+    overload: bool = False
+    external_halt: bool = False
+
+    data: typing.Dict[AnalogComputationElement, typing.Dict[RunState, typing.List]] = Field(default_factory=lambda: defaultdict(lambda: defaultdict(lambda: list())))
 
     def __str__(self):
         return f"Run {self.run_id} @{self.state}"
+
+    def total_data_samples(self):
+        samples = 0
+        for by_element in self.data.values():
+            samples += sum(len(state_) for state_ in by_element.values())
+        return samples
+
+    def total_data_samples_in_state(self, state: RunState):
+        samples = 0
+        for by_element in self.data.values():
+            samples += len(by_element[state])
+        return samples
