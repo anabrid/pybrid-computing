@@ -48,6 +48,8 @@ class RunEvaluateReconfigureLoop:
     CTRL_PERIOD: typing.ClassVar[typing.Optional[int]] = 500
     IC_TIME: typing.ClassVar[typing.Optional[int]] = 5_000
     OP_TIME: typing.ClassVar[typing.Optional[int]] = 25_000
+    HALT_ON_OVERLOAD: typing.ClassVar[bool] = False
+    HALT_ON_EXTERNAL_TRIGGER: typing.ClassVar[bool] = False
 
     def __init__(self, controller: BaseController, output: typing.Optional[typing.IO] = None):
         self.controller = controller
@@ -83,7 +85,9 @@ class RunEvaluateReconfigureLoop:
     # These may be overwritten by the user, but less likely
 
     def create_run(self):
-        return Run(ctrl_period=self.CTRL_PERIOD, ic_time=self.IC_TIME, op_time=self.OP_TIME, daq_config=self.daq_config)
+        return Run(ctrl_period=self.CTRL_PERIOD, ic_time=self.IC_TIME, op_time=self.OP_TIME,
+                   daq_config=self.daq_config,
+                   halt_on_overload=self.HALT_ON_OVERLOAD, halt_on_external_trigger=self.HALT_ON_EXTERNAL_TRIGGER)
 
     # User functions
     # These should be overwritten by the user

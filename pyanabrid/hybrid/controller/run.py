@@ -64,6 +64,8 @@ class BaseRun(BaseModel):
     ic_time: int = 50_000
     op_time: int = 100_000
 
+    halt_on_overload: bool = False
+    halt_on_external_trigger: bool = False
     overload: bool = False
     external_halt: bool = False
 
