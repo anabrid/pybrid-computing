@@ -64,7 +64,7 @@ class RunEvaluateReconfigureLoop:
     async def start(self):
         # First, get the modules from the controller and allow the user to set aliases
         self.modules = await self.controller.get_modules()
-        self.modules = self.set_aliases(self.modules) or self.modules
+        self.init_loop(self.modules)
         # Set initial configuration
         self.set_configuration(self.modules, [])
         await self.controller.set_module_config(self.modules)
@@ -92,8 +92,8 @@ class RunEvaluateReconfigureLoop:
     # User functions
     # These should be overwritten by the user
 
-    def set_aliases(self, modules: AliasedModulesType) -> typing.Optional[AliasedModulesType]:
-        return modules
+    def init_loop(self, modules: AliasedModulesType):
+        return None
 
     def set_configuration(self, modules: AliasedModulesType, previous_runs: typing.List[Run]):
         return dict()
