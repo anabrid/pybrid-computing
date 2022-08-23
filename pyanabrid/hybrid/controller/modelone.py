@@ -54,7 +54,7 @@ class DAQConfiguration(BaseModel):
 
     def to_request_payload(self):
         return [
-            {"element": channel.element.element_id}
+            {"path": channel.element.path}
             for channel in self.channels
         ]
 
@@ -86,15 +86,17 @@ class AwaitableRun(Run):
 
     @classmethod
     def from_run(cls, run: Run):
-        return cls(**run.dict(exclude={'data'}))
+        return cls(**run.copy())
 
 
 class ModelOneController(BaseController):
-    runs: typing.Dict[int, AwaitableRun]
+    runs: typing.Dict[int, Run]
+    run_futures: typing.Dict[int, asyncio.Future]
 
     def __init__(self, protocol, *args, **kwargs):
         super().__init__(protocol, *args, **kwargs)
         self.runs = dict()
+        self.run_futures = dict()
         self.protocol.add_incoming_msg_handler(RunStateChangeMessage, self._run_state_change_msg_handler)
         self.protocol.add_incoming_msg_handler(RunDataMessage, self._run_data_msg_handler)
 
@@ -106,7 +108,7 @@ class ModelOneController(BaseController):
         run.overload = msg.overload
         run.external_halt = msg.external_halt
         if run.state is RunState.DONE:
-            run._done_future.set_result(run)
+            self.run_futures[run.run_id].set_result(run)
 
     def _run_data_msg_handler(self, msg: RunDataMessage):
         run = self.runs[msg.run_id]
@@ -122,12 +124,11 @@ class ModelOneController(BaseController):
 
     async def new_run(self, run=None):
         if run is None:
-            new_run = AwaitableRun()
-        else:
-            new_run = AwaitableRun.from_run(run)
-        self.runs.update({new_run.run_id: new_run})
-        await self.start_run(new_run)
-        return await self.runs[new_run.run_id]._done_future
+            run = Run()
+        self.runs.update({run.run_id: run})
+        self.run_futures.update({run.run_id: asyncio.get_running_loop().create_future()})
+        await self.start_run(run)
+        return await self.run_futures[run.run_id]
 
     async def start_run(self, run) -> bool:
         response = await self.protocol.start_run(**run.dict())
@@ -144,7 +145,7 @@ class ModelOneController(BaseController):
         def _convert_to_module(id_, module_data):
             module_type = ModuleType(module_data["type"])
             module_class = Module.get_module_class(module_type)
-            module = module_class.parse_obj({"module_id": id_})
+            module = module_class.parse_obj({"path": (id_, )})
             return module
 
         module_list = AliasedList(
@@ -152,15 +153,20 @@ class ModelOneController(BaseController):
             for _id, module_data in response.items()
         )
         for idx, module in enumerate(module_list):
-            module_list.add_alias(module.module_id, idx)
+            module_list.add_alias(module.id_, idx)
         return module_list
 
     async def set_module_config(self, module_configs: typing.List[Module]) -> bool:
-        request: SetConfigRequest = SetConfigRequest.parse_obj([
-            module.dict(exclude={'elements': {'__all__': {'element_id'}}})
-            for module in module_configs if module.elements
-        ])
-        response: SetConfigResponse = await self.protocol.send_message_and_wait_response(request)
+        for module in module_configs:
+            if not module.elements:
+                continue
+            request: SetConfigRequest = SetConfigRequest.parse_obj({
+                "module": module.path.root,
+                **module.dict(exclude={'elements': {'__all__': {'element_id'}}})
+            })
+            response: SetConfigResponse = await self.protocol.send_message_and_wait_response(request)
+            if not response.was_successful():
+                raise RuntimeError("Error while configuring module.")
         # TODO: Handle response errors
 
     async def set_daq_config(self, daq_config: DAQConfiguration):
