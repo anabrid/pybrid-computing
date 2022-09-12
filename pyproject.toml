@@ -13,10 +13,10 @@ authors = ["Michael Steck <steck@anabrid.com>"]
 # from cookiecutter
 python = "^3.9"
 # from project
-pyanabrid-analog-base = "^0.1.0"
-pyanabrid-analog-modelone = "^0.1.0"
+pyanabrid-analog-base = "^0.2.0"
+pyanabrid-analog-modelone = "^0.2.0"
 pyanabrid-tools = "^0.1.0"
-pyanabrid-hybrid-protocol = "^0.1.1"
+pyanabrid-hybrid-protocol = "^0.2.0"
 pyanabrid-hybrid-transport = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
