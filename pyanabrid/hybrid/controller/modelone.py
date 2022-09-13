@@ -119,6 +119,8 @@ class ModelOneController(BaseController):
 
         for d in msg.data:
             run.data[run.daq_config.channels[channel_idx].element][run.state].append(d)
+            if run.state == RunState.OP_END:
+                run.data[run.daq_config.channels[channel_idx].element][RunState.OP].append(d)
             channel_idx = (channel_idx + 1) % len(run.daq_config.channels)
 
     async def new_run(self, run=None):
