@@ -49,8 +49,11 @@ class DAQChannel(BaseModel):
 class DAQConfiguration(BaseModel):
     channels: typing.List[DAQChannel] = list()
 
-    def add_element(self, element: AnalogComputationElement):
-        self.channels.append(DAQChannel(element=element))
+    def add_element(self, *elements: AnalogComputationElement):
+        for element in elements:
+            if element in [ch.element for ch in self.channels]:
+                raise RuntimeError("Element {} is already being sampled.".format(element))
+            self.channels.append(DAQChannel(element=element))
 
     def to_request_payload(self):
         return [
