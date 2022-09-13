@@ -112,11 +112,7 @@ class ModelOneController(BaseController):
 
     def _run_data_msg_handler(self, msg: RunDataMessage):
         run = self.runs[msg.run_id]
-        if run.state != self._run_data_msg_last_state:
-            self._run_data_msg_last_state = run.state
-            channel_idx = 0
-        else:
-            channel_idx = run.total_data_samples_in_state(run.state) % len(run.daq_config.channels)
+        channel_idx = msg.idx_0
 
         for d in msg.data:
             run.data[run.daq_config.channels[channel_idx].element][run.state].append(d)
