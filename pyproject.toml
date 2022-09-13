@@ -4,7 +4,7 @@ name = "pyanabrid-hybrid-controller"
 packages = [
   { include = "pyanabrid" }
 ]
-version = "0.2.0"
+version = "0.2.1"
 description = "anabrid hybrid controller abstraction"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
@@ -16,7 +16,7 @@ python = "^3.9"
 pyanabrid-analog-base = "^0.2.0"
 pyanabrid-analog-modelone = "^0.2.0"
 pyanabrid-tools = "^0.1.0"
-pyanabrid-hybrid-protocol = "^0.2.0"
+pyanabrid-hybrid-protocol = "^0.2.1"
 pyanabrid-hybrid-transport = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
