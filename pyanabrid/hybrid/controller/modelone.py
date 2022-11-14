@@ -22,6 +22,7 @@
 # For Germany, additional rules exist. Please consult /LICENSE.DE
 # for further agreements.
 # ANABRID_END_LICENSE
+
 import asyncio
 import itertools
 import typing
