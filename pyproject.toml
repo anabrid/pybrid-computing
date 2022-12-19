@@ -4,7 +4,7 @@ name = "pyanabrid-base-hybrid"
 packages = [
   { include = "pyanabrid" }
 ]
-version = "0.4.0"
+version = "0.4.1"
 description = "anabrid base hybrid controller abstraction"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
@@ -13,6 +13,7 @@ authors = ["Michael Steck <steck@anabrid.com>"]
 # from cookiecutter
 python = "^3.9"
 # from project
+packaging = "^22.0"
 pyanabrid-base-analog = "^0, >=0.3.0"
 pyanabrid-base-transport = "^0, >=0.2.0"
 
