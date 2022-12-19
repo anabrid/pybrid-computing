@@ -1,11 +1,11 @@
 [tool.poetry]
 # from cookiecutter
-name = "pyanabrid-hybrid-controller"
+name = "pyanabrid-base-hybrid"
 packages = [
   { include = "pyanabrid" }
 ]
-version = "0.3.0"
-description = "anabrid hybrid controller abstraction"
+version = "0.4.0"
+description = "anabrid base hybrid controller abstraction"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
 
@@ -13,11 +13,8 @@ authors = ["Michael Steck <steck@anabrid.com>"]
 # from cookiecutter
 python = "^3.9"
 # from project
-pyanabrid-analog-base = "^0.2.0"
-pyanabrid-analog-modelone = "^0, >=0.3"
-pyanabrid-tools = "^0"
-pyanabrid-hybrid-protocol = "^0, >=0.2.2"
-pyanabrid-hybrid-transport = "^0.1.0"
+pyanabrid-base-analog = "^0, >=0.3.0"
+pyanabrid-base-transport = "^0, >=0.2.0"
 
 [tool.poetry.dev-dependencies]
 # from cookiecutter

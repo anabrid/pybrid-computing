@@ -23,38 +23,29 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from abc import ABC, abstractmethod
 import typing
 
-from pyanabrid.analog.base import AliasedModulesType
-from pyanabrid.hybrid.protocol import BaseProtocol
-from pyanabrid.hybrid.protocol.v1 import Protocol as Protocol_v1
-
-from .run import BaseRun
+from .base import BaseProgram
+from ..run import BaseRun
 
 
-class BaseController(ABC):
-    protocol: typing.Union[BaseProtocol, Protocol_v1]
+class SimpleRun(BaseProgram):
+    run: typing.Optional[BaseRun]
 
-    def __init__(self, protocol, *args, **kwargs):
-        self.protocol = protocol
+    async def start(self):
+        self.run = self.create_run(self.computer)
+        self.configure_run(self.run)
+        self.run = await self.controller.start_and_await_run(self.run)
+        self.run_done(self.run)
 
-    @classmethod
-    async def create(cls, protocol, *args, **kwargs):
-        return cls(protocol)
+    # Methods to overwrite
 
-    @abstractmethod
-    async def new_run(self, *args, **kwargs) -> BaseRun:
-        ...
+    def create_run(self, computer):
+        return self.run
 
-    @abstractmethod
-    async def start_run(self, *args, **kwargs):
-        ...
+    def configure_run(self, run):
+        return run
 
-    @abstractmethod
-    async def get_modules(self) -> AliasedModulesType:
-        ...
+    def run_done(self, run):
+        self.print("Successfully completed %s." % run)
 
-    @abstractmethod
-    async def set_module_config(self, *args, **kwargs) -> bool:
-        ...

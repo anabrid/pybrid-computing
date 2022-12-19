@@ -104,16 +104,15 @@ Class Documentation
 import logging
 import typing
 
-from pyanabrid.analog.base import AliasedModulesType
+from pyanabrid.base.hybrid.computer import AnalogComputer
+from pyanabrid.base.hybrid.run import BaseRun, BaseRunConfig
 
-from .base import BaseController
-from .modelone import ModelOneController, Run, DAQConfiguration, DAQChannel
-
+from .base import BaseProgram
 
 logger = logging.getLogger(__name__)
 
 
-class RunEvaluateReconfigureLoop:
+class RunEvaluateReconfigureLoop(BaseProgram):
     """
     Run-Evaluate-Reconfigure-Loop Abstraction
 
@@ -126,35 +125,13 @@ class RunEvaluateReconfigureLoop:
     * :func:`~pyanabrid.hybrid.controller.recl.RunEvaluateReconfigureLoop.loop_done` for final evaluation or cleanup code
     """
 
-    controller: ModelOneController
-    output: typing.Optional[typing.IO]
-    logger: logging.Logger
-    daq_config: DAQConfiguration
+    runs: typing.List[BaseRun]
 
-    runs: typing.List[Run]
-    modules: typing.Optional[AliasedModulesType]
+    RUN_CONFIG: BaseRunConfig = None
 
-    # TODO: These should maybe be None and not change the machine default
-    CTRL_PERIOD: typing.ClassVar[typing.Optional[int]] = 500
-    """ Control period of hybrid controller firmware (you should not have to change this). """
-    IC_TIME: typing.ClassVar[typing.Optional[int]] = 5_000
-    """ Initial conditions time in microseconds """
-    OP_TIME: typing.ClassVar[typing.Optional[int]] = 25_000
-    """ Operation time in microseconds """
-    HALT_ON_OVERLOAD: typing.ClassVar[bool] = False
-    """ Whether the run should be stopped on overload """
-    HALT_ON_EXTERNAL_TRIGGER: typing.ClassVar[bool] = False
-    """ Whether the run should be stopped on external trigger """
-
-    def __init__(self, controller: BaseController, output: typing.Optional[typing.IO] = None):
-        self.controller = controller
-        self.output = output
-        self.logger = logger
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.runs = list()
-        self.modules = None
-
-        self.daq_config = DAQConfiguration()
 
     async def start(self):
         """
@@ -165,49 +142,56 @@ class RunEvaluateReconfigureLoop:
 
         :return: None
         """
-        # First, get the modules from the controller and allow the user to set aliases
-        self.modules = await self.controller.get_modules()
-        self.init_loop(self.modules)
+        # self.computer is initialized by BaseProgram.entrypoint
+
+        # First, allow the user to initialize whatever they want.
+        self.init_loop(self.computer)
+
         # Set initial configuration
-        self.next_configuration(self.modules, [])
-        await self.controller.set_module_config(self.modules)
-        await self.controller.set_daq_config(self.daq_config)
+        self.next_configuration(self.computer, [])
+        await self.controller.set_computer(self.computer)
 
         # Then loop until user decides to stop
         while True:
             new_run = self.create_run()
-            finished_run = await self.controller.new_run(new_run)
+            finished_run = await self.controller.start_and_await_run(new_run)
             self.runs.append(finished_run)
             if not self.run_done(finished_run):
                 break
-            self.next_configuration(self.modules, self.runs)
-            await self.controller.set_module_config(self.modules)
+            self.next_configuration(self.computer, self.runs)
+            await self.controller.set_computer(self.computer)
         self.loop_done(self.runs)
 
     # Convenience functions
     # These may be overwritten by the user, but less likely
 
+    def get_run_kwargs(self):
+        kwargs = {}
+        if self.RUN_CONFIG is not None:
+            kwargs["config"] = self.RUN_CONFIG
+        return kwargs
+
     def create_run(self):
-        return Run(ctrl_period=self.CTRL_PERIOD, ic_time=self.IC_TIME, op_time=self.OP_TIME,
-                   daq_config=self.daq_config,
-                   halt_on_overload=self.HALT_ON_OVERLOAD, halt_on_external_trigger=self.HALT_ON_EXTERNAL_TRIGGER)
+        run_class = self.controller.get_run_implementation()
+        run = run_class(**self.get_run_kwargs())
+        return run
 
     # User functions
     # These should be overwritten by the user
 
-    def init_loop(self, modules: AliasedModulesType):
+    def init_loop(self, computer: AnalogComputer):
         """
         User-supplied function called before the loop is started.
 
-        Use this function to set user variables and constant module configuration values.
+        Use this function to set user variables and constant computer configuration values.
         Acquire any necessary resources (like opening files).
 
-        :param modules: List of modules present in the analog computer
+        :param computer: A representation of the specific analog computer
         :return: None
         """
         return None
 
-    def next_configuration(self, modules: AliasedModulesType, previous_runs: typing.List[Run]):
+    def next_configuration(self, computer: AnalogComputer, previous_runs: typing.List[BaseRun]):
         """
         User-supplied function called before each run.
 
@@ -216,13 +200,13 @@ class RunEvaluateReconfigureLoop:
 
         This function is also called for the first run, with previous_runs being an empty list.
 
-        :param modules: List of modules and their last configuration present in the analog computer
+        :param computer: A representation of the specific analog computer
         :param previous_runs: List of previous runs
         :return: None
         """
-        return dict()
+        return computer
 
-    def run_done(self, run: Run) -> bool:
+    def run_done(self, run: BaseRun) -> bool:
         """
         User-supplied function called after a run is completed.
 
@@ -234,7 +218,7 @@ class RunEvaluateReconfigureLoop:
         """
         return False
 
-    def loop_done(self, runs: typing.List[Run]):
+    def loop_done(self, runs: typing.List[BaseRun]):
         """
         User-supplied function called after the loop exits.
 
