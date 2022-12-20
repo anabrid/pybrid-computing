@@ -145,41 +145,49 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         # self.computer is initialized by BaseProgram.entrypoint
 
         # First, allow the user to initialize whatever they want.
-        self.init_loop(self.computer)
-
-        # Set initial configuration
-        self.next_configuration(self.computer, [])
-        await self.controller.set_computer(self.computer)
+        self.set_user_variables(self.computer)
 
         # Then loop until user decides to stop
         while True:
             new_run = self.create_run()
+            # Set configuration
+            if not self.runs:
+                self.initial_configuration(new_run, self.computer)
+            else:
+                self.next_configuration(new_run, self.computer, self.runs)
+            await self.controller.set_computer(self.computer)
+
+            # Run
             finished_run = await self.controller.start_and_await_run(new_run)
             self.runs.append(finished_run)
             if not self.run_done(finished_run):
                 break
-            self.next_configuration(self.computer, self.runs)
-            await self.controller.set_computer(self.computer)
         self.loop_done(self.runs)
 
     # Convenience functions
     # These may be overwritten by the user, but less likely
 
-    def get_run_kwargs(self):
+    def get_run_kwargs(self) -> dict:
         kwargs = {}
+
+        # Use RUN_CONFIG class variable if available
         if self.RUN_CONFIG is not None:
             kwargs["config"] = self.RUN_CONFIG
+
         return kwargs
 
     def create_run(self):
         run_class = self.controller.get_run_implementation()
-        run = run_class(**self.get_run_kwargs())
+        # Possibly persist some configuration from previous runs or class attributes
+        previous_run = self.runs[-1] if self.runs else None
+        overwrites = self.get_run_kwargs()
+        run = run_class.make_from_other_run(previous_run, **overwrites)
         return run
 
     # User functions
     # These should be overwritten by the user
 
-    def init_loop(self, computer: AnalogComputer):
+    def set_user_variables(self, computer: AnalogComputer):
         """
         User-supplied function called before the loop is started.
 
@@ -191,20 +199,32 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         """
         return None
 
-    def next_configuration(self, computer: AnalogComputer, previous_runs: typing.List[BaseRun]):
+    def initial_configuration(self, run: BaseRun, computer: AnalogComputer):
         """
-        User-supplied function called before each run.
+        User-supplied function called before the first run.
+
+        Use this function to set the configurations for the first run.
+        Run configuration parameters (e.g. OP time or DAQ config) will be kept to future runs.
+
+        :param run: First run that is about to be started
+        :param computer: A representation of the specific analog computer
+        :return: None
+        """
+        raise NotImplementedError("You need to implement the 'initial_configuration' function.")
+
+    def next_configuration(self, run: BaseRun, computer: AnalogComputer, previous_runs: typing.List[BaseRun]):
+        """
+        User-supplied function called before each run except the first.
 
         Use this function to set the configurations for the upcoming run.
         You can either modify the passed modules or access modules you 'remembered' in init_loop.
 
-        This function is also called for the first run, with previous_runs being an empty list.
-
+        :param run: Run that is about to be started
         :param computer: A representation of the specific analog computer
         :param previous_runs: List of previous runs
         :return: None
         """
-        return computer
+        raise NotImplementedError("You need to implement the 'next_configuration' function.")
 
     def run_done(self, run: BaseRun) -> bool:
         """
