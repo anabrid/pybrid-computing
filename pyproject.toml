@@ -4,7 +4,7 @@ name = "pyanabrid-base-hybrid"
 packages = [
   { include = "pyanabrid" }
 ]
-version = "0.4.1"
+version = "0.5.0"
 description = "anabrid base hybrid controller abstraction"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
@@ -22,6 +22,12 @@ pyanabrid-base-transport = "^0, >=0.2.0"
 pytest = "^7"
 # from project
 pytest-asyncio = "^0.18.3"
+
+[[tool.poetry.source]]
+name = "anabrid"
+url = "https://pypi.tinybridge.anabrid.dev/"
+default = false
+secondary = false
 
 [build-system]
 # from cookiecutter
