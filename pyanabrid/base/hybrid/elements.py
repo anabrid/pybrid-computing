@@ -57,7 +57,7 @@ class ComputationElementMeta(type):
     Allows using ComputationElement[Integration] to generate an integration element.
     """
 
-    def __getitem__(self, computation: BaseComputation) -> typing.Type[BaseComputationElement]:
+    def __getitem__(self, computation: typing.Type[BaseComputation]) -> typing.Type[BaseComputationElement]:
         # TODO: Clean this up :)
         return dataclass(
             type(

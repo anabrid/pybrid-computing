@@ -29,6 +29,7 @@ from abc import ABC, abstractmethod
 from pyanabrid.base.hybrid.computer import AnalogComputer
 
 from .protocol import BaseProtocol
+from .run import BaseRun
 
 
 class BaseController(ABC):
@@ -61,7 +62,7 @@ class BaseController(ABC):
 
     @classmethod
     @abstractmethod
-    def get_run_implementation(cls):
+    def get_run_implementation(cls) -> typing.Type[BaseRun]:
         ...
 
     async def create_run(self):
