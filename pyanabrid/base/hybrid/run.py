@@ -60,3 +60,21 @@ class BaseRun:
 
     def __str__(self):
         return f"Run {self.id_} @{self.state}"
+
+    @classmethod
+    def get_persistent_attributes(cls) -> set[str]:
+        """
+        Get a list of attributes that should usually be persistent between consecutive runs.
+        For example, it's reasonable to persist the 'config' attribute in a series of runs.
+        :return: List of attribute names to persist
+        """
+        return {"config"}
+
+    @classmethod
+    def make_from_other_run(cls, other: typing.Optional["BaseRun"], **overwrites) -> "BaseRun":
+        if other is not None:
+            kwargs = {attr_: getattr(other, attr_) for attr_ in cls.get_persistent_attributes()}
+            kwargs.update(overwrites)
+        else:
+            kwargs = overwrites
+        return cls(**kwargs)
