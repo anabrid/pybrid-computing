@@ -53,7 +53,10 @@ class BaseProgram(ABC):
         print(*args, **kwargs)
 
     async def entrypoint(self):
-        self.computer = await self.controller.get_computer()
+        # If BaseProgram is started via command line, computer is already synchronized
+        if self.controller.computer is None:
+            await self.controller.get_computer()
+        self.computer = self.controller.computer
         return await self.start()
 
     @abstractmethod
