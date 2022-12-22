@@ -119,10 +119,16 @@ class RunEvaluateReconfigureLoop(BaseProgram):
     This class implements the typical process flow of a run-evaluate-reconfigure-loop.
     Users should inherit this class and overwrite the following function to inject their specific code.
 
-    * :func:`~pyanabrid.hybrid.controller.recl.RunEvaluateReconfigureLoop.init_loop` for one-time initialization code
-    * :func:`~pyanabrid.hybrid.controller.recl.RunEvaluateReconfigureLoop.next_configuration` for configuring the next run
-    * :func:`~pyanabrid.hybrid.controller.recl.RunEvaluateReconfigureLoop.run_done` for evaluating a completed run
-    * :func:`~pyanabrid.hybrid.controller.recl.RunEvaluateReconfigureLoop.loop_done` for final evaluation or cleanup code
+    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.set_user_variables`
+      for one-time initialization code
+    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.initial_configuration`
+      for configuring the first run
+    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.next_configuration`
+      for configuring the next run (except the first)
+    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.run_done`
+      for evaluating a completed run
+    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.loop_done`
+      for final evaluation or cleanup code
     """
 
     runs: typing.List[BaseRun]
