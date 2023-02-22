@@ -1,0 +1,36 @@
+[tool.poetry]
+# from cookiecutter
+name = "pyanabrid-redac"
+packages = [
+  { include = "pyanabrid" }
+]
+version = "0.1.0"
+description = "pyanabrid REDAC analog computer abstraction"
+authors = ["Michael Steck <steck@anabrid.com>"]
+# from project
+
+[tool.poetry.dependencies]
+# from cookiecutter
+python = "^3.9"
+# from project
+
+[tool.poetry.dev-dependencies]
+# from cookiecutter
+pytest = "^7"
+# from project
+
+[build-system]
+# from cookiecutter
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+# from project
+
+[tool.black]
+# from cookiecutter
+line-length = 88
+# from project
+
+[tool.isort]
+# from cookiecutter
+profile = "black"
+# from project

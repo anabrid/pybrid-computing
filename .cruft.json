@@ -1,0 +1,25 @@
+{
+  "template": "ssh://git@lab.analogparadigm.com/tools/cookiecutter-templates",
+  "commit": "d2f86c2e41feadc506f5983cfcf12bb131f29700",
+  "checkout": "python-poetry-namespaced",
+  "context": {
+    "cookiecutter": {
+      "project_slug": "pyanabrid-redac",
+      "output_dir": "redac",
+      "license": null,
+      "full_name": "Michael Steck",
+      "email": "steck@anabrid.com",
+      "namespace": "pyanabrid.redac",
+      "module_name": "redac",
+      "version": "0.1.0",
+      "description": "pyanabrid REDAC analog computer abstraction",
+      "required_python_version": "^3.9",
+      "gitignore_templates": "python pycharm",
+      "precommit": true,
+      "precommit_default": true,
+      "_json_trailing_comma": "null",
+      "_template": "ssh://git@lab.analogparadigm.com/tools/cookiecutter-templates"
+    }
+  },
+  "directory": null
+}
