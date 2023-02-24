@@ -37,24 +37,38 @@ from .types import SuccessInfo
 logger = logging.getLogger(__name__)
 
 
+# ██████   █████  ███████ ███████      ██████ ██       █████  ███████ ███████ ███████ ███████
+# ██   ██ ██   ██ ██      ██          ██      ██      ██   ██ ██      ██      ██      ██
+# ██████  ███████ ███████ █████       ██      ██      ███████ ███████ ███████ █████   ███████
+# ██   ██ ██   ██      ██ ██          ██      ██      ██   ██      ██      ██ ██           ██
+# ██████  ██   ██ ███████ ███████      ██████ ███████ ██   ██ ███████ ███████ ███████ ███████
+
+
 class Message(BaseModel):
-    """Base class for messages"""
+    """
+    Base class for all messages.
+
+    Serialization and deserialization is handled with the help of the :code:`pydantic` package.
+    """
 
     @classmethod
-    def parse_obj(cls, *args, **kwargs):
-        """Parses object from `dict` or `json`-like"""
+    def parse_obj(cls, **data: dict) -> 'Message':
+        """Parses data from `dict` or `json`-like and returns a message instance."""
         ...
 
     @classmethod
-    def register_callback(cls, callback):
+    def register_callback(cls, callback: typing.Callable) -> typing.Callable:
         """Register a callback for some :py:class:`Message` subclass, which is triggered when the respective message
         is received.
 
-        :Usage: Intended to be used as decorator
+        :parameter callback: Function to register as callback
+        :returns: The original function
+        :Usage: Intended to be used as decorator:
 
             .. code-block::
 
-                @RunStateChangeMessage.register_callback  # or any other Message subclass
+                # Register callback triggered on e.g. an incoming RunStateChangeMessage
+                @RunStateChangeMessage.register_callback
                 def callback(self, msg: RunStateChangeMessage):
                     # do something with the message
 
@@ -63,7 +77,8 @@ class Message(BaseModel):
 
 
 class Request(Message):
-    """Base class for requests sent to the controller
+    """
+    Base class for requests sent to the controller.
 
     .. uml::
 
@@ -73,12 +88,13 @@ class Request(Message):
     """
     @classmethod
     def get_expected_response_type(cls) -> typing.Type["Response"]:
-        """Type of the :py:class:`Response` subclass expected for this request"""
-        return _EXPECTED_RESPONSE_CLASS_MAP[cls]
+        """The :py:class:`Response` subclass expected for the answer to this request."""
+        ...
 
 
 class Response(Message):
-    """Base class for responses received from the controller
+    """
+    Base class for responses to a previous request.
 
     .. uml::
 
@@ -99,6 +115,13 @@ class Response(Message):
         """Error message of the first error that occurred when the request was handled.
         `None` if there was no error."""
         return None
+
+
+# ██    ██ ████████ ██ ██      ██ ████████ ██    ██
+# ██    ██    ██    ██ ██      ██    ██     ██  ██
+# ██    ██    ██    ██ ██      ██    ██      ████
+# ██    ██    ██    ██ ██      ██    ██       ██
+#  ██████     ██    ██ ███████ ██    ██       ██
 
 
 class PingRequest(Request):

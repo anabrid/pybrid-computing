@@ -27,4 +27,21 @@ from pyanabrid.base.hybrid import Path as BasePath
 
 
 class Path(BasePath):
-    SCHEMA = (str, int)
+    """
+    A tuple uniquely identifying an element in the REDAC.
+
+    The path to an element is a hierarchical combination of paths to its parent elements.
+    Its structure in the REDAC is :code:`(<carrier board>, <block>, <function>)`.
+    Carrier boards are defined by their MAC address,
+    while blocks on them and the blocks' functions are defined by indizes.
+
+    :Usage: Combine the identifier to the required depth
+
+        .. code-block::
+
+            path_to_a_carrier_board = Path("00:00:5e:00:53:af")
+            path_to_a_block = Path("00:00:5e:00:53:af", 7)
+            path_to_a_function = Path("00:00:5e:00:53:af", 7, 42)
+    """
+    #: The schema defining the data types for the path's subcomponents.
+    SCHEMA = (str, int, int)

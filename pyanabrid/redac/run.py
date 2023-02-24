@@ -33,29 +33,50 @@ from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunS
 
 @dataclass(kw_only=True)
 class RunConfig(BaseRunConfig):
+    """Configures parameters related to the execution of one :class:`Run`."""
+    #: Duration of IC (initial condition) mode.
     ic_time: int = 50_000
+    #: Duration of OP (operating) mode.
     op_time: int = 100_000
 
+    #: Whether to halt the computation when the external halt signal is triggered.
     halt_on_external_trigger: bool = False
-    halt_on_overload: bool = False
+    #: Whether to halt the computation when it enters an overload.
+    halt_on_overload: bool = True
 
 
 @dataclass(kw_only=True)
 class RunFlags(BaseRunFlags):
+    """
+    Flags that can be triggered by a :class:`Run`.
+    Once triggered, they are persistently `True`, even when the original condition is lost.
+    """
+    #: Whether the run was halted because of an external halt trigger.
     externally_halted: bool = False
+    #: Whether the run entered an overload during computation.
     overloaded: bool = False
 
 
 class RunState(BaseRunState, Enum):
+    """The state of a :class:`Run`."""
+    #: Run has just been created.
     NEW = "NEW"
+    #: Run has encountered an error and has been aborted.
     ERROR = "ERROR"
+    #: Run has successfully finished.
     DONE = "DONE"
+    #: Run is queued for execution.
     QUEUED = "QUEUED"
+    #: Run has been selected for execution and is being prepared to start.
     TAKE_OFF = "TAKE_OFF"
+    #: Run is in IC (initial condition) mode.
     IC = "IC"
+    #: Run is in OP (operating) mode.
     OP = "OP"
-    TMP_HALT = "TMP_HALT"
+    #: Run is principally done, pending final data acquisition or other finalizing tasks.
     OP_END = "OP_END"
+    #: Run is temporarily halted and can be resumed.
+    TMP_HALT = "TMP_HALT"
 
     @classmethod
     def default(cls):
@@ -63,6 +84,7 @@ class RunState(BaseRunState, Enum):
 
     @classmethod
     def get_possibly_sampled_states(cls):
+        """Return a list of states in which data acquisition is possible."""
         return cls.IC, cls.OP, cls.OP_END
 
     def is_done(self):
@@ -76,11 +98,21 @@ class DAQConfiguration:
 
 @dataclass(kw_only=True)
 class Run(BaseRun):
+    """A run is one computation executed by the REDAC."""
+    #: A unique identifier for the run.
     id_: UUID
+    #: Possibly the ID of a related run, e.g. one that triggered this one.
+    related_to: typing.Optional[UUID]
+    #: Defines the duration the run should be executed and similar parameters.
+    #: Does not contain element configuration.
     config: RunConfig
 
+    #: The current state of the run.
     state: RunState
+    #: Flags, e.g. overload, the run has triggered. These are persistent once triggered.
     flags: RunFlags
 
+    #: The configuration of the data acquisition for this run.
     daq: DAQConfiguration
+    #: Data captured for this run.
     data: typing.Any
