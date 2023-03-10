@@ -27,7 +27,7 @@ import logging
 import typing
 from datetime import datetime
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, UUID4
 
 from ..entities import Path
 from ..modules import Module, ModuleType
@@ -193,6 +193,117 @@ class GetModulesResponse(Response):
         """
     response_for = GetModulesRequest
     __root__: typing.Dict[str, ModuleType]
+
+
+# ███████ ███████ ███████ ███████ ██  ██████  ███    ██
+# ██      ██      ██      ██      ██ ██    ██ ████   ██
+# ███████ █████   ███████ ███████ ██ ██    ██ ██ ██  ██
+#      ██ ██           ██      ██ ██ ██    ██ ██  ██ ██
+# ███████ ███████ ███████ ███████ ██  ██████  ██   ████
+
+
+class StartSessionRequest(Request):
+    """
+    Request to start a session for which the requested elements are reserved.
+    No other client can request those elements until the session is ended.
+
+    Starting and managing sessions is only necessary if your controller is configured to require it.
+
+    .. uml::
+
+        participant "Client A" as C1
+        participant "Client B" as C2
+        participant "Controller" as CTRL
+
+        C1 -> CTRL: StartSessionRequest(entities=[<X>, <Y>])
+        CTRL -> C1: StartSessionResponse(id_=<secret>, success=True)
+        ...during active session of Client A...
+        C2 -> CTRL: StartSessionRequest(entities=[<X>, <Z>])
+        CTRL -> C2: StartSessionResponse(success=False, error="X reserved.")
+        ...
+        C1 -> CTRL: EndSessionRequest(id_=<secret>)
+        CTRL -> C1: EndSessionResponse(success=True)
+
+    """
+    #: A list of analog entities to reserve for this session.
+    entities: list[Path]
+
+
+class StartSessionResponse(Response):
+    """
+    Response to a prior :class:`StartSessionRequest`.
+
+    If the reservation was successful, a secret ID is returned.
+    This ID is used in subsequent configuration and run requests to authorize their usage of reserved entities.
+
+    If not all requested entities could be reserved for the new session, the session is not started.
+    """
+    response_for = StartSessionRequest
+    #: Secret session ID or None if the session could not be started.
+    id_: typing.Optional[UUID4]
+    #: Whether the session could be started and optional error info.
+    success: SuccessInfo
+
+
+class EndSessionRequest(Request):
+    """
+    Request to end a session.
+
+    If there are any ongoing runs in the session, they are canceled first and any messages related to them are sent
+    first by the controller, before the corresponding :class:`EndSessionResponse` is sent.
+
+    Inactive sessions may be ended automatically depending on controller configuration.
+
+    .. uml::
+
+        participant "Client" as C
+        participant "Controller" as CTRL
+
+        C -> CTRL: EndSessionRequest(id_=<secret>)
+        activate CTRL
+        alt if ongoing requests
+            note over CTRL: cancels any ongoing runs in this session
+            CTRL -> C: RunStateChangeMessage(new=ERROR, ...)
+        end
+        CTRL -> C: EndSessionResponse(success=True)
+        deactivate CTRL
+
+    """
+    #: The secret session ID to end.
+    id_: UUID4
+
+
+class EndSessionResponse(Response):
+    """
+    Response to a prior :class:`EndSessionRequest`.
+    """
+    #: Whether the session could be ended and optional error info. Usually True.
+    success: SuccessInfo
+
+
+class EntityReservationRequest(Request):
+    """
+    Request to reserve additional entities for an existing session.
+    """
+    #: Secret session ID
+    id_: UUID4
+    #: A list of analog entities to reserve for this session.
+    entities: list[Path]
+
+
+class EntityReservationResponse(Response):
+    """
+    Response to a prior :class:`EntityReservationRequest`.
+    """
+    #: Whether the requested entities were reserved and error information if they were not.
+    success: SuccessInfo
+
+
+#  ██████  ██████  ███    ██ ███████ ██  ██████  ██    ██ ██████   █████  ████████ ██  ██████  ███    ██
+# ██      ██    ██ ████   ██ ██      ██ ██       ██    ██ ██   ██ ██   ██    ██    ██ ██    ██ ████   ██
+# ██      ██    ██ ██ ██  ██ █████   ██ ██   ███ ██    ██ ██████  ███████    ██    ██ ██    ██ ██ ██  ██
+# ██      ██    ██ ██  ██ ██ ██      ██ ██    ██ ██    ██ ██   ██ ██   ██    ██    ██ ██    ██ ██  ██ ██
+#  ██████  ██████  ██   ████ ██      ██  ██████   ██████  ██   ██ ██   ██    ██    ██  ██████  ██   ████
 
 
 class SetConfigDict(BaseModel):
