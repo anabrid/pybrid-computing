@@ -23,7 +23,17 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
+from dataclasses import dataclass
+
 from pyanabrid.base.hybrid import Path as BasePath
+
+
+@dataclass(kw_only=True)
+class EntityType:
+    class_: int
+    type_: int
+    variant: int
+    version: int
 
 
 class Path(BasePath):
