@@ -306,30 +306,38 @@ class EntityReservationResponse(Response):
 #  ██████  ██████  ██   ████ ██      ██  ██████   ██████  ██   ██ ██   ██    ██    ██  ██████  ██   ████
 
 
-class SetConfigDict(BaseModel):
-    """:meta private:"""
-    module: str
-    elements: typing.List[typing.Dict]
-
-
 class SetConfigRequest(Request):
     """
-    A request to the controller to set an element configuration for a some module.
-    The controller responds with a :py:class:`SetConfigResponse`.
+    A request to the controller to set a configuration for an entity.
+    The controller forwards the request to the carrier board on which the entity is located
+    and forwards its :class:`SetConfigResponse` response back.
 
     .. uml::
 
-           Client -> Controller: **SetConfigRequest**()
-           activate Controller
-           note over Controller: sets module config
-           Controller -> Client: SetConfigResponse()
-           deactivate Controller
+        participant "Client" as C
+        participant "Controller" as CTRL
+        participant "Carrier Board\\n(00:00:5e:00:53:af, )" as CB
+        participant "Entity\\n(00:00:5e:00:53:af, 7, 42)" as E
+
+        C -> CTRL: SetConfigRequest(\\n  entity=(00:00:5e:00:53:af, 7, 42), ...\\n)
+        activate CTRL
+        CTRL -> CB: SetConfigRequest(entity=(7, 42), ...)
+        activate CB
+        CB <-> E: <entity specific data via SPI>
+        CTRL <- CB: SetConfigResponse(...)
+        deactivate CB
+        C <- CTRL: SetConfigResponse(...)
+        deactivate CTRL
     """
-    __root__: SetConfigDict
+    #: The entity to configure.
+    entity: Path
+    #: The configuration to apply.
+    #: The data schema of the configuration depends on the type of entity.
+    config: dict
 
     @classmethod
-    def make(cls, module: Module):
-        """Factory method to create a config request for some module"""
+    def make(cls, entity):
+        """Factory method to create a config request for some entity."""
         ...
 
 
@@ -338,19 +346,14 @@ class SetConfigResponse(Response):
 
     .. uml::
 
-           Client -> Controller: SetConfigRequest()
+           Client -> Controller: SetConfigRequest(...)
            activate Controller
            note over Controller: sets module config
-           Controller -> Client: **SetConfigResponse**()
+           Controller -> Client: **SetConfigResponse**(...)
            deactivate Controller
     """
     response_for = SetConfigRequest
-    __root__: SuccessInfo
-
-
-class GetConfigDict(BaseModel):
-    """:meta private:"""
-    elements: typing.List[typing.Dict]
+    success: SuccessInfo
 
 
 class GetConfigRequest(Request):
@@ -360,10 +363,10 @@ class GetConfigRequest(Request):
 
         .. uml::
 
-           Client -> Controller: **GetConfigRequest**()
+           Client -> Controller: **GetConfigRequest**(...)
            activate Controller
            note over Controller: gets module config
-           Controller -> Client: GetConfigResponse()
+           Controller -> Client: GetConfigResponse(...)
            deactivate Controller
     """
     module: Path
@@ -371,22 +374,20 @@ class GetConfigRequest(Request):
 
 
 class GetConfigResponse(Response):
-    """A response to :py:class:`GetConfigRequest` conveying the element configuration of some module
+    """A response to :py:class:`GetConfigRequest` conveying the configuration of some entity.
 
     .. uml::
 
-           Client -> Controller: GetConfigRequest()
+           Client -> Controller: GetConfigRequest(..)
            activate Controller
            note over Controller: gets module config
-           Controller -> Client: **GetConfigResponse**()
+           Controller -> Client: **GetConfigResponse**(...)
            deactivate Controller
     """
     response_for = GetConfigRequest
-    __root__: GetConfigDict
-
-    def to_module_config(self, module: Module):
-        """Parses this message to a :py:class:`ModuleSchema`, that can be used to configurate a :py:class:`Module`"""
-        ...
+    #: The configuration of the entity.
+    #: The data schema of the configuration depends on the type of entity.
+    config: dict
 
 
 class SetDAQRequest(Request):
@@ -395,8 +396,8 @@ class SetDAQRequest(Request):
 
     .. uml::
 
-           Client -> Controller: **SetDAQRequest**()
-           Controller -> Client: SetDAQResponse()
+           Client -> Controller: **SetDAQRequest**(...)
+           Controller -> Client: SetDAQResponse(...)
     """
     #: Paths of elements that should be sampled
     paths: list[Path]
@@ -413,8 +414,8 @@ class SetDAQResponse(Response):
 
     .. uml::
 
-           Client -> Controller: SetDAQRequest()
-           Controller -> Client: **SetDAQResponse**()
+           Client -> Controller: SetDAQRequest(...)
+           Controller -> Client: **SetDAQResponse**(...)
     """
     response_for = SetDAQRequest
     __root__: typing.Union[
