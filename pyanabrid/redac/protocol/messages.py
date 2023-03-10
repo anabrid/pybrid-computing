@@ -82,8 +82,8 @@ class Request(Message):
 
     .. uml::
 
-       Client -> Controller: **Request()**
-       Controller -> Client: Response()
+       Client -> Controller: **Request(...)**
+       Controller -> Client: Response(...)
 
     """
     @classmethod
@@ -98,8 +98,8 @@ class Response(Message):
 
     .. uml::
 
-       Client -> Controller: Request()
-       Controller -> Client: **Response()**
+       Client -> Controller: Request(...)
+       Controller -> Client: **Response(...)**
 
     """
     #: The :py:class:`Request` subclass to which this is the response
@@ -131,8 +131,8 @@ class PingRequest(Request):
 
     .. uml::
 
-       Client -> Controller: **PingRequest()**
-       Controller -> Client: PongResponse()
+       Client -> Controller: **PingRequest(...)**
+       Controller -> Client: PongResponse(...)
 
     """
     #: A timestamp used to synchronize client and controller clocks.
@@ -145,8 +145,8 @@ class PongResponse(Response):
 
     .. uml::
 
-       Client -> Controller: PingRequest()
-       Controller -> Client: **PongResponse()**
+       Client -> Controller: PingRequest(...)
+       Controller -> Client: **PongResponse(...)**
 
     """
     response_for = PingRequest
@@ -375,8 +375,8 @@ class GetConfigRequest(Request):
            Controller -> Client: GetConfigResponse(...)
            deactivate Controller
     """
-    module: Path
-    """path id of the module that will be examined"""
+    #: Path to the entity of which the configuration should be returned.
+    entity: Path
 
 
 class GetConfigResponse(Response):
@@ -391,6 +391,8 @@ class GetConfigResponse(Response):
            deactivate Controller
     """
     response_for = GetConfigRequest
+    #: Path to the entity of which the configuration is returned.
+    entity: Path
     #: The configuration of the entity.
     #: The data schema of the configuration depends on the type of entity.
     config: dict
@@ -405,7 +407,7 @@ class SetDAQRequest(Request):
            Client -> Controller: **SetDAQRequest**(...)
            Controller -> Client: SetDAQResponse(...)
     """
-    #: Paths of elements that should be sampled
+    #: Paths of elements that should be sampled (can only contain paths to analog computation elements)
     paths: list[Path]
     #: Whether to sample during IC
     sample_ic: bool = False
@@ -452,14 +454,14 @@ class StartRunRequest(Request):
     """
     #: An ID that should be applied to the run.
     id_: int
-    #: A :py:class:`pyanabrid.modelone.run.RunConfig` that should be applied to the run.
+    #: A :py:class:`pyanabrid.redac.run.RunConfig` that should be applied to the run.
     config: RunConfig
 
     @classmethod
     def from_run(cls, run):
         """
-        Generate a :py:class:`pyanabrid.modelone.protocol.messages.StartRunRequest`
-        from a :py:class:`pyanabrid.modelone.run.Run` instance.
+        Generate a :py:class:`pyanabrid.redac.protocol.messages.StartRunRequest`
+        from a :py:class:`pyanabrid.redac.run.Run` instance.
 
         :param run: A run
         :return: A StartRunRequest instance
