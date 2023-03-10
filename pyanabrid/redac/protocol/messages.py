@@ -162,37 +162,43 @@ class PongResponse(Response):
 # ██ ██   ████ ██    ██    ██ ██   ██ ███████ ██ ███████ ██   ██    ██    ██  ██████  ██   ████
 
 
-class GetModulesRequest(Request):
-    """A request for the list of modules (:py:class:`pyanabrid.modelone.modules.ModuleType`) governed by the
-    controller. The controller responds with a :py:class:`GetModulesResponse`.
+class GetEntitiesRequest(Request):
+    """
+    A request for the list of entity types (:py:class:`pyanabrid.redac.entities.EntityType`)
+    by their path (:class:`pyanabrid.redac.entities.Path`).
+    The controller responds with a :py:class:`GetEntitiesResponse` containing a tree-like representation of all entities.
+
+    The :class:`GetEntitiesResponse` tells you the current assembly structure of the analog computer.
+    Use a series of :class:`GetEntityConfiguration` messages if you also need to know the current configuration.
 
     .. uml::
 
-       Client -> Controller: **GetModulesRequest()**
+       Client -> Controller: **GetEntitiesRequest()**
        activate Controller
        note over Controller: scans modules
-       Controller -> Client: GetModulesResponse()
+       Controller -> Client: GetEntitiesResponse()
        deactivate Controller
 
     """
     pass
 
 
-class GetModulesResponse(Response):
-    """A response containing the list of modules (:py:class:`pyanabrid.modelone.modules.ModuleType`) governed by the
-        controller.
+class GetEntitiesResponse(Response):
+    """
+    A response containing the list of modules (:py:class:`pyanabrid.redac.modules.ModuleType`) governed by the controller.
 
-        .. uml::
+    .. uml::
 
-           Client -> Controller: GetModulesRequest()
-           activate Controller
-           note over Controller: scans modules
-           Controller -> Client: **GetModulesResponse()**
-           deactivate Controller
+       Client -> Controller: GetEntitiesRequest()
+       activate Controller
+       note over Controller: scans modules
+       Controller -> Client: **GetEntitiesResponse()**
+       deactivate Controller
 
-        """
-    response_for = GetModulesRequest
-    __root__: typing.Dict[str, ModuleType]
+    """
+    response_for = GetEntitiesRequest
+    #: A tree-like dictionary structure containing entity type information by path.
+    entities: dict[Path, dict]
 
 
 # ███████ ███████ ███████ ███████ ██  ██████  ███    ██
