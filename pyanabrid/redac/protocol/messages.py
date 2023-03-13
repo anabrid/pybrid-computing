@@ -27,11 +27,10 @@ import logging
 import typing
 from datetime import datetime
 
-from pydantic import BaseModel, Field, UUID4
+from pydantic import UUID4, BaseModel, Field
 
 from ..entities import Path
-from ..modules import Module, ModuleType
-from ..run import RunConfig, RunState
+from ..run import RunConfig, RunFlags, RunState
 from .types import SuccessInfo
 
 logger = logging.getLogger(__name__)
@@ -185,13 +184,14 @@ class GetEntitiesRequest(Request):
 
 class GetEntitiesResponse(Response):
     """
-    A response containing the list of modules (:py:class:`pyanabrid.redac.modules.ModuleType`) governed by the controller.
+    A response containing the list of entities (:py:class:`pyanabrid.redac.entities.EntityType`)
+    currently in the analog computer.
 
     .. uml::
 
        Client -> Controller: GetEntitiesRequest()
        activate Controller
-       note over Controller: scans modules
+       note over Controller: scans system
        Controller -> Client: **GetEntitiesResponse()**
        deactivate Controller
 
@@ -354,7 +354,7 @@ class SetConfigResponse(Response):
 
            Client -> Controller: SetConfigRequest(...)
            activate Controller
-           note over Controller: sets module config
+           note over Controller: sets entity config
            Controller -> Client: **SetConfigResponse**(...)
            deactivate Controller
     """
@@ -364,14 +364,17 @@ class SetConfigResponse(Response):
 
 class GetConfigRequest(Request):
     """
-        A request to the controller to retrieve an element configuration for a some module.
+        A request to the controller to retrieve the configuration of an entity.
         The controller responds with a :py:class:`GetConfigResponse`.
+        This configuration includes only the effective analog configuration
+        (e.g. the scalar factor of a digital potentiometer).
+        For any metadata (e.g. calibration) use :class:`GetMetadataRequest`.
 
         .. uml::
 
            Client -> Controller: **GetConfigRequest**(...)
            activate Controller
-           note over Controller: gets module config
+           note over Controller: gets entity config
            Controller -> Client: GetConfigResponse(...)
            deactivate Controller
     """
@@ -386,7 +389,7 @@ class GetConfigResponse(Response):
 
            Client -> Controller: GetConfigRequest(..)
            activate Controller
-           note over Controller: gets module config
+           note over Controller: gets entity config
            Controller -> Client: **GetConfigResponse**(...)
            deactivate Controller
     """
