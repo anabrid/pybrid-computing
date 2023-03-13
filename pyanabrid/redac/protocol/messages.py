@@ -619,3 +619,27 @@ class RunDataMessage(Message):
     t_0: int
     #: Acquired data by entity path, normalized to [-1,+1]
     data: dict[Path, list[float]]
+
+
+class GetOverloadRequest(Request):
+    """
+    Request to get the overload status for all or some entities.
+
+    .. warning::
+        This message is intended to be used internally between the hybrid controller and the carrier boards.
+        As user, refer to the :attr:`RunStateChangeMessage.run_flags` field.
+    """
+    #: Optional path prefix to select only a subset of entities
+    entities: typing.Optional[Path]
+
+
+class GetOverloadResponse(Response):
+    """
+    A response to a prior :class:`GetOverloadRequest`, containing all overloaded entities matching the requested prefix.
+
+    .. warning::
+        This message is intended to be used internally between the hybrid controller and the carrier boards.
+        As user, refer to the :attr:`RunStateChangeMessage.run_flags` field.
+    """
+    #: List of overloaded entities.
+    entities: list[Path]
