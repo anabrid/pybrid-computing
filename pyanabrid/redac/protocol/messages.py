@@ -449,6 +449,8 @@ class SetDAQRequest(Request):
     """
     #: Paths of elements that should be sampled (can only contain paths to analog computation elements)
     paths: list[Path]
+    #: Sample rate to use in samples/second.
+    sample_rate: int
     #: Whether to sample during IC
     sample_ic: bool = False
     #: Whether to sample during OP
@@ -466,9 +468,8 @@ class SetDAQResponse(Response):
            Controller -> Client: **SetDAQResponse**(...)
     """
     response_for = SetDAQRequest
-    __root__: typing.Union[
-        SuccessInfo, typing.List[typing.Union[SuccessInfo, typing.Dict]]
-    ]
+    #: Whether the request was successful.
+    success: SuccessInfo
 
 
 # ██████  ██    ██ ███    ██
