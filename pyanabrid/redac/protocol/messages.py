@@ -401,6 +401,43 @@ class GetConfigResponse(Response):
     config: dict
 
 
+class GetMetadataRequest(Request):
+    """
+        A request to the controller to retrieve the metadata of an entity.
+        The controller responds with a :py:class:`GetMetadataResponse`.
+        The metadata contains entity-specific information (e.g. type identifier, calibration, ...).
+
+        .. uml::
+
+           Client -> Controller: **GetMetadataRequest**(...)
+           activate Controller
+           note over Controller: gets entity metadata
+           Controller -> Client: GetMetadataResponse(...)
+           deactivate Controller
+    """
+    #: Path to the entity of which the metadata should be returned.
+    entity: Path
+
+
+class GetMetadataResponse(Response):
+    """A response to :py:class:`GetMetadataRequest` conveying the metadata of some entity.
+
+    .. uml::
+
+           Client -> Controller: GetMetadataRequest(...)
+           activate Controller
+           note over Controller: gets entity metadata
+           Controller -> Client: **GetMetadataResponse**(...)
+           deactivate Controller
+    """
+    response_for = GetMetadataRequest
+    #: Path to the entity of which the metadata is returned.
+    entity: Path
+    #: The metadata of the entity.
+    #: The data schema of the metadata depends on the version included in config['sp_version'].
+    config: dict
+
+
 class SetDAQRequest(Request):
     """A request to the controller to set a :py:class:`DAQConfiguration` determining how and when data should be
     acquired. The controller will respond with a :py:class:`SetDAQResponse`
