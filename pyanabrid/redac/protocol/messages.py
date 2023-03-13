@@ -554,22 +554,26 @@ class CancelRunResponse(Response):
 
 
 class RunStateChangeMessage(Message):
-    """ Message from the controller that its :py:class:`RunState` changed
+    """
+    Notification that an ongoing :class:`Run` changed its :py:class:`RunState`.
+    A run is done once it enters :attr:`RunState.DONE`.
 
     .. uml::
 
-           Client -> Controller: StartRunRequest()
-           Controller -> Client: StartRunResponse(accepted=True)
-           Controller -> Client: **RunStateChangeMessage**(old=QUEUE, new=TAKE_OFF)
-           Controller --> Client: Some more run state messages...
-           activate Controller
-           loop
-             Controller -> Client: RunDataMessage()
-           end
-           deactivate Controller
-           note right : running
-           Controller --> Client: Some more run state messages...
-           Controller -> Client: **RunStateChangeMessage**(new=DONE)
+            note over Client: starts a run
+            Client -> Controller: StartRunRequest()
+            Controller -> Client: StartRunResponse(accepted=True)
+            ...
+
+            note over Controller: controls run
+            Controller -> Client: **RunStateChangeMessage**(old=QUEUED, new=TAKE_OFF)
+            Controller -> Client: **RunStateChangeMessage**(old=TAKE_OFF, new=IC)
+            Controller -> Client: **RunStateChangeMessage**(old=IC, new=OP)
+            Controller -> Client: **RunStateChangeMessage**(old=OP, new=OP_END)
+            Controller -> Client: **RunStateChangeMessage**(old=OP_END, new=DONE)
+            ...
+            note over Client: knows run is done
+            Client -> Controller: StartRunRequest()
     """
     #: ID of the run
     id_: UUID4
@@ -584,28 +588,30 @@ class RunStateChangeMessage(Message):
 
 
 class RunDataMessage(Message):
-    """ Message from the controller containing run data acquired
+    """
+    Notification containing data sampled during a :class:`RunState`
+    according to the config set with :class:`SetDAQRequest`.
+    All data corresponding to a :class:`RunState` is sent out
+    before the state exit is indicated by a respective :class:`RunStateChangeMessage`.
 
-        .. uml::
+    .. uml::
 
-               Client -> Controller: StartRunRequest()
-               Controller -> Client: StartRunResponse(accepted=True)
-               Controller --> Client: Some run state messages...
-               activate Controller
-               loop
-                 Controller -> Client: **RunDataMessage**()
-               end
-               deactivate Controller
-               note right : running
-               Controller --> Client: Some run state messages...
+        Client -> Controller: StartRunRequest()
+        Controller -> Client: StartRunResponse(accepted=True)
+        ...
+        Controller -> Client: RunStateChangeMessage(old=IC, new=OP, ...)
+        activate Controller
+        loop until all data in RunState.OP is sent out
+         Controller -> Client: **RunDataMessage**(...)
+        end
+        Controller -> Client: RunStateChangeMessage(old=OP, new=OP_END, ...)
+        deactivate Controller
     """
     #: ID of the run
     run_id: int
     #: Current state of the run
     state: RunState
-    #: Time of the first datapoint in `data`
+    #: Time of the first datapoint in `data` in microseconds
     t_0: int
-    #: Index of the first datapoint in `data`
-    idx_0: int
-    #: Acquired data, normalized to [-1,+1]
-    data: typing.List[float]
+    #: Acquired data by entity path, normalized to [-1,+1]
+    data: dict[Path, list[float]]
