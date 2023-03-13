@@ -34,9 +34,9 @@ from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunS
 @dataclass(kw_only=True)
 class RunConfig(BaseRunConfig):
     """Configures parameters related to the execution of one :class:`Run`."""
-    #: Duration of IC (initial condition) mode.
+    #: Duration of IC (initial condition) mode in microseconds.
     ic_time: int = 50_000
-    #: Duration of OP (operating) mode.
+    #: Duration of OP (operating) mode in microseconds.
     op_time: int = 100_000
 
     #: Whether to halt the computation when the external halt signal is triggered.

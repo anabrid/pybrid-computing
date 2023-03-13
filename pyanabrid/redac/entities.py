@@ -38,12 +38,12 @@ class EntityType:
 
 class Path(BasePath):
     """
-    A tuple uniquely identifying an element in the REDAC.
+    A tuple uniquely identifying an entity in the REDAC.
 
-    The path to an element is a hierarchical combination of paths to its parent elements.
+    The path to an entity is a hierarchical combination of paths to its parent entities.
     Its structure in the REDAC is :code:`(<carrier board>, <block>, <function>)`.
     Carrier boards are defined by their MAC address,
-    while blocks on them and the blocks' functions are defined by indizes.
+    while blocks on them and the blocks' functions are defined by indices.
 
     :Usage: Combine the identifier to the required depth
 
