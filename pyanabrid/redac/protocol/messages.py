@@ -335,6 +335,8 @@ class SetConfigRequest(Request):
         C <- CTRL: SetConfigResponse(...)
         deactivate CTRL
     """
+    #: The secret session ID for which the entity was reserved. Only required if session management is enabled.
+    session: typing.Optional[UUID4]
     #: The entity to configure.
     entity: Path
     #: The configuration to apply.
@@ -447,6 +449,8 @@ class SetDAQRequest(Request):
            Client -> Controller: **SetDAQRequest**(...)
            Controller -> Client: SetDAQResponse(...)
     """
+    #: The secret session ID for which the entities were reserved. Only required if session management is enabled.
+    session: typing.Optional[UUID4]
     #: Paths of elements that should be sampled (can only contain paths to analog computation elements)
     paths: list[Path]
     #: Sample rate to use in samples/second.
@@ -494,8 +498,8 @@ class StartRunRequest(Request):
        end
        
     """
-    #: The session the run should be part of (required if controller is configured to require sessions).
-    session_id: typing.Optional[UUID4]
+    #: The secret session ID in which the run should be started. Only required if session management is enabled.
+    session: typing.Optional[UUID4]
     #: An ID that should be applied to the run.
     id_: int
     #: A :py:class:`pyanabrid.redac.run.RunConfig` that should be applied to the run.
