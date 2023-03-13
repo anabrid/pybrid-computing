@@ -30,6 +30,8 @@ from uuid import UUID
 
 from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState
 
+from .entities import Path
+
 
 @dataclass(kw_only=True)
 class RunConfig(BaseRunConfig):
@@ -53,8 +55,8 @@ class RunFlags(BaseRunFlags):
     """
     #: Whether the run was halted because of an external halt trigger.
     externally_halted: bool = False
-    #: Whether the run entered an overload during computation.
-    overloaded: bool = False
+    #: Any element that entered an overload during computation.
+    overloaded: typing.Optional[list[Path]] = None
 
 
 class RunState(BaseRunState, Enum):
