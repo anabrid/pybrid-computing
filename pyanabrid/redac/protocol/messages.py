@@ -481,17 +481,20 @@ class SetDAQResponse(Response):
 class StartRunRequest(Request):
     """
     A request to start a run (computation).
+    After a run is started, the controller sends :class:`RunStateChangeMessage` notifications about its progress.
 
     .. uml::
 
        Client -> Controller: **StartRunRequest()**
        alt run is accepted
-         Controller -> Client: StartRunResponse(accepted=True)
+         Controller -> Client: StartRunResponse(success=True)
        else run is not accepted (e.g. analog computer is busy or in failure mode)
-         Controller -> Client: StartRunResponse(accepted=False)
+         Controller -> Client: StartRunResponse(success=False, error=<error info>)
        end
        
     """
+    #: The session the run should be part of (required if controller is configured to require sessions).
+    session_id: typing.Optional[UUID4]
     #: An ID that should be applied to the run.
     id_: int
     #: A :py:class:`pyanabrid.redac.run.RunConfig` that should be applied to the run.
@@ -511,21 +514,42 @@ class StartRunRequest(Request):
 
 class StartRunResponse(Response):
     """
-        A response to a :py:class:`StartRunRequest`
-
-        .. uml::
-
-           Client -> Controller: StartRunRequest()
-           alt run is accepted
-             Controller -> Client: **StartRunResponse**(accepted=True)
-           else run is not accepted (e.g. analog computer is busy or in failure mode)
-             Controller -> Client: **StartRunResponse**(accepted=False)
-           end
-
+    A response to a :py:class:`StartRunRequest` indicating whether the run was accepted.
     """
     response_for = StartRunRequest
-    #: Whether the run request was accepted
-    accepted: bool
+    #: Whether the run request could be accepted.
+    success: SuccessInfo
+
+
+class CancelRunRequest(Request):
+    """
+    A request to cancel an ongoing run.
+    Any caused :class:`RunStateChangeMessage` is sent first, before the :class:`CancelRunResponse` is sent.
+
+    .. uml::
+
+        Client -> Controller: StartRunRequest(...)
+        Controller -> Client: StartRunResponse(success=True)
+        ...
+        Client -> Controller: **CancelRunRequest**(...)
+        activate Controller
+        note over Controller: cancels run
+        Controller -> Client: RunStateChangeMessage(new=ERROR, ...)
+        Controller -> Client: CancelRunResponse(success=True)
+        deactivate Controller
+    """
+    #: The ID of the run to be canceled.
+    id_: UUID4
+
+
+class CancelRunResponse(Response):
+    """
+    A response to a prior :class:`CancelRunRequest` indicating whether the run was successfully canceled.
+    """
+    #: The ID of the run requested to be canceled.
+    id_: UUID4
+    #: Whether the run was successfully canceled and error information if not.
+    success: SuccessInfo
 
 
 class RunStateChangeMessage(Message):
@@ -547,17 +571,15 @@ class RunStateChangeMessage(Message):
            Controller -> Client: **RunStateChangeMessage**(new=DONE)
     """
     #: ID of the run
-    run_id: int
-    #: Current time
+    id_: UUID4
+    #: Current time in microseconds
     t: int
     #: Previous state
     old: RunState
     #: New state
     new: RunState
-    #: Whether we are currently in overload
-    overload: bool = False
-    #: Whether external halt is currently active
-    external_halt: bool = False
+    #: Any :class:`RunFlags` that the run has triggered (persistent across state changes).
+    run_flags: RunFlags
 
 
 class RunDataMessage(Message):
