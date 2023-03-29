@@ -4,7 +4,7 @@ name = "pyanabrid-redac"
 packages = [
   { include = "pyanabrid" }
 ]
-version = "0.2.0"
+version = "0.3.0"
 description = "pyanabrid REDAC analog computer abstraction"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
