@@ -95,7 +95,16 @@ class RunState(BaseRunState, Enum):
 
 @dataclass(kw_only=True)
 class DAQConfiguration:
-    pass
+    #: Paths of elements that should be sampled (can only contain paths to analog computation elements)
+    paths: list[Path]
+    #: Sample rate to use in samples/second.
+    sample_rate: int
+    #: Whether to sample during IC
+    sample_ic: bool = False
+    #: Whether to sample during OP
+    sample_op: bool = True
+    #: Whether to sample during OP_END
+    sample_op_end: bool = True
 
 
 @dataclass(kw_only=True)

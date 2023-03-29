@@ -30,7 +30,7 @@ from datetime import datetime
 from pydantic import UUID4, BaseModel, Field
 
 from ..entities import Path
-from ..run import RunConfig, RunFlags, RunState
+from ..run import RunConfig, RunFlags, RunState, DAQConfiguration
 from .types import SuccessInfo
 
 logger = logging.getLogger(__name__)
@@ -174,7 +174,7 @@ class GetEntitiesRequest(Request):
 
        Client -> Controller: **GetEntitiesRequest()**
        activate Controller
-       note over Controller: scans modules
+       note over Controller: scans system
        Controller -> Client: GetEntitiesResponse()
        deactivate Controller
 
@@ -449,18 +449,10 @@ class SetDAQRequest(Request):
            Client -> Controller: **SetDAQRequest**(...)
            Controller -> Client: SetDAQResponse(...)
     """
+    #: The DAQ configuration to apply.
+    daq: DAQConfiguration
     #: The secret session ID for which the entities were reserved. Only required if session management is enabled.
     session: typing.Optional[UUID4]
-    #: Paths of elements that should be sampled (can only contain paths to analog computation elements)
-    paths: list[Path]
-    #: Sample rate to use in samples/second.
-    sample_rate: int
-    #: Whether to sample during IC
-    sample_ic: bool = False
-    #: Whether to sample during OP
-    sample_op: bool = True
-    #: Whether to sample during OP_END
-    sample_op_end: bool = True
 
 
 class SetDAQResponse(Response):
@@ -560,7 +552,7 @@ class CancelRunResponse(Response):
 class RunStateChangeMessage(Message):
     """
     Notification that an ongoing :class:`Run` changed its :py:class:`RunState`.
-    A run is done once it enters :attr:`RunState.DONE`.
+    A run is done once it enters :attr:`RunState.DONE` or :attr:`RuntState.ERROR`.
 
     .. uml::
 
