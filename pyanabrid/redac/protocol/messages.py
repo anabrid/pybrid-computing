@@ -384,6 +384,10 @@ class SetConfigRequest(Request):
 
         .. code-block:: json
 
+            { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF"], "config": { "/0": { "/M0": { "integrators": [ { "ic": 0.0, "k": 10000 }, { "ic": 1.0, "k": 10000 }, { "ic": 0.0, "k": 10000 }, { "ic": 0.0, "k": 10000 }, { "ic": 0.5, "k": 100 }, { "ic": 0.6, "k": 10000 }, { "ic": -0.7, "k": 100 }, { "ic": 0.8, "k": 100 } ] } } } } }
+
+        .. code-block:: json
+
             { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF"], "config": { "/0": { "/U": { "outputs": [0, 1, null, 2, 2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 15] } } } } }
 
         .. code-block:: json
