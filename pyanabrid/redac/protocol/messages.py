@@ -334,6 +334,74 @@ class SetConfigRequest(Request):
         deactivate CB
         C <- CTRL: SetConfigResponse(...)
         deactivate CTRL
+
+    Entities are arranged hierarchically in the REDAC.
+    The config dictionary is passed to the entity defined by :attr:`SetConfigRequest.entity`.
+    To allow the configuration of multiple entities, the :attr:`SetConfigRequest.config` dictionary
+    may contain keys starting with a slash ("/"), which are used to denote paths to sub-entities.
+    Such sub-entity path keys must denote a sub-config dictionary, which is again passed on.
+
+    Examples of a one-entity :class:`SetConfigRequest` message.
+
+        .. code-block:: json
+
+            {
+              "_id": 42, "_type": "set_config", "msg": {
+                "entity": ["04-E9-E5-14-74-BF", "0", "U"],
+                "config": {
+                  "alt-ref-half": true,
+                  "outputs": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                }
+              }
+            }
+
+        .. code-block:: json
+
+            { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF", "0", "U"], "config": { "alt-ref-half": true, "outputs": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] } } }
+
+        .. code-block:: json
+
+            { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF", "0", "C"], "config": { "factors": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.30, 0.31] } } }
+
+    Example of a nested :class:`SetConfigRequest` message.
+
+        .. code-block:: json
+
+            {
+              "_id": 42, "_type": "set_config", "msg": {
+                "entity": ["04-E9-E5-14-74-BF"],
+                "config": {
+                  "power-save": false,
+                  "/0": {
+                    "routes": [[0, 0, -0.42, 0], [0, 1, -0.3, 1]],
+                    "/U": {
+                      "alt-ref-half": true
+                    }
+                  }
+                }
+              }
+            }
+
+        .. code-block:: json
+
+            { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF"], "config": { "/0": { "/U": { "outputs": [0, 1, null, 2, 2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 15] } } } } }
+
+        .. code-block:: json
+
+            { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF"], "config": { "power-save": false, "/0": { "/C": { "factors": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.30, 0.31] } } } } }
+
+        .. code-block:: json
+
+           { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF"], "config": { "power-save": false, "/0": { "/I": { "outputs": {"0": 0, "1": [1,2] } } } } } }
+
+        .. code-block:: json
+
+           { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF"], "config": { "power-save": false, "/0": { "/I": { "outputs": [ [0, 1, 2], null, [], [3], [4, 5], null, null, null, null, null, null, null, null, null, null, null ] } } } } }
+
+        .. code-block:: json
+
+            { "_id": 42, "_type": "set_config", "msg": { "entity": ["04-E9-E5-14-74-BF"], "config": { "power-save": false, "/0": { "routes": [[0, 0, -0.42, 0], [0, 1, -0.3, 1]], "/U": { "alt-ref-half": true } } } } }
+
     """
     #: The secret session ID for which the entity was reserved. Only required if session management is enabled.
     session: typing.Optional[UUID4]
@@ -341,6 +409,7 @@ class SetConfigRequest(Request):
     entity: Path
     #: The configuration to apply.
     #: The data schema of the configuration depends on the type of entity.
+    #: May contain keys denoting paths to sub-entities (starting with a slash) and their config.
     config: dict
 
     @classmethod
@@ -382,6 +451,8 @@ class GetConfigRequest(Request):
     """
     #: Path to the entity of which the configuration should be returned.
     entity: Path
+    #: Whether to retrieve the configuration of sub-entities recursively.
+    recursive: bool = True
 
 
 class GetConfigResponse(Response):
