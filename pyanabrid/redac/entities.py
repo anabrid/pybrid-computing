@@ -41,17 +41,19 @@ class Path(BasePath):
     A tuple uniquely identifying an entity in the REDAC.
 
     The path to an entity is a hierarchical combination of paths to its parent entities.
-    Its structure in the REDAC is :code:`(<carrier board>, <block>, <function>)`.
-    Carrier boards are defined by their MAC address,
-    while blocks on them and the blocks' functions are defined by indices.
+    Its structure in the REDAC is :code:`(<carrier board>, <cluster>, <block>[, <function>])`.
+    Carrier boards are defined by their MAC address, e.g. "04-E9-E5-14-74-BF".
+    Clusters are defined by their index sent as a string, e.g. "0".
+    Function blocks on them are identified by their abbreviation, one of "M0", "M1", "U", "C", "I".
+    The blocks' functions are usually not directly accessed, but instead configured via their block.
 
     :Usage: Combine the identifier to the required depth
 
         .. code-block::
 
             path_to_a_carrier_board = Path("00:00:5e:00:53:af")
-            path_to_a_block = Path("00:00:5e:00:53:af", 7)
-            path_to_a_function = Path("00:00:5e:00:53:af", 7, 42)
+            path_to_second_cluster_on_it = Path("00:00:5e:00:53:af", "1")
+            path_to_m0_block_in_cluster0 = Path("00:00:5e:00:53:af", "0", "M0")
     """
     #: The schema defining the data types for the path's subcomponents.
-    SCHEMA = (str, int, int)
+    SCHEMA = (str, str, str)
