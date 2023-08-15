@@ -222,7 +222,7 @@ class GetEntitiesResponse(Response):
     """
     response_for = GetEntitiesRequest
     #: A tree-like dictionary structure containing entity type information by path.
-    entities: dict[Path, dict]
+    entities: dict
 
 
 # ███████ ███████ ███████ ███████ ██  ██████  ███    ██
