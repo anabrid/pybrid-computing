@@ -34,6 +34,22 @@ class ProtocolError(Exception):
     pass
 
 
+class MessageNotImplemented(ProtocolError, NotImplementedError):
+    pass
+
+
+class MalformedDataError(ProtocolError, ValueError):
+    pass
+
+
+class MalformedMessageError(MalformedDataError):
+    pass
+
+
+class UnknownMessageError(MalformedMessageError):
+    pass
+
+
 class BaseProtocol(ABC):
     transport: BaseTransport
     version: Version
