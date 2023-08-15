@@ -27,6 +27,7 @@ import logging
 import typing
 from datetime import datetime
 
+import inflection
 from pydantic import UUID4, BaseModel, Field
 
 from ..entities import Path
@@ -41,6 +42,8 @@ logger = logging.getLogger(__name__)
 # ██████  ███████ ███████ █████       ██      ██      ███████ ███████ ███████ █████   ███████
 # ██   ██ ██   ██      ██ ██          ██      ██      ██   ██      ██      ██ ██           ██
 # ██████  ██   ██ ███████ ███████      ██████ ███████ ██   ██ ███████ ███████ ███████ ███████
+
+TYPE_IDENTIFIER_MESSAGE_MAP = dict()
 
 
 class Message(BaseModel):
@@ -74,6 +77,23 @@ class Message(BaseModel):
         """
         ...
 
+    @classmethod
+    def get_type_identifier(cls):
+        pascal_case = cls.__name__.removesuffix("Message").removesuffix("Request").removesuffix("Response")
+        snake_case = inflection.underscore(pascal_case)
+        return snake_case
+
+    @staticmethod
+    def get_class_for_type_identifier(type_):
+        return TYPE_IDENTIFIER_MESSAGE_MAP[type_]
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        TYPE_IDENTIFIER_MESSAGE_MAP[cls.get_type_identifier()] = cls
+
+
+REQUEST_RESPONSE_MAP = dict()
+
 
 class Request(Message):
     """
@@ -88,7 +108,7 @@ class Request(Message):
     @classmethod
     def get_expected_response_type(cls) -> typing.Type["Response"]:
         """The :py:class:`Response` subclass expected for the answer to this request."""
-        ...
+        return REQUEST_RESPONSE_MAP[cls]
 
 
 class Response(Message):
@@ -114,6 +134,10 @@ class Response(Message):
         """Error message of the first error that occurred when the request was handled.
         `None` if there was no error."""
         return None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        REQUEST_RESPONSE_MAP[cls.response_for] = cls
 
 
 # ██    ██ ████████ ██ ██      ██ ████████ ██    ██
@@ -283,6 +307,7 @@ class EndSessionResponse(Response):
     """
     Response to a prior :class:`EndSessionRequest`.
     """
+    response_for = EndSessionRequest
     #: Whether the session could be ended and optional error info. Usually True.
     success: SuccessInfo
 
@@ -301,6 +326,7 @@ class EntityReservationResponse(Response):
     """
     Response to a prior :class:`EntityReservationRequest`.
     """
+    response_for = EntityReservationRequest
     #: Whether the requested entities were reserved and error information if they were not.
     success: SuccessInfo
 
@@ -618,6 +644,7 @@ class CancelRunResponse(Response):
     """
     A response to a prior :class:`CancelRunRequest` indicating whether the run was successfully canceled.
     """
+    response_for = CancelRunRequest
     #: The ID of the run requested to be canceled.
     id_: UUID4
     #: Whether the run was successfully canceled and error information if not.
@@ -708,5 +735,6 @@ class GetOverloadResponse(Response):
         This message is intended to be used internally between the hybrid controller and the carrier boards.
         As user, refer to the :attr:`RunStateChangeMessage.run_flags` field.
     """
+    response_for = GetOverloadRequest
     #: List of overloaded entities.
     entities: list[Path]
