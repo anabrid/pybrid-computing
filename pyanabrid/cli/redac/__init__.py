@@ -59,6 +59,20 @@ async def redac(ctx: click.Context, host, port):
 @redac.command()
 @click.pass_obj
 @click.argument('path', type=str, required=False)
+async def get_entities(obj, path):
+    from pyanabrid.redac.computer import REDAC
+    from pyanabrid.redac.display import TreeDisplay
+
+    protocol: Protocol = obj["protocol"]
+    from pyanabrid.redac.protocol.messages import GetEntitiesRequest
+    response = await protocol.send_message_and_wait_response(GetEntitiesRequest())
+    redac_ = REDAC.create_from_entity_type_tree(response.entities)
+    print(TreeDisplay().render(redac_))
+
+
+@redac.command()
+@click.pass_obj
+@click.argument('path', type=str, required=False)
 @click.argument('config', type=str, required=False)
 async def get_entity_config(obj, path, config):
     protocol: Protocol = obj["protocol"]
