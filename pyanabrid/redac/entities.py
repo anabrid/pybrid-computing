@@ -24,16 +24,47 @@
 # ANABRID_END_LICENSE
 
 from dataclasses import dataclass
+from enum import Enum
 
 from pyanabrid.base.hybrid import Path as BasePath
+from pyanabrid.base.hybrid import Entity as BaseEntity
+
+
+class UnknownEntityTypeError(ValueError):
+    pass
+
+
+class EntityClass(Enum):
+    """Entity class differentiates between carrier boards, different function blocks and so on. Max 5bit = 31."""
+    CARRIER = 0
+    CLUSTER = 1  # mostly unused
+    MBLOCK = 2
+    UBLOCK = 3
+    CBLOCK = 4
+    IBLOCK = 5
+    OTHER = 31
 
 
 @dataclass(kw_only=True)
 class EntityType:
-    class_: int
+    class_: EntityClass
     type_: int
     variant: int
     version: int
+
+    @classmethod
+    def pop_from_dict(cls, d):
+        return cls(class_=EntityClass(d.pop("class")), type_=d.pop("type"), variant=d.pop("variant"), version=d.pop("version"))
+
+
+class Entity(BaseEntity):
+    """
+    Base class for all entities inside a REDAC.
+    """
+
+    @classmethod
+    def create_from_entity_type_tree(cls, sub_path, sub_tree):
+        raise NotImplementedError
 
 
 class Path(BasePath):
