@@ -28,11 +28,12 @@ from pyanabrid.base.hybrid.computer import AnalogComputer
 from .blocks import FunctionBlock
 from .carrier import Carrier
 from .cluster import Cluster
+from .elements import ComputationElement
 from .entities import Path
 
 
 class REDAC(AnalogComputer):
-    hierarchy = (Carrier, Cluster, FunctionBlock)
+    hierarchy = (Carrier, Cluster, FunctionBlock, ComputationElement)
     entities: list[Carrier]
 
     @property
