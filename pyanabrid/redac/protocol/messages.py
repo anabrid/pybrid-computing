@@ -26,6 +26,7 @@
 import logging
 import typing
 from datetime import datetime
+from functools import cache
 
 import inflection
 from pydantic import UUID4, BaseModel, Field
@@ -78,6 +79,7 @@ class Message(BaseModel):
         ...
 
     @classmethod
+    @cache
     def get_type_identifier(cls):
         pascal_case = cls.__name__.removesuffix("Message").removesuffix("Request").removesuffix("Response")
         snake_case = inflection.underscore(pascal_case)
@@ -460,7 +462,6 @@ class SetConfigResponse(Response):
            deactivate Controller
     """
     response_for = SetConfigRequest
-    success: SuccessInfo
 
 
 class GetConfigRequest(Request):
