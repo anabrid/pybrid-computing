@@ -23,10 +23,9 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from pyanabrid.base.hybrid import ComputationElement
-
 from .block import FunctionBlock
 from ..computations import Integration, Multiplication
+from ..elements import ComputationElement
 from ..entities import EntityClass, EntityType
 
 
