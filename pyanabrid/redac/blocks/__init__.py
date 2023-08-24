@@ -26,5 +26,5 @@
 from .block import FunctionBlock
 from .cblock import CBlock
 from .iblock import IBlock
-from .mblock import MBlock
+from .mblock import MBlock, MIntBlock
 from .ublock import UBlock

@@ -24,8 +24,10 @@
 # ANABRID_END_LICENSE
 
 from .block import FunctionBlock
+from ..entities import EntityClass, EntityType
 
 
+@EntityType.register(EntityClass.IBLOCK, None, None, None)
 class IBlock(FunctionBlock):
     """
     A current summation block (I-Block) in a REDAC.

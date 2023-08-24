@@ -23,13 +23,21 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
+import typing
+from dataclasses import field, dataclass
+import warnings
+
 from ..entities import Entity, EntityClass, UnknownEntityTypeError, EntityType
+from ..elements import ComputationElement
 
 
+@dataclass(kw_only=True)
 class FunctionBlock(Entity):
     """
     Base class for function blocks in a REDAC.
     """
+    ELEMENTS: typing.ClassVar[list[typing.Type[ComputationElement]]] = None
+    elements: typing.Optional[list[ComputationElement]] = None
 
     @classmethod
     def create_from_entity_type_tree(cls, sub_path, sub_tree):
@@ -37,18 +45,21 @@ class FunctionBlock(Entity):
         # Check information on self
         this_entity_type = EntityType.pop_from_dict(sub_tree)
 
-        # Generate child entities
-        # TODO: Add auto-registration for custom FunctionBlocks
-        # TODO: Consider EntityType.type_ as well to differentiate between MBlock types
-        from . import MBlock, UBlock, CBlock, IBlock
-        block_classes = {
-            EntityClass.MBLOCK: MBlock,
-            EntityClass.UBLOCK: UBlock,
-            EntityClass.CBLOCK: CBlock,
-            EntityClass.IBLOCK: IBlock
-        }
-        try:
-            block_class = block_classes[this_entity_type.class_]
-            return block_class(path=sub_path)
-        except KeyError as exc:
-            raise UnknownEntityTypeError from exc
+        # Generate type-specific entity
+        entity_class = EntityType.lookup(this_entity_type, decay=True)
+        return entity_class(path=sub_path)
+
+    def __post_init__(self):
+        super().__post_init__()
+        if self.elements is None:
+            self.elements = self.initialize_elements(self.path)
+
+    @classmethod
+    def initialize_elements(cls, base_path) -> list[ComputationElement]:
+        if not cls.ELEMENTS:
+            return []
+        elements: list[ComputationElement] = list(
+            E(path=base_path / idx)
+            for idx, E in enumerate(cls.ELEMENTS)
+        )
+        return elements

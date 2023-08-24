@@ -24,8 +24,10 @@
 # ANABRID_END_LICENSE
 
 from .block import FunctionBlock
+from ..entities import EntityClass, EntityType
 
 
+@EntityType.register(EntityClass.UBLOCK, None, None, None)
 class UBlock(FunctionBlock):
     """
     A voltage fork block (U-Block) in a REDAC.

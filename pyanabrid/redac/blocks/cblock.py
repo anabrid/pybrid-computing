@@ -24,8 +24,10 @@
 # ANABRID_END_LICENSE
 
 from .block import FunctionBlock
+from ..entities import EntityClass, EntityType
 
 
+@EntityType.register(EntityClass.CBLOCK, None, None, None)
 class CBlock(FunctionBlock):
     """
     A coefficient block (C-Block) in a REDAC.

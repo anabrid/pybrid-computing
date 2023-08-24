@@ -23,10 +23,31 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
+from pyanabrid.base.hybrid import ComputationElement
+
 from .block import FunctionBlock
+from ..computations import Integration, Multiplication
+from ..entities import EntityClass, EntityType
 
 
+@EntityType.register(EntityClass.MBLOCK, None, None, None)
 class MBlock(FunctionBlock):
     """
     A math block (M-Block) in a REDAC.
     """
+
+
+@EntityType.register(EntityClass.MBLOCK, 0, 0, 0)
+class MIntBlock(MBlock):
+    """
+    A math block consisting of integrators.
+    """
+    ELEMENTS = (ComputationElement[Integration],) * 8
+
+
+@EntityType.register(EntityClass.MBLOCK, 1, 0, 0)
+class MMulBlock(MBlock):
+    """
+    A math block consisting of multiplicative elements.
+    """
+    ELEMENTS = (ComputationElement[Multiplication],) * 4
