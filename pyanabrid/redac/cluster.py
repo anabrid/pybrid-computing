@@ -42,6 +42,10 @@ class Cluster(Entity):
     iblock: IBlock
 
     @property
+    def children(self):
+        yield from (block for block in self.blocks if block is not None)
+
+    @property
     def blocks(self) -> tuple[typing.Optional[MBlock], typing.Optional[MBlock], UBlock, CBlock, IBlock]:
         return self.m1block, self.m2block, self.ublock, self.cblock, self.iblock
 

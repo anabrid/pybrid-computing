@@ -39,6 +39,12 @@ class FunctionBlock(Entity):
     ELEMENTS: typing.ClassVar[list[typing.Type[ComputationElement]]] = None
     elements: typing.Optional[list[ComputationElement]] = None
 
+    @property
+    def children(self):
+        if not self.elements:
+            return
+        yield from self.elements
+
     @classmethod
     def create_from_entity_type_tree(cls, sub_path, sub_tree):
         # TODO: Refactor out common code

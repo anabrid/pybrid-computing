@@ -36,6 +36,10 @@ class Carrier(Entity):
     """
     clusters: list[Cluster]
 
+    @property
+    def children(self):
+        yield from self.clusters
+
     @classmethod
     def create_from_entity_type_tree(cls, path, tree):
         # TODO: Refactor out common code
