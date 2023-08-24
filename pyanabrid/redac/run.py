@@ -36,10 +36,10 @@ from .entities import Path
 @dataclass(kw_only=True)
 class RunConfig(BaseRunConfig):
     """Configures parameters related to the execution of one :class:`Run`."""
-    #: Duration of IC (initial condition) mode in microseconds.
-    ic_time: int = 50_000
-    #: Duration of OP (operating) mode in microseconds.
-    op_time: int = 100_000
+    #: Duration of IC (initial condition) mode in nanoseconds.
+    ic_time: int = 50_000_000
+    #: Duration of OP (operating) mode in nanoseconds.
+    op_time: int = 200_000_000
 
     #: Whether to halt the computation when the external halt signal is triggered.
     halt_on_external_trigger: bool = False
