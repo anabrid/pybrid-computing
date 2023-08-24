@@ -102,6 +102,10 @@ class Entity:
     def id_(self):
         return self.path[-1]
 
+    @property
+    def children(self):
+        yield from ()
+
     def __hash__(self):
         return hash(self.path)
 
