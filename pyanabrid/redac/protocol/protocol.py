@@ -29,7 +29,7 @@ import logging
 import uuid
 
 from packaging.version import Version
-from pyanabrid.base.hybrid.protocol import BaseProtocol, ProtocolError, MalformedDataError
+from pyanabrid.base.hybrid.protocol import BaseProtocol, ProtocolError, MalformedDataError, UnsuccessfulRequestError
 from pyanabrid.base.transport import BaseTransport
 
 from pyanabrid.redac.protocol.envelope import Envelope
@@ -64,21 +64,19 @@ class Protocol(BaseProtocol):
     #      ██ ██      ██  ██ ██ ██   ██ ██ ██  ██ ██ ██    ██
     # ███████ ███████ ██   ████ ██████  ██ ██   ████  ██████
 
-    async def send_message(self, message):
-        envelope = Envelope.from_message(message)
-        return await self.send_envelope(envelope)
-
     async def send_message_and_wait_response(self, message, timeout=3):
         response_fut = await self.send_message(message)
         await asyncio.wait_for(response_fut, timeout=timeout)
         return response_fut.result()
 
-    async def send_envelope(self, envelope: Envelope):
+    async def send_message(self, message):
+        # Generate an envelope
+        envelope = Envelope.from_message(message)
         # The response to this envelope is a future
         response_future = asyncio.get_event_loop().create_future()
         # A response is only expected for requests
-        if isinstance(envelope.msg, Request):
-            self._expected_responses[envelope.id] = (envelope.msg.get_expected_response_type(), response_future)
+        if isinstance(message, Request):
+            self._expected_responses[envelope.id] = (message.get_expected_response_type(), response_future)
         else:
             # But if the message is not a request, no response will ever come, just set result to None here
             response_future.set_result(None)
@@ -107,11 +105,13 @@ class Protocol(BaseProtocol):
 
     async def _receive_message_and_process(self):
         data = await self._receive_json()
-        envelope = Envelope.parse_obj(data)
+        envelope = Envelope(**data)
         if envelope.id in self._expected_responses:
             expected_response_type, response_future = self._expected_responses[envelope.id]
-            # TODO: Some error handling
-            response_future.set_result(envelope.msg)
+            if not envelope.success:
+                response_future.set_exception(UnsuccessfulRequestError(envelope.error))
+            else:
+                response_future.set_result(envelope.get_message())
 
     async def _receive_loop(self):
         while True:
