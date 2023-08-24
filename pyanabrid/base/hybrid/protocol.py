@@ -50,6 +50,10 @@ class UnknownMessageError(MalformedMessageError):
     pass
 
 
+class UnsuccessfulRequestError(ProtocolError):
+    pass
+
+
 class BaseProtocol(ABC):
     transport: BaseTransport
     version: Version
