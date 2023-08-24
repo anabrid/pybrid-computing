@@ -23,14 +23,19 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, replace
 from enum import Enum
+import typing
 
 from pyanabrid.base.hybrid import Path as BasePath
 from pyanabrid.base.hybrid import Entity as BaseEntity
 
 
 class UnknownEntityTypeError(ValueError):
+    pass
+
+
+class EntityTypeRegistryError(ValueError):
     pass
 
 
@@ -45,16 +50,52 @@ class EntityClass(Enum):
     OTHER = 31
 
 
-@dataclass(kw_only=True)
+_ENTITY_TYPE_REGISTRY: dict["EntityType", object] = dict()
+
+
+@dataclass(kw_only=True, eq=True, frozen=True)
 class EntityType:
     class_: EntityClass
-    type_: int
-    variant: int
-    version: int
+    type_: typing.Optional[int] = None
+    variant: typing.Optional[int] = None
+    version: typing.Optional[int] = None
 
     @classmethod
     def pop_from_dict(cls, d):
-        return cls(class_=EntityClass(d.pop("class")), type_=d.pop("type"), variant=d.pop("variant"), version=d.pop("version"))
+        return cls(class_=EntityClass(d.pop("class")), type_=d.pop("type"), variant=d.pop("variant"),
+                   version=d.pop("version"))
+
+    def fallback_type(self):
+        """Return a copy of this EntityType with one more field set to None."""
+        for field in reversed(fields(self)[1:]):
+            if getattr(self, field.name) is not None:
+                return replace(self, **{field.name: None})
+        raise ValueError("Can not further decay.")
+
+    @classmethod
+    def register(cls, class_: EntityClass, type_, variant, version):
+        entity_type = cls(class_=class_, type_=type_, variant=variant, version=version)
+
+        def register_(obj):
+            if entity_type in _ENTITY_TYPE_REGISTRY:
+                raise EntityTypeRegistryError("Entity type is already registered.")
+            _ENTITY_TYPE_REGISTRY[entity_type] = obj
+            return obj
+
+        return register_
+
+    @classmethod
+    def lookup(cls, type_, decay=False):
+        try:
+            return _ENTITY_TYPE_REGISTRY[type_]
+        except KeyError:
+            if not decay:
+                raise UnknownEntityTypeError("Entity type %s not registered." % type_)
+            else:
+                try:
+                    return cls.lookup(type_.fallback_type(), True)
+                except ValueError:
+                    raise UnknownEntityTypeError("Neither entity type %s nor any fallbacks are registered." % type_)
 
 
 class Entity(BaseEntity):
@@ -87,4 +128,4 @@ class Path(BasePath):
             path_to_m0_block_in_cluster0 = Path("00:00:5e:00:53:af", "0", "M0")
     """
     #: The schema defining the data types for the path's subcomponents.
-    SCHEMA = (str, str, str)
+    SCHEMA = (str, str, str, int)
