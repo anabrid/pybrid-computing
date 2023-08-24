@@ -79,7 +79,10 @@ class Path(tuple):
         if isinstance(path, Path):
             return path
         if isinstance(path, str):
-            return cls.make(*path.split("/"))
+            parts = path.split('/')
+            if not parts[-1]:
+                raise ValueError("Invalid trailing slash in path string.")
+            return cls.make(*parts)
 
         raise TypeError("Paths can be parsed only from strings.")
 
