@@ -100,6 +100,6 @@ async def set_entity_config(obj, path, attribute, value):
     element_config = entity.generate_partial_configuration(attribute, value)
 
     from pyanabrid.redac.protocol.messages import SetConfigRequest
-    msg = SetConfigRequest(entity=path_block, config={"integrators": {path_.id_: element_config}})
+    msg = SetConfigRequest(entity=path_block, config={"elements": {path_.id_: element_config}})
     response = await protocol.send_message_and_wait_response(msg)
     click.echo(response)
