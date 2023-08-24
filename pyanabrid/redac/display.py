@@ -40,5 +40,7 @@ class TreeDisplay:
                 buffer += "│   ├── " + cluster.__class__.__name__ + " @ " + str(cluster.path) + "\n"
                 for block in cluster.blocks:
                     buffer += "│   │   ├── " + block.__class__.__name__ + " @ " + str(block.path) + "\n"
+                    for element in block.elements:
+                        buffer += "│   │   │   ├── " + element.__class__.__name__ + " @ " + str(element.path) + "\n"
 
         return buffer

@@ -22,13 +22,13 @@
 # For Germany, additional rules exist. Please consult /LICENSE.DE
 # for further agreements.
 # ANABRID_END_LICENSE
-from pyanabrid.base.hybrid import Entity
+
 from pyanabrid.base.hybrid.computer import AnalogComputer
 
 from .blocks import FunctionBlock
 from .carrier import Carrier
 from .cluster import Cluster
-from .entities import Path, EntityType, EntityClass
+from .entities import Path
 
 
 class REDAC(AnalogComputer):
