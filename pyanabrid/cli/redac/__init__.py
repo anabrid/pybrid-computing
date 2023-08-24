@@ -31,6 +31,7 @@ from pyanabrid.cli.base.ressources import ManagedAsyncResource
 from pyanabrid.base.transport.network import TCPTransport
 from pyanabrid.cli.base import cli
 
+from pyanabrid.redac.entities import Path
 from pyanabrid.redac.protocol.protocol import Protocol
 
 logger = logging.getLogger(__name__)
@@ -64,26 +65,41 @@ async def get_entities(obj, path):
     from pyanabrid.redac.display import TreeDisplay
 
     protocol: Protocol = obj["protocol"]
-    from pyanabrid.redac.protocol.messages import GetEntitiesRequest
-    response = await protocol.send_message_and_wait_response(GetEntitiesRequest())
-    redac_ = REDAC.create_from_entity_type_tree(response.entities)
-    print(TreeDisplay().render(redac_))
+    entities = await protocol.get_entities()
+    redac_ = REDAC.create_from_entity_type_tree(entities)
+    click.echo(TreeDisplay().render(redac_))
 
 
 @redac.command()
 @click.pass_obj
-@click.argument('path', type=str, required=False)
-@click.argument('config', type=str, required=False)
-async def get_entity_config(obj, path, config):
+@click.option('-r', '--recursive', type=bool, default=True, help='Whether to get config recursively for sub-entities.')
+@click.argument('path', type=str)
+async def get_entity_config(obj, recursive, path):
     protocol: Protocol = obj["protocol"]
-    from pyanabrid.redac.protocol.messages import GetConfigRequest
-    response = await protocol.send_message_and_wait_response(GetConfigRequest(entity=["blubbla"]))
-    print(repr(response))
+    path_ = Path.parse(path)
+    config = await protocol.get_config(path_, recursive)
+    click.echo(config)
 
 
 @redac.command()
 @click.pass_obj
 @click.argument('path', type=str)
-@click.argument('config', type=str)
-async def set_entity_config(obj, path, config):
-    pass
+@click.argument('attribute', type=str)
+@click.argument('value', type=str)
+async def set_entity_config(obj, path, attribute, value):
+    protocol: Protocol = obj["protocol"]
+    path_ = Path.parse(path)
+    if not path_.depth == 4:
+        raise ValueError("This command currently expects a path of depth 4.")
+    path_block = path_.parent
+
+    # Build a configuration message to the parent
+    from pyanabrid.redac.computations import Integration
+    from pyanabrid.redac.elements import ComputationElement
+    entity = ComputationElement[Integration]
+    element_config = entity.generate_partial_configuration(attribute, value)
+
+    from pyanabrid.redac.protocol.messages import SetConfigRequest
+    msg = SetConfigRequest(entity=path_block, config={"integrators": {path_.id_: element_config}})
+    response = await protocol.send_message_and_wait_response(msg)
+    click.echo(response)
