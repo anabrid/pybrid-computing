@@ -32,8 +32,9 @@ from packaging.version import Version
 from pyanabrid.base.hybrid.protocol import BaseProtocol, ProtocolError, MalformedDataError, UnsuccessfulRequestError
 from pyanabrid.base.transport import BaseTransport
 
+from pyanabrid.redac.entities import Path
 from pyanabrid.redac.protocol.envelope import Envelope
-from pyanabrid.redac.protocol.messages import Request, Response
+from pyanabrid.redac.protocol.messages import Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest
 
 logger = logging.getLogger(__name__)
 
@@ -125,3 +126,22 @@ class Protocol(BaseProtocol):
                 logger.exception(
                     "Error while receiving or processing envelope: %s.", exc
                 )
+
+    #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
+    # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
+    # ██      ██    ██ ██ ████ ██ ██ ████ ██ ███████ ██ ██  ██ ██   ██ ███████
+    # ██      ██    ██ ██  ██  ██ ██  ██  ██ ██   ██ ██  ██ ██ ██   ██      ██
+    #  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
+
+    async def get_entities(self) -> dict:
+        response = await self.send_message_and_wait_response(GetEntitiesRequest())
+        return response.entities
+
+    async def get_config(self, entity: Path, recursive: bool = True) -> dict:
+        response = await self.send_message_and_wait_response(GetConfigRequest(entity=entity, recursive=recursive))
+        return response.config
+
+    async def set_config(self, entity: Path, config: dict, session: uuid.uuid4 = None) -> bool:
+        await self.send_message_and_wait_response(
+            SetConfigRequest(entity=entity, config=config, session=session))
+        return True
