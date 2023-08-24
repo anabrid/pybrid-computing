@@ -24,9 +24,9 @@
 # ANABRID_END_LICENSE
 
 import typing
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState
 
@@ -96,9 +96,9 @@ class RunState(BaseRunState, Enum):
 @dataclass(kw_only=True)
 class DAQConfiguration:
     #: Paths of elements that should be sampled (can only contain paths to analog computation elements)
-    paths: list[Path]
+    paths: list[Path] = field(default_factory=list)
     #: Sample rate to use in samples/second.
-    sample_rate: int
+    sample_rate: int = 10_000
     #: Whether to sample during IC
     sample_ic: bool = False
     #: Whether to sample during OP
@@ -111,19 +111,19 @@ class DAQConfiguration:
 class Run(BaseRun):
     """A run is one computation executed by the REDAC."""
     #: A unique identifier for the run.
-    id_: UUID
+    id_: UUID = field(default_factory=uuid4)
     #: Possibly the ID of a related run, e.g. one that triggered this one.
-    related_to: typing.Optional[UUID]
+    related_to: typing.Optional[UUID] = None
     #: Defines the duration the run should be executed and similar parameters.
     #: Does not contain element configuration.
-    config: RunConfig
+    config: RunConfig = RunConfig()
 
     #: The current state of the run.
-    state: RunState
+    state: RunState = RunState.NEW
     #: Flags, e.g. overload, the run has triggered. These are persistent once triggered.
-    flags: RunFlags
+    flags: RunFlags = RunFlags()
 
     #: The configuration of the data acquisition for this run.
-    daq: DAQConfiguration
+    daq: DAQConfiguration = DAQConfiguration()
     #: Data captured for this run.
-    data: typing.Any
+    data: typing.Any = None
