@@ -29,7 +29,7 @@ import typing
 from uuid import UUID, uuid4
 from pydantic import BaseModel, Field, ValidationError
 
-from pyanabrid.base.hybrid.protocol import MalformedDataError
+from pyanabrid.base.hybrid.protocol import MalformedDataError, MalformedMessageError
 
 from .messages import Message
 
@@ -43,20 +43,19 @@ class MalformedEnvelopeError(MalformedDataError):
 class Envelope(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     type: str
-    msg: Message
-    success: typing.Optional[bool] = Field(exclude=True)
+    msg: typing.Optional[dict] = None
+    success: typing.Optional[bool] = Field(exclude=True, default=True)
+    error: typing.Optional[str] = Field(exclude=True, default="")
 
     @classmethod
     def from_message(cls, message):
         return cls(**{"type": message.get_type_identifier(), "msg": message})
 
-    @classmethod
-    def parse_obj(cls: typing.Type["Envelope"], obj: typing.Any) -> "Envelope":
+    def get_message(self) -> Message:
         try:
-            msg_data = obj.pop("msg")
-            msg_class = Message.get_class_for_type_identifier(obj["type"])
-            msg = msg_class(**msg_data)
-            return cls(**obj, msg=msg)
+            msg_class = Message.get_class_for_type_identifier(self.type)
+            msg = msg_class(**self.msg)
+            return msg
         except (KeyError, AttributeError, ValidationError) as exc:
-            logger.exception("Error while parsing envelope: %s.", exc)
-            raise MalformedEnvelopeError() from exc
+            logger.exception("Error while parsing message from envelope: %s.", exc)
+            raise MalformedMessageError() from exc
