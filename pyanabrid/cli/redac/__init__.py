@@ -31,6 +31,8 @@ from pyanabrid.cli.base.ressources import ManagedAsyncResource
 from pyanabrid.base.transport.network import TCPTransport
 from pyanabrid.cli.base import cli
 
+from pyanabrid.redac.controller import Controller
+from pyanabrid.redac.display import TreeDisplay
 from pyanabrid.redac.entities import Path
 from pyanabrid.redac.protocol.protocol import Protocol
 
@@ -54,20 +56,21 @@ async def redac(ctx: click.Context, host, port):
 
     # Generate a protocol
     protocol = await Protocol.create(transport_)
-    ctx.obj["protocol"] = await ctx.with_async_resource(ManagedAsyncResource(protocol, 'start', 'stop'))
+
+    # Generate a controller, which will also start the protocol
+    controller = await Controller.create(protocol)
+    ctx.obj["controller"] = await ctx.with_async_resource(ManagedAsyncResource(controller, 'start', 'stop'))
+
+    # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
+    ctx.obj["run"] = await controller.create_run()
+    ctx.obj["previous_run"] = None
 
 
 @redac.command()
 @click.pass_obj
-@click.argument('path', type=str, required=False)
-async def get_entities(obj, path):
-    from pyanabrid.redac.computer import REDAC
-    from pyanabrid.redac.display import TreeDisplay
-
-    protocol: Protocol = obj["protocol"]
-    entities = await protocol.get_entities()
-    redac_ = REDAC.create_from_entity_type_tree(entities)
-    click.echo(TreeDisplay().render(redac_))
+async def display(obj):
+    controller: Controller = obj["controller"]
+    click.echo(TreeDisplay().render(controller.computer))
 
 
 @redac.command()
@@ -75,9 +78,10 @@ async def get_entities(obj, path):
 @click.option('-r', '--recursive', type=bool, default=True, help='Whether to get config recursively for sub-entities.')
 @click.argument('path', type=str)
 async def get_entity_config(obj, recursive, path):
-    protocol: Protocol = obj["protocol"]
+    controller: Controller = obj["controller"]
+
     path_ = Path.parse(path)
-    config = await protocol.get_config(path_, recursive)
+    config = await controller.protocol.get_config(path_, recursive)
     click.echo(config)
 
 
@@ -86,20 +90,18 @@ async def get_entity_config(obj, recursive, path):
 @click.argument('path', type=str)
 @click.argument('attribute', type=str)
 @click.argument('value', type=str)
-async def set_entity_config(obj, path, attribute, value):
-    protocol: Protocol = obj["protocol"]
+async def set_element_config(obj, path, attribute, value):
+    controller: Controller = obj["controller"]
+
     path_ = Path.parse(path)
     if not path_.depth == 4:
         raise ValueError("This command currently expects a path of depth 4.")
     path_block = path_.parent
 
-    # Build a configuration message to the parent
-    from pyanabrid.redac.computations import Integration
-    from pyanabrid.redac.elements import ComputationElement
-    entity = ComputationElement[Integration]
+    # Try to get the entity by its path
+    entity = controller.computer.get_entity(path_)
+
+    # Build a configuration message to the parent block
     element_config = entity.generate_partial_configuration(attribute, value)
 
-    from pyanabrid.redac.protocol.messages import SetConfigRequest
-    msg = SetConfigRequest(entity=path_block, config={"elements": {path_.id_: element_config}})
-    response = await protocol.send_message_and_wait_response(msg)
-    click.echo(response)
+    await controller.protocol.set_config(entity=path_block, config={"elements": {path_.id_: element_config}})
