@@ -36,11 +36,11 @@ class TreeDisplay:
         # TODO: Do it better :)
         for carrier in redac.carriers:
             buffer += "├── " + carrier.__class__.__name__ + " @ " + str(carrier.path) + "\n"
-            for cluster in carrier.clusters:
+            for cluster in carrier.children:
                 buffer += "│   ├── " + cluster.__class__.__name__ + " @ " + str(cluster.path) + "\n"
-                for block in cluster.blocks:
+                for block in cluster.children:
                     buffer += "│   │   ├── " + block.__class__.__name__ + " @ " + str(block.path) + "\n"
-                    for element in block.elements:
+                    for element in block.children:
                         buffer += "│   │   │   ├── " + element.__class__.__name__ + " @ " + str(element.path) + "\n"
 
         return buffer
