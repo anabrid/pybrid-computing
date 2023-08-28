@@ -23,14 +23,14 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from .block import FunctionBlock
+from .block import ElementBlock
 from ..computations import Integration, Multiplication
 from ..elements import ComputationElement
 from ..entities import EntityClass, EntityType
 
 
 @EntityType.register(EntityClass.MBLOCK, None, None, None)
-class MBlock(FunctionBlock):
+class MBlock(ElementBlock):
     """
     A math block (M-Block) in a REDAC.
     """
