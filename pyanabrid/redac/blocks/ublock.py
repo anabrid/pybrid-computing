@@ -23,12 +23,22 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from .block import FunctionBlock
+from dataclasses import field, dataclass
+from itertools import chain
+
+from .block import SwitchingBlock
 from ..entities import EntityClass, EntityType
 
 
 @EntityType.register(EntityClass.UBLOCK, None, None, None)
-class UBlock(FunctionBlock):
+@dataclass
+class UBlock(SwitchingBlock):
     """
     A voltage fork block (U-Block) in a REDAC.
     """
+    outputs: list[int | None] = field(default_factory=lambda: [None] * 32)
+
+    def connect(self, input, output, *outputs):
+        for out in chain([output], outputs):
+            # TODO: Sanity checks
+            self.outputs[out] = input
