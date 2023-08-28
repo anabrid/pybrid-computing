@@ -103,7 +103,7 @@ class Entity:
         return self.path[-1]
 
     @property
-    def children(self):
+    def children(self) -> list["Entity"]:
         yield from ()
 
     def __hash__(self):
