@@ -24,15 +24,26 @@
 # ANABRID_END_LICENSE
 
 import typing
-from dataclasses import field, dataclass
-import warnings
+from dataclasses import dataclass
 
-from ..entities import Entity, EntityClass, UnknownEntityTypeError, EntityType
+from ..entities import Entity, EntityType
 from ..elements import ComputationElement
 
 
-@dataclass(kw_only=True)
 class FunctionBlock(Entity):
+    @classmethod
+    def create_from_entity_type_tree(cls, sub_path, sub_tree):
+        # TODO: Refactor out common code
+        # Check information on self
+        this_entity_type = EntityType.pop_from_dict(sub_tree)
+
+        # Generate type-specific entity
+        entity_class = EntityType.lookup(this_entity_type, decay=True)
+        return entity_class(path=sub_path)
+
+
+@dataclass(kw_only=True)
+class ElementBlock(FunctionBlock):
     """
     Base class for function blocks in a REDAC.
     """
@@ -69,3 +80,9 @@ class FunctionBlock(Entity):
             for idx, E in enumerate(cls.ELEMENTS)
         )
         return elements
+
+
+@dataclass
+class SwitchingBlock(FunctionBlock):
+    def connect(self, *connections):
+        raise NotImplementedError
