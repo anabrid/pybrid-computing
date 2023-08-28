@@ -23,12 +23,20 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from .block import FunctionBlock
+from dataclasses import dataclass, field
+
+from .block import SwitchingBlock
 from ..entities import EntityClass, EntityType
 
 
 @EntityType.register(EntityClass.IBLOCK, None, None, None)
-class IBlock(FunctionBlock):
+@dataclass
+class IBlock(SwitchingBlock):
     """
     A current summation block (I-Block) in a REDAC.
     """
+    outputs: list[list[int] | None] = field(default_factory=lambda: [None] * 16)
+
+    def connect(self, *connections):
+        *inputs, output = connections
+        self.outputs[output] = inputs
