@@ -98,6 +98,7 @@ class EntityType:
                     raise UnknownEntityTypeError("Neither entity type %s nor any fallbacks are registered." % type_)
 
 
+@dataclass
 class Entity(BaseEntity):
     """
     Base class for all entities inside a REDAC.
@@ -129,3 +130,12 @@ class Path(BasePath):
     """
     #: The schema defining the data types for the path's subcomponents.
     SCHEMA = (str, str, str, int)
+
+    def to_carrier(self):
+        return Path(self[:1])
+
+    def to_cluster(self):
+        return Path(self[:2])
+
+    def to_block(self):
+        return Path(self[:3])
