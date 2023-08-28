@@ -56,16 +56,6 @@ class ElementBlock(FunctionBlock):
             return
         yield from self.elements
 
-    @classmethod
-    def create_from_entity_type_tree(cls, sub_path, sub_tree):
-        # TODO: Refactor out common code
-        # Check information on self
-        this_entity_type = EntityType.pop_from_dict(sub_tree)
-
-        # Generate type-specific entity
-        entity_class = EntityType.lookup(this_entity_type, decay=True)
-        return entity_class(path=sub_path)
-
     def __post_init__(self):
         super().__post_init__()
         if self.elements is None:
