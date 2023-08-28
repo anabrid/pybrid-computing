@@ -23,12 +23,17 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from .block import FunctionBlock
+from pyanabrid.base.analog import ScalarMultiplication
+
+from .block import ElementBlock
+from ..elements import ComputationElement
 from ..entities import EntityClass, EntityType
 
 
-@EntityType.register(EntityClass.CBLOCK, None, None, None)
-class CBlock(FunctionBlock):
+@EntityType.register(EntityClass.CBLOCK, 0, 0, 0)
+class CBlock(ElementBlock):
     """
     A coefficient block (C-Block) in a REDAC.
     """
+    elements: list[ComputationElement[ScalarMultiplication]]
+    ELEMENTS = (ComputationElement[ScalarMultiplication],) * 32
