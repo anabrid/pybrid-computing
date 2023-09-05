@@ -26,15 +26,19 @@
 import asyncio
 import json
 import logging
+import typing
 import uuid
+from typing import Callable
 
 from packaging.version import Version
 from pyanabrid.base.hybrid.protocol import BaseProtocol, ProtocolError, MalformedDataError, UnsuccessfulRequestError
 from pyanabrid.base.transport import BaseTransport
 
-from pyanabrid.redac.entities import Path
-from pyanabrid.redac.protocol.envelope import Envelope
-from pyanabrid.redac.protocol.messages import Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest
+from ..entities import Path, Entity
+from .envelope import Envelope
+from .messages import Message, Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest, StartRunRequest
+from .serializer import build_config
+from ..run import RunConfig
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +48,8 @@ class Protocol(BaseProtocol):
     def __init__(self, transport: BaseTransport, version: Version = None):
         super().__init__(transport, version)
         self._receive_loop_task = None
-        self._expected_responses: dict[uuid, (Response, asyncio.futures)] = dict()
+        self._expected_responses: dict[uuid, (Response, asyncio.futures.Future)] = dict()
+        self._callbacks: dict[typing.Type[Message], Callable] = dict()
 
     async def start(self):
         assert self._receive_loop_task is None
@@ -107,12 +112,19 @@ class Protocol(BaseProtocol):
     async def _receive_message_and_process(self):
         data = await self._receive_json()
         envelope = Envelope(**data)
-        if envelope.id in self._expected_responses:
+        if envelope.id is not None and envelope.id in self._expected_responses:
             expected_response_type, response_future = self._expected_responses[envelope.id]
             if not envelope.success:
                 response_future.set_exception(UnsuccessfulRequestError(envelope.error))
             else:
-                response_future.set_result(envelope.get_message())
+                message = envelope.get_message()
+                if callback := self.get_callback(type(message)):
+                    response_future.add_done_callback(lambda future: callback(future.result()))
+                response_future.set_result(message)
+        else:
+            message = envelope.get_message()
+            if callback := self.get_callback(type(message)):
+                callback(message)
 
     async def _receive_loop(self):
         while True:
@@ -126,6 +138,18 @@ class Protocol(BaseProtocol):
                 logger.exception(
                     "Error while receiving or processing envelope: %s.", exc
                 )
+
+    #  ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████
+    # ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██
+    # ██      ███████ ██      ██      ██████  ███████ ██      █████   ███████
+    # ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██       ██
+    #  ██████ ██   ██ ███████ ███████ ██████  ██   ██  ██████ ██   ██ ███████
+
+    def register_callback(self, msg_type: typing.Type[Message], callback: Callable):
+        self._callbacks[msg_type] = callback
+
+    def get_callback(self, msg_type: typing.Type[Message]):
+        return self._callbacks.get(msg_type, None)
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
