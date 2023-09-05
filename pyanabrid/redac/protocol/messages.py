@@ -595,7 +595,7 @@ class StartRunRequest(Request):
     #: The secret session ID in which the run should be started. Only required if session management is enabled.
     session: typing.Optional[UUID4]
     #: An ID that should be applied to the run.
-    id_: int
+    id: UUID4
     #: A :py:class:`pyanabrid.redac.run.RunConfig` that should be applied to the run.
     config: RunConfig
 
@@ -616,8 +616,6 @@ class StartRunResponse(Response):
     A response to a :py:class:`StartRunRequest` indicating whether the run was accepted.
     """
     response_for = StartRunRequest
-    #: Whether the run request could be accepted.
-    success: SuccessInfo
 
 
 class CancelRunRequest(Request):
@@ -675,7 +673,7 @@ class RunStateChangeMessage(Message):
             Client -> Controller: StartRunRequest()
     """
     #: ID of the run
-    id_: UUID4
+    id: UUID4
     #: Current time in microseconds
     t: int
     #: Previous state
@@ -683,7 +681,7 @@ class RunStateChangeMessage(Message):
     #: New state
     new: RunState
     #: Any :class:`RunFlags` that the run has triggered (persistent across state changes).
-    run_flags: RunFlags
+    run_flags: typing.Optional[RunFlags]
 
 
 class RunDataMessage(Message):
