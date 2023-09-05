@@ -41,7 +41,7 @@ class MalformedEnvelopeError(MalformedDataError):
 
 
 class Envelope(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
+    id: typing.Optional[UUID] = Field(default_factory=uuid4)
     type: str
     msg: typing.Optional[dict] = None
     success: typing.Optional[bool] = Field(exclude=True, default=True)
