@@ -23,7 +23,7 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from .block import FunctionBlock
+from .block import FunctionBlock, ElementBlock, SwitchingBlock
 from .cblock import CBlock
 from .iblock import IBlock
 from .mblock import MBlock, MIntBlock

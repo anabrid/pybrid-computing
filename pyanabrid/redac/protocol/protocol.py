@@ -165,7 +165,18 @@ class Protocol(BaseProtocol):
         response = await self.send_message_and_wait_response(GetConfigRequest(entity=entity, recursive=recursive))
         return response.config
 
-    async def set_config(self, entity: Path, config: dict, session: uuid.uuid4 = None) -> bool:
+    async def set_config_request(self, entity: Path, config: dict, session: uuid.uuid4 = None) -> bool:
         await self.send_message_and_wait_response(
             SetConfigRequest(entity=entity, config=config, session=session))
         return True
+
+    async def set_config(self, entity: Entity):
+        config = dict()
+        build_config(entity, config)
+        await self.set_config_request(entity=entity.path, config=config)
+        return True
+
+    async def start_run_request(self, id_: uuid.UUID, config: RunConfig):
+        await self.send_message_and_wait_response(
+            StartRunRequest(id=id_, config=config, session=None)
+        )

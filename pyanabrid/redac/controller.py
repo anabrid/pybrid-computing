@@ -23,22 +23,51 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
+import asyncio
+import logging
 import typing
+from asyncio import Future
+from uuid import UUID
 
 from pyanabrid.base.hybrid.controller import BaseController
 
 from .computer import REDAC
+from .entities import Entity
+from .protocol.messages import RunStateChangeMessage
 from .protocol.protocol import Protocol
-from .run import Run
+from .run import Run, RunState
+
+logger = logging.getLogger(__name__)
 
 
 class Controller(BaseController):
     computer: REDAC
     protocol: Protocol
+    runs: dict[UUID, Run] = dict()
+    _ongoing_runs: dict[UUID, Future] = dict()
 
     @classmethod
     def get_run_implementation(cls) -> typing.Type[Run]:
         return Run
+
+    async def start(self) -> None:
+        await super().start()
+        self.protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change)
+
+    def handle_run_state_change(self, msg: RunStateChangeMessage):
+        logger.debug("Received run state change: %s.", msg)
+        if run := self.runs.get(msg.id, None):
+            run.state = RunState(msg.new)
+            if run.state.is_done():
+                self._ongoing_runs.pop(run.id_).set_result(run)
+        else:
+            logger.warning("Received run state change with unknown id %s.", msg.id)
+
+    #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
+    # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
+    # ██      ██    ██ ██ ████ ██ ██ ████ ██ ███████ ██ ██  ██ ██   ██ ███████
+    # ██      ██    ██ ██  ██  ██ ██  ██  ██ ██   ██ ██  ██ ██ ██   ██      ██
+    #  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
 
     async def get_computer(self) -> REDAC:
         entities = await self.protocol.get_entities()
@@ -48,5 +77,18 @@ class Controller(BaseController):
     async def set_computer(self, computer: REDAC):
         raise NotImplementedError
 
-    async def start_and_await_run(self, run: typing.Optional[Run] = None) -> Run:
-        raise NotImplementedError
+    async def start_run(self, run: typing.Optional[Run] = None) -> Future:
+        if run is None:
+            run = self.create_run()
+        self.runs[run.id_] = run
+        self._ongoing_runs[run.id_] = run_future = asyncio.get_event_loop().create_future()
+        await self.protocol.start_run_request(run.id_, run.config)
+        return run_future
+
+    async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:
+        run_future = await self.start_run(run)
+        await asyncio.wait_for(run_future, timeout=timeout)
+        return run_future.result()
+
+    async def set_config(self, entity: Entity):
+        await self.protocol.set_config(entity)

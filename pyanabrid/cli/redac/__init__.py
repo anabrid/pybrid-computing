@@ -31,10 +31,12 @@ from pyanabrid.cli.base.ressources import ManagedAsyncResource
 from pyanabrid.base.transport.network import TCPTransport
 from pyanabrid.cli.base import cli
 
+from pyanabrid.redac.blocks import SwitchingBlock
 from pyanabrid.redac.controller import Controller
 from pyanabrid.redac.display import TreeDisplay
 from pyanabrid.redac.entities import Path
 from pyanabrid.redac.protocol.protocol import Protocol
+from pyanabrid.redac.run import Run
 
 logger = logging.getLogger(__name__)
 
@@ -104,4 +106,39 @@ async def set_element_config(obj, path, attribute, value):
     # Build a configuration message to the parent block
     element_config = entity.generate_partial_configuration(attribute, value)
 
-    await controller.protocol.set_config(entity=path_block, config={"elements": {path_.id_: element_config}})
+    await controller.protocol.set_config_request(entity=path_block, config={"elements": {path_.id_: element_config}})
+
+
+@redac.command()
+@click.pass_obj
+@click.argument('path', type=str)
+@click.argument('connections', type=int, nargs=-1)
+async def set_connection(obj, path, connections):
+    controller: Controller = obj["controller"]
+
+    # Sanity check connections, which must be at least two arguments
+    if len(connections) < 2:
+        raise ValueError("You must supply at least two arguments for connection specification.")
+
+    # Try to get the entity by its path
+    path_ = Path.parse(path)
+    entity = controller.computer.get_entity(path_)
+    # It must be a SwitchingBlock
+    if not isinstance(entity, SwitchingBlock):
+        raise ValueError("Expected a path to a SwitchingBlock.")
+
+    # Set connection, data structure depends on block type
+    entity.connect(*connections)
+
+    # Send configuration
+    carrier = controller.computer.get_entity(path_.to_carrier())
+    await controller.set_config(carrier)
+
+
+@redac.command()
+@click.pass_obj
+async def run(obj):
+    controller: Controller = obj["controller"]
+    run_: Run = obj["run"]
+
+    obj["run"] = await controller.start_and_await_run(run_)
