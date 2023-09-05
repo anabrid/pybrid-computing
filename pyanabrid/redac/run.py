@@ -116,14 +116,14 @@ class Run(BaseRun):
     related_to: typing.Optional[UUID] = None
     #: Defines the duration the run should be executed and similar parameters.
     #: Does not contain element configuration.
-    config: RunConfig = RunConfig()
+    config: RunConfig = field(default_factory=RunConfig)
 
     #: The current state of the run.
     state: RunState = RunState.NEW
     #: Flags, e.g. overload, the run has triggered. These are persistent once triggered.
-    flags: RunFlags = RunFlags()
+    flags: RunFlags = field(default_factory=RunFlags)
 
     #: The configuration of the data acquisition for this run.
-    daq: DAQConfiguration = DAQConfiguration()
+    daq: DAQConfiguration = field(default_factory=DAQConfiguration)
     #: Data captured for this run.
     data: typing.Any = None
