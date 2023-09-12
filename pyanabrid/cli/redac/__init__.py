@@ -210,9 +210,10 @@ async def run(obj, op_time, ic_time):
 
 @redac.command()
 @click.pass_context
+@click.option('--ignore-errors', is_flag=True, default=False, show_default=True)
 @click.option('--exit-after-script', is_flag=True, default=False, show_default=True)
 @click.argument('scripts', nargs=-1, type=click.File('r'))
-async def shell(ctx: click.Context, exit_after_script, scripts):
+async def shell(ctx: click.Context, ignore_errors, exit_after_script, scripts):
     computer_name = ctx.obj["controller"].computer.name
 
     # Create and start a shell
@@ -220,10 +221,15 @@ async def shell(ctx: click.Context, exit_after_script, scripts):
     with shell_:
         for script in scripts:
             logger.debug("Executing %s.", script.name)
-            for line in script:
+            for line_no, line in enumerate(script):
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
-                await shell_.execute_cmdline(line)
+                try:
+                    await shell_.execute_cmdline(line)
+                except Exception as exc:
+                    logger.exception("Error in script during '%s' (line %s): %s", line, line_no, exc)
+                    if not ignore_errors:
+                        raise
         if not exit_after_script:
             await shell_.repl_loop()
