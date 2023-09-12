@@ -137,8 +137,18 @@ async def set_connection(obj, path, connections):
 
 @redac.command()
 @click.pass_obj
-async def run(obj):
+@click.option('--op-time', type=int, default=None, help='OP time in nanoseconds.')
+@click.option('--ic-time', type=int, default=None, help='IC time in nanoseconds.')
+async def run(obj, op_time, ic_time):
     controller: Controller = obj["controller"]
     run_: Run = obj["run"]
 
-    obj["run"] = await controller.start_and_await_run(run_)
+    # Set run config
+    if ic_time is not None:
+        run_.config.ic_time = ic_time
+    if op_time is not None:
+        run_.config.op_time = op_time
+
+    run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=max(run_.config.op_time/1_000_000_000+3, 3))
+    if run_.state is RunState.ERROR:
+        raise RunError("Error while executing run.")

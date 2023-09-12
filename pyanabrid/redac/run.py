@@ -33,13 +33,17 @@ from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunS
 from .entities import Path
 
 
+class RunError(Exception):
+    pass
+
+
 @dataclass(kw_only=True)
 class RunConfig(BaseRunConfig):
     """Configures parameters related to the execution of one :class:`Run`."""
     #: Duration of IC (initial condition) mode in nanoseconds.
-    ic_time: int = 50_000_000
+    ic_time: int = 100_000
     #: Duration of OP (operating) mode in nanoseconds.
-    op_time: int = 200_000_000
+    op_time: int = 2_000_000
 
     #: Whether to halt the computation when the external halt signal is triggered.
     halt_on_external_trigger: bool = False
