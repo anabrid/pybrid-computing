@@ -1,5 +1,6 @@
 # Set alias for cluster
-set-alias 04-E9-E5-14-74-76/0 osc
+set-alias * carrier
+set-alias carrier/0 osc
 set-alias osc/M0/0 x
 
 # Configure routing on cluster

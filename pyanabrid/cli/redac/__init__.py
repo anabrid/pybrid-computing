@@ -32,6 +32,7 @@ from pyanabrid.base.transport.network import TCPTransport
 from pyanabrid.cli.base import cli
 from pyanabrid.cli.base.shell import Shell
 
+from pyanabrid.base.hybrid import EntityDoesNotExist
 from pyanabrid.redac.blocks import SwitchingBlock
 from pyanabrid.redac.cluster import Cluster
 from pyanabrid.redac.controller import Controller
@@ -76,10 +77,24 @@ async def redac(ctx: click.Context, host, port):
 @click.argument('path', type=str)
 @click.argument('alias', type=str)
 async def set_alias(obj, path, alias):
-    path_ = Path.parse(path, aliases=obj.get("aliases", None))
+    controller: Controller = obj["controller"]
+    aliases: dict[str, Path] = obj.get("aliases", {})
+    # Set alias supports a special '*' path as first argument,
+    # in which case it selects the next carrier board which was not yet aliased.
+    # This is used to not have to hard-code carrier board identifiers for (simple) examples.
+    if path == '*':
+        aliased_carrier_paths = {path for path in aliases.values() if path.depth == 1}
+        for carrier in controller.computer.carriers:
+            if carrier.path not in aliased_carrier_paths:
+                path_ = carrier.path
+                break
+        else:
+            raise EntityDoesNotExist("No more carrier boards available.")
+    else:
+        path_ = Path.parse(path, aliases=aliases)
+    # Save alias
     if "aliases" not in obj:
         obj["aliases"] = dict()
-    # Save alias
     obj["aliases"].update({alias: path_})
 
 
