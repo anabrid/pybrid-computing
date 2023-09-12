@@ -102,10 +102,13 @@ async def set_element_config(obj, path, attribute, value):
     path_block = path_.parent
 
     # Try to get the entity by its path
-    entity = controller.computer.get_entity(path_)
+    element: ComputationElement = controller.computer.get_entity(path_)
+
+    # Apply configuration to element
+    element.apply_partial_configuration(attribute, value)
 
     # Build a configuration message to the parent block
-    element_config = entity.generate_partial_configuration(attribute, value)
+    element_config = element.generate_partial_configuration(attribute, value)
 
     await controller.protocol.set_config_request(entity=path_block, config={"elements": {path_.id_: element_config}})
 

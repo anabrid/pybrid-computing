@@ -33,3 +33,9 @@ class ComputationElement(BaseComputationElement):
             return {attribute: field.type(value)}
         else:
             raise ValueError("Unknown attribute %s for %s." % (attribute, cls))
+
+    def apply_partial_configuration(self, attribute, value):
+        if field := self.computation_class.__dataclass_fields__.get(attribute, None):
+            setattr(self.computation, attribute, field.type(value))
+        else:
+            raise ValueError("Unknown attribute %s for %s." % (attribute, self.__class__))
