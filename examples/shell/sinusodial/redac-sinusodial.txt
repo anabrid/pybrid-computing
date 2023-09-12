@@ -1,14 +1,14 @@
 # Set alias for cluster
 set-alias * carrier
-set-alias carrier/0 osc
-set-alias osc/M0/0 x
+set-alias carrier/0 cluster
+set-alias cluster/M0/0 osc_x
 
 # Configure routing on cluster
-route -- osc 8 0 1.0 9
-route -- osc 9 1 -1.0 8
-set-element-config x ic 0.71
-set-connection osc/U 8 8
-set-connection osc/U 9 9
+route -- cluster 8 0 1.0 9
+route -- cluster 9 1 -1.0 8
+set-element-config osc_x ic 0.71
+set-connection cluster/U 8 8
+set-connection cluster/U 9 9
 
 # Start run
 #run
