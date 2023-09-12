@@ -1,0 +1,13 @@
+# Set alias for cluster
+set-alias 04-E9-E5-14-74-76/0 osc
+set-alias osc/M0/0 x
+
+# Configure routing on cluster
+route -- osc 8 0 1.0 9
+route -- osc 9 1 -1.0 8
+set-element-config x ic 0.71
+set-connection osc/U 8 8
+set-connection osc/U 9 9
+
+# Start run
+#run
