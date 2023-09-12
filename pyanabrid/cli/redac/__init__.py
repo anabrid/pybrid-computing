@@ -30,11 +30,13 @@ from pyanabrid.cli.base.ressources import ManagedAsyncResource
 
 from pyanabrid.base.transport.network import TCPTransport
 from pyanabrid.cli.base import cli
+from pyanabrid.cli.base.shell import Shell
 
 from pyanabrid.redac.blocks import SwitchingBlock
 from pyanabrid.redac.cluster import Cluster
 from pyanabrid.redac.controller import Controller
 from pyanabrid.redac.display import TreeDisplay
+from pyanabrid.redac.elements import ComputationElement
 from pyanabrid.redac.entities import Path
 from pyanabrid.redac.protocol.protocol import Protocol
 from pyanabrid.redac.run import Run, RunState, RunError
@@ -71,6 +73,18 @@ async def redac(ctx: click.Context, host, port):
 
 @redac.command()
 @click.pass_obj
+@click.argument('path', type=str)
+@click.argument('alias', type=str)
+async def set_alias(obj, path, alias):
+    path_ = Path.parse(path, aliases=obj.get("aliases", None))
+    if "aliases" not in obj:
+        obj["aliases"] = dict()
+    # Save alias
+    obj["aliases"].update({alias: path_})
+
+
+@redac.command()
+@click.pass_obj
 async def display(obj):
     controller: Controller = obj["controller"]
     click.echo(TreeDisplay().render(controller.computer))
@@ -83,7 +97,7 @@ async def display(obj):
 async def get_entity_config(obj, recursive, path):
     controller: Controller = obj["controller"]
 
-    path_ = Path.parse(path)
+    path_ = Path.parse(path, aliases=obj.get("aliases", None))
     config = await controller.protocol.get_config(path_, recursive)
     click.echo(config)
 
@@ -96,7 +110,7 @@ async def get_entity_config(obj, recursive, path):
 async def set_element_config(obj, path, attribute, value):
     controller: Controller = obj["controller"]
 
-    path_ = Path.parse(path)
+    path_ = Path.parse(path, aliases=obj.get("aliases", None))
     if not path_.depth == 4:
         raise ValueError("This command currently expects a path of depth 4.")
     path_block = path_.parent
@@ -125,7 +139,7 @@ async def set_connection(obj, path, connections):
         raise ValueError("You must supply at least two arguments for connection specification.")
 
     # Try to get the entity by its path
-    path_ = Path.parse(path)
+    path_ = Path.parse(path, aliases=obj.get("aliases", None))
     entity = controller.computer.get_entity(path_)
     # It must be a SwitchingBlock
     if not isinstance(entity, SwitchingBlock):
@@ -150,7 +164,7 @@ async def route(obj, path, m_out, u_out, c_factor, m_in):
     controller: Controller = obj["controller"]
 
     # Try to get the entity by its path
-    path_ = Path.parse(path)
+    path_ = Path.parse(path, aliases=obj.get("aliases", None))
     cluster = controller.computer.get_entity(path_)
     # It must be a SwitchingBlock
     if not isinstance(cluster, Cluster):
@@ -177,3 +191,24 @@ async def run(obj, op_time, ic_time):
     run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=max(run_.config.op_time/1_000_000_000+3, 3))
     if run_.state is RunState.ERROR:
         raise RunError("Error while executing run.")
+
+
+@redac.command()
+@click.pass_context
+@click.option('--exit-after-script', is_flag=True, default=False, show_default=True)
+@click.argument('scripts', nargs=-1, type=click.File('r'))
+async def shell(ctx: click.Context, exit_after_script, scripts):
+    computer_name = ctx.obj["controller"].computer.name
+
+    # Create and start a shell
+    shell_ = Shell(base_group=redac, base_ctx=ctx.parent, slug=computer_name, prompt=f"{computer_name} >> ")
+    with shell_:
+        for script in scripts:
+            logger.debug("Executing %s.", script.name)
+            for line in script:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                await shell_.execute_cmdline(line)
+        if not exit_after_script:
+            await shell_.repl_loop()
