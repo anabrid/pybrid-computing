@@ -65,7 +65,7 @@ def _(entity: ElementBlock):
 
 @to_dict.register
 def _(entity: CBlock):
-    return {"factors": [element.computation.factor for element in entity.elements]}, False
+    return {"elements": [element.computation.factor for element in entity.elements]}, False
 
 
 @to_dict.register
