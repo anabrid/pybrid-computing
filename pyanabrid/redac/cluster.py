@@ -67,3 +67,9 @@ class Cluster(Entity):
 
         # TODO: Less hard-coding :)
         return cls(path=path, m1block=blocks[0], m2block=blocks[1], ublock=blocks[2], cblock=blocks[3], iblock=blocks[4])
+
+    def route(self, m_out, u_out, c_factor, m_in):
+        # TODO: Sanity checks and error handling
+        self.ublock.connect(m_out, u_out)
+        self.cblock.elements[u_out].factor = c_factor
+        self.iblock.connect(u_out, m_in)

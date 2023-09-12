@@ -32,11 +32,12 @@ from pyanabrid.base.transport.network import TCPTransport
 from pyanabrid.cli.base import cli
 
 from pyanabrid.redac.blocks import SwitchingBlock
+from pyanabrid.redac.cluster import Cluster
 from pyanabrid.redac.controller import Controller
 from pyanabrid.redac.display import TreeDisplay
 from pyanabrid.redac.entities import Path
 from pyanabrid.redac.protocol.protocol import Protocol
-from pyanabrid.redac.run import Run
+from pyanabrid.redac.run import Run, RunState, RunError
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +134,27 @@ async def set_connection(obj, path, connections):
     # Send configuration
     carrier = controller.computer.get_entity(path_.to_carrier())
     await controller.set_config(carrier)
+
+
+@redac.command()
+@click.pass_obj
+@click.argument('path', type=str)
+@click.argument('m_out', type=int)
+@click.argument('u_out', type=int)
+@click.argument('c_factor', type=float)
+@click.argument('m_in', type=int)
+async def route(obj, path, m_out, u_out, c_factor, m_in):
+    controller: Controller = obj["controller"]
+
+    # Try to get the entity by its path
+    path_ = Path.parse(path)
+    cluster = controller.computer.get_entity(path_)
+    # It must be a SwitchingBlock
+    if not isinstance(cluster, Cluster):
+        raise ValueError("Expected a path to a Cluster.")
+
+    cluster.route(m_out, u_out, c_factor, m_in)
+    await controller.set_config(cluster)
 
 
 @redac.command()
