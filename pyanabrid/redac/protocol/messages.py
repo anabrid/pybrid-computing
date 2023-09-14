@@ -180,6 +180,20 @@ class PingResponse(Response):
     now: datetime = Field(default_factory=datetime.utcnow)
 
 
+class HackRequest(Request):
+    """
+    A message which may contain an arbitrary command and data,
+    intended for development purposes only!
+    """
+    command: str
+    data: typing.Any
+
+
+class HackResponse(Response):
+    response_for = HackRequest
+    data: typing.Any
+
+
 # ██ ███    ██ ██ ████████ ██  █████  ██      ██ ███████  █████  ████████ ██  ██████  ███    ██
 # ██ ████   ██ ██    ██    ██ ██   ██ ██      ██    ███  ██   ██    ██    ██ ██    ██ ████   ██
 # ██ ██ ██  ██ ██    ██    ██ ███████ ██      ██   ███   ███████    ██    ██ ██    ██ ██ ██  ██

@@ -234,3 +234,15 @@ async def shell(ctx: click.Context, ignore_errors, exit_after_script, scripts):
                         raise
         if not exit_after_script:
             await shell_.repl_loop()
+
+
+@redac.group()
+async def hack():
+    pass
+
+
+@hack.command()
+@click.pass_obj
+async def make_slave(obj):
+    controller: Controller = obj["controller"]
+    await controller.hack("slave", True)

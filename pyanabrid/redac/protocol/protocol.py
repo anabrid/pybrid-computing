@@ -36,7 +36,8 @@ from pyanabrid.base.transport import BaseTransport
 
 from ..entities import Path, Entity
 from .envelope import Envelope
-from .messages import Message, Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest, StartRunRequest
+from .messages import Message, Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest, \
+    StartRunRequest, HackRequest
 from .serializer import build_config
 from ..run import RunConfig
 
@@ -156,6 +157,10 @@ class Protocol(BaseProtocol):
     # ██      ██    ██ ██ ████ ██ ██ ████ ██ ███████ ██ ██  ██ ██   ██ ███████
     # ██      ██    ██ ██  ██  ██ ██  ██  ██ ██   ██ ██  ██ ██ ██   ██      ██
     #  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
+
+    async def hack_request(self, cmd: str, data: typing.Any) -> typing.Any:
+        response = await self.send_message_and_wait_response(HackRequest(command=cmd, data=data))
+        return response.data
 
     async def get_entities(self) -> dict:
         response = await self.send_message_and_wait_response(GetEntitiesRequest())

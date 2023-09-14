@@ -69,6 +69,9 @@ class Controller(BaseController):
     # ██      ██    ██ ██  ██  ██ ██  ██  ██ ██   ██ ██  ██ ██ ██   ██      ██
     #  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
 
+    async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
+        return await self.protocol.hack_request(cmd, data)
+
     async def get_computer(self) -> REDAC:
         entities = await self.protocol.get_entities()
         computer = REDAC.create_from_entity_type_tree(entities)
