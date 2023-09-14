@@ -144,9 +144,10 @@ async def set_element_config(obj, path, attribute, value):
 
 @redac.command()
 @click.pass_obj
+@click.option('--force', is_flag=True, default=False, show_default=True)
 @click.argument('path', type=str)
 @click.argument('connections', type=int, nargs=-1)
-async def set_connection(obj, path, connections):
+async def set_connection(obj, force, path, connections):
     controller: Controller = obj["controller"]
 
     # Sanity check connections, which must be at least two arguments
@@ -161,7 +162,7 @@ async def set_connection(obj, path, connections):
         raise ValueError("Expected a path to a SwitchingBlock.")
 
     # Set connection, data structure depends on block type
-    entity.connect(*connections)
+    entity.connect(*connections, force=force)
 
     # Send configuration
     carrier = controller.computer.get_entity(path_.to_carrier())

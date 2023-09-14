@@ -26,7 +26,7 @@
 from dataclasses import field, dataclass
 from itertools import chain
 
-from .block import SwitchingBlock
+from .block import SwitchingBlock, SignalConnectionError
 from ..entities import EntityClass, EntityType
 
 
@@ -38,7 +38,13 @@ class UBlock(SwitchingBlock):
     """
     outputs: list[int | None] = field(default_factory=lambda: [None] * 32)
 
-    def connect(self, input, output, *outputs):
+    def connect(self, input, output, *outputs, force=False):
+        # Sanity check before actually doing anything
+        if not force:
+            for out in chain([output], outputs):
+                if self.outputs[out] is not None:
+                    raise SignalConnectionError(
+                        "Output %s is already in use. Use the force argument to overwrite." % out)
+        # Actually connect
         for out in chain([output], outputs):
-            # TODO: Sanity checks
             self.outputs[out] = input

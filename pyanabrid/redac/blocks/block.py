@@ -72,7 +72,11 @@ class ElementBlock(FunctionBlock):
         return elements
 
 
+class SignalConnectionError(Exception):
+    pass
+
+
 @dataclass
 class SwitchingBlock(FunctionBlock):
-    def connect(self, *connections):
+    def connect(self, *connections, force=False):
         raise NotImplementedError

@@ -25,7 +25,7 @@
 
 from dataclasses import dataclass, field
 
-from .block import SwitchingBlock
+from .block import SwitchingBlock, SignalConnectionError
 from ..entities import EntityClass, EntityType
 
 
@@ -35,8 +35,18 @@ class IBlock(SwitchingBlock):
     """
     A current summation block (I-Block) in a REDAC.
     """
-    outputs: list[list[int] | None] = field(default_factory=lambda: [None] * 16)
+    outputs: list[set[int]] = field(default_factory=lambda: [set()] * 16)
 
-    def connect(self, *connections):
-        *inputs, output = connections
-        self.outputs[output] = inputs
+    def connect(self, *connections, force=False):
+        *input_idxs, output_idx = connections
+        input_idxs = set(input_idxs)
+        # Check if input is already connected to another output (signal-splitting is usually wrong)
+        if not force:
+            for other_output_idx, other_output in enumerate(self.outputs):
+                if other_output_idx == output_idx:
+                    continue
+                if other_output is not None and other_output.intersection(input_idxs):
+                    raise SignalConnectionError(
+                        "One of inputs %s is already connected to output %s. Use the force argument to ignore." % (
+                            input_idxs, other_output_idx))
+        self.outputs[output_idx] = self.outputs[output_idx].union(input_idxs)
