@@ -152,26 +152,26 @@ class Response(Message):
 class PingRequest(Request):
     """
     A heartbeat request to check for controller status.
-    The controller replies with a :py:class:`PongResponse` message.
+    The controller replies with a :py:class:`PingResponse` message.
 
     .. uml::
 
        Client -> Controller: **PingRequest(...)**
-       Controller -> Client: PongResponse(...)
+       Controller -> Client: PingResponse(...)
 
     """
     #: A timestamp used to synchronize client and controller clocks.
     now: datetime = Field(default_factory=datetime.utcnow)
 
 
-class PongResponse(Response):
+class PingResponse(Response):
     """
     A heartbeat response to an incoming :py:class:`PingRequest` message.
 
     .. uml::
 
        Client -> Controller: PingRequest(...)
-       Controller -> Client: **PongResponse(...)**
+       Controller -> Client: **PingResponse(...)**
 
     """
     response_for = PingRequest
