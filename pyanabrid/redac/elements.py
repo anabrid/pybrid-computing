@@ -25,14 +25,15 @@
 
 from pyanabrid.base.hybrid.elements import ComputationElement as BaseComputationElement
 
+from .entities import Entity
 
-class ComputationElement(BaseComputationElement):
-    @classmethod
-    def generate_partial_configuration(cls, attribute, value):
-        if field := cls.computation_class.__dataclass_fields__.get(attribute, None):
-            return {attribute: field.type(value)}
+
+class ComputationElement(BaseComputationElement, Entity):
+    def generate_partial_configuration(self, attribute):
+        if self.computation_class.__dataclass_fields__.get(attribute, None):
+            return {attribute: getattr(self.computation, attribute)}
         else:
-            raise ValueError("Unknown attribute %s for %s." % (attribute, cls))
+            raise ValueError("Unknown attribute %s for %s." % (attribute, self.__class__))
 
     def apply_partial_configuration(self, attribute, value):
         if field := self.computation_class.__dataclass_fields__.get(attribute, None):

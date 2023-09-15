@@ -1,0 +1,14 @@
+set-alias * carrier
+set-alias carrier/0 cluster
+
+# The list of alternate signals currently supported is
+# 0: ACL_IN_0 @ input 24
+# 1: ACL_IN_1 @ input 25
+# 2: ACL_IN_2 @ input 26
+# 3: ACL_IN_3 @ input 27
+# 4: ACL_IN_4 @ input 28
+# 5: ACL_IN_5 @ input 29
+# 6: ACL_IN_6 @ input 30
+# 7: ACL_IN_7 @ input 31
+# 8: REF_HALF @ inputs 7 & 23
+set-element-config carrier/0/U alt_signals 0,1,8

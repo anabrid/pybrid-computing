@@ -108,6 +108,15 @@ class Entity(BaseEntity):
     def create_from_entity_type_tree(cls, sub_path, sub_tree):
         raise NotImplementedError
 
+    def generate_partial_configuration(self, attribute):
+        if self.__dataclass_fields__.get(attribute, None):
+            return {attribute: getattr(self, attribute)}
+        else:
+            raise ValueError("Unknown attribute %s for %s." % (attribute, self.__class__))
+
+    def apply_partial_configuration(self, attribute, value):
+        raise NotImplementedError
+
 
 class Path(BasePath):
     """

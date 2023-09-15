@@ -37,6 +37,13 @@ class UBlock(SwitchingBlock):
     A voltage fork block (U-Block) in a REDAC.
     """
     outputs: list[int | None] = field(default_factory=lambda: [None] * 32)
+    alt_signals: list[int] = field(default_factory=list)
+
+    def apply_partial_configuration(self, attribute, value):
+        if attribute == "alt_signals":
+            self.alt_signals = list(map(int, value.split(',')))
+        else:
+            raise AttributeError("Can not apply configuration to attribute %s like this." % attribute)
 
     def connect(self, input, output, *outputs, force=False):
         # Sanity check before actually doing anything

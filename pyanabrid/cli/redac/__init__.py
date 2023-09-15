@@ -37,8 +37,7 @@ from pyanabrid.redac.blocks import SwitchingBlock
 from pyanabrid.redac.cluster import Cluster
 from pyanabrid.redac.controller import Controller
 from pyanabrid.redac.display import TreeDisplay
-from pyanabrid.redac.elements import ComputationElement
-from pyanabrid.redac.entities import Path
+from pyanabrid.redac.entities import Path, Entity
 from pyanabrid.redac.protocol.protocol import Protocol
 from pyanabrid.redac.run import Run, RunState, RunError
 
@@ -126,20 +125,20 @@ async def set_element_config(obj, path, attribute, value):
     controller: Controller = obj["controller"]
 
     path_ = Path.parse(path, aliases=obj.get("aliases", None))
-    if not path_.depth == 4:
-        raise ValueError("This command currently expects a path of depth 4.")
-    path_block = path_.parent
 
     # Try to get the entity by its path
-    element: ComputationElement = controller.computer.get_entity(path_)
+    entity: Entity = controller.computer.get_entity(path_)
 
     # Apply configuration to element
-    element.apply_partial_configuration(attribute, value)
+    entity.apply_partial_configuration(attribute, value)
 
     # Build a configuration message to the parent block
-    element_config = element.generate_partial_configuration(attribute, value)
+    entity_config = entity.generate_partial_configuration(attribute)
 
-    await controller.protocol.set_config_request(entity=path_block, config={"elements": {path_.id_: element_config}})
+    if path_.depth >= 4:
+        await controller.protocol.set_config_request(entity=path_.parent, config={"elements": {path_.id_: entity_config}})
+    else:
+        await controller.protocol.set_config_request(entity=path_, config=entity_config)
 
 
 @redac.command()
