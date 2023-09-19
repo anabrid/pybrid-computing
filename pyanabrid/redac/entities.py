@@ -23,6 +23,20 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
+"""
+The REDAC analog computer consists of a hierarchical structure of hardware modules.
+
+This structure is represented by a tree-like structure of :class:`Entity` objects and their sub-classes.
+Each entity has a unique :class:`Path` defining its position in this hierarchy.
+You can iterate over the children of an entity via its :attr:`Entity.children` property.
+As described in :class:`Path`, the hierarchy represented is as follows.
+
+#. Carrier boards implemented by :class:`pyanabrid.redac.carrier.Carrier`
+#. Clusters implemented by :class:`pyanabrid.redac.cluster.Cluster`
+#. Function blocks implemented by :class:`pyanabrid.redac.blocks.FunctionBlock`
+#. Functions (Elements) implemented by :class:`pyanabrid.redac.elements.ComputationElement`
+"""
+
 from dataclasses import dataclass, fields, replace
 from enum import Enum
 import typing
@@ -55,9 +69,36 @@ _ENTITY_TYPE_REGISTRY: dict["EntityType", object] = dict()
 
 @dataclass(kw_only=True, eq=True, frozen=True)
 class EntityType:
+    """
+    A unique identifier for an entity type.
+
+    Each hardware module in a REDAC analog computer contains hardware version information
+    in their EEPROM. When the client library connects to an analog computer,
+    it generally requests the tree of hardware modules present.
+    This is given as a tree-like list of :class:`EntityType` objects.
+    Since it is also automatically converted to the respective python objects,
+    you typically do not need to handle :class:`EntityType` objects directly.
+
+    One notable exception is registering a python class for the auto-conversion
+    from an :class:`EntityType` to its respective :class:`Entity` class as follows.
+
+    .. code-block::
+
+        @EntityType.register(EntityClass.MBLOCK, 17, 3, 1)
+        class ACustomMBlock(ElementBlock):
+            ...
+    """
+    #: The class of the entity, see :class:`EntityClass`.
+    #: Different classes of entities can only be placed at their expected slots and can not be interchanged.
     class_: EntityClass
+    #: The type of the entity, mostly relevant for :class:`pyanabrid.redac.blocks.MBlock`.
+    #: Different types of an entity have significantly different functionality, but may be placed in the same slots.
     type_: typing.Optional[int] = None
+    #: The variant of an entity.
+    #: Different variants of an entity have similar functionality, but may differ in certain implementation details.
     variant: typing.Optional[int] = None
+    #: The version on an entity.
+    #: Different versions of an entity are basically identical, but may contain different hardware elements or bugfixes.
     version: typing.Optional[int] = None
 
     @classmethod
@@ -66,7 +107,7 @@ class EntityType:
                    version=d.pop("version"))
 
     def fallback_type(self):
-        """Return a copy of this EntityType with one more field set to None."""
+        """Return a copy of this :class:`EntityType` with one more field set to None."""
         for field in reversed(fields(self)[1:]):
             if getattr(self, field.name) is not None:
                 return replace(self, **{field.name: None})
@@ -74,6 +115,7 @@ class EntityType:
 
     @classmethod
     def register(cls, class_: EntityClass, type_, variant, version):
+        """Register a class as an implementation of an :class:`EntityType`."""
         entity_type = cls(class_=class_, type_=type_, variant=variant, version=version)
 
         def register_(obj):
@@ -86,6 +128,10 @@ class EntityType:
 
     @classmethod
     def lookup(cls, type_, decay=False):
+        """
+        Lookup the implementation of an :class:`EntityType`.
+        Use the ``decay`` parameter if you want to allow finding a more generic implementation.
+        """
         try:
             return _ENTITY_TYPE_REGISTRY[type_]
         except KeyError:
@@ -98,11 +144,66 @@ class EntityType:
                     raise UnknownEntityTypeError("Neither entity type %s nor any fallbacks are registered." % type_)
 
 
+class Path(BasePath):
+    """
+    A tuple uniquely identifying an entity in the REDAC.
+
+    The path to an entity is a hierarchical combination of paths to its parent entities.
+    Its structure in the REDAC is :code:`(<carrier board>, <cluster>, <block>, <function>)`.
+    Carrier boards are defined by their MAC address, e.g. "04-E9-E5-14-74-BF".
+    Clusters are defined by their index sent as a string, e.g. "0".
+    Function blocks on them are identified by their abbreviation, one of "M0", "M1", "U", "C", "I".
+    Functions on blocks are defined by their index as integer, e.g. 7.
+    The blocks' functions are usually not directly accessed, but instead configured via their block.
+
+    :Usage: Combine the identifiers to the required depth
+
+        .. code-block::
+
+            path_to_a_carrier_board = Path("00:00:5e:00:53:af")
+            path_to_second_cluster_on_it = Path("00:00:5e:00:53:af", "1")
+            path_to_m0_block_in_cluster0 = Path("00:00:5e:00:53:af", "0", "M0")
+            path_to_first_func_on_block = Path("00:00:5e:00:53:af", "0", "M0", 0)
+    """
+    #: The schema defining the data types for the path's subcomponents.
+    SCHEMA = (str, str, str, int)
+
+    def to_carrier(self):
+        """Returns the path until the carrier board level."""
+        return Path(self[:1])
+
+    def to_cluster(self):
+        """
+        Returns the path until the cluster level.
+
+        Raises IndexError if path is not of sufficient depth.
+        """
+        return Path(self[:2])
+
+    def to_block(self):
+        """
+        Returns the path until the block level.
+
+        Raises IndexError if path is not of sufficient depth.
+        """
+        return Path(self[:3])
+
+    def to_function(self):
+        """
+        Returns the path until the function level.
+
+        Raises IndexError if path is not of sufficient depth.
+        """
+        return Path(self[:4])
+
+
 @dataclass
 class Entity(BaseEntity):
     """
     Base class for all entities inside a REDAC.
     """
+    #: Unique path to this entity.
+    path: Path
 
     @classmethod
     def create_from_entity_type_tree(cls, sub_path, sub_tree):
@@ -116,35 +217,3 @@ class Entity(BaseEntity):
 
     def apply_partial_configuration(self, attribute, value):
         raise NotImplementedError
-
-
-class Path(BasePath):
-    """
-    A tuple uniquely identifying an entity in the REDAC.
-
-    The path to an entity is a hierarchical combination of paths to its parent entities.
-    Its structure in the REDAC is :code:`(<carrier board>, <cluster>, <block>[, <function>])`.
-    Carrier boards are defined by their MAC address, e.g. "04-E9-E5-14-74-BF".
-    Clusters are defined by their index sent as a string, e.g. "0".
-    Function blocks on them are identified by their abbreviation, one of "M0", "M1", "U", "C", "I".
-    The blocks' functions are usually not directly accessed, but instead configured via their block.
-
-    :Usage: Combine the identifier to the required depth
-
-        .. code-block::
-
-            path_to_a_carrier_board = Path("00:00:5e:00:53:af")
-            path_to_second_cluster_on_it = Path("00:00:5e:00:53:af", "1")
-            path_to_m0_block_in_cluster0 = Path("00:00:5e:00:53:af", "0", "M0")
-    """
-    #: The schema defining the data types for the path's subcomponents.
-    SCHEMA = (str, str, str, int)
-
-    def to_carrier(self):
-        return Path(self[:1])
-
-    def to_cluster(self):
-        return Path(self[:2])
-
-    def to_block(self):
-        return Path(self[:3])

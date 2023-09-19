@@ -33,11 +33,15 @@ from .cluster import Cluster
 class Carrier(Entity):
     """
     A REDAC carrier board.
+
+    This is the smallest independent hardware unit inside a REDAC.
+    It contains several :class:`.cluster.Cluster` objects.
     """
     clusters: list[Cluster]
 
     @property
     def children(self):
+        """Generator iterating through child entities of type :class:`.cluster.Cluster`."""
         yield from self.clusters
 
     @classmethod
