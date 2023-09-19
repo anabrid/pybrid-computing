@@ -64,6 +64,7 @@ class Path(tuple):
         return cls(parts_)
 
     def join(self, other):
+        """Concatenates another path to this one and returns a copy."""
         if isinstance(other, Path):
             return Path(self + other)
         elif isinstance(other, str) or not isinstance(other, Iterable):
@@ -105,10 +106,12 @@ class Entity:
 
     @property
     def id_(self):
+        """ID of the object, which is the last element of its path. Not necessarily unique."""
         return self.path[-1]
 
     @property
     def children(self) -> list["Entity"]:
+        """Generator iterating through child entities."""
         yield from ()
 
     def __hash__(self):
