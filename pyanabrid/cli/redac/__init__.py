@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 @cli.group()
 @click.pass_context
 @click.option('--host', '-h', type=str, required=False)
-@click.option('--port', '-p', type=int, required=False)
+@click.option('--port', '-p', type=int, default=5732, required=False)
 async def redac(ctx: click.Context, host, port):
     """
     Entrypoint for all REDAC commands.
