@@ -23,9 +23,8 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from pyanabrid.base.analog import ScalarMultiplication
-
 from .block import ElementBlock
+from ..computations import ScalarMultiplication
 from ..elements import ComputationElement
 from ..entities import EntityClass, EntityType
 

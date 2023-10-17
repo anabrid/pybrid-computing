@@ -14,10 +14,12 @@ authors = ["Michael Steck <steck@anabrid.com>"]
 python = "^3.9"
 # from project
 asyncclick = "^8.1.3.4"
-pyanabrid-base-hybrid = "^0.6.0"
-pydantic = "^1.10.5"
-pyanabrid-base-cli = "^0.4.0"
 inflection = "^0.5.1"
+pyanabrid-base-analog = "^0, >=0.3.1"
+pyanabrid-base-cli = "^0, >=0.4.0"
+pyanabrid-base-hybrid = "^0, >=0.6.0"
+pyanabrid-base-utils = "^0, >=0.4.0"
+pydantic = "^1.10.5"
 
 [tool.poetry.dev-dependencies]
 # from cookiecutter

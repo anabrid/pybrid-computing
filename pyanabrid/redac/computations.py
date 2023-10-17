@@ -23,15 +23,23 @@
 # for further agreements.
 # ANABRID_END_LICENSE
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pyanabrid.base.analog.computations import Integration as BaseIntegration
-from pyanabrid.base.analog.computations import Multiplication
+from pyanabrid.base.analog.computations import ScalarMultiplication as BaseScalarMultiplication, \
+    ScalarMultiplicationFactor
+from pyanabrid.base.analog.computations import Multiplication  # noqa
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Integration(BaseIntegration):
     #: Initial value
     ic: float = 0.0
     #: Time constant
     k: int = 10_000
+
+
+@dataclass(kw_only=True)
+class ScalarMultiplication(BaseScalarMultiplication):
+    #: Scalar factor
+    factor: float = field(default=ScalarMultiplicationFactor(min=-20.0, max=+20.0, default=1.0))
