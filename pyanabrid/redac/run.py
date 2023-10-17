@@ -29,6 +29,7 @@ from enum import Enum
 from uuid import UUID, uuid4
 
 from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState
+from pyanabrid.base.utils.descriptors import Validator
 
 from .entities import Path
 
@@ -97,15 +98,39 @@ class RunState(BaseRunState, Enum):
         return self in (RunState.DONE, RunState.ERROR)
 
 
+class DAQConfigurationChannels(Validator):
+
+    def set_default(self, instance, name, owner):
+        setattr(instance, name, set())
+
+    def parse(self, instance, value):
+        if isinstance(value, typing.Iterable):
+            return set(sorted(value))
+        else:
+            return {value}
+
+    def validate(self, instance, value):
+        last_channel: typing.Optional[int] = None
+        for channel in value:
+            if not isinstance(channel, int):
+                raise TypeError("Channel index must be an integer.")
+            if not 0 <= channel <= 7:
+                raise ValueError("Channel index must be between 0 and 7.")
+            if last_channel is not None and channel != last_channel + 1:
+                raise ValueError("Channel indices must be continuous.")
+            if last_channel is not None and channel < last_channel:
+                raise ValueError("Channel indices must be sorted ascending.")
+            last_channel = channel
+
+
 @dataclass(kw_only=True)
 class DAQConfiguration:
-    #: Paths of elements that should be sampled (can only contain paths to analog computation elements)
-    paths: list[Path] = field(default_factory=list)
+    #: List of channels that should be sampled.
+    #: The element corresponding to each channel is implicitly defined by the computer's configuration.
+    channels: set[int] = field(default=DAQConfigurationChannels())
     #: Sample rate to use in samples/second.
     sample_rate: int = 10_000
     #: Whether to sample during IC
-    sample_ic: bool = False
-    #: Whether to sample during OP
     sample_op: bool = True
     #: Whether to sample during OP_END
     sample_op_end: bool = True
