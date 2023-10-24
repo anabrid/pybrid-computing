@@ -34,7 +34,14 @@ from ..entities import EntityClass, EntityType
 class IBlock(SwitchingBlock):
     """
     A current summation block (I-Block) in a REDAC.
+    It can connect and sum up a subset of the 32 inputs to each of the 16 outputs.
     """
+
+    #: List of inputs connected to each output.
+    #: Each sub-list in the list corresponds to one output.
+    #: The outputs are set to the sum of the inputs specified by the sub-list in the respective array element.
+    #: Use an empty sub-list to disable an output.
+    #: The firmware may accept additional JSON structures (see JSON schema).
     outputs: list[set[int]] = field(default_factory=lambda: [set()] * 16)
 
     def connect(self, *connections, force=False):

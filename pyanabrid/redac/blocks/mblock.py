@@ -39,9 +39,15 @@ class MBlock(ElementBlock):
 @EntityType.register(EntityClass.MBLOCK, 0, 0, 0)
 class MIntBlock(MBlock):
     """
-    A math block consisting of integrators.
+    A math block consisting of eight integrators.
     """
     ELEMENTS = (ComputationElement[Integration],) * 8
+    elements: list[ComputationElement[Integration]]
+    """
+    List of elements on the block.
+    In case of the MIntBlock, these are eight integration computation elements.
+    Each integrator accepts configuration according to :class:`pyanabrid.redac.computations.Integration`.
+    """
 
 
 @EntityType.register(EntityClass.MBLOCK, 1, 0, 0)

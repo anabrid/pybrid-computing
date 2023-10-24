@@ -33,6 +33,11 @@ from ..entities import EntityClass, EntityType
 class CBlock(ElementBlock):
     """
     A coefficient block (C-Block) in a REDAC.
+    It can multiply each of the 32 input signal with an individual fixed scalar factor.
     """
+    #: List of elements on the block. In case of the CBlock,
+    #: these are 32 scalar multiplication computation elements (so-called coefficients).
+    #: Each coefficient accepts configuration parameters according to
+    #: :class:`pyanabrid.redac.computations.ScalarMultiplication`.
     elements: list[ComputationElement[ScalarMultiplication]]
     ELEMENTS = (ComputationElement[ScalarMultiplication],) * 32
