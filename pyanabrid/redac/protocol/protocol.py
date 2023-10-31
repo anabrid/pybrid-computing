@@ -37,9 +37,9 @@ from pyanabrid.base.transport import BaseTransport
 from ..entities import Path, Entity
 from .envelope import Envelope
 from .messages import Message, Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest, \
-    StartRunRequest, HackRequest
+    StartRunRequest, HackRequest, SetDAQRequest
 from .serializer import build_config
-from ..run import RunConfig
+from ..run import RunConfig, DAQConfig
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +139,10 @@ class Protocol(BaseProtocol):
                 logger.exception(
                     "Error while receiving or processing envelope: %s.", exc
                 )
+            except Exception as exc:
+                logger.exception(
+                    "Unknown error: %s.", exc
+                )
 
     #  ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████
     # ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██
@@ -181,7 +185,12 @@ class Protocol(BaseProtocol):
         await self.set_config_request(entity=entity.path, config=config)
         return True
 
-    async def start_run_request(self, id_: uuid.UUID, config: RunConfig):
+    async def set_daq_request(self, daq: DAQConfig, session: typing.Optional[uuid.UUID] = None):
         await self.send_message_and_wait_response(
-            StartRunRequest(id=id_, config=config, session=None)
+            SetDAQRequest(daq=daq)
+        )
+
+    async def start_run_request(self, id_: uuid.UUID, config: RunConfig, daq_config: DAQConfig = None):
+        await self.send_message_and_wait_response(
+            StartRunRequest(id=id_, config=config, daq_config=daq_config, session=None)
         )

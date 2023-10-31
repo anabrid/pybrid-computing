@@ -24,6 +24,7 @@
 # ANABRID_END_LICENSE
 
 import typing
+from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from uuid import UUID, uuid4
@@ -98,38 +99,26 @@ class RunState(BaseRunState, Enum):
         return self in (RunState.DONE, RunState.ERROR)
 
 
-class DAQConfigurationChannels(Validator):
+class DAQConfigurationNumChannels(Validator):
 
     def set_default(self, instance, name, owner):
-        setattr(instance, name, set())
+        setattr(instance, name, 1)
 
     def parse(self, instance, value):
-        if isinstance(value, typing.Iterable):
-            return set(sorted(value))
-        else:
-            return {value}
+        return int(value)
 
     def validate(self, instance, value):
-        last_channel: typing.Optional[int] = None
-        for channel in value:
-            if not isinstance(channel, int):
-                raise TypeError("Channel index must be an integer.")
-            if not 0 <= channel <= 7:
-                raise ValueError("Channel index must be between 0 and 7.")
-            if last_channel is not None and channel != last_channel + 1:
-                raise ValueError("Channel indices must be continuous.")
-            if last_channel is not None and channel < last_channel:
-                raise ValueError("Channel indices must be sorted ascending.")
-            last_channel = channel
+        if value > 0 and (value & (value - 1)) != 0:
+            raise ValueError("Value must be a power-of-two.")
 
 
 @dataclass(kw_only=True)
-class DAQConfiguration:
+class DAQConfig:
     #: List of channels that should be sampled.
     #: The element corresponding to each channel is implicitly defined by the computer's configuration.
-    channels: set[int] = field(default=DAQConfigurationChannels())
+    num_channels: int = field(default=DAQConfigurationNumChannels())
     #: Sample rate to use in samples/second.
-    sample_rate: int = 10_000
+    sample_rate: int = 500_000
     #: Whether to sample during IC
     sample_op: bool = True
     #: Whether to sample during OP_END
@@ -153,6 +142,6 @@ class Run(BaseRun):
     flags: RunFlags = field(default_factory=RunFlags)
 
     #: The configuration of the data acquisition for this run.
-    daq: DAQConfiguration = field(default_factory=DAQConfiguration)
+    daq: DAQConfig = field(default_factory=DAQConfig)
     #: Data captured for this run.
-    data: typing.Any = None
+    data: dict[Path, list[float]] = field(default_factory=lambda: defaultdict(list))

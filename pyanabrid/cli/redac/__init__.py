@@ -26,6 +26,8 @@
 import logging
 
 import asyncclick as click
+from asyncclick import Choice
+
 from pyanabrid.cli.base.ressources import ManagedAsyncResource
 
 from pyanabrid.base.transport.network import TCPTransport
@@ -36,6 +38,7 @@ from pyanabrid.base.hybrid import EntityDoesNotExist
 from pyanabrid.redac.blocks import SwitchingBlock
 from pyanabrid.redac.cluster import Cluster
 from pyanabrid.redac.controller import Controller
+from pyanabrid.redac.data import DatExporter
 from pyanabrid.redac.display import TreeDisplay
 from pyanabrid.redac.entities import Path, Entity
 from pyanabrid.redac.protocol.protocol import Protocol
@@ -136,7 +139,8 @@ async def set_element_config(obj, path, attribute, value):
     entity_config = entity.generate_partial_configuration(attribute)
 
     if path_.depth >= 4:
-        await controller.protocol.set_config_request(entity=path_.parent, config={"elements": {path_.id_: entity_config}})
+        await controller.protocol.set_config_request(entity=path_.parent,
+                                                     config={"elements": {path_.id_: entity_config}})
     else:
         await controller.protocol.set_config_request(entity=path_, config=entity_config)
 
@@ -191,9 +195,30 @@ async def route(obj, path, m_out, u_out, c_factor, m_in):
 
 @redac.command()
 @click.pass_obj
+@click.option('--sample-rate', '-r', type=Choice(
+    ['1', '2', '4', '5', '8', '10', '16', '20', '25', '32', '40', '50', '64', '80', '100', '125', '160', '200', '250',
+     '320', '400', '500', '625', '800', '1000', '1250', '1600', '2000', '2500', '3125', '4000', '5000', '6250', '8000',
+     '10000', '12500', '15625', '20000', '25000', '31250', '40000', '50000', '62500', '100000', '125000', '200000',
+     '250000', '500000', '1000000']), required=False)
+@click.option('--num-channels', '-n', type=Choice(['1', '2', '4', '8']), required=False)
+async def set_daq(obj, sample_rate, num_channels):
+    controller: Controller = obj["controller"]
+    run_: Run = obj["run"]
+
+    run_.daq.num_channels = num_channels
+    if sample_rate is not None:
+        run_.daq.sample_rate = int(sample_rate)
+
+
+@redac.command()
+@click.pass_obj
+# Run options
 @click.option('--op-time', type=int, default=None, help='OP time in nanoseconds.')
 @click.option('--ic-time', type=int, default=None, help='IC time in nanoseconds.')
-async def run(obj, op_time, ic_time):
+# Output options
+@click.option('--output', '-o', type=click.File('wt'), default='-')
+@click.option('--output-format', '-f', type=click.Choice(choices=("none", "dat",)), default="dat")
+async def run(obj, op_time, ic_time, output, output_format):
     controller: Controller = obj["controller"]
     run_: Run = obj["run"]
 
@@ -203,9 +228,14 @@ async def run(obj, op_time, ic_time):
     if op_time is not None:
         run_.config.op_time = op_time
 
-    run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=max(run_.config.op_time/1_000_000_000+3, 3))
+    timeout = max(run_.config.op_time / 1_000_000_000 + 3, 3)
+    run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=timeout)
     if run_.state is RunState.ERROR:
         raise RunError("Error while executing run.")
+
+    if output_format == "dat":
+        exporter = DatExporter(output)
+        exporter.export(run_)
 
 
 @redac.command()

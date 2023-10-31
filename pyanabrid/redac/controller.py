@@ -32,8 +32,8 @@ from uuid import UUID
 from pyanabrid.base.hybrid.controller import BaseController
 
 from .computer import REDAC
-from .entities import Entity
-from .protocol.messages import RunStateChangeMessage
+from .entities import Entity, Path
+from .protocol.messages import RunStateChangeMessage, RunDataMessage
 from .protocol.protocol import Protocol
 from .run import Run, RunState
 
@@ -53,6 +53,7 @@ class Controller(BaseController):
     async def start(self) -> None:
         await super().start()
         self.protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change)
+        self.protocol.register_callback(RunDataMessage, self.handle_run_data)
 
     def handle_run_state_change(self, msg: RunStateChangeMessage):
         logger.debug("Received run state change: %s.", msg)
@@ -62,6 +63,13 @@ class Controller(BaseController):
                 self._ongoing_runs.pop(run.id_).set_result(run)
         else:
             logger.warning("Received run state change with unknown id %s.", msg.id)
+
+    def handle_run_data(self, msg: RunDataMessage):
+        if run := self.runs.get(msg.id, None):
+            adc_paths = [Path(msg.entity).join(f"ADC{idx}") for idx in range(run.daq.num_channels)]
+            for data_pkg in msg.data:
+                for channel, data_point in zip(adc_paths, data_pkg):
+                    run.data[channel].append(data_point)
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
@@ -85,7 +93,7 @@ class Controller(BaseController):
             run = self.create_run()
         self.runs[run.id_] = run
         self._ongoing_runs[run.id_] = run_future = asyncio.get_event_loop().create_future()
-        await self.protocol.start_run_request(run.id_, run.config)
+        await self.protocol.start_run_request(run.id_, run.config, run.daq)
         return run_future
 
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:

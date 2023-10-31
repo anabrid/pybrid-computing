@@ -32,7 +32,7 @@ import inflection
 from pydantic import UUID4, BaseModel, Field
 
 from ..entities import Path
-from ..run import RunConfig, RunFlags, RunState, DAQConfiguration
+from ..run import RunConfig, RunFlags, RunState, DAQConfig
 from .types import SuccessInfo
 
 logger = logging.getLogger(__name__)
@@ -514,7 +514,7 @@ class GetMetadataResponse(Response):
 
 
 class SetDAQRequest(Request):
-    """A request to the controller to set a :py:class:`DAQConfiguration` determining how and when data should be
+    """A request to the controller to set a :py:class:`DAQConfig` determining how and when data should be
     acquired. The controller will respond with a :py:class:`SetDAQResponse`
 
     .. uml::
@@ -523,9 +523,12 @@ class SetDAQRequest(Request):
            Controller -> Client: SetDAQResponse(...)
     """
     #: The DAQ configuration to apply.
-    daq: DAQConfiguration
+    daq: DAQConfig
     #: The secret session ID for which the entities were reserved. Only required if session management is enabled.
     session: typing.Optional[UUID4]
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class SetDAQResponse(Response):
@@ -569,6 +572,9 @@ class StartRunRequest(Request):
     id: UUID4
     #: A :py:class:`pyanabrid.redac.run.RunConfig` that should be applied to the run.
     config: RunConfig
+    #: A :py:class:`pyanabrid.redac.daq.DAQConfig` that should be applied to the run.
+    #: If None, the previous configuration is used.
+    daq_config: typing.Optional[DAQConfig]
 
     @classmethod
     def from_run(cls, run):
@@ -676,13 +682,15 @@ class RunDataMessage(Message):
         deactivate Controller
     """
     #: ID of the run
-    run_id: int
+    id: UUID4
+    #: Entity (cluster) that produced the data
+    entity: Path
     #: Current state of the run
-    state: RunState
+    # state: RunState
     #: Time of the first datapoint in `data` in microseconds
-    t_0: int
+    # t_0: int
     #: Acquired data by entity path, normalized to [-1,+1]
-    data: dict[Path, list[float]]
+    data: list[list[float]]
 
 
 class GetOverloadRequest(Request):
