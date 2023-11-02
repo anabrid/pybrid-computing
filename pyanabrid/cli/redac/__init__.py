@@ -130,10 +130,11 @@ async def get_entity_config(obj, recursive, path):
 
 @redac.command()
 @click.pass_obj
+@click.option('--sync/--no-sync', default=True, help='Whether to immediately send configuration to hybrid controller.')
 @click.argument('path', type=str)
 @click.argument('attribute', type=str)
 @click.argument('value', type=str)
-async def set_element_config(obj, path, attribute, value):
+async def set_element_config(obj, sync, path, attribute, value):
     controller: Controller = obj["controller"]
 
     path_ = Path.parse(path, aliases=obj.get("aliases", None))
@@ -147,19 +148,21 @@ async def set_element_config(obj, path, attribute, value):
     # Build a configuration message to the parent block
     entity_config = entity.generate_partial_configuration(attribute)
 
-    if path_.depth >= 4:
-        await controller.protocol.set_config_request(entity=path_.parent,
-                                                     config={"elements": {path_.id_: entity_config}})
-    else:
-        await controller.protocol.set_config_request(entity=path_, config=entity_config)
+    if sync:
+        if path_.depth >= 4:
+            await controller.protocol.set_config_request(entity=path_.parent,
+                                                         config={"elements": {path_.id_: entity_config}})
+        else:
+            await controller.protocol.set_config_request(entity=path_, config=entity_config)
 
 
 @redac.command()
 @click.pass_obj
+@click.option('--sync/--no-sync', default=True, help='Whether to immediately send configuration to hybrid controller.')
 @click.option('--force', is_flag=True, default=False, show_default=True)
 @click.argument('path', type=str)
 @click.argument('connections', type=int, nargs=-1)
-async def set_connection(obj, force, path, connections):
+async def set_connection(obj, sync, force, path, connections):
     controller: Controller = obj["controller"]
 
     # Sanity check connections, which must be at least two arguments
@@ -177,18 +180,20 @@ async def set_connection(obj, force, path, connections):
     entity.connect(*connections, force=force)
 
     # Send configuration
-    carrier = controller.computer.get_entity(path_.to_carrier())
-    await controller.set_config(carrier)
+    if sync:
+        carrier = controller.computer.get_entity(path_.to_carrier())
+        await controller.set_config(carrier)
 
 
 @redac.command()
 @click.pass_obj
+@click.option('--sync/--no-sync', default=True, help='Whether to immediately send configuration to hybrid controller.')
 @click.argument('path', type=str)
 @click.argument('m_out', type=int)
 @click.argument('u_out', type=int)
 @click.argument('c_factor', type=float)
 @click.argument('m_in', type=int)
-async def route(obj, path, m_out, u_out, c_factor, m_in):
+async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
     controller: Controller = obj["controller"]
 
     # Try to get the entity by its path
@@ -199,7 +204,8 @@ async def route(obj, path, m_out, u_out, c_factor, m_in):
         raise ValueError("Expected a path to a Cluster.")
 
     cluster.route(m_out, u_out, c_factor, m_in)
-    await controller.set_config(cluster)
+    if sync:
+        await controller.set_config(cluster)
 
 
 @redac.command()
