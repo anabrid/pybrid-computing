@@ -37,7 +37,7 @@ from pyanabrid.base.transport import BaseTransport
 from ..entities import Path, Entity
 from .envelope import Envelope
 from .messages import Message, Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest, \
-    StartRunRequest, HackRequest, SetDAQRequest
+    StartRunRequest, HackRequest, SetDAQRequest, ResetRequest
 from .serializer import build_config
 from ..run import RunConfig, DAQConfig
 
@@ -193,4 +193,9 @@ class Protocol(BaseProtocol):
     async def start_run_request(self, id_: uuid.UUID, config: RunConfig, daq_config: DAQConfig = None):
         await self.send_message_and_wait_response(
             StartRunRequest(id=id_, config=config, daq_config=daq_config, session=None)
+        )
+
+    async def reset(self, keep_calibration: bool = True, sync: bool = True):
+        await self.send_message_and_wait_response(
+            ResetRequest(keep_calibration=keep_calibration, sync=sync)
         )

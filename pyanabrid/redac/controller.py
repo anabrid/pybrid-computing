@@ -103,3 +103,6 @@ class Controller(BaseController):
 
     async def set_config(self, entity: Entity):
         await self.protocol.set_config(entity)
+
+    async def reset(self, keep_calibration: bool = True, sync: bool = True):
+        await self.protocol.reset(keep_calibration=keep_calibration, sync=sync)

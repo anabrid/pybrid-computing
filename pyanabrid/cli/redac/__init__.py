@@ -109,6 +109,15 @@ async def display(obj):
 
 @redac.command()
 @click.pass_obj
+@click.option('--keep-calibration', type=bool, default=True, help='Whether to keep calibration.')
+@click.option('--sync/--no-sync', default=True, help='Whether to immediately sync configuration to hardware.')
+async def reset(obj, keep_calibration, sync):
+    controller: Controller = obj["controller"]
+    await controller.reset(keep_calibration=keep_calibration, sync=sync)
+
+
+@redac.command()
+@click.pass_obj
 @click.option('-r', '--recursive', type=bool, default=True, help='Whether to get config recursively for sub-entities.')
 @click.argument('path', type=str)
 async def get_entity_config(obj, recursive, path):

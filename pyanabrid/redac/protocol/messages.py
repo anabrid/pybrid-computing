@@ -201,6 +201,35 @@ class HackResponse(Response):
 # ██ ██   ████ ██    ██    ██ ██   ██ ███████ ██ ███████ ██   ██    ██    ██  ██████  ██   ████
 
 
+class ResetRequest(Request):
+    """
+    A request for the hybrid controller to reset its configuration.
+
+    Depending on the flags inside the message, only part of the configuration is reset.
+    The :attr:`sync` flag can be used to prevent actually writing the configuration to the hardware,
+    i.e. it is kept in memory only (useful if subsequent requests change it anyway).
+
+    .. uml::
+
+       Client -> Controller: **ResetRequest()**
+       activate Controller
+       note over Controller: resets system
+       Controller -> Client: ResetResponse()
+       deactivate Controller
+    """
+    #: Whether the calibration data should be kept.
+    keep_calibration: typing.Optional[bool] = True
+    #: Whether to immediately sync to hardware.
+    sync: typing.Optional[bool] = True
+
+
+class ResetResponse(Response):
+    """
+    A response to a previous :class:`ResetRequest`.
+    """
+    response_for = ResetRequest
+
+
 class GetEntitiesRequest(Request):
     """
     A request for the list of entity types (:py:class:`pyanabrid.redac.entities.EntityType`)
