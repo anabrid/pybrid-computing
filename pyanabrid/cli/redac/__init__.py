@@ -237,6 +237,10 @@ async def run(obj, op_time, ic_time, output, output_format):
     controller: Controller = obj["controller"]
     run_: Run = obj["run"]
 
+    # If the run in the context object is already done, we need a new one
+    if run_.state.is_done():
+        run_ = Run.make_from_other_run(run_)
+
     # Set run config
     if ic_time is not None:
         run_.config.ic_time = ic_time
