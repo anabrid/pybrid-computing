@@ -145,3 +145,7 @@ class Run(BaseRun):
     daq: DAQConfig = field(default_factory=DAQConfig)
     #: Data captured for this run.
     data: dict[Path, list[float]] = field(default_factory=lambda: defaultdict(list))
+
+    @classmethod
+    def get_persistent_attributes(cls) -> set[str]:
+        return super().get_persistent_attributes().union({"daq"})
