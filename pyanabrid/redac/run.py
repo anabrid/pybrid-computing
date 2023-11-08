@@ -102,7 +102,7 @@ class RunState(BaseRunState, Enum):
 class DAQConfigurationNumChannels(Validator):
 
     def set_default(self, instance, name, owner):
-        setattr(instance, name, 1)
+        setattr(instance, name, 0)
 
     def parse(self, instance, value):
         return int(value)

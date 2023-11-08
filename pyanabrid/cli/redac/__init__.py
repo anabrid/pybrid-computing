@@ -215,7 +215,7 @@ async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
      '320', '400', '500', '625', '800', '1000', '1250', '1600', '2000', '2500', '3125', '4000', '5000', '6250', '8000',
      '10000', '12500', '15625', '20000', '25000', '31250', '40000', '50000', '62500', '100000', '125000', '200000',
      '250000', '500000', '1000000']), required=False)
-@click.option('--num-channels', '-n', type=Choice(['1', '2', '4', '8']), required=False)
+@click.option('--num-channels', '-n', type=Choice(['0', '1', '2', '4', '8']), default='0')
 async def set_daq(obj, sample_rate, num_channels):
     controller: Controller = obj["controller"]
     run_: Run = obj["run"]
