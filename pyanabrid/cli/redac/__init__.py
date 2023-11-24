@@ -260,7 +260,7 @@ async def run(obj, op_time, ic_time, output, output_format):
 @redac.command()
 @click.pass_context
 @click.option('--ignore-errors', is_flag=True, default=False, show_default=True)
-@click.option('--exit-after-script', is_flag=True, default=False, show_default=True)
+@click.option('--exit-after-script', '-x', is_flag=True, default=False, show_default=True)
 @click.argument('scripts', nargs=-1, type=click.File('r'))
 async def shell(ctx: click.Context, ignore_errors, exit_after_script, scripts):
     computer_name = ctx.obj["controller"].computer.name
