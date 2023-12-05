@@ -27,15 +27,19 @@ import logging
 import sys
 import typing
 from abc import ABC, abstractmethod
+from dataclasses import replace
 
 from ..computer import AnalogComputer
 from ..controller import BaseController
-from ..run import BaseRun
+from ..run import BaseRun, BaseRunConfig, BaseDAQConfig
 
 logger = logging.getLogger(__name__)
 
 
 class BaseProgram(ABC):
+    RUN_CONFIG: BaseRunConfig = None
+    DAQ_CONFIG: BaseDAQConfig = None
+
     controller: BaseController
     run: BaseRun
     computer: typing.Optional[AnalogComputer]
@@ -57,8 +61,25 @@ class BaseProgram(ABC):
         if self.controller.computer is None:
             await self.controller.get_computer()
         self.computer = self.controller.computer
+        # Creating a run is async, thus it can not happen in __init__
+        # If BaseProgram is started via command line, run is already set, and we need to overwrite it partly.
+        if self.run is None:
+            self.run = await self.controller.create_run(**self.get_run_kwargs())
+        else:
+            self.run = replace(self.run, **self.get_run_kwargs())
         return await self.start()
 
     @abstractmethod
     async def start(self):
         ...
+
+    def get_run_kwargs(self) -> dict:
+        kwargs = {}
+
+        # Use *_CONFIG class variable if available
+        if self.RUN_CONFIG is not None:
+            kwargs["config"] = self.RUN_CONFIG
+        if self.DAQ_CONFIG is not None:
+            kwargs["daq"] = self.DAQ_CONFIG
+
+        return kwargs

@@ -105,7 +105,7 @@ import logging
 import typing
 
 from pyanabrid.base.hybrid.computer import AnalogComputer
-from pyanabrid.base.hybrid.run import BaseRun, BaseRunConfig
+from pyanabrid.base.hybrid.run import BaseRun
 
 from .base import BaseProgram
 
@@ -132,8 +132,6 @@ class RunEvaluateReconfigureLoop(BaseProgram):
     """
 
     runs: typing.List[BaseRun]
-
-    RUN_CONFIG: BaseRunConfig = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -172,15 +170,6 @@ class RunEvaluateReconfigureLoop(BaseProgram):
 
     # Convenience functions
     # These may be overwritten by the user, but less likely
-
-    def get_run_kwargs(self) -> dict:
-        kwargs = {}
-
-        # Use RUN_CONFIG class variable if available
-        if self.RUN_CONFIG is not None:
-            kwargs["config"] = self.RUN_CONFIG
-
-        return kwargs
 
     def create_run(self):
         run_class = self.controller.get_run_implementation()

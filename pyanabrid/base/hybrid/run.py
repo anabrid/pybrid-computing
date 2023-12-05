@@ -47,6 +47,10 @@ class BaseRunFlags:
     pass
 
 
+class BaseDAQConfig:
+    pass
+
+
 @dataclass(kw_only=True)
 class BaseRun:
     id_: typing.Any
@@ -56,6 +60,7 @@ class BaseRun:
     state: BaseRunState = field(default_factory=lambda: BaseRunState.default())
     flags: BaseRunFlags = field(default_factory=lambda: BaseRunFlags())
 
+    daq: BaseDAQConfig = field(default_factory=BaseDAQConfig)
     data: typing.Optional[typing.Any] = None
 
     def __str__(self):

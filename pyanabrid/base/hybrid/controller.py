@@ -65,9 +65,9 @@ class BaseController(ABC):
     def get_run_implementation(cls) -> typing.Type[BaseRun]:
         ...
 
-    async def create_run(self):
+    async def create_run(self, **kwargs):
         run_class = self.get_run_implementation()
-        return run_class()
+        return run_class(**kwargs)
 
     # Commands
 
