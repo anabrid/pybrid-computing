@@ -46,6 +46,15 @@ class BaseController(ABC):
         controller = cls(protocol)
         return controller
 
+    # Utilities
+
+    async def __aenter__(self):
+        await self.start()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.stop()
+
     # Initializations
 
     async def start(self) -> None:
