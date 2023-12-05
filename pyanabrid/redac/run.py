@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from uuid import UUID, uuid4
 
-from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState
+from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig
 from pyanabrid.base.utils.descriptors import Validator
 
 from .entities import Path
@@ -113,7 +113,7 @@ class DAQConfigurationNumChannels(Validator):
 
 
 @dataclass(kw_only=True)
-class DAQConfig:
+class DAQConfig(BaseDAQConfig):
     #: List of channels that should be sampled.
     #: The element corresponding to each channel is implicitly defined by the computer's configuration.
     num_channels: int = field(default=DAQConfigurationNumChannels())
