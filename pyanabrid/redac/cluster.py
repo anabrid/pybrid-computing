@@ -40,9 +40,9 @@ class Cluster(Entity):
     and one mandatory :class:`.blocks.UBlock`, :class:`.blocks.CBlock` and :class:`.blocks.IBlock` each.
     """
     #: The first :class:`.blocks.MBlock` in this cluster. May be ``None`` if the slot is not filled.
-    m1block: typing.Optional[MBlock]
+    m0block: typing.Optional[MBlock]
     #: The second :class:`.blocks.MBlock` in this cluster. May be ``None`` if the slot is not filled.
-    m2block: typing.Optional[MBlock]
+    m1block: typing.Optional[MBlock]
     #: The :class:`.blocks.UBlock` in this cluster.
     ublock: UBlock
     #: The :class:`.blocks.CBlock` in this cluster.
@@ -64,7 +64,7 @@ class Cluster(Entity):
         List of :class:`.blocks.FunctionBlock` objects in this cluster.
         Returns ``None`` elements for blocks that are not present.
         """
-        return self.m1block, self.m2block, self.ublock, self.cblock, self.iblock
+        return self.m0block, self.m1block, self.ublock, self.cblock, self.iblock
 
     @classmethod
     def create_from_entity_type_tree(cls, path, tree):
@@ -83,7 +83,7 @@ class Cluster(Entity):
             blocks.append(block)
 
         # TODO: Less hard-coding :)
-        return cls(path=path, m1block=blocks[0], m2block=blocks[1], ublock=blocks[2], cblock=blocks[3],
+        return cls(path=path, m0block=blocks[0], m1block=blocks[1], ublock=blocks[2], cblock=blocks[3],
                    iblock=blocks[4])
 
     def route(self, m_out: int, u_out: int, c_factor: float, m_in: int):
