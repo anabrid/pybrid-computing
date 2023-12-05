@@ -5,4 +5,4 @@ from .entities import Entity, Path, EntityDoesNotExist
 from .modules import ComputationModule
 from .protocol import BaseProtocol, ProtocolError
 from pyanabrid.base.hybrid.programs.recl import RunEvaluateReconfigureLoop
-from .run import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState
+from .run import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig
