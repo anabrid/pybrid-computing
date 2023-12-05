@@ -26,6 +26,7 @@
 import typing
 
 from .base import BaseProgram
+from ..computer import AnalogComputer
 from ..run import BaseRun
 
 
@@ -33,8 +34,8 @@ class SimpleRun(BaseProgram):
     run: typing.Optional[BaseRun]
 
     async def start(self):
-        self.run = self.create_run(self.computer)
-        self.configure_run(self.run)
+        self.set_configuration(self.run, self.computer)
+        await self.controller.set_computer(self.computer)
         self.run = await self.controller.start_and_await_run(self.run)
         self.run_done(self.run)
 
@@ -43,8 +44,8 @@ class SimpleRun(BaseProgram):
     def create_run(self, computer):
         return self.run
 
-    def configure_run(self, run):
-        return run
+    def set_configuration(self, run: BaseRun, computer: AnalogComputer):
+        raise NotImplementedError("You must supply a 'set_configuration' function in your sub-class.")
 
     def run_done(self, run):
         self.print("Successfully completed %s." % run)
