@@ -86,7 +86,8 @@ class Controller(BaseController):
         return computer
 
     async def set_computer(self, computer: REDAC):
-        raise NotImplementedError
+        for carrier in computer.carriers:
+            await self.set_config(carrier)
 
     async def start_run(self, run: typing.Optional[Run] = None) -> Future:
         if run is None:
