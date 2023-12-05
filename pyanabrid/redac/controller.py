@@ -70,6 +70,8 @@ class Controller(BaseController):
             for data_pkg in msg.data:
                 for channel, data_point in zip(adc_paths, data_pkg):
                     run.data[channel].append(data_point)
+            last_t = len(run.data["t"])
+            run.data["t"].extend(range(last_t, last_t + len(msg.data)))
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██

@@ -144,7 +144,7 @@ class Run(BaseRun):
     #: The configuration of the data acquisition for this run.
     daq: DAQConfig = field(default_factory=DAQConfig)
     #: Data captured for this run.
-    data: dict[Path, list[float]] = field(default_factory=lambda: defaultdict(list))
+    data: dict[Path | str, list[float]] = field(default_factory=lambda: defaultdict(list))
 
     @classmethod
     def get_persistent_attributes(cls) -> set[str]:
