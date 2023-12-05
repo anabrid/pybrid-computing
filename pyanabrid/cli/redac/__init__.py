@@ -28,13 +28,13 @@ import logging
 import asyncclick as click
 from asyncclick import Choice
 
-from pyanabrid.cli.base.ressources import ManagedAsyncResource
-
+from pyanabrid.base.hybrid import EntityDoesNotExist
 from pyanabrid.base.transport.network import TCPTransport
 from pyanabrid.cli.base import cli
+from pyanabrid.cli.base.commands import user_program
+from pyanabrid.cli.base.ressources import ManagedAsyncResource
 from pyanabrid.cli.base.shell import Shell
 
-from pyanabrid.base.hybrid import EntityDoesNotExist
 from pyanabrid.redac.blocks import SwitchingBlock
 from pyanabrid.redac.cluster import Cluster
 from pyanabrid.redac.controller import Controller
@@ -294,3 +294,6 @@ async def hack():
 async def make_slave(obj):
     controller: Controller = obj["controller"]
     await controller.hack("slave", True)
+
+
+redac.command()(user_program)
