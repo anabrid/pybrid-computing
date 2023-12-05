@@ -91,7 +91,7 @@ class Controller(BaseController):
 
     async def start_run(self, run: typing.Optional[Run] = None) -> Future:
         if run is None:
-            run = self.create_run()
+            run = await self.create_run()
         self.runs[run.id_] = run
         self._ongoing_runs[run.id_] = run_future = asyncio.get_event_loop().create_future()
         await self.protocol.start_run_request(run.id_, run.config, run.daq)
