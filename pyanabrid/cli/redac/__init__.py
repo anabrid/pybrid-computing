@@ -51,7 +51,8 @@ logger = logging.getLogger(__name__)
 @click.pass_context
 @click.option('--host', '-h', type=str, required=False)
 @click.option('--port', '-p', type=int, default=5732, required=False)
-async def redac(ctx: click.Context, host, port):
+@click.option('--reset', is_flag=True, default=True, show_default=True)
+async def redac(ctx: click.Context, host, port, reset):
     """
     Entrypoint for all REDAC commands.
     """
@@ -68,6 +69,10 @@ async def redac(ctx: click.Context, host, port):
     # Generate a controller, which will also start the protocol
     controller = await Controller.create(protocol)
     ctx.obj["controller"] = await ctx.with_async_resource(ManagedAsyncResource(controller, 'start', 'stop'))
+
+    # Unless chosen otherwise, reset the analog computer
+    if reset:
+        await controller.reset()
 
     # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
     ctx.obj["run"] = await controller.create_run()
