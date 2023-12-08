@@ -37,13 +37,23 @@ logger = logging.getLogger(__name__)
 
 
 class BaseProgram(ABC):
+    """
+    Base class for user programs.
+    """
+    #: Shortcut to set :attr:`.BaseRun.config` if not None.
     RUN_CONFIG: BaseRunConfig = None
+    #: Shortcut to set :attr:`.BaseRun.daq_config` if not None.
     DAQ_CONFIG: BaseDAQConfig = None
 
+    #: Underlying controller used by this program.
     controller: BaseController
+    #: Initial or current run.
     run: BaseRun
+    #: Underlying computer abstraction.
     computer: typing.Optional[AnalogComputer]
+    #: Output stream to write data to. Used to redirect to file or similar.
     output: typing.Optional[typing.IO]
+    #: Logger instance.
     logger: logging.Logger
 
     def __init__(self, controller: BaseController, run: BaseRun, output: typing.Optional[typing.IO] = None):
@@ -53,10 +63,17 @@ class BaseProgram(ABC):
         self.logger = logger
 
     def print(self, *args, **kwargs):
+        """Convenience wrapper around :code:`print()` which redirects it to :attr:`output`."""
         kwargs["file"] = self.output
         print(*args, **kwargs)
 
     async def entrypoint(self):
+        """
+        Entrypoint of all user programs.
+
+        This is either called automatically by the :code:`user-program` command of the command line,
+        or needs to be called when initialising a user program by hand.
+        """
         # If BaseProgram is started via command line, computer is already synchronized
         if self.controller.computer is None:
             await self.controller.get_computer()
@@ -71,9 +88,15 @@ class BaseProgram(ABC):
 
     @abstractmethod
     async def start(self):
+        """
+        Abstract start method called by :func:`entrypoint`, to be overwritten.
+        """
         ...
 
     def get_run_kwargs(self) -> dict:
+        """
+        Collects shortcut :attr:`RUN_CONFIG` and :attr:`DAQ_CONFIG` used when creating new runs.
+        """
         kwargs = {}
 
         # Use *_CONFIG class variable if available

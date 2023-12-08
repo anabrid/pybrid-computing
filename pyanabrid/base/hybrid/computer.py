@@ -30,8 +30,10 @@ from .utils import build_entity_path_dict
 
 
 class AnalogComputer(ABC):
+    #: The hierarchy of this analog computer.
     hierarchy = (Entity, )
 
+    #: The entities present in this analog computer.
     entities: list[Entity]
     _entities_by_path: dict[Path, Entity]
 
@@ -45,7 +47,8 @@ class AnalogComputer(ABC):
     def name(self) -> str:
         ...
 
-    def get_entity(self, path):
+    def get_entity(self, path: Path) -> Entity:
+        """Get an entity by path."""
         try:
             return self._entities_by_path[path]
         except KeyError:

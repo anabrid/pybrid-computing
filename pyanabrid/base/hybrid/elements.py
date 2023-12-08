@@ -33,6 +33,7 @@ from .entities import Entity
 
 @dataclass(kw_only=True)
 class BaseComputationElement(Entity):
+    #: The computation done by this element.
     computation: BaseComputation
 
     def __hash__(self):

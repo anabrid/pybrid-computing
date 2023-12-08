@@ -33,7 +33,9 @@ from .run import BaseRun
 
 
 class BaseController(ABC):
+    #: The computer controlled by this controller.
     computer: typing.Optional[AnalogComputer]
+    #: The protocol used by this controller.
     protocol: BaseProtocol
 
     def __init__(self, protocol, *args, **kwargs):
@@ -42,7 +44,8 @@ class BaseController(ABC):
         self.initialize_protocol(self.protocol)
 
     @classmethod
-    async def create(cls, protocol, *args, **kwargs) -> 'BaseController':
+    async def create(cls, protocol: BaseProtocol, *args, **kwargs) -> 'BaseController':
+        """Create a new controller using the passed protocol."""
         controller = cls(protocol)
         return controller
 
@@ -58,10 +61,13 @@ class BaseController(ABC):
     # Initializations
 
     async def start(self) -> None:
+        """Initialize the controller, start protocol communication and
+        request list of available entities from the analog computer."""
         await self.protocol.start()
         self.computer = await self.get_computer()
 
     async def stop(self) -> None:
+        """De-initialize the controller and stop protocol communication."""
         await self.protocol.stop()
 
     def initialize_protocol(self, protocol: BaseProtocol):
@@ -72,9 +78,11 @@ class BaseController(ABC):
     @classmethod
     @abstractmethod
     def get_run_implementation(cls) -> typing.Type[BaseRun]:
+        """Returns the specific :class:`BaseRun` implementation used by the analog computer."""
         ...
 
-    async def create_run(self, **kwargs):
+    async def create_run(self, **kwargs) -> BaseRun:
+        """Create a run. All keyword arguments are passed to the underlying :class:`BaseRun` class."""
         run_class = self.get_run_implementation()
         return run_class(**kwargs)
 
