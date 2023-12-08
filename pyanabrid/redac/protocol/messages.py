@@ -413,7 +413,7 @@ class SetConfigRequest(Request):
     Such sub-entity path keys must denote a sub-config dictionary, which is again passed on.
 
     The structure and content of the  configuration message depend on the entities to be configured.
-    See :ref:`REDAC Configurations` for details.
+    See :doc:`/redac/configurations` for details.
 
     Example of a multi-entity :class:`SetConfigRequest` message.
 
@@ -441,7 +441,7 @@ class SetConfigRequest(Request):
     #: The configuration to apply.
     #: May contain keys denoting paths to sub-entities (starting with a slash) and their config.
     #: The data schema of the configuration depends on the type of entity,
-    #: see :ref:`REDAC Configurations` for details.
+    #: see :doc:`/redac/configurations` for details.
     config: dict
 
     @classmethod

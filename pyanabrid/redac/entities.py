@@ -33,7 +33,7 @@ As described in :class:`Path`, the hierarchy represented is as follows.
 
 #. Carrier boards implemented by :class:`pyanabrid.redac.carrier.Carrier`
 #. Clusters implemented by :class:`pyanabrid.redac.cluster.Cluster`
-#. Function blocks implemented by :class:`pyanabrid.redac.blocks.FunctionBlock`
+#. Function blocks implemented by :class:`pyanabrid.redac.blocks.FunctionBlock`, see :doc:`configurations`
 #. Functions (Elements) implemented by :class:`pyanabrid.redac.elements.ComputationElement`
 """
 
@@ -46,10 +46,12 @@ from pyanabrid.base.hybrid import Entity as BaseEntity
 
 
 class UnknownEntityTypeError(ValueError):
+    """Exception thrown when trying to get an unknown :class:`EntityType` instance."""
     pass
 
 
 class EntityTypeRegistryError(ValueError):
+    """Exception for errors inside the :class:`EntityType` registry."""
     pass
 
 

@@ -37,6 +37,7 @@ class Carrier(Entity):
     This is the smallest independent hardware unit inside a REDAC.
     It contains several :class:`.cluster.Cluster` objects.
     """
+    #: List of clusters on the carrier board.
     clusters: list[Cluster]
 
     @property

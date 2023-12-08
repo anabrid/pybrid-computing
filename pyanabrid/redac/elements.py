@@ -29,6 +29,13 @@ from .entities import Entity
 
 
 class ComputationElement(BaseComputationElement, Entity):
+    """
+    A REDAC computation element (a function).
+
+    Each computation element implements one of the available
+    analog computations in :doc:`configurations`.
+    """
+
     def generate_partial_configuration(self, attribute):
         if self.computation_class.__dataclass_fields__.get(attribute, None):
             return {attribute: getattr(self.computation, attribute)}

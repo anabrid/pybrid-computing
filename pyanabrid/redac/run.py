@@ -36,6 +36,7 @@ from .entities import Path
 
 
 class RunError(Exception):
+    """Base exception class for all errors during a :class:`Run`."""
     pass
 
 

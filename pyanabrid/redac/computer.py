@@ -33,6 +33,9 @@ from .entities import Path
 
 
 class REDAC(AnalogComputer):
+    """
+    Representation of the REDAC analog computer and its structure.
+    """
     hierarchy = (Carrier, Cluster, FunctionBlock, ComputationElement)
     entities: list[Carrier]
 
@@ -42,6 +45,7 @@ class REDAC(AnalogComputer):
 
     @property
     def carriers(self) -> list[Carrier]:
+        """The list of :class:`.Carrier` boards in this REDAC."""
         return self.entities
 
     @classmethod
