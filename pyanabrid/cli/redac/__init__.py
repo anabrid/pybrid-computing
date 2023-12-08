@@ -49,12 +49,15 @@ logger = logging.getLogger(__name__)
 
 @cli.group()
 @click.pass_context
-@click.option('--host', '-h', type=str, required=False)
-@click.option('--port', '-p', type=int, default=5732, required=False)
-@click.option('--reset/--no-reset', is_flag=True, default=True, show_default=True)
+@click.option('--host', '-h', type=str, required=False, help="Network name or address of the REDAC.")
+@click.option('--port', '-p', type=int, default=5732, required=False, help="Network port of the REDAC.")
+@click.option('--reset/--no-reset', is_flag=True, default=True, show_default=True,
+              help="Whether to reset the REDAC after connecting.")
 async def redac(ctx: click.Context, host, port, reset):
     """
     Entrypoint for all REDAC commands.
+
+    Use :code:`anabrid redac --help` to list all available sub-commands.
     """
 
     # Generate a transport
@@ -84,6 +87,16 @@ async def redac(ctx: click.Context, host, port, reset):
 @click.argument('path', type=str)
 @click.argument('alias', type=str)
 async def set_alias(obj, path, alias):
+    """
+    Define an alias for a path in an interactive session or script.
+    You can use the alias in subsequent commands instead of a path argument.
+
+    PATH is the path the alias should resolve to.
+    ALIAS is the name of the alias.
+
+    If '*' is passed for the path as first argument, the alias is set to point
+    to the next carrier board which does not yet have an alias set for it.
+    """
     controller: Controller = obj["controller"]
     aliases: dict[str, Path] = obj.get("aliases", {})
     # Set alias supports a special '*' path as first argument,
@@ -108,6 +121,9 @@ async def set_alias(obj, path, alias):
 @redac.command()
 @click.pass_obj
 async def display(obj):
+    """
+    Display the hardware structure of the REDAC.
+    """
     controller: Controller = obj["controller"]
     click.echo(TreeDisplay().render(controller.computer))
 
@@ -117,6 +133,9 @@ async def display(obj):
 @click.option('--keep-calibration', type=bool, default=True, help='Whether to keep calibration.')
 @click.option('--sync/--no-sync', default=True, help='Whether to immediately sync configuration to hardware.')
 async def reset(obj, keep_calibration, sync):
+    """
+    Reset the REDAC to initial configuration.
+    """
     controller: Controller = obj["controller"]
     await controller.reset(keep_calibration=keep_calibration, sync=sync)
 
@@ -126,6 +145,11 @@ async def reset(obj, keep_calibration, sync):
 @click.option('-r', '--recursive', type=bool, default=True, help='Whether to get config recursively for sub-entities.')
 @click.argument('path', type=str)
 async def get_entity_config(obj, recursive, path):
+    """
+    Get the configuration of an entity.
+
+    PATH is the unique path of the entity.
+    """
     controller: Controller = obj["controller"]
 
     path_ = Path.parse(path, aliases=obj.get("aliases", None))
@@ -140,6 +164,13 @@ async def get_entity_config(obj, recursive, path):
 @click.argument('attribute', type=str)
 @click.argument('value', type=str)
 async def set_element_config(obj, sync, path, attribute, value):
+    """
+    Set one ATTRIBUTE to VALUE of the configuration of an entity at PATH.
+
+    PATH is the unique path of the entity.
+    ATTRIBUTE is the name of the attribute to change, e.g. 'factor'.
+    VALUE is the new value of the attribute, e.g. '0.42'.
+    """
     controller: Controller = obj["controller"]
 
     path_ = Path.parse(path, aliases=obj.get("aliases", None))
@@ -164,10 +195,19 @@ async def set_element_config(obj, sync, path, attribute, value):
 @redac.command()
 @click.pass_obj
 @click.option('--sync/--no-sync', default=True, help='Whether to immediately send configuration to hybrid controller.')
-@click.option('--force', is_flag=True, default=False, show_default=True)
+@click.option('--force', is_flag=True, default=False, show_default=True,
+              help="Force connection, possibly disconnecting existing connections.")
 @click.argument('path', type=str)
 @click.argument('connections', type=int, nargs=-1)
 async def set_connection(obj, sync, force, path, connections):
+    """
+    Set one or multiple connections in a U-Block or I-Block.
+
+    PATH is the unique path to either a U-Block or I-Block.
+    CONNECTIONS specifies which connections should be set.
+    For a U-Block, the syntax is <input> <output> [<output> ...].
+    For a I-Block, the syntax is <input> [<input> ...] <output>.
+    """
     controller: Controller = obj["controller"]
 
     # Sanity check connections, which must be at least two arguments
@@ -199,6 +239,16 @@ async def set_connection(obj, sync, force, path, connections):
 @click.argument('c_factor', type=float)
 @click.argument('m_in', type=int)
 async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
+    """
+    Route a signal on one cluster from one output of one M-Block through the U-Block, a coefficient on the C-Block,
+    through the I-Block and back to one input of one M-Block.
+
+    PATH is the unique path of the entity.
+    M_OUT is the M-Block signal output index.
+    U_OUT is the U-Block signal output index (equals coefficient index).
+    C_FACTOR is the factor of the coefficient.
+    M_IN is the M-Block signal input index (equals I-Block signal output index).
+    """
     controller: Controller = obj["controller"]
 
     # Try to get the entity by its path
@@ -219,9 +269,14 @@ async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
     ['1', '2', '4', '5', '8', '10', '16', '20', '25', '32', '40', '50', '64', '80', '100', '125', '160', '200', '250',
      '320', '400', '500', '625', '800', '1000', '1250', '1600', '2000', '2500', '3125', '4000', '5000', '6250', '8000',
      '10000', '12500', '15625', '20000', '25000', '31250', '40000', '50000', '62500', '100000', '125000', '200000',
-     '250000', '500000', '1000000']), required=False)
-@click.option('--num-channels', '-n', type=Choice(['0', '1', '2', '4', '8']), default='0')
+     '250000', '500000', '1000000']), required=False, help="Sample rate in samples/second.")
+@click.option('--num-channels', '-n', type=Choice(['0', '1', '2', '4', '8']), default='0', help="Number of channels.")
 async def set_daq(obj, sample_rate, num_channels):
+    """
+    Configure data acquisition of subsequent run commands.
+    Only useful in interactive sessions or scripts.
+    Is lost once the session or script ends.
+    """
     controller: Controller = obj["controller"]
     run_: Run = obj["run"]
 
@@ -236,9 +291,13 @@ async def set_daq(obj, sample_rate, num_channels):
 @click.option('--op-time', type=int, default=None, help='OP time in nanoseconds.')
 @click.option('--ic-time', type=int, default=None, help='IC time in nanoseconds.')
 # Output options
-@click.option('--output', '-o', type=click.File('wt'), default='-')
-@click.option('--output-format', '-f', type=click.Choice(choices=("none", "dat",)), default="dat")
+@click.option('--output', '-o', type=click.File('wt'), default='-', help="File to write data to.")
+@click.option('--output-format', '-f', type=click.Choice(choices=("none", "dat",)), default="dat",
+              help="Format to write data in.")
 async def run(obj, op_time, ic_time, output, output_format):
+    """
+    Start a run (computation) and wait until it is complete.
+    """
     controller: Controller = obj["controller"]
     run_: Run = obj["run"]
 
@@ -264,10 +323,17 @@ async def run(obj, op_time, ic_time, output, output_format):
 
 @redac.command()
 @click.pass_context
-@click.option('--ignore-errors', is_flag=True, default=False, show_default=True)
-@click.option('--exit-after-script', '-x', is_flag=True, default=False, show_default=True)
+@click.option('--ignore-errors', is_flag=True, default=False, show_default=True,
+              help="Ignore errors while executing a script.")
+@click.option('--exit-after-script', '-x', is_flag=True, default=False, show_default=True,
+              help="Exit after the scripts have been executed. Useful if output is piped into other programs.")
 @click.argument('scripts', nargs=-1, type=click.File('r'))
 async def shell(ctx: click.Context, ignore_errors, exit_after_script, scripts):
+    """
+    Start an interactive shell and/or execute a REDAC shell SCRIPT.
+
+    SCRIPTS is a list of REDAC shell script files to execute before starting the interactive session."
+    """
     computer_name = ctx.obj["controller"].computer.name
 
     # Create and start a shell
@@ -291,12 +357,19 @@ async def shell(ctx: click.Context, ignore_errors, exit_after_script, scripts):
 
 @redac.group()
 async def hack():
+    """
+    Collects 'hack' commands, for development purposes only.
+    """
     pass
 
 
 @hack.command()
 @click.pass_obj
 async def make_slave(obj):
+    """
+    Set one hybrid controller into slave mode.
+    For development purposes only.
+    """
     controller: Controller = obj["controller"]
     await controller.hack("slave", True)
 
