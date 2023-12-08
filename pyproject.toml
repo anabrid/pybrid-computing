@@ -4,7 +4,7 @@ name = "pyanabrid-base-hybrid"
 packages = [
   { include = "pyanabrid" }
 ]
-version = "0.7.0"
+version = "0.7.1"
 description = "anabrid base hybrid controller abstraction"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
