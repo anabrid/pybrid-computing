@@ -17,7 +17,7 @@ packaging = "^22.0"
 pyanabrid-base-analog = "^0, >=0.3.0"
 pyserial-asyncio = "^0.6"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 # from cookiecutter
 pytest = "^7"
 # from project
@@ -26,8 +26,7 @@ pytest-asyncio = "^0.18.3"
 [[tool.poetry.source]]
 name = "anabrid"
 url = "https://pypi.tinybridge.anabrid.dev/"
-default = false
-secondary = false
+priority = "supplemental"
 
 [build-system]
 # from cookiecutter
