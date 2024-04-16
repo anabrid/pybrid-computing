@@ -124,22 +124,6 @@ files = [
 wcwidth = "*"
 
 [[package]]
-name = "pyanabrid-base-utils"
-version = "0.4.0"
-description = "Collection of useful tools for pyanabrid package"
-optional = false
-python-versions = ">=3.9,<4.0"
-files = [
-    {file = "pyanabrid_base_utils-0.4.0-py3-none-any.whl", hash = "sha256:f916ac9463041546ab557d1905ce9ee4521b728a3fd47e0afd9bf337b16f97da"},
-    {file = "pyanabrid_base_utils-0.4.0.tar.gz", hash = "sha256:f10e82e475fd3f37c0881a23623a14363c9dcaadf0b5cae6f10ee51a37011bb5"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tinybridge.anabrid.dev"
-reference = "anabrid"
-
-[[package]]
 name = "pyserial"
 version = "3.5"
 description = "Python Serial Port Extension"
@@ -243,4 +227,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "b4a7cc6c5009ac51998f6953c1997eec6cea029d854d52f13b5ca392c7863ac4"
+content-hash = "3132fd0b9097839138a6eff797c71a6764b9141b24957af64637e4c91bf2b55c"
