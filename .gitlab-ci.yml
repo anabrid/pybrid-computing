@@ -15,7 +15,7 @@ cache:
     
 .anabrid-poetry-job:
   image:
-    name: $CI_REGISTRY/pyanabrid/base/utils/python-poetry
+    name: $CI_REGISTRY/pyanabrid/pybrid-computing-base/python-poetry
   before_script:
     # Store user/password info in ~/.netrc, which will be automatically used by poetry
     - echo "machine ${ANABRID_PYTHON_INDEX_HOST:?CI variable missing}" > $HOME/.netrc
