@@ -25,4 +25,4 @@
 
 
 def test_import():
-    import pyanabrid.hybrid.controller  # noqa
+    import pyanabrid.base.hybrid  # noqa
