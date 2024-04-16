@@ -25,4 +25,6 @@
 
 
 def test_import():
+    import pyanabrid.base.analog  # noqa
+    import pyanabrid.base.transport  # noqa
     import pyanabrid.base.hybrid  # noqa
