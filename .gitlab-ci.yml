@@ -1,0 +1,85 @@
+stages:
+  - test
+  - build
+  - release
+
+# Change pip's cache directory to be inside the project directory since we can only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# https://pip.pypa.io/en/stable/topics/caching/
+cache:
+  paths:
+    - .cache/pip
+    
+    
+.anabrid-poetry-job:
+  image:
+    name: $CI_REGISTRY/pyanabrid/base/utils/python-poetry
+  before_script:
+    # Store user/password info in ~/.netrc, which will be automatically used by poetry
+    - echo "machine ${ANABRID_PYTHON_INDEX_HOST:?CI variable missing}" > $HOME/.netrc
+    - echo "login ${ANABRID_PYTHON_INDEX_USER:?CI variable missing}" >> $HOME/.netrc
+    - echo "password ${ANABRID_PYTHON_INDEX_PASSWORD:?CI variable missing}" >> $HOME/.netrc
+
+.anabrid-if-release-job:
+  rules:
+    - if: $CI_COMMIT_TAG
+
+
+test_job:
+  extends: .anabrid-poetry-job
+  stage: test
+  script:
+    - poetry --no-interaction install --with dev
+    - poetry --no-interaction run pytest
+
+
+build_job:
+  extends: [.anabrid-poetry-job, .anabrid-if-release-job]
+  stage: build
+  script:
+    - poetry --no-interaction build
+    - echo ANABRID_BUILD_JOB_ID=$CI_JOB_ID > .anabrid_build_result.env
+    - echo ANABRID_BUILD_VERSION=$(poetry version --short) >> .anabrid_build_result.env
+  artifacts:
+    paths:
+      - dist/
+    # Save job id in artifacts for release job
+    reports:
+      dotenv: .anabrid_build_result.env
+    expire_in: 6 months
+
+
+release_python_job:
+  extends: [.anabrid-poetry-job, .anabrid-if-release-job]
+  stage: release
+  rules:
+    - !reference [build_job, rules]
+  needs:
+    - job: build_job
+      artifacts: true
+  script:
+    - poetry --no-interaction publish --repository anabrid
+
+
+release_gitlab_job:
+  extends: .anabrid-if-release-job
+  stage: release
+  needs:
+    - job: build_job
+      artifacts: true
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - echo "Releasing package built in build_job ${ANABRID_BUILD_JOB_ID}."
+  release:
+    name: 'pyanabrid-base-hybrid v$ANABRID_BUILD_VERSION'
+    description: 'Release of pyanabrid-base-hybrid package version $ANABRID_BUILD_VERSION.'
+    # tag_name is a mandatory field and can not be an empty string
+    tag_name: '$ANABRID_BUILD_VERSION'
+    assets:
+      links:
+        - name: 'Package (wheel)'
+          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pyanabrid_base_hybrid-$ANABRID_BUILD_VERSION-py3-none-any.whl'
+        - name: 'Package (.tar.gz)'
+          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pyanabrid_base_hybrid-$ANABRID_BUILD_VERSION.tar.gz'
