@@ -23,10 +23,15 @@ pyanabrid-base-hybrid = "^0, >=0.7.0"
 pyanabrid-base-utils = "^0, >=0.4.0"
 pydantic = "^1.10.5"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 # from cookiecutter
 pytest = "^7"
 # from project
+
+[[tool.poetry.source]]
+name = "anabrid"
+url = "https://pypi.tinybridge.anabrid.dev/"
+priority = "supplemental"
 
 [build-system]
 # from cookiecutter
