@@ -17,11 +17,11 @@ asyncclick = "^8.1.3.4"
 inflection = "^0.5.1"
 matplotlib = { version = "^3.5.3", extras = ["examples"] }
 pyqt5 = { version = "^5.15.2", extras = ["examples"] }
-pyanabrid-base-analog = "^0, >=0.3.2"
-pyanabrid-base-cli = "^0, >=0.5.0"
-pyanabrid-base-hybrid = "^0, >=0.7.0"
-pyanabrid-base-utils = "^0, >=0.4.0"
+pyanabrid-base-hybrid = "^0, >=0.9.0"
 pydantic = "^1.10.5"
+# temporary
+# pin pyqt5-qt5 subdependency version, since newest version is not available on all platforms
+pyqt5-qt5 = { version = "==5.15.2", markers = "sys_platform == 'linux'" }
 
 [tool.poetry.group.dev.dependencies]
 # from cookiecutter
