@@ -1,0 +1,29 @@
+stages:
+  - test
+
+# Change pip's cache directory to be inside the project directory since we can only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# https://pip.pypa.io/en/stable/topics/caching/
+cache:
+  paths:
+    - .cache/pip
+    
+    
+.anabrid-poetry-job:
+  image:
+    name: $CI_REGISTRY/pybrid-computing/pybrid-computing-base/python-poetry
+  before_script:
+    # Store user/password info in ~/.netrc, which will be automatically used by poetry
+    - echo "machine ${ANABRID_PYTHON_INDEX_HOST:?CI variable missing}" > $HOME/.netrc
+    - echo "login ${ANABRID_PYTHON_INDEX_USER:?CI variable missing}" >> $HOME/.netrc
+    - echo "password ${ANABRID_PYTHON_INDEX_PASSWORD:?CI variable missing}" >> $HOME/.netrc
+
+
+test_job:
+  extends: .anabrid-poetry-job
+  stage: test
+  script:
+    - poetry --no-interaction install --sync --with dev
+    - poetry --no-interaction run pytest
