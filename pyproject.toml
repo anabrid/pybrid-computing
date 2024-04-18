@@ -27,6 +27,11 @@ pydantic = "^1.10.5"
 # from cookiecutter
 pytest = "^7"
 # from project
+sphinx = "^5.1.1"
+sphinx-autobuild = "^2021.3.14"
+sphinx-click = "^5.1.0"
+sphinx-rtd-theme = "^1.0.0"
+sphinxcontrib-plantuml = "^0.24"
 
 [[tool.poetry.source]]
 name = "anabrid"
