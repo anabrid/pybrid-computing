@@ -17,6 +17,6 @@ class CBlock(ElementBlock):
     #: List of elements on the block. In case of the CBlock,
     #: these are 32 scalar multiplication computation elements (so-called coefficients).
     #: Each coefficient accepts configuration parameters according to
-    #: :class:`pyanabrid.redac.computations.ScalarMultiplication`.
+    #: :class:`pybrid.redac.computations.ScalarMultiplication`.
     elements: list[ComputationElement[ScalarMultiplication]]
     ELEMENTS = (ComputationElement[ScalarMultiplication],) * 32

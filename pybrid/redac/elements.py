@@ -2,7 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from pyanabrid.base.hybrid.elements import ComputationElement as BaseComputationElement
+from pybrid.base.hybrid import ComputationElement as BaseComputationElement
 
 from .entities import Entity
 

@@ -9,7 +9,7 @@ by analog computing!
 Common Hybrid Computing Tasks
 -----------------------------
 
-.. autoclass:: pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop
+.. autoclass:: pybrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop
    :undoc-members:
    :members:
    :show-inheritance:

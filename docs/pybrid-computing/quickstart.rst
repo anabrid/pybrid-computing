@@ -11,7 +11,7 @@ See below for some examples or read the :doc:`commandline` section.
 Connecting to an Analog Computer
 --------------------------------
 
-Connect your analog computer to the computer on which you installed :code:`pyanabrid`.
+Connect your analog computer to the computer on which you installed :code:`pybrid-computing`.
 Depending on the type of analog computer, this will be different.
 Follow the guide you received with your analog computer.
 
@@ -25,7 +25,7 @@ Starting an interactive shell
 
 With the information on how you connected your analog computer, you can start an interactive shell,
 with which you can control it.
-Each analog computer registers a subcommand with the common :code:`anabrid` command line tool.
+Each analog computer registers a subcommand with the common :code:`pybrid` command line tool.
 You can check their respective commandline reference for more information.
 For the :doc:`../redac/index` this subcommand is called :code:`redac`.
 
@@ -33,7 +33,7 @@ To start a shell on a REDAC analog computer with IP address :code:`10.42.0.2`, e
 
 .. code-block:: bash
 
-    pyanabrid redac -h 10.42.0.2 shell
+    pybrid redac -h 10.42.0.2 shell
 
 Inside the shell, you may use several commands to change the configuration of the analog computer
 or start a computation (a so-called "run").

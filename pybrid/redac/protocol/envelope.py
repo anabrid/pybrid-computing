@@ -8,7 +8,7 @@ import typing
 from uuid import UUID, uuid4
 from pydantic import BaseModel, Field, ValidationError
 
-from pyanabrid.base.hybrid.protocol import MalformedDataError, MalformedMessageError
+from pybrid.base.hybrid.protocol import MalformedDataError, MalformedMessageError
 
 from .messages import Message
 

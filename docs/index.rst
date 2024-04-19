@@ -1,16 +1,16 @@
-pyanabrid --- Analog-Digital Hybrid Computing
-=============================================
+pybrid-computing --- Analog-Digital Hybrid Computing
+====================================================
 
 .. toctree::
-   :caption: pyanabrid
+   :caption: The pybrid-computing package
    :maxdepth: 1
    :hidden:
 
-   pyanabrid/prerequisites
-   pyanabrid/installation
-   pyanabrid/quickstart
-   pyanabrid/commandline
-   pyanabrid/hybrid/index.rst
+   pybrid-computing/prerequisites
+   pybrid-computing/installation
+   pybrid-computing/quickstart
+   pybrid-computing/commandline
+   pybrid-computing/hybrid/index.rst
 
 .. toctree::
    :caption: REDAC Analog Computer
@@ -26,4 +26,4 @@ pyanabrid --- Analog-Digital Hybrid Computing
    redac/hybrid-controller
    redac/low-level
 
-`pyanabrid` is a package suite for hybrid computing tasks on the analog computers built by `anabrid`_
+`pybrid-computing` is a package suite for hybrid computing tasks on the analog computers built by `anabrid`_

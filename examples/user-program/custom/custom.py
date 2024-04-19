@@ -2,8 +2,8 @@
 
 import asyncio
 
-from pyanabrid.base.hybrid.programs.base import BaseProgram
-from pyanabrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.base.hybrid.programs.base import BaseProgram
+from pybrid.redac import REDAC
 
 
 class UserProgram(BaseProgram):

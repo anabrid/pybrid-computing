@@ -1,17 +1,17 @@
 Installation
 ============
 
-The `pyanabrid` suite is a collection of several python namespace packages.
-For most end-users, installing the :code:`pyanabrid` meta package will install all necessary packages.
-Additional functionality can be installed by specifying `extra package options`_, e.g. :code:`pyanabrid[all]`,
+The `pybrid-computing` suite is a collection of several python namespace packages.
+For most end-users, installing the :code:`pybrid-computing` meta package will install all necessary packages.
+Additional functionality can be installed by specifying `extra package options`_, e.g. :code:`pybrid-computing[all]`,
 but should be rarely necessary.
 
-To install :code:`pyanabrid` use :code:`pip`:
+To install :code:`pybrid-computing` use :code:`pip`:
 
 
 .. code-block:: bash
 
-    pip install pyanabrid
+    pip install pybrid-computing
 
 
 
@@ -56,14 +56,14 @@ Once the virtual environment is activated, you can use :code:`python` and :code:
 
 .. code-block:: bash
 
-    pip install pyanabrid
+    pip install pybrid-computing
 
 
 
 Next Steps
 ----------
 
-After successfully installing the :code:`pyanabrid` package, these are some possible next steps:
+After successfully installing the :code:`pybrid-computing` package, these are some possible next steps:
 
 :doc:`quickstart`
     Follow some quickstart examples to get going.

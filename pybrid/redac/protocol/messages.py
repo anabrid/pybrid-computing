@@ -211,8 +211,8 @@ class ResetResponse(Response):
 
 class GetEntitiesRequest(Request):
     """
-    A request for the list of entity types (:py:class:`pyanabrid.redac.entities.EntityType`)
-    by their path (:class:`pyanabrid.redac.entities.Path`).
+    A request for the list of entity types (:py:class:`pybrid.redac.entities.EntityType`)
+    by their path (:class:`pybrid.redac.entities.Path`).
     The controller responds with a :py:class:`GetEntitiesResponse` containing a tree-like representation of all entities.
 
     The :class:`GetEntitiesResponse` tells you the current assembly structure of the analog computer.
@@ -232,7 +232,7 @@ class GetEntitiesRequest(Request):
 
 class GetEntitiesResponse(Response):
     """
-    A response containing the list of entities (:py:class:`pyanabrid.redac.entities.EntityType`)
+    A response containing the list of entities (:py:class:`pybrid.redac.entities.EntityType`)
     currently in the analog computer.
 
     .. uml::
@@ -578,17 +578,17 @@ class StartRunRequest(Request):
     session: typing.Optional[UUID4]
     #: An ID that should be applied to the run.
     id: UUID4
-    #: A :py:class:`pyanabrid.redac.run.RunConfig` that should be applied to the run.
+    #: A :py:class:`pybrid.redac.run.RunConfig` that should be applied to the run.
     config: RunConfig
-    #: A :py:class:`pyanabrid.redac.daq.DAQConfig` that should be applied to the run.
+    #: A :py:class:`pybrid.redac.daq.DAQConfig` that should be applied to the run.
     #: If None, the previous configuration is used.
     daq_config: typing.Optional[DAQConfig]
 
     @classmethod
     def from_run(cls, run):
         """
-        Generate a :py:class:`pyanabrid.redac.protocol.messages.StartRunRequest`
-        from a :py:class:`pyanabrid.redac.run.Run` instance.
+        Generate a :py:class:`pybrid.redac.protocol.messages.StartRunRequest`
+        from a :py:class:`pybrid.redac.run.Run` instance.
 
         :param run: A run
         :return: A StartRunRequest instance

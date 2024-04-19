@@ -7,7 +7,7 @@
 import dataclasses
 import typing
 
-from pyanabrid.redac.run import Run
+from pybrid.redac.run import Run
 
 
 # TODO: Implement a lookup for different data types

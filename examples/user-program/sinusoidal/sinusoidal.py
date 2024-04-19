@@ -1,10 +1,10 @@
 # Example of a UserProgram configuring a harmonic oscillator on the REDAC. Use as
-#   anabrid redac -h <host> user-program path/to/this/file.py
+#   pybrid redac -h <host> user-program path/to/this/file.py
 
 import matplotlib.pyplot as plt
 
-from pyanabrid.base.hybrid.programs import SimpleRun
-from pyanabrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.base.hybrid.programs import SimpleRun
+from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
 
 
 class UserProgram(SimpleRun):

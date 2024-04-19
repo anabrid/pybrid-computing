@@ -1,6 +1,6 @@
 REDAC Hybrid Controller Abstraction
 ===================================
 
-.. automodule:: pyanabrid.redac.controller
+.. automodule:: pybrid.redac.controller
    :members:
    :inherited-members:

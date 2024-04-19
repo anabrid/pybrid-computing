@@ -4,10 +4,10 @@
 
 from dataclasses import dataclass, field
 
-from pyanabrid.base.analog.computations import Integration as BaseIntegration
-from pyanabrid.base.analog.computations import ScalarMultiplication as BaseScalarMultiplication, \
+from pybrid.base.analog import Integration as BaseIntegration
+from pybrid.base.analog import ScalarMultiplication as BaseScalarMultiplication, \
     ScalarMultiplicationFactor
-from pyanabrid.base.analog.computations import Multiplication  # noqa
+from pybrid.base.analog import Multiplication  # noqa
 
 
 @dataclass(kw_only=True)

@@ -287,13 +287,13 @@ files = [
 
 [[package]]
 name = "exceptiongroup"
-version = "1.2.0"
+version = "1.2.1"
 description = "Backport of PEP 654 (exception groups)"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "exceptiongroup-1.2.0-py3-none-any.whl", hash = "sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14"},
-    {file = "exceptiongroup-1.2.0.tar.gz", hash = "sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68"},
+    {file = "exceptiongroup-1.2.1-py3-none-any.whl", hash = "sha256:5258b9ed329c5bbdd31a309f53cbfb0b155341807f6ff7606a1e801a891b29ad"},
+    {file = "exceptiongroup-1.2.1.tar.gz", hash = "sha256:a4785e48b045528f5bfe627b6ad554ff32def154f42372786903b7abcfe1aa16"},
 ]
 
 [package.extras]
@@ -842,14 +842,14 @@ files = [
 wcwidth = "*"
 
 [[package]]
-name = "pyanabrid-base-hybrid"
-version = "0.9.0"
-description = "anabrid base hybrid controller abstraction"
+name = "pybrid-computing-base"
+version = "0.10.0"
+description = "pybrid-computing base analog and hybrid abstractions"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pyanabrid_base_hybrid-0.9.0-py3-none-any.whl", hash = "sha256:86b7915475b51f880e4e4b87abb7a0b14d1661c7242d0521b1df86f9e7906aa2"},
-    {file = "pyanabrid_base_hybrid-0.9.0.tar.gz", hash = "sha256:4c276a80794fedf16bb83fcdd27e53230c37ed0c89291c9f3a3d1021d06cdc0e"},
+    {file = "pybrid_computing_base-0.10.0-py3-none-any.whl", hash = "sha256:13bf08571a17c224192b3490dc996ed3fce83cbc37ee9a801133f86e050da15c"},
+    {file = "pybrid_computing_base-0.10.0.tar.gz", hash = "sha256:d82a25ee159a58f684ed6e9fec9aca294d8f60c39ad6dc14d36e007915b9cf93"},
 ]
 
 [package.dependencies]
@@ -1410,4 +1410,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "716dcb27a045b4c45083c15ccc06b9441d8ce5dce19812180dbed1b1c521c7dc"
+content-hash = "f90072cb7cf04b9255959ec9ef0c98ad06a3fd0c9f40e062d8f9fe1e4ca0da63"

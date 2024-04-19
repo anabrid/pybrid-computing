@@ -1,27 +1,27 @@
 REDAC Hardware Abstractions
 ===========================
 
-.. automodule:: pyanabrid.redac.entities
+.. automodule:: pybrid.redac.entities
    :members:
    :inherited-members: Exception
 
-.. automodule:: pyanabrid.redac.computer
+.. automodule:: pybrid.redac.computer
    :members:
    :inherited-members: Exception
 
-.. automodule:: pyanabrid.redac.carrier
+.. automodule:: pybrid.redac.carrier
    :members:
    :inherited-members: Exception
 
-.. automodule:: pyanabrid.redac.cluster
+.. automodule:: pybrid.redac.cluster
    :members:
    :inherited-members: Exception
 
-.. automodule:: pyanabrid.redac.blocks
+.. automodule:: pybrid.redac.blocks
    :members:
    :inherited-members: Exception
 
-.. automodule:: pyanabrid.redac.elements
+.. automodule:: pybrid.redac.elements
    :members:
    :inherited-members: Exception
 

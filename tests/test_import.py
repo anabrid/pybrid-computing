@@ -1,3 +1,3 @@
 def test_import():
-    import pyanabrid.redac  # noqa
-    import pyanabrid.cli.redac  # noqa
+    import pybrid.redac  # noqa
+    import pybrid.cli.redac  # noqa

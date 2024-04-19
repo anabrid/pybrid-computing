@@ -10,18 +10,18 @@ Each entity has a unique :class:`Path` defining its position in this hierarchy.
 You can iterate over the children of an entity via its :attr:`Entity.children` property.
 As described in :class:`Path`, the hierarchy represented is as follows.
 
-#. Carrier boards implemented by :class:`pyanabrid.redac.carrier.Carrier`
-#. Clusters implemented by :class:`pyanabrid.redac.cluster.Cluster`
-#. Function blocks implemented by :class:`pyanabrid.redac.blocks.FunctionBlock`, see :doc:`configurations`
-#. Functions (Elements) implemented by :class:`pyanabrid.redac.elements.ComputationElement`
+#. Carrier boards implemented by :class:`pybrid.redac.carrier.Carrier`
+#. Clusters implemented by :class:`pybrid.redac.cluster.Cluster`
+#. Function blocks implemented by :class:`pybrid.redac.blocks.FunctionBlock`, see :doc:`configurations`
+#. Functions (Elements) implemented by :class:`pybrid.redac.elements.ComputationElement`
 """
 
 from dataclasses import dataclass, fields, replace
 from enum import Enum
 import typing
 
-from pyanabrid.base.hybrid import Path as BasePath
-from pyanabrid.base.hybrid import Entity as BaseEntity
+from pybrid.base.hybrid import Path as BasePath
+from pybrid.base.hybrid import Entity as BaseEntity
 
 
 class UnknownEntityTypeError(ValueError):
@@ -72,7 +72,7 @@ class EntityType:
     #: The class of the entity, see :class:`EntityClass`.
     #: Different classes of entities can only be placed at their expected slots and can not be interchanged.
     class_: EntityClass
-    #: The type of the entity, mostly relevant for :class:`pyanabrid.redac.blocks.MBlock`.
+    #: The type of the entity, mostly relevant for :class:`pybrid.redac.blocks.MBlock`.
     #: Different types of an entity have significantly different functionality, but may be placed in the same slots.
     type_: typing.Optional[int] = None
     #: The variant of an entity.

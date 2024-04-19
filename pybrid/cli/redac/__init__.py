@@ -7,21 +7,21 @@ import logging
 import asyncclick as click
 from asyncclick import Choice
 
-from pyanabrid.base.hybrid import EntityDoesNotExist
-from pyanabrid.base.transport.network import TCPTransport
-from pyanabrid.cli.base import cli
-from pyanabrid.cli.base.commands import user_program
-from pyanabrid.cli.base.ressources import ManagedAsyncResource
-from pyanabrid.cli.base.shell import Shell
+from pybrid.base.hybrid import EntityDoesNotExist
+from pybrid.base.transport import TCPTransport
+from pybrid.cli.base import cli
+from pybrid.cli.base.commands import user_program
+from pybrid.cli.base.ressources import ManagedAsyncResource
+from pybrid.cli.base.shell import Shell
 
-from pyanabrid.redac.blocks import SwitchingBlock
-from pyanabrid.redac.cluster import Cluster
-from pyanabrid.redac.controller import Controller
-from pyanabrid.redac.data import DatExporter
-from pyanabrid.redac.display import TreeDisplay
-from pyanabrid.redac.entities import Path, Entity
-from pyanabrid.redac.protocol.protocol import Protocol
-from pyanabrid.redac.run import Run, RunState, RunError
+from pybrid.redac.blocks import SwitchingBlock
+from pybrid.redac.cluster import Cluster
+from pybrid.redac.controller import Controller
+from pybrid.redac.data import DatExporter
+from pybrid.redac.display import TreeDisplay
+from pybrid.redac.entities import Path, Entity
+from pybrid.redac.protocol.protocol import Protocol
+from pybrid.redac.run import Run, RunState, RunError
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ async def redac(ctx: click.Context, host, port, reset):
     """
     Entrypoint for all REDAC commands.
 
-    Use :code:`anabrid redac --help` to list all available sub-commands.
+    Use :code:`pybrid redac --help` to list all available sub-commands.
     """
 
     # Generate a transport
