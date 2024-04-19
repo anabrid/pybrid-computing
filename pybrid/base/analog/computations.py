@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass, field
 
-from pyanabrid.base.utils.descriptors import Validator
+from pybrid.base.utils.descriptors import Validator
 
 
 @dataclass(kw_only=True)

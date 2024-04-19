@@ -5,11 +5,11 @@
 import logging
 
 
-def set_pyanabrid_logging_level(log_level):
+def set_pybrid_logging_level(log_level):
     loggers = [
         logging.getLogger(name)
         for name in logging.root.manager.loggerDict
-        if name.startswith("pyanabrid")
+        if name.startswith("pybrid")
     ]
     for logger_ in loggers:
         logger_.setLevel(log_level)

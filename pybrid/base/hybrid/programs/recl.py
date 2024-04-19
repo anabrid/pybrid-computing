@@ -12,7 +12,7 @@ The user waits for the result and evaluates or collects the data from the analog
 He then defines a new analog configuration for the next run and repeats the process as long as necessary.
 
 For example parameter variation problems or iterative analog algorithms can be implemented in such a manner.
-Since most of the necessary logic is very generic, the :code:`pyanabrid` package provides an abstraction
+Since most of the necessary logic is very generic, the :code:`pybrid` package provides an abstraction
 that takes care of most of the underlying work: The :code:`RunEvaluateReconfigureLoop` class.
 
 The :code:`RunEvaluateReconfigureLoop` implements all necessary parts of the following process flow.
@@ -24,55 +24,11 @@ A run with this config is automatically started and the program waits until it i
 The result is collected from the analog computer and passed to a user-supplied :code:`evaluate` function.
 Depending on its return value, the loop restarts from the beginning or ends.
 
-Example
--------
-
-The following example calculates an exponential decay :math:`y(t) = \exp(-\beta * t)`
-for different values of :math:`\beta`.
-
-.. code-block:: python
-
-    import matplotlib.pyplot as plt
-
-    from pyanabrid.analog.base.elements import Potentiometer, Integrator
-    from pyanabrid.hybrid.controller.recl import RunEvaluateReconfigureLoop
-    from pyanabrid.hybrid.controller.run import RunState
-
-
-    class UserProgram(RunEvaluateReconfigureLoop):
-        IC_TIME = 5_000
-        OP_TIME = 50_000
-
-        y: Integrator
-        beta: Potentiometer
-
-        def init_loop(self, modules):
-            self.y = modules["0x0160"].elements[0]
-            self.beta = modules["0x0080"].elements[0]
-            self.beta.factor = 0
-
-            self.daq_config.add_element(self.y)
-
-        def next_configuration(self, modules, previous_runs):
-            self.beta.factor += 0.1
-
-        def run_done(self, run):
-            data = run.data[self.y][RunState.OP]
-
-            plt.plot(data)
-            plt.ylabel("y")
-            plt.show()
-
-            return len(self.runs) < 10
-
-        def loop_done(self, runs):
-            print("Finished RECLoop with", len(runs), "runs")
-
-You can execute this :code:`UserProgram` with the :code:`anabrid` command line tool.
+You can execute a :code:`UserProgram` with the :code:`pybrid` command line tool.
 
 .. code-block:: bash
 
-    anabrid hybrid control [...] recl path/to/user/program/file.py
+    pybrid [...] recl path/to/user/program/file.py
 
 
 Class Documentation
@@ -83,8 +39,8 @@ Class Documentation
 import logging
 import typing
 
-from pyanabrid.base.hybrid.computer import AnalogComputer
-from pyanabrid.base.hybrid.run import BaseRun
+from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.base.hybrid.run import BaseRun
 
 from .base import BaseProgram
 
@@ -98,15 +54,15 @@ class RunEvaluateReconfigureLoop(BaseProgram):
     This class implements the typical process flow of a run-evaluate-reconfigure-loop.
     Users should inherit this class and overwrite the following function to inject their specific code.
 
-    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.set_user_variables`
+    * :func:`~pybrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.set_user_variables`
       for one-time initialization code
-    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.initial_configuration`
+    * :func:`~pybrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.initial_configuration`
       for configuring the first run
-    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.next_configuration`
+    * :func:`~pybrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.next_configuration`
       for configuring the next run (except the first)
-    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.run_done`
+    * :func:`~pybrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.run_done`
       for evaluating a completed run
-    * :func:`~pyanabrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.loop_done`
+    * :func:`~pybrid.base.hybrid.programs.recl.RunEvaluateReconfigureLoop.loop_done`
       for final evaluation or cleanup code
     """
 
@@ -120,7 +76,7 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         """
         Entrypoint for starting the Run-Evaluate-Reconfigure-Loop
 
-        This function is called automatically by the anabrid command line tool.
+        This function is called automatically by the pybrid command line tool.
         You should *not* need to call it unless you manually start a loop.
 
         :return: None

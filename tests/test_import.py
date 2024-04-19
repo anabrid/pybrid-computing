@@ -4,8 +4,8 @@
 
 
 def test_import():
-    import pyanabrid.base.utils  # noqa
-    import pyanabrid.base.analog  # noqa
-    import pyanabrid.base.transport  # noqa
-    import pyanabrid.base.hybrid  # noqa
-    import pyanabrid.cli.base  # noqa
+    import pybrid.base.utils  # noqa
+    import pybrid.base.analog  # noqa
+    import pybrid.base.transport  # noqa
+    import pybrid.base.hybrid  # noqa
+    import pybrid.cli.base  # noqa

@@ -4,8 +4,8 @@
 
 import asyncclick as click
 
-from pyanabrid.base.hybrid import BaseController, BaseRun, RunEvaluateReconfigureLoop
-from pyanabrid.base.utils.imports import import_file_as_module
+from pybrid.base.hybrid import BaseController, BaseRun, RunEvaluateReconfigureLoop
+from pybrid.base.utils.imports import import_file_as_module
 
 
 @click.pass_obj
