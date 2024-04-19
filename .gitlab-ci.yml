@@ -1,5 +1,6 @@
 stages:
   - test
+  - docs
 
 # Change pip's cache directory to be inside the project directory since we can only cache local items.
 variables:
@@ -27,3 +28,19 @@ test_job:
   script:
     - poetry --no-interaction install --sync --with dev
     - poetry --no-interaction run pytest
+
+
+docs_job:
+  extends: .anabrid-poetry-job
+  image:
+    name: $CI_REGISTRY/pybrid-computing/pybrid-computing/sphinx-build
+  stage: docs
+  script:
+    - poetry --no-interaction install --sync --with dev
+    # Build documentation with warnings treated as errors (-W)
+    # Care: -M html <src> <dest> must come first
+    - poetry run sphinx-build -M html docs/ docs/_build/html/ -W --keep-going
+  artifacts:
+    paths:
+      - docs/_build/html
+    expire_in: 1 month

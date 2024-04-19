@@ -1,0 +1,3 @@
+FROM lab.analogparadigm.com:5050/pybrid-computing/pybrid-computing-base/python-poetry
+
+RUN apt update && apt install -y plantuml
