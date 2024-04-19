@@ -25,6 +25,9 @@ pytest = "^7"
 # from project
 pytest-asyncio = "^0.18.3"
 
+[tool.poetry.scripts]
+pybrid = 'pybrid.cli.base:entrypoint'
+
 [[tool.poetry.source]]
 name = "anabrid"
 url = "https://pypi.tinybridge.anabrid.dev/"
