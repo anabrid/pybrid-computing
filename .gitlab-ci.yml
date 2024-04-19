@@ -54,8 +54,6 @@ build_job:
 release_python_job:
   extends: [.anabrid-poetry-job, .anabrid-if-release-job]
   stage: release
-  rules:
-    - !reference [build_job, rules]
   needs:
     - job: build_job
       artifacts: true
