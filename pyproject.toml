@@ -4,7 +4,7 @@ name = "pybrid-computing"
 packages = [
   { include = "pybrid" }
 ]
-version = "0.9.0a0"
+version = "0.10.0"
 description = "pybrid-computing analog and hybrid computer abstraction"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
