@@ -1,11 +1,11 @@
 [tool.poetry]
 # from cookiecutter
-name = "pyanabrid-base-hybrid"
+name = "pybrid-computing-base"
 packages = [
-  { include = "pyanabrid" }
+  { include = "pybrid" }
 ]
 version = "0.9.0"
-description = "anabrid base hybrid controller abstraction"
+description = "pybrid-computing base analog and hybrid abstractions"
 authors = ["Michael Steck <steck@anabrid.com>"]
 # from project
 

@@ -6,7 +6,7 @@ import typing
 from abc import ABC, abstractmethod
 
 from packaging.version import Version
-from pyanabrid.base.transport import BaseTransport
+from pybrid.base.transport import BaseTransport
 
 
 class ProtocolError(Exception):

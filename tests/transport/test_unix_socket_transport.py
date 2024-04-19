@@ -3,13 +3,12 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
-import logging
 from asyncio import StreamReader, StreamWriter
 
 import pytest
 import tempfile
 
-from pyanabrid.base.transport.unix import UnixSocketTransport
+from pybrid.base.transport import UnixSocketTransport
 
 
 @pytest.fixture

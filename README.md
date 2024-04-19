@@ -1,4 +1,4 @@
-pyanabrid-base-hybrid
+pybrid-computing-base
 =====================
 
 Python package containing the common base abstractions for analog and hybrid

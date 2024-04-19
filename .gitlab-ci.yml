@@ -73,13 +73,13 @@ release_gitlab_job:
   script:
     - echo "Releasing package built in build_job ${ANABRID_BUILD_JOB_ID}."
   release:
-    name: 'pyanabrid-base-hybrid v$ANABRID_BUILD_VERSION'
-    description: 'Release of pyanabrid-base-hybrid package version $ANABRID_BUILD_VERSION.'
+    name: 'pybrid-computing-base v$ANABRID_BUILD_VERSION'
+    description: 'Release of pybrid-computing-base package version $ANABRID_BUILD_VERSION.'
     # tag_name is a mandatory field and can not be an empty string
     tag_name: '$ANABRID_BUILD_VERSION'
     assets:
       links:
         - name: 'Package (wheel)'
-          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pyanabrid_base_hybrid-$ANABRID_BUILD_VERSION-py3-none-any.whl'
+          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing_base-$ANABRID_BUILD_VERSION-py3-none-any.whl'
         - name: 'Package (.tar.gz)'
-          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pyanabrid_base_hybrid-$ANABRID_BUILD_VERSION.tar.gz'
+          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing_base-$ANABRID_BUILD_VERSION.tar.gz'

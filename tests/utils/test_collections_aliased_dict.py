@@ -2,7 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from pyanabrid.base.utils.collections import AliasedDict
+from pybrid.base.utils.collections import AliasedDict
 
 
 def test_aliased_dict():

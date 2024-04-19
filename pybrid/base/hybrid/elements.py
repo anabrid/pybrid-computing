@@ -5,7 +5,7 @@
 import typing
 from dataclasses import dataclass, field
 
-from pyanabrid.base.analog import BaseComputation
+from pybrid.base.analog import BaseComputation
 
 from .entities import Entity
 

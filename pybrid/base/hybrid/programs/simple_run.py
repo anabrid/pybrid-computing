@@ -16,9 +16,9 @@ class SimpleRun(BaseProgram):
     This class implements a user-extendable version of a single analog computation.
     Users should inherit this class and overwrite the following function to inject their specific code.
 
-    * :func:`~pyanabrid.base.hybrid.programs.SimpleRun.set_configuration`
+    * :func:`~pybrid.base.hybrid.programs.SimpleRun.set_configuration`
       for configuring the run
-    * :func:`~pyanabrid.base.hybrid.programs.SimpleRun.run_done`
+    * :func:`~pybrid.base.hybrid.programs.SimpleRun.run_done`
       for evaluating a completed run
     """
 

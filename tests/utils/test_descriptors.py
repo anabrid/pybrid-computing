@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 import pytest
 import typing
 
-from pyanabrid.base.utils.descriptors import Validator
+from pybrid.base.utils.descriptors import Validator
 
 
 class IntRangeValidator(Validator):

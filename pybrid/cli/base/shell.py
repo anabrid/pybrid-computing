@@ -15,7 +15,7 @@ from prompt_toolkit.document import Document
 from prompt_toolkit.history import FileHistory, History
 from prompt_toolkit.patch_stdout import StdoutProxy
 
-from pyanabrid.base.utils.logging import redirect_logger_stream_handlers
+from pybrid.base.utils.logging import redirect_logger_stream_handlers
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ class Shell:
         try:
             xdg_data_dir = Path.home() / ".local" / "share"
             xdg_data_dir.mkdir(exist_ok=True)
-            history_filename = f"pyanabrid-shell-history-{slug}"
+            history_filename = f"pybrid-shell-history-{slug}"
             return FileHistory(str(xdg_data_dir / history_filename))
         except Exception as exc:
             logger.warning("Error while creating history for shell: %s. Continuing without history.", exc)
