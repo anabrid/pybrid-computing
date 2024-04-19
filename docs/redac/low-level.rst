@@ -4,6 +4,6 @@ REDAC Low-Level Abstractions
 Transport Layer
 ---------------
 
-.. automodule:: pyanabrid.base.transport
+.. automodule:: pybrid.base.transport
    :members:
    :imported-members:

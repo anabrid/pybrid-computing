@@ -1,7 +1,7 @@
 Prerequisites & Supported Hardware
 ==================================
 
-The :code:`pyanabrid` package suite provides several areas of functionality,
+The :code:`pybrid-computing` package suite provides several areas of functionality,
 for which different *prerequisites* are necessary.
 
 While you can use some of the functionalities without access to an analog computer,

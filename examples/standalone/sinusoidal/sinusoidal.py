@@ -2,13 +2,13 @@ import asyncio
 import logging
 
 from matplotlib import pyplot as plt
-from pyanabrid.base.utils.logging import set_pyanabrid_logging_level
-from pyanabrid.base.transport.network import TCPTransport
-from pyanabrid.redac import Protocol, Controller, DAQConfig, RunConfig
+from pybrid.base.utils.logging import set_pybrid_logging_level
+from pybrid.base.transport import TCPTransport
+from pybrid.redac import Protocol, Controller, DAQConfig, RunConfig
 
 # For development purposes, set all logging to DEBUG
 logging.basicConfig()
-set_pyanabrid_logging_level(logging.DEBUG)
+set_pybrid_logging_level(logging.DEBUG)
 
 # Network information of REDAC
 REDAC_HOST = 'b.dev.redac.lan'

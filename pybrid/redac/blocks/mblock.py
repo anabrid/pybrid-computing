@@ -25,7 +25,7 @@ class MIntBlock(MBlock):
     """
     List of elements on the block.
     In case of the MIntBlock, these are eight integration computation elements.
-    Each integrator accepts configuration according to :class:`pyanabrid.redac.computations.Integration`.
+    Each integrator accepts configuration according to :class:`pybrid.redac.computations.Integration`.
     """
 
 

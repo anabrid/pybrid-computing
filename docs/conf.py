@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'pyanabrid'
+project = 'pybrid-computing'
 copyright = '2023, Michael Steck'
 author = 'Michael Steck'
 
@@ -70,6 +70,6 @@ rst_prolog = """
 
 rst_epilog = """
 .. _anabrid: https://www.anabrid.com
-.. _pyanabrid: https://lab.analogparadigm.com/pyanabrid
+.. _pybrid_computing: https://lab.analogparadigm.com/pybrid-computing
 .. _pypi: https://pypi.org
 """

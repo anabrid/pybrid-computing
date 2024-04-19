@@ -8,7 +8,7 @@ import typing
 from asyncio import Future
 from uuid import UUID
 
-from pyanabrid.base.hybrid.controller import BaseController
+from pybrid.base.hybrid import BaseController
 
 from .computer import REDAC
 from .entities import Entity, Path

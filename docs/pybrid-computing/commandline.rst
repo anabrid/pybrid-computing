@@ -1,8 +1,8 @@
 Commandline Reference
 =====================
 
-.. click:: pyanabrid.cli.base.base:cli
-   :prog: anabrid
+.. click:: pybrid.cli.base.base:cli
+   :prog: pybrid
    :nested: full
 
 
@@ -19,7 +19,7 @@ Computer specific commands
 --------------------------
 
 As we have seen in the :doc:`quickstart` section, each supported analog computer registers their own set of subcommands
-with the common :code:`anabrid` command line entrypoint.
+with the common :code:`pybrid` command line entrypoint.
 
 :doc:`/redac/commandline`
     The REDAC analog computer uses the subcommand :code:`redac`.
@@ -27,4 +27,4 @@ with the common :code:`anabrid` command line entrypoint.
 
     .. code-block:: bash
 
-        anabrid redac [...]
+        pybrid redac [...]

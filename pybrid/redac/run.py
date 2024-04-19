@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from uuid import UUID, uuid4
 
-from pyanabrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig
-from pyanabrid.base.utils.descriptors import Validator
+from pybrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig
+from pybrid.base.utils.descriptors import Validator
 
 from .entities import Path
 

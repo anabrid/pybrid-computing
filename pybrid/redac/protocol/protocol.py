@@ -10,8 +10,8 @@ import uuid
 from typing import Callable
 
 from packaging.version import Version
-from pyanabrid.base.hybrid.protocol import BaseProtocol, ProtocolError, MalformedDataError, UnsuccessfulRequestError
-from pyanabrid.base.transport import BaseTransport
+from pybrid.base.hybrid.protocol import BaseProtocol, ProtocolError, MalformedDataError, UnsuccessfulRequestError
+from pybrid.base.transport import BaseTransport
 
 from ..entities import Path, Entity
 from .envelope import Envelope
