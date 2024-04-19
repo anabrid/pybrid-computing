@@ -1,6 +1,8 @@
 stages:
   - test
   - docs
+  - build
+  - release
 
 # Change pip's cache directory to be inside the project directory since we can only cache local items.
 variables:
@@ -44,3 +46,51 @@ docs_job:
     paths:
       - docs/_build/html
     expire_in: 1 month
+
+
+build_job:
+  extends: [.anabrid-poetry-job, .anabrid-if-release-job]
+  stage: build
+  script:
+    - poetry --no-interaction build
+    - echo ANABRID_BUILD_JOB_ID=$CI_JOB_ID > .anabrid_build_result.env
+    - echo ANABRID_BUILD_VERSION=$(poetry version --short) >> .anabrid_build_result.env
+  artifacts:
+    paths:
+      - dist/
+    # Save job id in artifacts for release job
+    reports:
+      dotenv: .anabrid_build_result.env
+    expire_in: 6 months
+
+
+release_python_job:
+  extends: [.anabrid-poetry-job, .anabrid-if-release-job]
+  stage: release
+  needs:
+    - job: build_job
+      artifacts: true
+  script:
+    - poetry --no-interaction publish --repository anabrid
+
+
+release_gitlab_job:
+  extends: .anabrid-if-release-job
+  stage: release
+  needs:
+    - job: build_job
+      artifacts: true
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - echo "Releasing package built in build_job ${ANABRID_BUILD_JOB_ID}."
+  release:
+    name: 'pybrid-computing v$ANABRID_BUILD_VERSION'
+    description: 'Release of pybrid-computing package version $ANABRID_BUILD_VERSION.'
+    # tag_name is a mandatory field and can not be an empty string
+    tag_name: '$ANABRID_BUILD_VERSION'
+    assets:
+      links:
+        - name: 'Package (wheel)'
+          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION-py3-none-any.whl'
+        - name: 'Package (.tar.gz)'
+          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION.tar.gz'
