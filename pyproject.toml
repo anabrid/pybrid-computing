@@ -5,9 +5,25 @@ packages = [
   { include = "pybrid" }
 ]
 version = "0.10.0"
-description = "pybrid-computing analog and hybrid computer abstraction"
-authors = ["Michael Steck <steck@anabrid.com>"]
+description = "Library to interact with analog computers and analog-digital hybrid computers, in particular the LUCIDAC and REDAC computers made by anabrid"
+authors = ["Michael Steck <pybrid-code@anabrid.com>"]
 # from project
+readme = "README.md"
+license = "MIT OR GPL-2.0-or-later"
+homepage = "https://anabrid.com/"
+# documentation = "https://TODO/fill/me/later"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: End Users/Desktop",
+  "Topic :: Communications",
+  "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
+  "Topic :: Software Development :: Embedded Systems",
+  "Topic :: Terminals :: Serial",
+  "Operating System :: POSIX"
+]
 
 [tool.poetry.dependencies]
 # from cookiecutter
