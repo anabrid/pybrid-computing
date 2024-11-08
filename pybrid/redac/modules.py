@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 class ModuleType(str):
     """Should probably be roughly equal to what we save in metadata storage"""
+
     pass
 
 

@@ -16,32 +16,40 @@ As described in :class:`Path`, the hierarchy represented is as follows.
 #. Functions (Elements) implemented by :class:`pybrid.redac.elements.ComputationElement`
 """
 
+import typing
 from dataclasses import dataclass, fields, replace
 from enum import Enum
-import typing
+from packaging.version import Version
 
-from pybrid.base.hybrid import Path as BasePath
 from pybrid.base.hybrid import Entity as BaseEntity
+from pybrid.base.hybrid import Path as BasePath
 
 
 class UnknownEntityTypeError(ValueError):
     """Exception thrown when trying to get an unknown :class:`EntityType` instance."""
+
     pass
 
 
 class EntityTypeRegistryError(ValueError):
     """Exception for errors inside the :class:`EntityType` registry."""
+
     pass
 
 
 class EntityClass(Enum):
     """Entity class differentiates between carrier boards, different function blocks and so on. Max 5bit = 31."""
-    CARRIER = 0
-    CLUSTER = 1  # mostly unused
-    MBLOCK = 2
-    UBLOCK = 3
-    CBLOCK = 4
-    IBLOCK = 5
+
+    UNKNOWN = 0
+    CARRIER = 1
+    CLUSTER = 2  # mostly unused
+    MBLOCK = 3
+    UBLOCK = 4
+    CBLOCK = 5
+    IBLOCK = 6
+    SHBLOCK = 7
+    FRONTPANEL = 8
+    CTRLBLOCK = 9
     OTHER = 31
 
 
@@ -69,23 +77,30 @@ class EntityType:
         class ACustomMBlock(ElementBlock):
             ...
     """
+
     #: The class of the entity, see :class:`EntityClass`.
     #: Different classes of entities can only be placed at their expected slots and can not be interchanged.
     class_: EntityClass
     #: The type of the entity, mostly relevant for :class:`pybrid.redac.blocks.MBlock`.
     #: Different types of an entity have significantly different functionality, but may be placed in the same slots.
     type_: typing.Optional[int] = None
+    #: The version on an entity, following the semantic version definition.
+    version: typing.Optional[Version] = None
     #: The variant of an entity.
-    #: Different variants of an entity have similar functionality, but may differ in certain implementation details.
+    #: Different variants of an entity have practically identical functionality, but may differ in certain implementation details.
     variant: typing.Optional[int] = None
-    #: The version on an entity.
-    #: Different versions of an entity are basically identical, but may contain different hardware elements or bugfixes.
-    version: typing.Optional[int] = None
 
     @classmethod
     def pop_from_dict(cls, d):
-        return cls(class_=EntityClass(d.pop("class")), type_=d.pop("type"), variant=d.pop("variant"),
-                   version=d.pop("version"))
+        version_tuple = d.pop("version")
+        version_string = ".".join(map(str, version_tuple))
+        version = Version(version_string)
+        return cls(
+            class_=EntityClass(d.pop("class")),
+            type_=d.pop("type"),
+            version=version,
+            variant=d.pop("variant"),
+        )
 
     def fallback_type(self):
         """Return a copy of this :class:`EntityType` with one more field set to None."""
@@ -95,9 +110,9 @@ class EntityType:
         raise ValueError("Can not further decay.")
 
     @classmethod
-    def register(cls, class_: EntityClass, type_, variant, version):
+    def register(cls, class_: EntityClass, type_=None, version=None, variant=None):
         """Register a class as an implementation of an :class:`EntityType`."""
-        entity_type = cls(class_=class_, type_=type_, variant=variant, version=version)
+        entity_type = cls(class_=class_, type_=type_, version=version, variant=variant)
 
         def register_(obj):
             if entity_type in _ENTITY_TYPE_REGISTRY:
@@ -146,6 +161,7 @@ class Path(BasePath):
             path_to_m0_block_in_cluster0 = Path("00:00:5e:00:53:af", "0", "M0")
             path_to_first_func_on_block = Path("00:00:5e:00:53:af", "0", "M0", 0)
     """
+
     #: The schema defining the data types for the path's subcomponents.
     SCHEMA = (str, str, str, int)
 
@@ -183,6 +199,7 @@ class Entity(BaseEntity):
     """
     Base class for all entities inside a REDAC.
     """
+
     #: Unique path to this entity.
     path: Path
 

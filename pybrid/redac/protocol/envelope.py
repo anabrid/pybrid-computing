@@ -6,9 +6,10 @@ import logging
 import typing
 
 from uuid import UUID, uuid4
+
 from pydantic import BaseModel, Field, ValidationError
 
-from pybrid.base.hybrid.protocol import MalformedDataError, MalformedMessageError
+from pybrid.base.hybrid.protocol import MalformedDataError, MalformedMessageError, UnsuccessfulRequestError
 
 from .messages import Message
 
@@ -37,6 +38,7 @@ class Envelope(BaseModel):
     For responses, the :attr:`success` field and :attr:`error` field define whether the request was successfully
     handled. Only if :attr:`success` is true, :attr:`msg` contains an actual response.
     """
+
     #: Optional ID of the request and its response. None for Notifications
     id: typing.Optional[UUID] = Field(default_factory=uuid4)
     #: Unique string defining the type of the contained message
@@ -53,6 +55,8 @@ class Envelope(BaseModel):
         return cls(**{"type": message.get_type_identifier(), "msg": message})
 
     def get_message(self) -> Message:
+        if self.error:
+            raise UnsuccessfulRequestError(self.error)
         try:
             msg_class = Message.get_class_for_type_identifier(self.type)
             msg = msg_class(**self.msg)

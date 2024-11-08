@@ -6,7 +6,6 @@ import logging
 
 import asyncclick as click
 from asyncclick import Choice
-
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import TCPTransport
 from pybrid.cli.base import cli
@@ -28,10 +27,28 @@ logger = logging.getLogger(__name__)
 
 @cli.group()
 @click.pass_context
-@click.option('--host', '-h', type=str, required=False, help="Network name or address of the REDAC.")
-@click.option('--port', '-p', type=int, default=5732, required=False, help="Network port of the REDAC.")
-@click.option('--reset/--no-reset', is_flag=True, default=True, show_default=True,
-              help="Whether to reset the REDAC after connecting.")
+@click.option(
+    "--host",
+    "-h",
+    type=str,
+    required=False,
+    help="Network name or address of the REDAC.",
+)
+@click.option(
+    "--port",
+    "-p",
+    type=int,
+    default=5732,
+    required=False,
+    help="Network port of the REDAC.",
+)
+@click.option(
+    "--reset/--no-reset",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help="Whether to reset the REDAC after connecting.",
+)
 async def redac(ctx: click.Context, host, port, reset):
     """
     Entrypoint for all REDAC commands.
@@ -50,7 +67,7 @@ async def redac(ctx: click.Context, host, port, reset):
 
     # Generate a controller, which will also start the protocol
     controller = await Controller.create(protocol)
-    ctx.obj["controller"] = await ctx.with_async_resource(ManagedAsyncResource(controller, 'start', 'stop'))
+    ctx.obj["controller"] = await ctx.with_async_resource(ManagedAsyncResource(controller, "start", "stop"))
 
     # Unless chosen otherwise, reset the analog computer
     if reset:
@@ -63,8 +80,8 @@ async def redac(ctx: click.Context, host, port, reset):
 
 @redac.command()
 @click.pass_obj
-@click.argument('path', type=str)
-@click.argument('alias', type=str)
+@click.argument("path", type=str)
+@click.argument("alias", type=str)
 async def set_alias(obj, path, alias):
     """
     Define an alias for a path in an interactive session or script.
@@ -81,7 +98,7 @@ async def set_alias(obj, path, alias):
     # Set alias supports a special '*' path as first argument,
     # in which case it selects the next carrier board which was not yet aliased.
     # This is used to not have to hard-code carrier board identifiers for (simple) examples.
-    if path == '*':
+    if path == "*":
         aliased_carrier_paths = {path for path in aliases.values() if path.depth == 1}
         for carrier in controller.computer.carriers:
             if carrier.path not in aliased_carrier_paths:
@@ -109,8 +126,12 @@ async def display(obj):
 
 @redac.command()
 @click.pass_obj
-@click.option('--keep-calibration', type=bool, default=True, help='Whether to keep calibration.')
-@click.option('--sync/--no-sync', default=True, help='Whether to immediately sync configuration to hardware.')
+@click.option("--keep-calibration", type=bool, default=True, help="Whether to keep calibration.")
+@click.option(
+    "--sync/--no-sync",
+    default=True,
+    help="Whether to immediately sync configuration to hardware.",
+)
 async def reset(obj, keep_calibration, sync):
     """
     Reset the REDAC to initial configuration.
@@ -121,8 +142,14 @@ async def reset(obj, keep_calibration, sync):
 
 @redac.command()
 @click.pass_obj
-@click.option('-r', '--recursive', type=bool, default=True, help='Whether to get config recursively for sub-entities.')
-@click.argument('path', type=str)
+@click.option(
+    "-r",
+    "--recursive",
+    type=bool,
+    default=True,
+    help="Whether to get config recursively for sub-entities.",
+)
+@click.argument("path", type=str)
 async def get_entity_config(obj, recursive, path):
     """
     Get the configuration of an entity.
@@ -138,10 +165,14 @@ async def get_entity_config(obj, recursive, path):
 
 @redac.command()
 @click.pass_obj
-@click.option('--sync/--no-sync', default=True, help='Whether to immediately send configuration to hybrid controller.')
-@click.argument('path', type=str)
-@click.argument('attribute', type=str)
-@click.argument('value', type=str)
+@click.option(
+    "--sync/--no-sync",
+    default=True,
+    help="Whether to immediately send configuration to hybrid controller.",
+)
+@click.argument("path", type=str)
+@click.argument("attribute", type=str)
+@click.argument("value", type=str)
 async def set_element_config(obj, sync, path, attribute, value):
     """
     Set one ATTRIBUTE to VALUE of the configuration of an entity at PATH.
@@ -165,19 +196,29 @@ async def set_element_config(obj, sync, path, attribute, value):
 
     if sync:
         if path_.depth >= 4:
-            await controller.protocol.set_config_request(entity=path_.parent,
-                                                         config={"elements": {path_.id_: entity_config}})
+            await controller.protocol.set_config_request(
+                entity=path_.parent, config={"elements": {path_.id_: entity_config}}
+            )
         else:
             await controller.protocol.set_config_request(entity=path_, config=entity_config)
 
 
 @redac.command()
 @click.pass_obj
-@click.option('--sync/--no-sync', default=True, help='Whether to immediately send configuration to hybrid controller.')
-@click.option('--force', is_flag=True, default=False, show_default=True,
-              help="Force connection, possibly disconnecting existing connections.")
-@click.argument('path', type=str)
-@click.argument('connections', type=int, nargs=-1)
+@click.option(
+    "--sync/--no-sync",
+    default=True,
+    help="Whether to immediately send configuration to hybrid controller.",
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Force connection, possibly disconnecting existing connections.",
+)
+@click.argument("path", type=str)
+@click.argument("connections", type=int, nargs=-1)
 async def set_connection(obj, sync, force, path, connections):
     """
     Set one or multiple connections in a U-Block or I-Block.
@@ -211,12 +252,16 @@ async def set_connection(obj, sync, force, path, connections):
 
 @redac.command()
 @click.pass_obj
-@click.option('--sync/--no-sync', default=True, help='Whether to immediately send configuration to hybrid controller.')
-@click.argument('path', type=str)
-@click.argument('m_out', type=int)
-@click.argument('u_out', type=int)
-@click.argument('c_factor', type=float)
-@click.argument('m_in', type=int)
+@click.option(
+    "--sync/--no-sync",
+    default=True,
+    help="Whether to immediately send configuration to hybrid controller.",
+)
+@click.argument("path", type=str)
+@click.argument("m_out", type=int)
+@click.argument("u_out", type=int)
+@click.argument("c_factor", type=float)
+@click.argument("m_in", type=int)
 async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
     """
     Route a signal on one cluster from one output of one M-Block through the U-Block, a coefficient on the C-Block,
@@ -244,12 +289,72 @@ async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
 
 @redac.command()
 @click.pass_obj
-@click.option('--sample-rate', '-r', type=Choice(
-    ['1', '2', '4', '5', '8', '10', '16', '20', '25', '32', '40', '50', '64', '80', '100', '125', '160', '200', '250',
-     '320', '400', '500', '625', '800', '1000', '1250', '1600', '2000', '2500', '3125', '4000', '5000', '6250', '8000',
-     '10000', '12500', '15625', '20000', '25000', '31250', '40000', '50000', '62500', '100000', '125000', '200000',
-     '250000', '500000', '1000000']), required=False, help="Sample rate in samples/second.")
-@click.option('--num-channels', '-n', type=Choice(['0', '1', '2', '4', '8']), default='0', help="Number of channels.")
+@click.option(
+    "--sample-rate",
+    "-r",
+    type=Choice(
+        [
+            "1",
+            "2",
+            "4",
+            "5",
+            "8",
+            "10",
+            "16",
+            "20",
+            "25",
+            "32",
+            "40",
+            "50",
+            "64",
+            "80",
+            "100",
+            "125",
+            "160",
+            "200",
+            "250",
+            "320",
+            "400",
+            "500",
+            "625",
+            "800",
+            "1000",
+            "1250",
+            "1600",
+            "2000",
+            "2500",
+            "3125",
+            "4000",
+            "5000",
+            "6250",
+            "8000",
+            "10000",
+            "12500",
+            "15625",
+            "20000",
+            "25000",
+            "31250",
+            "40000",
+            "50000",
+            "62500",
+            "100000",
+            "125000",
+            "200000",
+            "250000",
+            "500000",
+            "1000000",
+        ]
+    ),
+    required=False,
+    help="Sample rate in samples/second.",
+)
+@click.option(
+    "--num-channels",
+    "-n",
+    type=Choice(["0", "1", "2", "4", "8"]),
+    default="0",
+    help="Number of channels.",
+)
 async def set_daq(obj, sample_rate, num_channels):
     """
     Configure data acquisition of subsequent run commands.
@@ -267,12 +372,22 @@ async def set_daq(obj, sample_rate, num_channels):
 @redac.command()
 @click.pass_obj
 # Run options
-@click.option('--op-time', type=int, default=None, help='OP time in nanoseconds.')
-@click.option('--ic-time', type=int, default=None, help='IC time in nanoseconds.')
+@click.option("--op-time", type=int, default=None, help="OP time in nanoseconds.")
+@click.option("--ic-time", type=int, default=None, help="IC time in nanoseconds.")
 # Output options
-@click.option('--output', '-o', type=click.File('wt'), default='-', help="File to write data to.")
-@click.option('--output-format', '-f', type=click.Choice(choices=("none", "dat",)), default="dat",
-              help="Format to write data in.")
+@click.option("--output", "-o", type=click.File("wt"), default="-", help="File to write data to.")
+@click.option(
+    "--output-format",
+    "-f",
+    type=click.Choice(
+        choices=(
+            "none",
+            "dat",
+        )
+    ),
+    default="dat",
+    help="Format to write data in.",
+)
 async def run(obj, op_time, ic_time, output, output_format):
     """
     Start a run (computation) and wait until it is complete.
@@ -302,11 +417,22 @@ async def run(obj, op_time, ic_time, output, output_format):
 
 @redac.command()
 @click.pass_context
-@click.option('--ignore-errors', is_flag=True, default=False, show_default=True,
-              help="Ignore errors while executing a script.")
-@click.option('--exit-after-script', '-x', is_flag=True, default=False, show_default=True,
-              help="Exit after the scripts have been executed. Useful if output is piped into other programs.")
-@click.argument('scripts', nargs=-1, type=click.File('r'))
+@click.option(
+    "--ignore-errors",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Ignore errors while executing a script.",
+)
+@click.option(
+    "--exit-after-script",
+    "-x",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Exit after the scripts have been executed. Useful if output is piped into other programs.",
+)
+@click.argument("scripts", nargs=-1, type=click.File("r"))
 async def shell(ctx: click.Context, ignore_errors, exit_after_script, scripts):
     """
     Start an interactive shell and/or execute a REDAC shell SCRIPT.
@@ -316,13 +442,18 @@ async def shell(ctx: click.Context, ignore_errors, exit_after_script, scripts):
     computer_name = ctx.obj["controller"].computer.name
 
     # Create and start a shell
-    shell_ = Shell(base_group=redac, base_ctx=ctx.parent, slug=computer_name, prompt=f"{computer_name} >> ")
+    shell_ = Shell(
+        base_group=redac,
+        base_ctx=ctx.parent,
+        slug=computer_name,
+        prompt=f"{computer_name} >> ",
+    )
     with shell_:
         for script in scripts:
             logger.debug("Executing %s.", script.name)
             for line_no, line in enumerate(script):
                 line = line.strip()
-                if not line or line.startswith('#'):
+                if not line or line.startswith("#"):
                     continue
                 try:
                     await shell_.execute_cmdline(line)

@@ -5,9 +5,11 @@
 from dataclasses import dataclass, field
 
 from pybrid.base.analog import Integration as BaseIntegration
-from pybrid.base.analog import ScalarMultiplication as BaseScalarMultiplication, \
-    ScalarMultiplicationFactor
 from pybrid.base.analog import Multiplication  # noqa
+from pybrid.base.analog import (
+    ScalarMultiplication as BaseScalarMultiplication,
+    ScalarMultiplicationFactor,
+)
 
 
 @dataclass(kw_only=True)

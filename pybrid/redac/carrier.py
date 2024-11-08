@@ -2,10 +2,14 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from dataclasses import dataclass
+import string
+from dataclasses import dataclass, field
+from typing import Optional
 
-from .entities import Entity, Path, EntityType, EntityClass
+from pybrid.base.hybrid import EntityDoesNotExist
+
 from .cluster import Cluster
+from .entities import Entity, Path, EntityType, EntityClass
 
 
 @dataclass(kw_only=True)
@@ -16,6 +20,9 @@ class Carrier(Entity):
     This is the smallest independent hardware unit inside a REDAC.
     It contains several :class:`.cluster.Cluster` objects.
     """
+
+    adc_channels: list[Optional[int]] = field(default_factory=list)
+
     #: List of clusters on the carrier board.
     clusters: list[Cluster]
 
@@ -31,13 +38,31 @@ class Carrier(Entity):
         this_entity_type = EntityType.pop_from_dict(tree)
         assert this_entity_type.class_ is EntityClass.CARRIER
 
+        # TODO: Actually use the EUI
+        tree.pop("eui", None)
+
         # Generate child entities
         clusters = []
         for sub_path, sub_tree in tree.items():
-            if not sub_path.startswith('/'):
-                raise ValueError('Unexpected entities tree element. Expected only sub-paths to be left.')
-            path_ = path / Path((sub_path.removeprefix('/'),))
-            cluster = Cluster.create_from_entity_type_tree(path_, sub_tree)
-            clusters.append(cluster)
+            if not sub_path.startswith("/"):
+                raise ValueError("Unexpected entities tree element. Expected only sub-paths to be left.")
+            path_: Path = path / Path.parse(sub_path)
+            if path_.id_ in string.digits:
+                cluster = Cluster.create_from_entity_type_tree(path_, sub_tree)
+                clusters.append(cluster)
 
         return cls(path=path, clusters=clusters)
+
+    def resolve_signal(self, entity: "Entity"):
+        # TODO: This should be extended to a general approach to defining inputs and outputs of elements
+        if not entity.path.root == self.path.root:
+            raise EntityDoesNotExist("Entity does not exist on this carrier.")
+
+        # Currently, we can only resolve signals from M-Blocks
+        if not entity.path.depth == 4 or not entity.path[2].startswith("M"):
+            raise NotImplementedError("Resolving signals is currently only possible for M-Blocks.")
+
+        cluster_idx = int(entity.path[1])
+        m_slot = int(entity.path[2].strip("M"))
+        element_idx = int(entity.path.id_)
+        return cluster_idx * 16 + m_slot * 8 + element_idx

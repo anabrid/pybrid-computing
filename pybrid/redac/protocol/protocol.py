@@ -10,14 +10,29 @@ import uuid
 from typing import Callable
 
 from packaging.version import Version
-from pybrid.base.hybrid.protocol import BaseProtocol, ProtocolError, MalformedDataError, UnsuccessfulRequestError
+from pybrid.base.hybrid.protocol import (
+    BaseProtocol,
+    ProtocolError,
+    MalformedDataError,
+    UnsuccessfulRequestError,
+)
 from pybrid.base.transport import BaseTransport
 
-from ..entities import Path, Entity
 from .envelope import Envelope
-from .messages import Message, Request, Response, GetEntitiesRequest, GetConfigRequest, SetConfigRequest, \
-    StartRunRequest, HackRequest, SetDAQRequest, ResetRequest
+from .messages import (
+    Message,
+    Request,
+    Response,
+    GetEntitiesRequest,
+    GetConfigRequest,
+    SetCircuitRequest,
+    StartRunRequest,
+    HackRequest,
+    SetDAQRequest,
+    ResetCircuitRequest,
+)
 from .serializer import build_config
+from ..entities import Path, Entity
 from ..run import RunConfig, DAQConfig
 
 logger = logging.getLogger(__name__)
@@ -62,13 +77,16 @@ class Protocol(BaseProtocol):
         response_future = asyncio.get_event_loop().create_future()
         # A response is only expected for requests
         if isinstance(message, Request):
-            self._expected_responses[envelope.id] = (message.get_expected_response_type(), response_future)
+            self._expected_responses[envelope.id] = (
+                message.get_expected_response_type(),
+                response_future,
+            )
         else:
             # But if the message is not a request, no response will ever come, just set result to None here
             response_future.set_result(None)
 
         # Send out data
-        data = envelope.json().encode('ascii')
+        data = envelope.json().encode("ascii")
         await self.transport.send_line(data)
 
         # Return future to response
@@ -97,10 +115,14 @@ class Protocol(BaseProtocol):
             if not envelope.success:
                 response_future.set_exception(UnsuccessfulRequestError(envelope.error))
             else:
-                message = envelope.get_message()
-                if callback := self.get_callback(type(message)):
-                    response_future.add_done_callback(lambda future: callback(future.result()))
-                response_future.set_result(message)
+                try:
+                    message = envelope.get_message()
+                except ProtocolError as exc:
+                    response_future.set_exception(exc)
+                else:
+                    if callback := self.get_callback(type(message)):
+                        response_future.add_done_callback(lambda future: callback(future.result()))
+                    response_future.set_result(message)
         else:
             message = envelope.get_message()
             if callback := self.get_callback(type(message)):
@@ -115,13 +137,9 @@ class Protocol(BaseProtocol):
             except asyncio.TimeoutError:
                 pass
             except ProtocolError as exc:
-                logger.exception(
-                    "Error while receiving or processing envelope: %s.", exc
-                )
+                logger.exception("Error while receiving or processing envelope: %s.", exc)
             except Exception as exc:
-                logger.exception(
-                    "Unknown error: %s.", exc
-                )
+                logger.exception("Unknown error: %s.", exc)
 
     #  ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████
     # ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██
@@ -154,8 +172,7 @@ class Protocol(BaseProtocol):
         return response.config
 
     async def set_config_request(self, entity: Path, config: dict, session: uuid.uuid4 = None) -> bool:
-        await self.send_message_and_wait_response(
-            SetConfigRequest(entity=entity, config=config, session=session))
+        await self.send_message_and_wait_response(SetCircuitRequest(entity=entity, config=config, session=session))
         return True
 
     async def set_config(self, entity: Entity):
@@ -165,9 +182,7 @@ class Protocol(BaseProtocol):
         return True
 
     async def set_daq_request(self, daq: DAQConfig, session: typing.Optional[uuid.UUID] = None):
-        await self.send_message_and_wait_response(
-            SetDAQRequest(daq=daq)
-        )
+        await self.send_message_and_wait_response(SetDAQRequest(daq=daq))
 
     async def start_run_request(self, id_: uuid.UUID, config: RunConfig, daq_config: DAQConfig = None):
         await self.send_message_and_wait_response(
@@ -175,6 +190,4 @@ class Protocol(BaseProtocol):
         )
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
-        await self.send_message_and_wait_response(
-            ResetRequest(keep_calibration=keep_calibration, sync=sync)
-        )
+        await self.send_message_and_wait_response(ResetCircuitRequest(keep_calibration=keep_calibration, sync=sync))

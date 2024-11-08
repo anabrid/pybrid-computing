@@ -11,12 +11,33 @@ from .elements import ComputationElement
 from .entities import Path
 
 
+class DAQ:
+    computer: "REDAC"
+
+    def __init__(self, computer):
+        self.computer = computer
+
+    def capture(self, *entities):
+        for entity in entities:
+            # TODO: entities should have a pybrid.redac.entities.path object with to_carrier() function
+            carrier: Carrier = self.computer.get_entity(entity.path[:1])
+            adc_channel = carrier.resolve_signal(entity)
+            carrier.adc_channels.append(adc_channel)
+
+
 class REDAC(AnalogComputer):
     """
     Representation of the REDAC analog computer and its structure.
     """
+
     hierarchy = (Carrier, Cluster, FunctionBlock, ComputationElement)
     entities: list[Carrier]
+
+    daq: DAQ
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.daq = DAQ(self)
 
     @property
     def name(self) -> str:
@@ -31,12 +52,9 @@ class REDAC(AnalogComputer):
     def create_from_entity_type_tree(cls, type_tree):
         carriers = []
         for sub_path, sub_tree in type_tree.items():
-            carrier = Carrier.create_from_entity_type_tree(Path((sub_path,)), sub_tree)
+            carrier = Carrier.create_from_entity_type_tree(Path.parse(sub_path), sub_tree)
             carriers.append(carrier)
         return cls(entities=carriers)
 
     def __repr__(self):
         return repr(self.entities)
-
-
-

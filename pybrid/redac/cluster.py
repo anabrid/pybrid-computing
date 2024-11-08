@@ -5,8 +5,8 @@
 import typing
 from dataclasses import dataclass
 
-from .entities import Entity, Path, EntityType, EntityClass
 from .blocks import FunctionBlock, MBlock, UBlock, CBlock, IBlock
+from .entities import Entity, Path, EntityType, EntityClass
 
 
 @dataclass(kw_only=True)
@@ -18,6 +18,7 @@ class Cluster(Entity):
     It always consists of two optional :class:`.blocks.MBlock` objects
     and one mandatory :class:`.blocks.UBlock`, :class:`.blocks.CBlock` and :class:`.blocks.IBlock` each.
     """
+
     #: The first :class:`.blocks.MBlock` in this cluster. May be ``None`` if the slot is not filled.
     m0block: typing.Optional[MBlock]
     #: The second :class:`.blocks.MBlock` in this cluster. May be ``None`` if the slot is not filled.
@@ -38,7 +39,9 @@ class Cluster(Entity):
         yield from (block for block in self.blocks if block is not None)
 
     @property
-    def blocks(self) -> tuple[typing.Optional[MBlock], typing.Optional[MBlock], UBlock, CBlock, IBlock]:
+    def blocks(
+        self,
+    ) -> tuple[typing.Optional[MBlock], typing.Optional[MBlock], UBlock, CBlock, IBlock]:
         """
         List of :class:`.blocks.FunctionBlock` objects in this cluster.
         Returns ``None`` elements for blocks that are not present.
@@ -52,18 +55,27 @@ class Cluster(Entity):
         this_entity_type = EntityType.pop_from_dict(tree)
         assert this_entity_type.class_ is EntityClass.CLUSTER
 
+        # TODO: Actually use the EUI
+        tree.pop("eui", None)
+
         # Generate child entities
         blocks = []
         for sub_path, sub_tree in tree.items():
-            if not sub_path.startswith('/'):
-                raise ValueError('Unexpected entities tree element. Expected only sub-paths to be left.')
-            path_ = path / Path((sub_path.removeprefix('/'),))
+            if not sub_path.startswith("/"):
+                raise ValueError("Unexpected entities tree element. Expected only sub-paths to be left.")
+            path_ = path / Path((sub_path.removeprefix("/"),))
             block = FunctionBlock.create_from_entity_type_tree(path_, sub_tree)
             blocks.append(block)
 
         # TODO: Less hard-coding :)
-        return cls(path=path, m0block=blocks[0], m1block=blocks[1], ublock=blocks[2], cblock=blocks[3],
-                   iblock=blocks[4])
+        return cls(
+            path=path,
+            m0block=blocks[0],
+            m1block=blocks[1],
+            ublock=blocks[2],
+            cblock=blocks[3],
+            iblock=blocks[4],
+        )
 
     def route(self, m_out: int, u_out: int, c_factor: float, m_in: int):
         """

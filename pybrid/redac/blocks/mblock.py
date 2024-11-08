@@ -8,18 +8,19 @@ from ..elements import ComputationElement
 from ..entities import EntityClass, EntityType
 
 
-@EntityType.register(EntityClass.MBLOCK, None, None, None)
+@EntityType.register(EntityClass.MBLOCK, None)
 class MBlock(ElementBlock):
     """
     A math block (M-Block) in a REDAC.
     """
 
 
-@EntityType.register(EntityClass.MBLOCK, 0, 0, 0)
+@EntityType.register(EntityClass.MBLOCK, 1)
 class MIntBlock(MBlock):
     """
     A math block consisting of eight integrators.
     """
+
     ELEMENTS = (ComputationElement[Integration],) * 8
     elements: list[ComputationElement[Integration]]
     """
@@ -29,9 +30,10 @@ class MIntBlock(MBlock):
     """
 
 
-@EntityType.register(EntityClass.MBLOCK, 1, 0, 0)
+@EntityType.register(EntityClass.MBLOCK, 2)
 class MMulBlock(MBlock):
     """
     A math block consisting of multiplicative elements.
     """
+
     ELEMENTS = (ComputationElement[Multiplication],) * 4

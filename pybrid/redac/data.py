@@ -19,8 +19,7 @@ from pybrid.redac.run import Run
 class BaseExporter:
     FORMAT = None
 
-    def export(self, run, **kwargs):
-        ...
+    def export(self, run, **kwargs): ...
 
 
 class DatExporter(BaseExporter):

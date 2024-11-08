@@ -5,7 +5,8 @@
 from dataclasses import asdict
 from functools import singledispatch
 
-from ..blocks import ElementBlock, SwitchingBlock, CBlock
+from ..blocks import ElementBlock, SwitchingBlock, CBlock, MMulBlock
+from ..carrier import Carrier
 from ..elements import ComputationElement
 from ..entities import Entity
 
@@ -15,6 +16,13 @@ def exclude(*fields):
         return {k: v for (k, v) in data if k not in fields}
 
     return _dict_factory_excluding
+
+
+def include(*fields):
+    def _dict_factory_including(data):
+        return {k: v for (k, v) in data if k in fields}
+
+    return _dict_factory_including
 
 
 def build_config(entity: Entity, config: dict):
@@ -38,6 +46,11 @@ def _(entity: ComputationElement):
 
 
 @to_dict.register
+def _(entity: Carrier):
+    return asdict(entity, dict_factory=include("adc_channels")), True
+
+
+@to_dict.register
 def _(entity: ElementBlock):
     return {"elements": [to_dict(element)[0] for element in entity.elements]}, False
 
@@ -48,5 +61,10 @@ def _(entity: CBlock):
 
 
 @to_dict.register
+def _(entity: MMulBlock):
+    return {}, False
+
+
+@to_dict.register
 def _(entity: SwitchingBlock):
-    return asdict(entity, dict_factory=exclude('path')), False
+    return asdict(entity, dict_factory=exclude("path")), False

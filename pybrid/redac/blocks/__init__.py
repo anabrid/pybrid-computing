@@ -5,5 +5,6 @@
 from .block import FunctionBlock, ElementBlock, SwitchingBlock
 from .cblock import CBlock
 from .iblock import IBlock
-from .mblock import MBlock, MIntBlock
+from .mblock import MBlock, MIntBlock, MMulBlock
+from .shblock import SHBlock
 from .ublock import UBlock

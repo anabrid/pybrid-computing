@@ -11,6 +11,7 @@ class SuccessInfo(BaseModel):
     """
     Data type used in responses indicating whether the associated request was successful.
     """
+
     #: :code:`True` if response was successful, :code:`False` otherwise.
     success: bool
     #: An optional error message. Always None if success is :code:`True`.

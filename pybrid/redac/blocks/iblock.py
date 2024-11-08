@@ -8,7 +8,7 @@ from .block import SwitchingBlock, SignalConnectionError
 from ..entities import EntityClass, EntityType
 
 
-@EntityType.register(EntityClass.IBLOCK, None, None, None)
+@EntityType.register(EntityClass.IBLOCK)
 @dataclass
 class IBlock(SwitchingBlock):
     """
@@ -33,6 +33,7 @@ class IBlock(SwitchingBlock):
                     continue
                 if other_output is not None and other_output.intersection(input_idxs):
                     raise SignalConnectionError(
-                        "One of inputs %s is already connected to output %s. Use the force argument to ignore." % (
-                            input_idxs, other_output_idx))
+                        "One of inputs %s is already connected to output %s. Use the force argument to ignore."
+                        % (input_idxs, other_output_idx)
+                    )
         self.outputs[output_idx] = self.outputs[output_idx].union(input_idxs)

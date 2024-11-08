@@ -8,7 +8,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from uuid import UUID, uuid4
 
-from pybrid.base.hybrid import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig
+from pybrid.base.hybrid import (
+    BaseRun,
+    BaseRunConfig,
+    BaseRunFlags,
+    BaseRunState,
+    BaseDAQConfig,
+)
 from pybrid.base.utils.descriptors import Validator
 
 from .entities import Path
@@ -16,12 +22,14 @@ from .entities import Path
 
 class RunError(Exception):
     """Base exception class for all errors during a :class:`Run`."""
+
     pass
 
 
 @dataclass(kw_only=True)
 class RunConfig(BaseRunConfig):
     """Configures parameters related to the execution of one :class:`Run`."""
+
     #: Duration of IC (initial condition) mode in nanoseconds.
     ic_time: int = 100_000
     #: Duration of OP (operating) mode in nanoseconds.
@@ -39,6 +47,7 @@ class RunFlags(BaseRunFlags):
     Flags that can be triggered by a :class:`Run`.
     Once triggered, they are persistently `True`, even when the original condition is lost.
     """
+
     #: Whether the run was halted because of an external halt trigger.
     externally_halted: bool = False
     #: Any element that entered an overload during computation.
@@ -47,6 +56,7 @@ class RunFlags(BaseRunFlags):
 
 class RunState(BaseRunState, Enum):
     """The state of a :class:`Run`."""
+
     #: Run has just been created.
     NEW = "NEW"
     #: Run has encountered an error and has been aborted.
@@ -108,6 +118,7 @@ class DAQConfig(BaseDAQConfig):
 @dataclass(kw_only=True)
 class Run(BaseRun):
     """A run is one computation executed by the REDAC."""
+
     #: A unique identifier for the run.
     id_: UUID = field(default_factory=uuid4)
     #: Possibly the ID of a related run, e.g. one that triggered this one.

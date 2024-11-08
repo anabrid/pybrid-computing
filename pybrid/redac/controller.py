@@ -28,6 +28,7 @@ class Controller(BaseController):
 
     The controller object also holds references to the underlying protocol and transport objects and manages them.
     """
+
     computer: REDAC
     protocol: Protocol
     #: List of all runs started by this controller.

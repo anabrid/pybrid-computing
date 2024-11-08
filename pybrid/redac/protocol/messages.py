@@ -10,9 +10,9 @@ from functools import cache
 import inflection
 from pydantic import UUID4, BaseModel, Field
 
+from .types import SuccessInfo
 from ..entities import Path
 from ..run import RunConfig, RunFlags, RunState, DAQConfig
-from .types import SuccessInfo
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class Message(BaseModel):
     """
 
     @classmethod
-    def parse_obj(cls, **data: dict) -> 'Message':
+    def parse_obj(cls, **data: dict) -> "Message":
         """Parses data from `dict` or `json`-like and returns a message instance."""
         ...
 
@@ -86,6 +86,7 @@ class Request(Message):
        Controller -> Client: Response(...)
 
     """
+
     @classmethod
     def get_expected_response_type(cls) -> typing.Type["Response"]:
         """The :py:class:`Response` subclass expected for the answer to this request."""
@@ -102,6 +103,7 @@ class Response(Message):
        Controller -> Client: **Response(...)**
 
     """
+
     #: The :py:class:`Request` subclass to which this is the response
     response_for: typing.ClassVar[Request]
 
@@ -139,6 +141,7 @@ class PingRequest(Request):
        Controller -> Client: PingResponse(...)
 
     """
+
     #: A timestamp used to synchronize client and controller clocks.
     now: datetime = Field(default_factory=datetime.utcnow)
 
@@ -153,6 +156,7 @@ class PingResponse(Response):
        Controller -> Client: **PingResponse(...)**
 
     """
+
     response_for = PingRequest
     #: A timestamp used to synchronize client and controller clocks.
     #: The controller returns its timestamp so the client can check if it was applied correctly.
@@ -164,6 +168,7 @@ class HackRequest(Request):
     A message which may contain an arbitrary command and data,
     intended for development purposes only!
     """
+
     command: str
     data: typing.Any
 
@@ -180,7 +185,7 @@ class HackResponse(Response):
 # ██ ██   ████ ██    ██    ██ ██   ██ ███████ ██ ███████ ██   ██    ██    ██  ██████  ██   ████
 
 
-class ResetRequest(Request):
+class ResetCircuitRequest(Request):
     """
     A request for the hybrid controller to reset its configuration.
 
@@ -190,23 +195,25 @@ class ResetRequest(Request):
 
     .. uml::
 
-       Client -> Controller: **ResetRequest()**
+       Client -> Controller: **ResetCircuitRequest()**
        activate Controller
        note over Controller: resets system
-       Controller -> Client: ResetResponse()
+       Controller -> Client: ResetCircuitResponse()
        deactivate Controller
     """
+
     #: Whether the calibration data should be kept.
     keep_calibration: typing.Optional[bool] = True
     #: Whether to immediately sync to hardware.
     sync: typing.Optional[bool] = True
 
 
-class ResetResponse(Response):
+class ResetCircuitResponse(Response):
     """
-    A response to a previous :class:`ResetRequest`.
+    A response to a previous :class:`ResetCircuitRequest`.
     """
-    response_for = ResetRequest
+
+    response_for = ResetCircuitRequest
 
 
 class GetEntitiesRequest(Request):
@@ -227,6 +234,7 @@ class GetEntitiesRequest(Request):
        deactivate Controller
 
     """
+
     pass
 
 
@@ -244,6 +252,7 @@ class GetEntitiesResponse(Response):
        deactivate Controller
 
     """
+
     response_for = GetEntitiesRequest
     #: A tree-like dictionary structure containing entity type information by path.
     entities: dict
@@ -279,6 +288,7 @@ class StartSessionRequest(Request):
         CTRL -> C1: EndSessionResponse(success=True)
 
     """
+
     #: A list of analog entities to reserve for this session.
     entities: list[Path]
 
@@ -292,6 +302,7 @@ class StartSessionResponse(Response):
 
     If not all requested entities could be reserved for the new session, the session is not started.
     """
+
     response_for = StartSessionRequest
     #: Secret session ID or None if the session could not be started.
     id_: typing.Optional[UUID4]
@@ -323,6 +334,7 @@ class EndSessionRequest(Request):
         deactivate CTRL
 
     """
+
     #: The secret session ID to end.
     id_: UUID4
 
@@ -331,6 +343,7 @@ class EndSessionResponse(Response):
     """
     Response to a prior :class:`EndSessionRequest`.
     """
+
     response_for = EndSessionRequest
     #: Whether the session could be ended and optional error info. Usually True.
     success: SuccessInfo
@@ -340,6 +353,7 @@ class EntityReservationRequest(Request):
     """
     Request to reserve additional entities for an existing session.
     """
+
     #: Secret session ID
     id_: UUID4
     #: A list of analog entities to reserve for this session.
@@ -350,6 +364,7 @@ class EntityReservationResponse(Response):
     """
     Response to a prior :class:`EntityReservationRequest`.
     """
+
     response_for = EntityReservationRequest
     #: Whether the requested entities were reserved and error information if they were not.
     success: SuccessInfo
@@ -362,7 +377,7 @@ class EntityReservationResponse(Response):
 #  ██████  ██████  ██   ████ ██      ██  ██████   ██████  ██   ██ ██   ██    ██    ██  ██████  ██   ████
 
 
-class SetConfigRequest(Request):
+class SetCircuitRequest(Request):
     """
     A request to the controller to set a configuration for an entity.
     The controller forwards the request to the carrier board on which the entity is located
@@ -413,6 +428,7 @@ class SetConfigRequest(Request):
               }
             }
     """
+
     #: The secret session ID for which the entity was reserved. Only required if session management is enabled.
     session: typing.Optional[UUID4]
     #: The entity to configure.
@@ -429,7 +445,7 @@ class SetConfigRequest(Request):
         ...
 
 
-class SetConfigResponse(Response):
+class SetCircuitResponse(Response):
     """A response to :py:class:`SetConfigRequest` conveying the success of the latter.
 
     .. uml::
@@ -440,25 +456,27 @@ class SetConfigResponse(Response):
            Controller -> Client: **SetConfigResponse**(...)
            deactivate Controller
     """
-    response_for = SetConfigRequest
+
+    response_for = SetCircuitRequest
 
 
 class GetConfigRequest(Request):
     """
-        A request to the controller to retrieve the configuration of an entity.
-        The controller responds with a :py:class:`GetConfigResponse`.
-        This configuration includes only the effective analog configuration
-        (e.g. the scalar factor of a digital potentiometer).
-        For any metadata (e.g. calibration) use :class:`GetMetadataRequest`.
+    A request to the controller to retrieve the configuration of an entity.
+    The controller responds with a :py:class:`GetConfigResponse`.
+    This configuration includes only the effective analog configuration
+    (e.g. the scalar factor of a digital potentiometer).
+    For any metadata (e.g. calibration) use :class:`GetMetadataRequest`.
 
-        .. uml::
+    .. uml::
 
-           Client -> Controller: **GetConfigRequest**(...)
-           activate Controller
-           note over Controller: gets entity config
-           Controller -> Client: GetConfigResponse(...)
-           deactivate Controller
+       Client -> Controller: **GetConfigRequest**(...)
+       activate Controller
+       note over Controller: gets entity config
+       Controller -> Client: GetConfigResponse(...)
+       deactivate Controller
     """
+
     #: Path to the entity of which the configuration should be returned.
     entity: Path
     #: Whether to retrieve the configuration of sub-entities recursively.
@@ -476,6 +494,7 @@ class GetConfigResponse(Response):
            Controller -> Client: **GetConfigResponse**(...)
            deactivate Controller
     """
+
     response_for = GetConfigRequest
     #: Path to the entity of which the configuration is returned.
     entity: Path
@@ -486,18 +505,19 @@ class GetConfigResponse(Response):
 
 class GetMetadataRequest(Request):
     """
-        A request to the controller to retrieve the metadata of an entity.
-        The controller responds with a :py:class:`GetMetadataResponse`.
-        The metadata contains entity-specific information (e.g. type identifier, calibration, ...).
+    A request to the controller to retrieve the metadata of an entity.
+    The controller responds with a :py:class:`GetMetadataResponse`.
+    The metadata contains entity-specific information (e.g. type identifier, calibration, ...).
 
-        .. uml::
+    .. uml::
 
-           Client -> Controller: **GetMetadataRequest**(...)
-           activate Controller
-           note over Controller: gets entity metadata
-           Controller -> Client: GetMetadataResponse(...)
-           deactivate Controller
+       Client -> Controller: **GetMetadataRequest**(...)
+       activate Controller
+       note over Controller: gets entity metadata
+       Controller -> Client: GetMetadataResponse(...)
+       deactivate Controller
     """
+
     #: Path to the entity of which the metadata should be returned.
     entity: Path
 
@@ -513,6 +533,7 @@ class GetMetadataResponse(Response):
            Controller -> Client: **GetMetadataResponse**(...)
            deactivate Controller
     """
+
     response_for = GetMetadataRequest
     #: Path to the entity of which the metadata is returned.
     entity: Path
@@ -530,6 +551,7 @@ class SetDAQRequest(Request):
            Client -> Controller: **SetDAQRequest**(...)
            Controller -> Client: SetDAQResponse(...)
     """
+
     #: The DAQ configuration to apply.
     daq: DAQConfig
     #: The secret session ID for which the entities were reserved. Only required if session management is enabled.
@@ -547,6 +569,7 @@ class SetDAQResponse(Response):
            Client -> Controller: SetDAQRequest(...)
            Controller -> Client: **SetDAQResponse**(...)
     """
+
     response_for = SetDAQRequest
     #: Whether the request was successful.
     success: SuccessInfo
@@ -572,8 +595,9 @@ class StartRunRequest(Request):
        else run is not accepted (e.g. analog computer is busy or in failure mode)
          Controller -> Client: StartRunResponse(success=False, error=<error info>)
        end
-       
+
     """
+
     #: The secret session ID in which the run should be started. Only required if session management is enabled.
     session: typing.Optional[UUID4]
     #: An ID that should be applied to the run.
@@ -600,6 +624,7 @@ class StartRunResponse(Response):
     """
     A response to a :py:class:`StartRunRequest` indicating whether the run was accepted.
     """
+
     response_for = StartRunRequest
 
 
@@ -620,6 +645,7 @@ class CancelRunRequest(Request):
         Controller -> Client: CancelRunResponse(success=True)
         deactivate Controller
     """
+
     #: The ID of the run to be canceled.
     id_: UUID4
 
@@ -628,6 +654,7 @@ class CancelRunResponse(Response):
     """
     A response to a prior :class:`CancelRunRequest` indicating whether the run was successfully canceled.
     """
+
     response_for = CancelRunRequest
     #: The ID of the run requested to be canceled.
     id_: UUID4
@@ -657,6 +684,7 @@ class RunStateChangeMessage(Message):
             note over Client: knows run is done
             Client -> Controller: StartRunRequest()
     """
+
     #: ID of the run
     id: UUID4
     #: Current time in microseconds
@@ -689,6 +717,7 @@ class RunDataMessage(Message):
         Controller -> Client: RunStateChangeMessage(old=OP, new=OP_END, ...)
         deactivate Controller
     """
+
     #: ID of the run
     id: UUID4
     #: Entity (cluster) that produced the data
@@ -709,6 +738,7 @@ class GetOverloadRequest(Request):
         This message is intended to be used internally between the hybrid controller and the carrier boards.
         As user, refer to the :attr:`RunStateChangeMessage.run_flags` field.
     """
+
     #: Optional path prefix to select only a subset of entities
     entities: typing.Optional[Path]
 
@@ -721,6 +751,7 @@ class GetOverloadResponse(Response):
         This message is intended to be used internally between the hybrid controller and the carrier boards.
         As user, refer to the :attr:`RunStateChangeMessage.run_flags` field.
     """
+
     response_for = GetOverloadRequest
     #: List of overloaded entities.
     entities: list[Path]

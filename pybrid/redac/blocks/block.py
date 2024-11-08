@@ -5,8 +5,8 @@
 import typing
 from dataclasses import dataclass
 
-from ..entities import Entity, EntityType
 from ..elements import ComputationElement
+from ..entities import Entity, EntityType
 
 
 class FunctionBlock(Entity):
@@ -15,6 +15,9 @@ class FunctionBlock(Entity):
         # TODO: Refactor out common code
         # Check information on self
         this_entity_type = EntityType.pop_from_dict(sub_tree)
+
+        # TODO: Actually use the EUI
+        sub_tree.pop("eui", None)
 
         # Generate type-specific entity
         entity_class = EntityType.lookup(this_entity_type, decay=True)
@@ -26,6 +29,7 @@ class ElementBlock(FunctionBlock):
     """
     Base class for function blocks in a REDAC.
     """
+
     ELEMENTS: typing.ClassVar[list[typing.Type[ComputationElement]]] = None
     elements: typing.Optional[list[ComputationElement]] = None
 
@@ -44,10 +48,7 @@ class ElementBlock(FunctionBlock):
     def initialize_elements(cls, base_path) -> list[ComputationElement]:
         if not cls.ELEMENTS:
             return []
-        elements: list[ComputationElement] = list(
-            E(path=base_path / idx)
-            for idx, E in enumerate(cls.ELEMENTS)
-        )
+        elements: list[ComputationElement] = list(E(path=base_path / idx) for idx, E in enumerate(cls.ELEMENTS))
         return elements
 
 
