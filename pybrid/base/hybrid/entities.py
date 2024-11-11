@@ -23,6 +23,10 @@ class Path(tuple):
         return self[-1]
 
     @property
+    def root(self):
+        return self[0]
+
+    @property
     def depth(self):
         return len(self)
 
