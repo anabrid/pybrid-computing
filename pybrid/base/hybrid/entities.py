@@ -55,14 +55,18 @@ class Path(tuple):
         return self.join(other)
 
     @classmethod
-    def parse(cls, path: typing.Union["Path", str], aliases: typing.Optional[dict[str, "Path"]] = None):
+    def parse(
+        cls,
+        path: typing.Union["Path", str],
+        aliases: typing.Optional[dict[str, "Path"]] = None,
+    ):
         if isinstance(path, Path):
             return path
         if isinstance(path, str):
-            parts = path.split('/')
+            parts = path.strip("/").split("/")
             # Paths may not have a trailing slash
-            if not parts[-1]:
-                raise ValueError("Invalid trailing slash in path string.")
+            if not parts:
+                raise ValueError("Empty path.")
             # Paths may start with an alias
             if aliases and (alias := aliases.get(parts[0], None)) is not None:
                 parts = (*alias, *parts[1:])
