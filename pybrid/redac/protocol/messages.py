@@ -460,20 +460,20 @@ class SetCircuitResponse(Response):
     response_for = SetCircuitRequest
 
 
-class GetConfigRequest(Request):
+class GetCircuitRequest(Request):
     """
     A request to the controller to retrieve the configuration of an entity.
-    The controller responds with a :py:class:`GetConfigResponse`.
+    The controller responds with a :py:class:`GetCircuitResponse`.
     This configuration includes only the effective analog configuration
     (e.g. the scalar factor of a digital potentiometer).
     For any metadata (e.g. calibration) use :class:`GetMetadataRequest`.
 
     .. uml::
 
-       Client -> Controller: **GetConfigRequest**(...)
+       Client -> Controller: **GetCircuitRequest**(...)
        activate Controller
        note over Controller: gets entity config
-       Controller -> Client: GetConfigResponse(...)
+       Controller -> Client: GetCircuitResponse(...)
        deactivate Controller
     """
 
@@ -483,19 +483,19 @@ class GetConfigRequest(Request):
     recursive: bool = True
 
 
-class GetConfigResponse(Response):
-    """A response to :py:class:`GetConfigRequest` conveying the configuration of some entity.
+class GetCircuitResponse(Response):
+    """A response to :py:class:`GetCircuitRequest` conveying the configuration of some entity.
 
     .. uml::
 
-           Client -> Controller: GetConfigRequest(..)
+           Client -> Controller: GetCircuitRequest(..)
            activate Controller
            note over Controller: gets entity config
-           Controller -> Client: **GetConfigResponse**(...)
+           Controller -> Client: **GetCircuitResponse**(...)
            deactivate Controller
     """
 
-    response_for = GetConfigRequest
+    response_for = GetCircuitRequest
     #: Path to the entity of which the configuration is returned.
     entity: Path
     #: The configuration of the entity.

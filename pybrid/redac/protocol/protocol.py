@@ -24,7 +24,7 @@ from .messages import (
     Request,
     Response,
     GetEntitiesRequest,
-    GetConfigRequest,
+    GetCircuitRequest,
     SetCircuitRequest,
     StartRunRequest,
     HackRequest,
@@ -168,7 +168,7 @@ class Protocol(BaseProtocol):
         return response.entities
 
     async def get_config(self, entity: Path, recursive: bool = True) -> dict:
-        response = await self.send_message_and_wait_response(GetConfigRequest(entity=entity, recursive=recursive))
+        response = await self.send_message_and_wait_response(GetCircuitRequest(entity=entity, recursive=recursive))
         return response.config
 
     async def set_config_request(self, entity: Path, config: dict, session: uuid.uuid4 = None) -> bool:
