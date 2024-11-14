@@ -18,11 +18,14 @@ class DAQ:
         self.computer = computer
 
     def capture(self, *entities):
+        changed_carriers = []
         for entity in entities:
             # TODO: entities should have a pybrid.redac.entities.path object with to_carrier() function
-            carrier: Carrier = self.computer.get_entity(entity.path[:1])
+            carrier: Carrier = self.computer.get_entity(entity.path.to_root())
             adc_channel = carrier.resolve_signal(entity)
             carrier.adc_channels.append(adc_channel)
+            changed_carriers.append(carrier)
+        return changed_carriers
 
 
 class REDAC(AnalogComputer):

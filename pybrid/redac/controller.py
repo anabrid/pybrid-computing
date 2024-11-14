@@ -8,8 +8,9 @@ import typing
 from asyncio import Future
 from uuid import UUID
 
-from pybrid.base.hybrid import BaseController
-
+from pybrid.base.hybrid.utils import build_entity_path_dict
+from pybrid.base.transport import TCPTransport
+from .carrier import Carrier
 from .computer import REDAC
 from .entities import Entity, Path
 from .protocol.messages import RunStateChangeMessage, RunDataMessage
@@ -19,7 +20,7 @@ from .run import Run, RunState
 logger = logging.getLogger(__name__)
 
 
-class Controller(BaseController):
+class Controller:
     """
     Abstraction of the REDAC hybrid controller.
 
@@ -29,21 +30,53 @@ class Controller(BaseController):
     The controller object also holds references to the underlying protocol and transport objects and manages them.
     """
 
+    #: Representation of the current configuration of the analog computer.
     computer: REDAC
-    protocol: Protocol
+    #: Dictionary of all managed devices identified by their unique entity path.
+    devices: dict[Path, Protocol]
     #: List of all runs started by this controller.
     runs: dict[UUID, Run] = dict()
     _ongoing_runs: dict[UUID, Future] = dict()
+
+    def __init__(self):
+        self.computer = REDAC(entities=[])
+        self.devices = dict()
+
+    async def __aenter__(self):
+        # Devices are already started in add_device
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        for device in self.devices.values():
+            await device.stop()
 
     @classmethod
     def get_run_implementation(cls) -> typing.Type[Run]:
         """Returns the specific :class:`.Run` implementation used by the REDAC."""
         return Run
 
-    async def start(self) -> None:
-        await super().start()
-        self.protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change)
-        self.protocol.register_callback(RunDataMessage, self.handle_run_data)
+    async def add_device(self, host, port):
+        # Create a connection to the device
+        transport_ = await TCPTransport.create(host, port)
+        protocol = await Protocol.create(transport_)
+        protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change)
+        protocol.register_callback(RunDataMessage, self.handle_run_data)
+        await protocol.start()
+        # Get carrier the device controls. In the future, other device types may be added here.
+        entities = await protocol.get_entities()
+        assert len(entities) == 1
+        for entity_id, sub_entities in entities.items():
+            path = Path.parse(entity_id)
+            carrier = Carrier.create_from_entity_type_tree(path, sub_entities)
+            self.computer.carriers.append(carrier)
+            self.computer._entities_by_path.update(build_entity_path_dict([carrier]))
+            self.devices[path] = protocol
+
+    # ██   ██  █████  ███    ██ ██████  ██      ███████ ██████  ███████
+    # ██   ██ ██   ██ ████   ██ ██   ██ ██      ██      ██   ██ ██
+    # ███████ ███████ ██ ██  ██ ██   ██ ██      █████   ██████  ███████
+    # ██   ██ ██   ██ ██  ██ ██ ██   ██ ██      ██      ██   ██      ██
+    # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
 
     def handle_run_state_change(self, msg: RunStateChangeMessage):
         """A handler for incoming :class:`.RunStateChangeMessage` messages."""
@@ -62,14 +95,17 @@ class Controller(BaseController):
             for data_pkg in msg.data:
                 for channel, data_point in zip(adc_paths, data_pkg):
                     run.data[channel].append(data_point)
-            last_t = len(run.data["t"])
-            run.data["t"].extend(range(last_t, last_t + len(msg.data)))
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
     # ██      ██    ██ ██ ████ ██ ██ ████ ██ ███████ ██ ██  ██ ██   ██ ███████
     # ██      ██    ██ ██  ██  ██ ██  ██  ██ ██   ██ ██  ██ ██ ██   ██      ██
     #  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
+
+    @staticmethod
+    async def _forward_to(targets, fn, *args, **kwargs):
+        forwards = (fn.__get__(target, target.__class__)(*args, **kwargs) for target in targets)
+        return await asyncio.gather(*forwards)
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
         """
@@ -108,7 +144,9 @@ class Controller(BaseController):
             run = run_class()
         self.runs[run.id_] = run
         self._ongoing_runs[run.id_] = run_future = asyncio.get_event_loop().create_future()
-        await self.protocol.start_run_request(run.id_, run.config, run.daq)
+        await self._forward_to(
+            self.devices.values(), Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq
+        )
         return run_future
 
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:
@@ -123,6 +161,10 @@ class Controller(BaseController):
         await asyncio.wait_for(run_future, timeout=timeout)
         return run_future.result()
 
+    async def get_config(self, entity: Entity, *, recursive: bool = True):
+        device = self.devices[entity.path.to_root()]
+        return await device.get_config(entity.path, recursive=recursive)
+
     async def set_config(self, entity: Entity):
         """
         Change the configuration of a singe entity.
@@ -130,7 +172,8 @@ class Controller(BaseController):
         :param entity: The entity to change.
         :return: None
         """
-        await self.protocol.set_config(entity)
+        device = self.devices[entity.path.to_root()]
+        await device.set_config(entity)
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         """
@@ -140,4 +183,7 @@ class Controller(BaseController):
         :param sync: Whether to write the reset values to the hardware.
         :return: None
         """
-        await self.protocol.reset(keep_calibration=keep_calibration, sync=sync)
+        # TODO: Actually reset self.computer as well
+        return await self._forward_to(
+            self.devices.values(), Protocol.reset, keep_calibration=keep_calibration, sync=sync
+        )

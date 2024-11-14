@@ -55,7 +55,7 @@ class Carrier(Entity):
 
     def resolve_signal(self, entity: "Entity"):
         # TODO: This should be extended to a general approach to defining inputs and outputs of elements
-        if not entity.path.root == self.path.root:
+        if not entity.path.to_root() == self.path:
             raise EntityDoesNotExist("Entity does not exist on this carrier.")
 
         # Currently, we can only resolve signals from M-Blocks

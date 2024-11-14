@@ -2,24 +2,24 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+import asyncio
 import logging
+from ipaddress import ip_network
 
 import asyncclick as click
 from asyncclick import Choice
+
 from pybrid.base.hybrid import EntityDoesNotExist
-from pybrid.base.transport import TCPTransport
 from pybrid.cli.base import cli
 from pybrid.cli.base.commands import user_program
-from pybrid.cli.base.ressources import ManagedAsyncResource
 from pybrid.cli.base.shell import Shell
-
 from pybrid.redac.blocks import SwitchingBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.controller import Controller
 from pybrid.redac.data import DatExporter
+from pybrid.redac.detect import detect_in_network
 from pybrid.redac.display import TreeDisplay
 from pybrid.redac.entities import Path, Entity
-from pybrid.redac.protocol.protocol import Protocol
 from pybrid.redac.run import Run, RunState, RunError
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
     "-h",
     type=str,
     required=False,
-    help="Network name or address of the REDAC.",
+    help="Network name or address of the REDAC. Or address range to use for auto-detection.",
 )
 @click.option(
     "--port",
@@ -56,18 +56,22 @@ async def redac(ctx: click.Context, host, port, reset):
     Use :code:`pybrid redac --help` to list all available sub-commands.
     """
 
-    # Generate a transport
-    if host is not None and port is not None:
-        transport_ = ctx.obj["transport"] = await TCPTransport.create(host, port)
+    devices = []
+    # Either one host was passed explicitly or we auto-detect via zeroconf
+    if host is not None and "/" not in host:
+        devices.append((host, port))
     else:
-        raise RuntimeError("No valid combination of transport options given.")
+        network = ip_network(host or "0.0.0.0/0")
+        logger.info("Searching for available network devices in %s...", network)
+        devices = await detect_in_network(network)
+        logger.info("Found network devices at %s.", devices)
 
-    # Generate a protocol
-    protocol = await Protocol.create(transport_)
-
-    # Generate a controller, which will also start the protocol
-    controller = await Controller.create(protocol)
-    ctx.obj["controller"] = await ctx.with_async_resource(ManagedAsyncResource(controller, "start", "stop"))
+    # Generate a controller and add devices
+    controller = ctx.obj["controller"] = Controller()
+    for host, port in devices:
+        await controller.add_device(host, port)
+    # Make sure that we clean up after ourselves
+    await ctx.with_async_resource(controller)
 
     # Unless chosen otherwise, reset the analog computer
     if reset:
@@ -160,7 +164,8 @@ async def get_entity_config(obj, recursive, path):
     controller: Controller = obj["controller"]
 
     path_ = Path.parse(path, aliases=obj.get("aliases", None))
-    config = await controller.protocol.get_config(path_, recursive)
+    entity = controller.computer.get_entity(path_)
+    config = await controller.get_config(entity, recursive=recursive)
     click.echo(config)
 
 
@@ -192,16 +197,11 @@ async def set_element_config(obj, sync, path, attribute, value):
     # Apply configuration to element
     entity.apply_partial_configuration(attribute, value)
 
-    # Build a configuration message to the parent block
-    entity_config = entity.generate_partial_configuration(attribute)
-
     if sync:
         if path_.depth >= 4:
-            await controller.protocol.set_config_request(
-                entity=path_.parent, config={"elements": {path_.id_: entity_config}}
-            )
-        else:
-            await controller.protocol.set_config_request(entity=path_, config=entity_config)
+            # Element entities can not be configured directly, only via their parent
+            entity = controller.computer.get_entity(path_.to_parent())
+        await controller.set_config(entity)
 
 
 @redac.command()
@@ -247,8 +247,7 @@ async def set_connection(obj, sync, force, path, connections):
 
     # Send configuration
     if sync:
-        carrier = controller.computer.get_entity(path_.to_carrier())
-        await controller.set_config(carrier)
+        await controller.set_config(entity)
 
 
 @redac.command()
@@ -356,7 +355,8 @@ async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
     default="0",
     help="Number of channels.",
 )
-async def set_daq(obj, sample_rate, num_channels):
+@click.argument("paths", type=str, nargs=-1)
+async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
     """
     Configure data acquisition of subsequent run commands.
     Only useful in interactive sessions or scripts.
@@ -368,6 +368,15 @@ async def set_daq(obj, sample_rate, num_channels):
     run_.daq.num_channels = num_channels
     if sample_rate is not None:
         run_.daq.sample_rate = int(sample_rate)
+
+    changed_entities = []
+    for path in paths:
+        path_ = Path.parse(path, aliases=obj.get("aliases", None))
+        entity = controller.computer.get_entity(path_)
+        changed_entities.extend(controller.computer.daq.capture(entity))
+
+    for changed_entity in changed_entities:
+        await controller.set_config(changed_entity)
 
 
 @redac.command()
@@ -410,6 +419,9 @@ async def run(obj, op_time, ic_time, output, output_format):
     run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=timeout)
     if run_.state is RunState.ERROR:
         raise RunError("Error while executing run.")
+
+    # TODO: Remove
+    await asyncio.sleep(1)
 
     if output_format == "dat":
         exporter = DatExporter(output)
@@ -472,17 +484,6 @@ async def hack():
     Collects 'hack' commands, for development purposes only.
     """
     pass
-
-
-@hack.command()
-@click.pass_obj
-async def make_slave(obj):
-    """
-    Set one hybrid controller into slave mode.
-    For development purposes only.
-    """
-    controller: Controller = obj["controller"]
-    await controller.hack("slave", True)
 
 
 redac.command()(user_program)

@@ -166,8 +166,8 @@ class Path(BasePath):
     SCHEMA = (str, str, str, int)
 
     def to_carrier(self):
-        """Returns the path until the carrier board level."""
-        return Path(self[:1])
+        """Returns the path until the carrier board level. This is equal to :func:`to_root()` for carrier boards."""
+        return self.to_root()
 
     def to_cluster(self):
         """
