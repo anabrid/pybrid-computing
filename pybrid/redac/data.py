@@ -6,6 +6,7 @@
 
 import dataclasses
 import typing
+from itertools import zip_longest
 
 from pybrid.redac.run import Run
 
@@ -54,7 +55,7 @@ class DatExporter(BaseExporter):
         data_header = "# idx\t" + "\t".join(map(str, run.data.keys()))
         self._write_line(data_header)
 
-        for idx, data_pkg in enumerate(zip(*run.data.values())):
+        for idx, data_pkg in enumerate(zip_longest(*run.data.values(), fillvalue=None)):
             self._write_data_line(idx, data_pkg)
 
     def export(self, run):
