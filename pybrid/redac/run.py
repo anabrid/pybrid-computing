@@ -38,7 +38,7 @@ class RunConfig(BaseRunConfig):
     #: Whether to halt the computation when the external halt signal is triggered.
     halt_on_external_trigger: bool = False
     #: Whether to halt the computation when it enters an overload.
-    halt_on_overload: bool = True
+    halt_on_overload: bool = False
 
 
 @dataclass(kw_only=True)
