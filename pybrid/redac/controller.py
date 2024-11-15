@@ -162,6 +162,7 @@ class Controller:
         run_future = await self.start_run(run)
 
         final_run_states = await asyncio.wait_for(run_future, timeout=timeout)
+        del self._ongoing_runs[run.id_]
         if any(state is RunState.ERROR for state in final_run_states):
             run.state = RunState.ERROR
         return run
