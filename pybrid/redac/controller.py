@@ -36,7 +36,7 @@ class Controller:
     devices: dict[Path, Protocol]
     #: List of all runs started by this controller.
     runs: dict[UUID, Run] = dict()
-    _ongoing_runs: dict[UUID, Future] = dict()
+    _ongoing_runs: dict[UUID, dict[Protocol, asyncio.Future]] = dict()
 
     def __init__(self):
         self.computer = REDAC(entities=[])
@@ -78,17 +78,17 @@ class Controller:
     # ██   ██ ██   ██ ██  ██ ██ ██   ██ ██      ██      ██   ██      ██
     # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
 
-    def handle_run_state_change(self, msg: RunStateChangeMessage):
+    def handle_run_state_change(self, protocol: Protocol, msg: RunStateChangeMessage):
         """A handler for incoming :class:`.RunStateChangeMessage` messages."""
         logger.debug("Received run state change: %s.", msg)
         if run := self.runs.get(msg.id, None):
             run.state = RunState(msg.new)
             if run.state.is_done():
-                self._ongoing_runs.pop(run.id_).set_result(run)
+                self._ongoing_runs[run.id_][protocol].set_result(run.state)
         else:
             logger.warning("Received run state change with unknown id %s.", msg.id)
 
-    def handle_run_data(self, msg: RunDataMessage):
+    def handle_run_data(self, protocol: Protocol, msg: RunDataMessage):
         """A handler for incoming :class:`.RunDataMessage` messages."""
         if run := self.runs.get(msg.id, None):
             adc_paths = [Path(msg.entity).join(f"ADC{idx}") for idx in range(run.daq.num_channels)]
@@ -143,11 +143,13 @@ class Controller:
             run_class = self.get_run_implementation()
             run = run_class()
         self.runs[run.id_] = run
-        self._ongoing_runs[run.id_] = run_future = asyncio.get_event_loop().create_future()
-        await self._forward_to(
-            self.devices.values(), Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq
-        )
-        return run_future
+        # Create a future for each device we will forward this message to, so we can track which ones are finished.
+        devices = self.devices.values()
+        futures = {device: asyncio.get_event_loop().create_future() for device in devices}
+        self._ongoing_runs[run.id_] = futures
+        await self._forward_to(devices, Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq)
+        # Return a combined awaitable
+        return asyncio.gather(*futures.values())
 
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:
         """
@@ -158,8 +160,11 @@ class Controller:
         :return: The completed :class:`.Run`.
         """
         run_future = await self.start_run(run)
-        await asyncio.wait_for(run_future, timeout=timeout)
-        return run_future.result()
+
+        final_run_states = await asyncio.wait_for(run_future, timeout=timeout)
+        if any(state is RunState.ERROR for state in final_run_states):
+            run.state = RunState.ERROR
+        return run
 
     async def get_config(self, entity: Entity, *, recursive: bool = True):
         device = self.devices[entity.path.to_root()]

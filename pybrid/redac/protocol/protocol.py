@@ -121,12 +121,12 @@ class Protocol(BaseProtocol):
                     response_future.set_exception(exc)
                 else:
                     if callback := self.get_callback(type(message)):
-                        response_future.add_done_callback(lambda future: callback(future.result()))
+                        response_future.add_done_callback(lambda future: callback(self, future.result()))
                     response_future.set_result(message)
         else:
             message = envelope.get_message()
             if callback := self.get_callback(type(message)):
-                callback(message)
+                callback(self, message)
 
     async def _receive_loop(self):
         while True:

@@ -420,9 +420,6 @@ async def run(obj, op_time, ic_time, output, output_format):
     if run_.state is RunState.ERROR:
         raise RunError("Error while executing run.")
 
-    # TODO: Remove
-    await asyncio.sleep(1)
-
     if output_format == "dat":
         exporter = DatExporter(output)
         exporter.export(run_)
