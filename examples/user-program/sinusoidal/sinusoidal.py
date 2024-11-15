@@ -28,9 +28,8 @@ class UserProgram(SimpleRun):
     def run_done(self, run: Run):
         # This function is called once the run is done
         if run.data:
-            t = [t_ / 10 for t_ in run.data.pop("t")]
             for channel in run.data.values():
-                plt.plot(t, channel)
+                plt.plot(channel)
             plt.ylabel("Amplitude x")
             plt.xlabel("'Time' t")
             plt.show()
