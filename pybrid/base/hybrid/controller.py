@@ -23,7 +23,7 @@ class BaseController(ABC):
         self.initialize_protocol(self.protocol)
 
     @classmethod
-    async def create(cls, protocol: BaseProtocol, *args, **kwargs) -> 'BaseController':
+    async def create(cls, protocol: BaseProtocol, *args, **kwargs) -> "BaseController":
         """Create a new controller using the passed protocol."""
         controller = cls(protocol)
         return controller
@@ -60,21 +60,14 @@ class BaseController(ABC):
         """Returns the specific :class:`BaseRun` implementation used by the analog computer."""
         ...
 
-    async def create_run(self, **kwargs) -> BaseRun:
-        """Create a run. All keyword arguments are passed to the underlying :class:`BaseRun` class."""
-        run_class = self.get_run_implementation()
-        return run_class(**kwargs)
-
     # Commands
 
     @abstractmethod
-    async def get_computer(self) -> AnalogComputer:
-        ...
+    async def get_computer(self) -> AnalogComputer: ...
 
     @abstractmethod
     async def set_computer(self, computer):
         pass
 
     @abstractmethod
-    async def start_and_await_run(self, run=None):
-        ...
+    async def start_and_await_run(self, run=None): ...

@@ -35,7 +35,12 @@ class BaseProgram(ABC):
     #: Logger instance.
     logger: logging.Logger
 
-    def __init__(self, controller: BaseController, run: BaseRun, output: typing.Optional[typing.IO] = None):
+    def __init__(
+        self,
+        controller: BaseController,
+        run: BaseRun,
+        output: typing.Optional[typing.IO] = None,
+    ):
         self.controller = controller
         self.run = run
         self.output = output or sys.stdout
@@ -60,7 +65,8 @@ class BaseProgram(ABC):
         # Creating a run is async, thus it can not happen in __init__
         # If BaseProgram is started via command line, run is already set, and we need to overwrite it partly.
         if self.run is None:
-            self.run = await self.controller.create_run(**self.get_run_kwargs())
+            run_class = self.controller.get_run_implementation()
+            self.run = run_class(**self.get_run_kwargs())
         else:
             self.run = replace(self.run, **self.get_run_kwargs())
         return await self.start()
