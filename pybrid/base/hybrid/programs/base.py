@@ -19,6 +19,7 @@ class BaseProgram(ABC):
     """
     Base class for user programs.
     """
+
     #: Shortcut to set :attr:`.BaseRun.config` if not None.
     RUN_CONFIG: BaseRunConfig = None
     #: Shortcut to set :attr:`.BaseRun.daq_config` if not None.

@@ -26,6 +26,14 @@ class Path(tuple):
     def root(self):
         return self[0]
 
+    def to_root(self):
+        """Returns the path until the root entity level."""
+        return type(self)(self[:1])
+
+    def to_parent(self):
+        """Returns the path until the parent entity level."""
+        return Path(self[:-1])
+
     @property
     def depth(self):
         return len(self)
