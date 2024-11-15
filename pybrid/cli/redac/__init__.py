@@ -74,7 +74,8 @@ async def redac(ctx: click.Context, host, port, reset):
         await controller.reset()
 
     # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
-    ctx.obj["run"] = await controller.create_run()
+    run_class = controller.get_run_implementation()
+    ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
 
 

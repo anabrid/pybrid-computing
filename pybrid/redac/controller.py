@@ -104,7 +104,8 @@ class Controller(BaseController):
         :return: An :class:`asyncio.Future` which can be awaited and will return the run object once it is done.
         """
         if run is None:
-            run = await self.create_run()
+            run_class = self.get_run_implementation()
+            run = run_class()
         self.runs[run.id_] = run
         self._ongoing_runs[run.id_] = run_future = asyncio.get_event_loop().create_future()
         await self.protocol.start_run_request(run.id_, run.config, run.daq)

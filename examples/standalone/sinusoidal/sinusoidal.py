@@ -11,7 +11,7 @@ logging.basicConfig()
 set_pybrid_logging_level(logging.DEBUG)
 
 # Network information of REDAC
-REDAC_HOST = 'b.dev.redac.lan'
+REDAC_HOST = "b.dev.redac.lan"
 REDAC_PORT = 5732
 
 
@@ -48,7 +48,8 @@ async def main():
         # Create a run and configure it.
         run_config = RunConfig(op_time=2_560_000)
         daq_config = DAQConfig(num_channels=2, sample_rate=100_000)
-        run = await controller.create_run(config=run_config, daq=daq_config)
+        run_class = controller.get_run_implementation()
+        run = run_class(config=run_config, daq=daq_config)
 
         # Start a run and wait for its result.
         # Alternatively, you can use non-blocking functions and do other (hybrid) work in parallel.
@@ -64,5 +65,6 @@ async def main():
     plt.ylabel("Amplitude x")
     plt.xlabel("'Time' t")
     plt.show()
+
 
 asyncio.run(main())
