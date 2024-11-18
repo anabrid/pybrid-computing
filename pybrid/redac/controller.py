@@ -57,8 +57,9 @@ class Controller:
 
     async def add_device(self, host, port):
         # Create a connection to the device
-        transport_ = await TCPTransport.create(host, port)
-        protocol = await Protocol.create(transport_)
+        async with asyncio.timeout(3):
+            transport_ = await TCPTransport.create(host, port)
+            protocol = await Protocol.create(transport_)
         protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change)
         protocol.register_callback(RunDataMessage, self.handle_run_data)
         await protocol.start()
