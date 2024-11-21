@@ -77,13 +77,17 @@ Entity Configuration
 
 After potentially reserving certain entities for a session, it is usually necessary to configure them for an upcoming run.
 
-.. autoclass:: pybrid.redac.protocol.messages.SetConfigRequest
+.. autoclass:: pybrid.redac.protocol.messages.SetCircuitRequest
    :members:
-.. autoclass:: pybrid.redac.protocol.messages.SetConfigResponse
+.. autoclass:: pybrid.redac.protocol.messages.SetCircuitResponse
    :members:
-.. autoclass:: pybrid.redac.protocol.messages.GetConfigRequest
+.. autoclass:: pybrid.redac.protocol.messages.ResetCircuitRequest
    :members:
-.. autoclass:: pybrid.redac.protocol.messages.GetConfigResponse
+.. autoclass:: pybrid.redac.protocol.messages.ResetCircuitResponse
+   :members:
+.. autoclass:: pybrid.redac.protocol.messages.GetCircuitRequest
+   :members:
+.. autoclass:: pybrid.redac.protocol.messages.GetCircuitResponse
    :members:
 .. autoclass:: pybrid.redac.protocol.messages.SetDAQRequest
    :members:
@@ -138,6 +142,6 @@ Miscellaneous messages are documented below.
    :exclude-members: GetEntitiesRequest, GetEntitiesResponse,
                      Message, Request, Response,
                      StartSessionRequest, StartSessionResponse, EndSessionRequest, EndSessionResponse, EntityReservationRequest, EntityReservationResponse,
-                     SetConfigRequest, SetConfigResponse, GetConfigRequest, GetConfigResponse, SetDAQRequest, SetDAQResponse, GetMetadataRequest, GetMetadataResponse,
+                     SetCircuitRequest, SetCircuitResponse, ResetCircuitRequest, ResetCircuitResponse, GetCircuitRequest, GetCircuitResponse, SetDAQRequest, SetDAQResponse, GetMetadataRequest, GetMetadataResponse,
                      StartRunRequest, StartRunResponse, CancelRunRequest, CancelRunResponse, RunDataMessage, RunStateChangeMessage, GetOverloadRequest, GetOverloadResponse
    :undoc-members:
