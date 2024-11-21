@@ -28,8 +28,9 @@ class UserProgram(SimpleRun):
     def run_done(self, run: Run):
         # This function is called once the run is done
         if run.data:
-            for channel in run.data.values():
-                plt.plot(channel)
+            for label, channel in run.data.items():
+                plt.plot(channel, label=label)
+            plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", ncol=2)
             plt.ylabel("Amplitude x")
             plt.xlabel("'Time' t")
             plt.show()
