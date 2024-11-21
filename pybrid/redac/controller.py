@@ -60,8 +60,6 @@ class Controller:
         async with asyncio.timeout(3):
             transport_ = await TCPTransport.create(host, port)
             protocol = await Protocol.create(transport_)
-        protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change)
-        protocol.register_callback(RunDataMessage, self.handle_run_data)
         await protocol.start()
         # Get carrier the device controls. In the future, other device types may be added here.
         entities = await protocol.get_entities()
@@ -69,6 +67,8 @@ class Controller:
         for entity_id, sub_entities in entities.items():
             path = Path.parse(entity_id)
             carrier = Carrier.create_from_entity_type_tree(path, sub_entities)
+            protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change, extra_args=[path])
+            protocol.register_callback(RunDataMessage, self.handle_run_data, extra_args=[path])
             self.computer.carriers.append(carrier)
             self.computer._entities_by_path.update(build_entity_path_dict([carrier]))
             self.devices[path] = protocol
@@ -79,7 +79,7 @@ class Controller:
     # ██   ██ ██   ██ ██  ██ ██ ██   ██ ██      ██      ██   ██      ██
     # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
 
-    def handle_run_state_change(self, protocol: Protocol, msg: RunStateChangeMessage):
+    def handle_run_state_change(self, msg: RunStateChangeMessage, path: Path):
         """A handler for incoming :class:`.RunStateChangeMessage` messages."""
         logger.debug("Received run state change: %s.", msg)
         if run := self.runs.get(msg.id, None):
@@ -89,7 +89,7 @@ class Controller:
         else:
             logger.warning("Received run state change with unknown id %s.", msg.id)
 
-    def handle_run_data(self, protocol: Protocol, msg: RunDataMessage):
+    def handle_run_data(self, msg: RunDataMessage, path: Path):
         """A handler for incoming :class:`.RunDataMessage` messages."""
         if run := self.runs.get(msg.id, None):
             adc_paths = [Path(msg.entity).join(f"ADC{idx}") for idx in range(run.daq.num_channels)]

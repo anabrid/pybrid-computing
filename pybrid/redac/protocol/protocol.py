@@ -44,7 +44,7 @@ class Protocol(BaseProtocol):
         super().__init__(transport, version)
         self._receive_loop_task = None
         self._expected_responses: dict[uuid, (Response, asyncio.futures.Future)] = dict()
-        self._callbacks: dict[typing.Type[Message], Callable] = dict()
+        self._callbacks: dict[typing.Type[Message], tuple[Callable, list, dict]] = dict()
 
     async def start(self):
         assert self._receive_loop_task is None
@@ -120,13 +120,11 @@ class Protocol(BaseProtocol):
                 except ProtocolError as exc:
                     response_future.set_exception(exc)
                 else:
-                    if callback := self.get_callback(type(message)):
-                        response_future.add_done_callback(lambda future: callback(self, future.result()))
+                    response_future.add_done_callback(lambda future: self.do_callback(future.result()))
                     response_future.set_result(message)
         else:
             message = envelope.get_message()
-            if callback := self.get_callback(type(message)):
-                callback(self, message)
+            self.do_callback(message)
 
     async def _receive_loop(self):
         while True:
@@ -147,11 +145,19 @@ class Protocol(BaseProtocol):
     # ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██       ██
     #  ██████ ██   ██ ███████ ███████ ██████  ██   ██  ██████ ██   ██ ███████
 
-    def register_callback(self, msg_type: typing.Type[Message], callback: Callable):
-        self._callbacks[msg_type] = callback
+    def register_callback(self, msg_type: typing.Type[Message], callback: Callable, extra_args=None, extra_kwargs=None):
+        self._callbacks[msg_type] = (callback, extra_args or list(), extra_kwargs or dict())
 
     def get_callback(self, msg_type: typing.Type[Message]):
         return self._callbacks.get(msg_type, None)
+
+    def do_callback(self, msg: Message):
+        try:
+            callback, extra_args, extra_kwargs = self._callbacks[type(msg)]
+        except KeyError:
+            pass
+        else:
+            callback(msg, *extra_args, **extra_kwargs)
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
