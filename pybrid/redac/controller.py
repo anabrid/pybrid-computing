@@ -5,7 +5,6 @@
 import asyncio
 import logging
 import typing
-from asyncio import Future
 from uuid import UUID
 
 from pybrid.base.hybrid.utils import build_entity_path_dict
@@ -16,8 +15,39 @@ from .entities import Entity, Path
 from .protocol.messages import RunStateChangeMessage, RunDataMessage
 from .protocol.protocol import Protocol
 from .run import Run, RunState
+from .sync import Sync
 
 logger = logging.getLogger(__name__)
+
+
+class DistributedRunState:
+    #: A dictionary tracking each possible RunState for each involved carrier
+    _states: dict[Path, dict[RunState, asyncio.Semaphore]]
+    #: The run which state we are tracking
+    run: Run
+    #: The run once it's done
+    run_future: asyncio.Future
+
+    def __init__(self, run, paths: list[Path]):
+        self._states = {path: {state: asyncio.Semaphore(0) for state in RunState} for path in paths}
+        self.run = run
+        self.run_future = asyncio.Future()
+
+    def track(self, path: Path, state: RunState):
+        self._states[path][state].release()
+
+    def status(self, state: RunState):
+        reached = []
+        notreached = []
+        for entity in self._states.values():
+            if entity[state].locked():
+                notreached.append(entity)
+            else:
+                reached.append(entity)
+        return reached, notreached
+
+    async def wait_all(self, state: RunState):
+        await asyncio.gather(*[entity[state].acquire() for entity in self._states.values()])
 
 
 class Controller:
@@ -36,11 +66,12 @@ class Controller:
     devices: dict[Path, Protocol]
     #: List of all runs started by this controller.
     runs: dict[UUID, Run] = dict()
-    _ongoing_runs: dict[UUID, dict[Protocol, asyncio.Future]] = dict()
+    _ongoing_runs: dict[UUID, DistributedRunState] = dict()
 
     def __init__(self):
         self.computer = REDAC(entities=[])
         self.devices = dict()
+        self.sync = Sync()
 
     async def __aenter__(self):
         # Devices are already started in add_device
@@ -82,10 +113,8 @@ class Controller:
     def handle_run_state_change(self, msg: RunStateChangeMessage, path: Path):
         """A handler for incoming :class:`.RunStateChangeMessage` messages."""
         logger.debug("Received run state change: %s.", msg)
-        if run := self.runs.get(msg.id, None):
-            run.state = RunState(msg.new)
-            if run.state.is_done():
-                self._ongoing_runs[run.id_][protocol].set_result(run.state)
+        if distributed_run_state := self._ongoing_runs.get(msg.id, None):
+            distributed_run_state.track(path, msg.new)
         else:
             logger.warning("Received run state change with unknown id %s.", msg.id)
 
@@ -106,7 +135,7 @@ class Controller:
     @staticmethod
     async def _forward_to(targets, fn, *args, **kwargs):
         forwards = (fn.__get__(target, target.__class__)(*args, **kwargs) for target in targets)
-        return await asyncio.gather(*forwards)
+        return asyncio.gather(*forwards)
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
         """
@@ -133,7 +162,7 @@ class Controller:
         for carrier in computer.carriers:
             await self.set_config(carrier)
 
-    async def start_run(self, run: typing.Optional[Run] = None) -> Future:
+    async def start_run(self, run: typing.Optional[Run] = None) -> DistributedRunState:
         """
         Start a run (computation) on the REDAC.
 
@@ -144,13 +173,14 @@ class Controller:
             run_class = self.get_run_implementation()
             run = run_class()
         self.runs[run.id_] = run
-        # Create a future for each device we will forward this message to, so we can track which ones are finished.
-        devices = self.devices.values()
-        futures = {device: asyncio.get_event_loop().create_future() for device in devices}
-        self._ongoing_runs[run.id_] = futures
-        await self._forward_to(devices, Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq)
-        # Return a combined awaitable
-        return asyncio.gather(*futures.values())
+        # Forward request to involved devices and track their individual state
+        involved_devices = self.devices
+        paths, protocols = list(involved_devices.keys()), involved_devices.values()
+        self._ongoing_runs[run.id_] = run_state = DistributedRunState(run, paths)
+        await self._forward_to(
+            protocols, Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq
+        )
+        return run_state
 
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:
         """
@@ -160,12 +190,23 @@ class Controller:
         :param timeout: Timeout
         :return: The completed :class:`.Run`.
         """
-        run_future = await self.start_run(run)
-
-        final_run_states = await asyncio.wait_for(run_future, timeout=timeout)
+        # Queue the run on the computer and wait until all involved entities are ready for take-off.
+        try:
+            run_state = await asyncio.wait_for(self.start_run(run), timeout=timeout)
+        except asyncio.TimeoutError as exc:
+            raise asyncio.TimeoutError("Timeout while queueing run.") from exc
+        try:
+            await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=timeout)
+        except asyncio.TimeoutError as exc:
+            raise asyncio.TimeoutError(
+                "Timeout while waiting for all carriers to reach RunState.TAKE_OFF. "
+                "{} reached it, {} did not.".format(*run_state.status(RunState.TAKE_OFF))
+            ) from exc
+        # Trigger the synchronized start of the run and wait until all involved entities are done.
+        self.sync.trigger()
+        await run_state.wait_all(RunState.DONE)
         del self._ongoing_runs[run.id_]
-        if any(state is RunState.ERROR for state in final_run_states):
-            run.state = RunState.ERROR
+        # Return run
         return run
 
     async def get_config(self, entity: Entity, *, recursive: bool = True):
