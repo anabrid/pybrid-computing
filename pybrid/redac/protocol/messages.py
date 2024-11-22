@@ -310,6 +310,26 @@ class StartSessionResponse(Response):
     success: SuccessInfo
 
 
+class ResumeSessionRequest(Request):
+    """
+    Request to resume a session and associate it with the current connection,
+    such that it is automatically used on future requests.
+    """
+
+    #: Secret session ID.
+    id_: UUID4
+
+
+class ResumeSessionResponse(Response):
+    """
+    Response to a prior :class:`ResumeSessionRequest`.
+    """
+
+    response_for = ResumeSessionRequest
+    #: Whether the session could be resumed.
+    success: SuccessInfo
+
+
 class EndSessionRequest(Request):
     """
     Request to end a session.

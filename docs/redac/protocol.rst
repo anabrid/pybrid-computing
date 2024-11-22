@@ -62,6 +62,10 @@ those resources can be executed.
    :members:
 .. autoclass:: pybrid.redac.protocol.messages.StartSessionResponse
    :members:
+.. autoclass:: pybrid.redac.protocol.messages.ResumeSessionRequest
+   :members:
+.. autoclass:: pybrid.redac.protocol.messages.ResumeSessionResponse
+   :members:
 .. autoclass:: pybrid.redac.protocol.messages.EndSessionRequest
    :members:
 .. autoclass:: pybrid.redac.protocol.messages.EndSessionResponse
@@ -141,7 +145,7 @@ Miscellaneous messages are documented below.
    :members:
    :exclude-members: GetEntitiesRequest, GetEntitiesResponse,
                      Message, Request, Response,
-                     StartSessionRequest, StartSessionResponse, EndSessionRequest, EndSessionResponse, EntityReservationRequest, EntityReservationResponse,
+                     StartSessionRequest, StartSessionResponse, ResumeSessionRequest, ResumeSessionResponse, EndSessionRequest, EndSessionResponse, EntityReservationRequest, EntityReservationResponse,
                      SetCircuitRequest, SetCircuitResponse, ResetCircuitRequest, ResetCircuitResponse, GetCircuitRequest, GetCircuitResponse, SetDAQRequest, SetDAQResponse, GetMetadataRequest, GetMetadataResponse,
                      StartRunRequest, StartRunResponse, CancelRunRequest, CancelRunResponse, RunDataMessage, RunStateChangeMessage, GetOverloadRequest, GetOverloadResponse
    :undoc-members:
