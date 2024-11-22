@@ -51,14 +51,17 @@ class Envelope(BaseModel):
     error: typing.Optional[str] = Field(exclude=True, default="")
 
     @classmethod
-    def from_message(cls, message):
-        return cls(**{"type": message.get_type_identifier(), "msg": message})
+    def from_message(cls, message, *, id_=None):
+        kwargs = {"type": message.get_type_identifier(), "msg": message}
+        if id_ is not None:
+            kwargs["id"] = id_
+        return cls(**kwargs)
 
-    def get_message(self) -> Message:
+    def get_message(self, msg_class=None) -> Message:
         if self.error:
             raise UnsuccessfulRequestError(self.error)
         try:
-            msg_class = Message.get_class_for_type_identifier(self.type)
+            msg_class = msg_class or Message.get_class_for_type_identifier(self.type)
             msg = msg_class(**self.msg)
             return msg
         except (KeyError, AttributeError, ValidationError) as exc:
