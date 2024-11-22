@@ -9,7 +9,7 @@ A usual sequence of messages for running one or multiple analog computations is:
 
 #. Get the current hardware configuration via a :class:`~.messages.GetEntitiesRequest`.
 #. Start a new user session (if required) via a :class:`~.messages.StartSessionRequest`.
-#. Configure the analog computation via a series of :class:`~.messages.SetConfigRequest`.
+#. Configure the analog computation via a series of :class:`~.messages.SetCircuitRequest`.
 #. Start the analog computation via a :class:`~.messages.StartRunRequest`.
 #. Monitor the analog computation by listening to incoming :class:`~.messages.RunStateChangeMessage`
    and :class:`~.messages.RunDataMessage` notifications.
