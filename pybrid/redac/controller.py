@@ -9,10 +9,11 @@ from uuid import UUID
 
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.base.transport import TCPTransport
+
 from .carrier import Carrier
 from .computer import REDAC
 from .entities import Entity, Path
-from .protocol.messages import RunStateChangeMessage, RunDataMessage
+from .protocol.messages import RunStateChangeMessage, RunDataMessage, SetCircuitRequest
 from .protocol.protocol import Protocol
 from .run import Run, RunState
 from .sync import Sync
@@ -136,6 +137,18 @@ class Controller:
     async def _forward_to(targets, fn, *args, **kwargs):
         forwards = (fn.__get__(target, target.__class__)(*args, **kwargs) for target in targets)
         return asyncio.gather(*forwards)
+
+    async def forward_set_circuit(self, message: SetCircuitRequest):
+        # TODO: Think about whether this is actually the correct approach.
+        #       Possibly, one should introduce a new MultiProtocol and move the forwarding there.
+        return asyncio.gather(
+            *[
+                self.devices[Path.parse(key)].send_message_and_wait_response(
+                    SetCircuitRequest(entity=Path.parse(key), config=value)
+                )
+                for key, value in message.config.items()
+            ]
+        )
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
         """

@@ -12,7 +12,8 @@ from . import Run, RunState
 from .computer import REDAC
 from .controller import Controller
 from .entities import Entity
-from .protocol.serializer import to_dict
+from .protocol.messages import SetCircuitRequest
+from .protocol.serializer import to_dict, build_config
 
 logger = logging.getLogger(__name__)
 
@@ -183,11 +184,15 @@ class DummyController:
         # logger.debug("%s.%s called with args=%s, kwargs=%s", self.__class__.__name__, action, args, kwargs)
         logger.debug("%s.%s()", self.__class__.__name__, action)
 
-    # Passthrough fakes
-
     get_run_implementation = Controller.get_run_implementation
 
-    # No-op fakes
+    async def forward_set_circuit(self, *args, **kwargs):
+        self.log_action("forward_set_circuit", *args, **kwargs)
+
+        async def noop():
+            pass
+
+        return noop()
 
     async def reset(self, *args, **kwargs):
         self.log_action("reset", *args, **kwargs)
@@ -201,6 +206,8 @@ class DummyController:
 
     async def set_computer(self, *args, **kwargs):
         self.log_action("set_computer", *args, **kwargs)
+        for carrier in self.computer.carriers:
+            logger.debug(SetCircuitRequest(entity=carrier.path, config=build_config(carrier, dict())).json())
 
     async def start_run(self, *args, **kwargs):
         self.log_action("start_run", *args, **kwargs)
