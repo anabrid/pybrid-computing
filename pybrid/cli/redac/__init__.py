@@ -2,23 +2,23 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-import asyncio
 import logging
 from ipaddress import ip_network
 
 import asyncclick as click
 from asyncclick import Choice
-
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.cli.base import cli
 from pybrid.cli.base.commands import user_program
 from pybrid.cli.base.shell import Shell
+
 from pybrid.redac.blocks import SwitchingBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.controller import Controller
 from pybrid.redac.data import DatExporter
 from pybrid.redac.detect import detect_in_network
 from pybrid.redac.display import TreeDisplay
+from pybrid.redac.dummy import DummyController
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.run import Run, RunState, RunError
 
@@ -49,28 +49,40 @@ logger = logging.getLogger(__name__)
     show_default=True,
     help="Whether to reset the REDAC after connecting.",
 )
-async def redac(ctx: click.Context, host, port, reset):
+@click.option(
+    "--fake",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Whether to fake any communication, allowing you to run without any computer present.",
+)
+async def redac(ctx: click.Context, host: str, port: int, reset: bool, fake: bool):
     """
     Entrypoint for all REDAC commands.
 
     Use :code:`pybrid redac --help` to list all available sub-commands.
     """
 
-    devices = []
-    # Either one host was passed explicitly or we auto-detect via zeroconf
-    if host is not None and "/" not in host:
-        devices.append((host, port))
-    else:
-        network = ip_network(host or "0.0.0.0/0")
-        logger.info("Searching for available network devices in %s...", network)
-        devices = await detect_in_network(network)
-        logger.info("Found network devices at %s.", devices)
+    if not fake:
+        devices = []
+        # Either one host was passed explicitly or we auto-detect via zeroconf
+        if host is not None and "/" not in host:
+            devices.append((host, port))
+        else:
+            network = ip_network(host or "0.0.0.0/0")
+            logger.info("Searching for available network devices in %s...", network)
+            devices = await detect_in_network(network)
+            logger.info("Found network devices at %s.", devices)
 
-    # Generate a controller and add devices
-    controller = ctx.obj["controller"] = Controller()
-    for host, port in devices:
-        await controller.add_device(host, port)
-    # Make sure that we clean up after ourselves
+        # Generate a controller and add devices
+        controller = Controller()
+        for host, port in devices:
+            await controller.add_device(host, port)
+    else:
+        controller = DummyController()
+
+    # Put controller in context and make sure that we clean up after ourselves
+    ctx.obj["controller"] = controller
     await ctx.with_async_resource(controller)
 
     # Unless chosen otherwise, reset the analog computer
