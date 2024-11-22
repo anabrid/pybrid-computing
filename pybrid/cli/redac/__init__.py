@@ -20,6 +20,7 @@ from pybrid.redac.detect import detect_in_network
 from pybrid.redac.display import TreeDisplay
 from pybrid.redac.dummy import DummyController
 from pybrid.redac.entities import Path, Entity
+from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
 
 logger = logging.getLogger(__name__)
@@ -493,6 +494,13 @@ async def hack():
     Collects 'hack' commands, for development purposes only.
     """
     pass
+
+
+@redac.command()
+@click.pass_obj
+async def proxy(obj: dict):
+    async with Proxy(obj["controller"]) as (proxy_, server):
+        await server.serve_forever()
 
 
 redac.command()(user_program)
