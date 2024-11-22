@@ -22,6 +22,9 @@ class IBlock(SwitchingBlock):
     #: Use an empty sub-list to disable an output.
     #: The firmware may accept additional JSON structures (see JSON schema).
     outputs: list[set[int]] = field(default_factory=lambda: [set()] * 16)
+    #: List of up-scaling switches
+    #: Each boolean value defines whether the corresponding signal is up-scaled by a factor of 10.
+    upscaling: list[bool] = field(default_factory=lambda: [False] * 32)
 
     def connect(self, *connections, force=False):
         *input_idxs, output_idx = connections
