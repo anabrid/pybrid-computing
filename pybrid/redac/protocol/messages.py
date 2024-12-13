@@ -258,6 +258,16 @@ class GetEntitiesResponse(Response):
     entities: dict
 
 
+class GetStatusRequest(Request):
+    recursive: bool = True
+
+
+class GetStatusResponse(Response):
+    status: dict
+
+    response_for = GetStatusRequest
+
+
 # ███████ ███████ ███████ ███████ ██  ██████  ███    ██
 # ██      ██      ██      ██      ██ ██    ██ ████   ██
 # ███████ █████   ███████ ███████ ██ ██    ██ ██ ██  ██

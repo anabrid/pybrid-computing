@@ -2,6 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+import asyncio
 import logging
 from ipaddress import ip_network
 
@@ -89,6 +90,8 @@ async def redac(ctx: click.Context, host: str, port: int, reset: bool, fake: boo
     # Unless chosen otherwise, reset the analog computer
     if reset:
         await controller.reset()
+    logger.warning("REMOVE")
+    await asyncio.sleep(3)
 
     # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
     run_class = controller.get_run_implementation()
@@ -156,6 +159,33 @@ async def reset(obj, keep_calibration, sync):
     """
     controller: Controller = obj["controller"]
     await controller.reset(keep_calibration=keep_calibration, sync=sync)
+
+
+@redac.command()
+@click.pass_obj
+@click.option(
+    "-r",
+    "--recursive",
+    type=bool,
+    default=True,
+    help="Whether to get config recursively for sub-entities.",
+)
+@click.argument("path", type=str)
+async def get_entity_status(obj, recursive, path):
+    """
+    Get the status of an entity.
+
+    PATH is the unique path of the entity.
+    """
+    controller: Controller = obj["controller"]
+
+    path_ = Path.parse(path, aliases=obj.get("aliases", None))
+    entity = controller.computer.get_entity(path_)
+    if not entity.path.depth == 1:
+        raise NotImplementedError("Can only get the status of carrier boards currently.")
+
+    status = await controller.get_status(entity, recursive=recursive)
+    click.echo(status)
 
 
 @redac.command()

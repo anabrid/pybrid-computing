@@ -30,6 +30,7 @@ from .messages import (
     HackRequest,
     SetDAQRequest,
     ResetCircuitRequest,
+    GetStatusRequest,
 )
 from .serializer import build_config
 from ..entities import Path, Entity
@@ -172,6 +173,10 @@ class Protocol(BaseProtocol):
     async def get_entities(self) -> dict:
         response = await self.send_message_and_wait_response(GetEntitiesRequest())
         return response.entities
+
+    async def get_status(self, *, recursive: bool = True) -> dict:
+        response = await self.send_message_and_wait_response(GetStatusRequest(recursive=recursive))
+        return response.status
 
     async def get_config(self, entity: Path, recursive: bool = True) -> dict:
         response = await self.send_message_and_wait_response(GetCircuitRequest(entity=entity, recursive=recursive))

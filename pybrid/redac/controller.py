@@ -160,6 +160,10 @@ class Controller:
         """
         return await self.protocol.hack_request(cmd, data)
 
+    async def get_status(self, entity, recursive):
+        device = self.devices[entity.path.to_root()]
+        return await device.get_status(recursive=recursive)
+
     async def get_computer(self) -> REDAC:
         """
         Retrieve the current hardware configuration of the REDAC.
