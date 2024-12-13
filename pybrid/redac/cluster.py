@@ -20,15 +20,17 @@ class Cluster(Entity):
     """
 
     #: The first :class:`.blocks.MBlock` in this cluster. May be ``None`` if the slot is not filled.
-    m0block: typing.Optional[MBlock]
+    m0block: typing.Optional[MBlock] = None
     #: The second :class:`.blocks.MBlock` in this cluster. May be ``None`` if the slot is not filled.
-    m1block: typing.Optional[MBlock]
+    m1block: typing.Optional[MBlock] = None
     #: The :class:`.blocks.UBlock` in this cluster.
     ublock: UBlock
     #: The :class:`.blocks.CBlock` in this cluster.
     cblock: CBlock
     #: The :class:`.blocks.IBlock` in this cluster.
     iblock: IBlock
+    #: The SHBlock in this cluster.
+    shblock: object
 
     @property
     def children(self):
@@ -59,23 +61,16 @@ class Cluster(Entity):
         tree.pop("eui", None)
 
         # Generate child entities
-        blocks = []
+        blocks = dict()
         for sub_path, sub_tree in tree.items():
             if not sub_path.startswith("/"):
                 raise ValueError("Unexpected entities tree element. Expected only sub-paths to be left.")
             path_ = path / Path((sub_path.removeprefix("/"),))
             block = FunctionBlock.create_from_entity_type_tree(path_, sub_tree)
-            blocks.append(block)
+            blocks[f"{path_.id_.lower()}block"] = block
 
         # TODO: Less hard-coding :)
-        return cls(
-            path=path,
-            m0block=blocks[0],
-            m1block=blocks[1],
-            ublock=blocks[2],
-            cblock=blocks[3],
-            iblock=blocks[4],
-        )
+        return cls(path=path, **blocks)
 
     def route(self, m_out: int, u_out: int, c_factor: float, m_in: int):
         """
