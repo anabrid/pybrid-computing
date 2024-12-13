@@ -72,7 +72,10 @@ class Controller:
     def __init__(self):
         self.computer = REDAC(entities=[])
         self.devices = dict()
-        self.sync = Sync()
+        try:
+            self.sync = Sync()
+        except Exception as e:
+            logger.exception(e)
 
     async def __aenter__(self):
         # Devices are already started in add_device
