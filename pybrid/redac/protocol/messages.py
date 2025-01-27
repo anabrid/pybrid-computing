@@ -468,6 +468,12 @@ class SetCircuitRequest(Request):
     #: The data schema of the configuration depends on the type of entity,
     #: see :doc:`/redac/configurations` for details.
     config: dict
+    #: Whether to reset the existing configuration beforehand.
+    #: We generally don't want this, as we already reset when necessary.
+    reset_before: bool = False
+    #: Whether to cycle the SH-block state once just before configuration.
+    #: We generally don't want this, as it's unnecessary if all else works as expected.
+    sh_kludge: bool = False
 
     @classmethod
     def make(cls, entity):
