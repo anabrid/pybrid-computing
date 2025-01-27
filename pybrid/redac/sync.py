@@ -17,3 +17,8 @@ class Sync:
     def trigger(self):
         # TODO: Allow triggering different SYNC_ID
         self.mosi.write([0b11110000, 0b10101010])
+
+
+if __name__ == "__main__":
+    sync = Sync()
+    sync.trigger()
