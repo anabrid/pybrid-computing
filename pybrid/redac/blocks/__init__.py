@@ -7,4 +7,5 @@ from .cblock import CBlock
 from .iblock import IBlock
 from .mblock import MBlock, MIntBlock, MMulBlock
 from .shblock import SHBlock
+from .tblock import TBlock
 from .ublock import UBlock

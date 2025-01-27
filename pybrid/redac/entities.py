@@ -50,6 +50,7 @@ class EntityClass(Enum):
     SHBLOCK = 7
     FRONTPANEL = 8
     CTRLBLOCK = 9
+    TBLOCK = 10
     OTHER = 31
 
 

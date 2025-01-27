@@ -5,7 +5,7 @@
 from dataclasses import asdict
 from functools import singledispatch
 
-from ..blocks import ElementBlock, SwitchingBlock, CBlock, MMulBlock
+from ..blocks import ElementBlock, SwitchingBlock, CBlock, MMulBlock, TBlock
 from ..carrier import Carrier
 from ..elements import ComputationElement
 from ..entities import Entity
@@ -67,4 +67,9 @@ def _(entity: MMulBlock):
 
 @to_dict.register
 def _(entity: SwitchingBlock):
+    return asdict(entity, dict_factory=exclude("path")), False
+
+
+@to_dict.register
+def _(entity: TBlock):
     return asdict(entity, dict_factory=exclude("path")), False

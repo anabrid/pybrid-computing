@@ -8,6 +8,7 @@ from typing import Optional
 
 from pybrid.base.hybrid import EntityDoesNotExist
 
+from .blocks import TBlock
 from .cluster import Cluster
 from .entities import Entity, Path, EntityType, EntityClass
 
@@ -25,11 +26,13 @@ class Carrier(Entity):
 
     #: List of clusters on the carrier board.
     clusters: list[Cluster]
+    tblock: TBlock
 
     @property
     def children(self):
         """Generator iterating through child entities of type :class:`.cluster.Cluster`."""
         yield from self.clusters
+        yield self.tblock
 
     @classmethod
     def create_from_entity_type_tree(cls, path, tree):
@@ -43,15 +46,18 @@ class Carrier(Entity):
 
         # Generate child entities
         clusters = []
+        tblock = None
         for sub_path, sub_tree in tree.items():
             if not sub_path.startswith("/"):
                 raise ValueError("Unexpected entities tree element. Expected only sub-paths to be left.")
             path_: Path = path / Path.parse(sub_path)
+            if path_.id_ == "T":
+                tblock = TBlock.create_from_entity_type_tree(path_, sub_tree)
             if path_.id_ in string.digits:
                 cluster = Cluster.create_from_entity_type_tree(path_, sub_tree)
                 clusters.append(cluster)
 
-        return cls(path=path, clusters=clusters)
+        return cls(path=path, clusters=clusters, tblock=tblock)
 
     def resolve_signal(self, entity: "Entity"):
         # TODO: This should be extended to a general approach to defining inputs and outputs of elements
