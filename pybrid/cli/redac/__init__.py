@@ -21,6 +21,7 @@ from pybrid.redac.detect import detect_in_network
 from pybrid.redac.display import TreeDisplay
 from pybrid.redac.dummy import DummyController
 from pybrid.redac.entities import Path, Entity
+from pybrid.redac.monitor import Monitor
 from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
 
@@ -64,6 +65,12 @@ async def redac(ctx: click.Context, host: str, port: int, reset: bool, fake: boo
 
     Use :code:`pybrid redac --help` to list all available sub-commands.
     """
+
+    # Some sub-commands may change default options
+    # TODO: It would be cleaner to introduce a specialization of click.Group
+    if subcommand := redac.commands.get(ctx.invoked_subcommand, None):
+        if subcommand is monitor:
+            reset = False
 
     if not fake:
         devices = []
@@ -168,7 +175,7 @@ async def reset(obj, keep_calibration, sync):
     "--recursive",
     type=bool,
     default=True,
-    help="Whether to get config recursively for sub-entities.",
+    help="Whether to get status recursively for sub-entities.",
 )
 @click.argument("path", type=str)
 async def get_entity_status(obj, recursive, path):
@@ -186,6 +193,32 @@ async def get_entity_status(obj, recursive, path):
 
     status = await controller.get_status(entity, recursive=recursive)
     click.echo(status)
+
+
+@redac.command()
+@click.pass_obj
+async def get_system_temperatures(obj):
+    controller: Controller = obj["controller"]
+
+    click.echo(await controller.get_system_temperatures())
+
+
+@redac.command()
+@click.pass_context
+@click.option("--output", "-o", type=click.File("wt"), default="-", help="File to write data to.")
+async def monitor(ctx: click.Context, output):
+    controller: Controller = ctx.obj["controller"]
+
+    click.echo("Starting monitor...")
+    monitor_ = Monitor(controller, output)
+    await ctx.with_async_resource(monitor_)
+
+    click.echo("Press CTRL-C to stop.")
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        click.echo("Stopping monitor...")
 
 
 @redac.command()

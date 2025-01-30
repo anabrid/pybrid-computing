@@ -169,6 +169,14 @@ class Controller:
         device = self.devices[entity.path.to_root()]
         return await device.get_status(recursive=recursive)
 
+    async def get_system_temperatures(self):
+        # TODO: Don't access self.devices.values() and self.devices.keys() separately
+        result = {}
+        responses = await self._forward_to(self.devices.values(), Protocol.get_system_temperatures)
+        for path, response in zip(self.devices.keys(), responses):
+            result[path] = response
+        return result
+
     async def get_computer(self) -> REDAC:
         """
         Retrieve the current hardware configuration of the REDAC.

@@ -268,6 +268,16 @@ class GetStatusResponse(Response):
     response_for = GetStatusRequest
 
 
+class SysTemperaturesRequest(Request):
+    pass
+
+
+class SysTemperaturesResponse(Response):
+    entities: dict
+
+    response_for = SysTemperaturesRequest
+
+
 # ███████ ███████ ███████ ███████ ██  ██████  ███    ██
 # ██      ██      ██      ██      ██ ██    ██ ████   ██
 # ███████ █████   ███████ ███████ ██ ██    ██ ██ ██  ██
