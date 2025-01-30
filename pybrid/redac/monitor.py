@@ -4,9 +4,12 @@
 
 import asyncio
 import json
+import logging
 import typing
 
 from .controller import Controller
+
+logger = logging.getLogger(__name__)
 
 
 class Monitor:
@@ -37,7 +40,9 @@ class Monitor:
 
     async def _monitor_temperatures(self):
         while True:
+            logger.info("Getting current temperatures...")
             temperatures = await self.controller.get_system_temperatures()
             self.output.write(json.dumps({str(key): value for key, value in temperatures.items()}))
             self.output.write("\n")
+            self.output.flush()
             await asyncio.sleep(30)
