@@ -142,7 +142,7 @@ class Controller:
     #  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
 
     @staticmethod
-    async def _forward_to(targets, fn, *args, **kwargs):
+    def _forward_to(targets, fn, *args, **kwargs):
         forwards = (fn.__get__(target, target.__class__)(*args, **kwargs) for target in targets)
         return asyncio.gather(*forwards)
 
