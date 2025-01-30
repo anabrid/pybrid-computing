@@ -2,6 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+import logging
 import string
 from dataclasses import dataclass, field
 from typing import Optional
@@ -11,6 +12,8 @@ from pybrid.base.hybrid import EntityDoesNotExist
 from .blocks import TBlock
 from .cluster import Cluster
 from .entities import Entity, Path, EntityType, EntityClass
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(kw_only=True)
@@ -51,11 +54,17 @@ class Carrier(Entity):
             if not sub_path.startswith("/"):
                 raise ValueError("Unexpected entities tree element. Expected only sub-paths to be left.")
             path_: Path = path / Path.parse(sub_path)
+            if not path_.id_:
+                # Sanity check, firmware may report partially broken entities
+                logger.warning("Reported entities include nameless entity at %s: %s", path_, sub_tree)
+                continue
             if path_.id_ == "T":
                 tblock = TBlock.create_from_entity_type_tree(path_, sub_tree)
+                continue
             if path_.id_ in string.digits:
                 cluster = Cluster.create_from_entity_type_tree(path_, sub_tree)
                 clusters.append(cluster)
+                continue
 
         return cls(path=path, clusters=clusters, tblock=tblock)
 
