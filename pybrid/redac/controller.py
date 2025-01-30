@@ -72,10 +72,7 @@ class Controller:
     def __init__(self):
         self.computer = REDAC(entities=[])
         self.devices = dict()
-        try:
-            self.sync = Sync()
-        except Exception as e:
-            logger.exception(e)
+        self.sync = None
 
     async def __aenter__(self):
         # Devices are already started in add_device
@@ -89,6 +86,14 @@ class Controller:
     def get_run_implementation(cls) -> typing.Type[Run]:
         """Returns the specific :class:`.Run` implementation used by the REDAC."""
         return Run
+
+    def enable_sync(self):
+        if self.sync:
+            return
+        try:
+            self.sync = Sync()
+        except Exception as e:
+            logger.exception(e)
 
     async def add_device(self, host, port):
         # Create a connection to the device
@@ -223,6 +228,7 @@ class Controller:
                 "{} reached it, {} did not.".format(*run_state.status(RunState.TAKE_OFF))
             ) from exc
         # Trigger the synchronized start of the run and wait until all involved entities are done.
+        self.enable_sync()
         self.sync.trigger()
         await run_state.wait_all(RunState.DONE)
         del self._ongoing_runs[run.id_]
