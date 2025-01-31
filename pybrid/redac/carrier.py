@@ -30,12 +30,15 @@ class Carrier(Entity):
     #: List of clusters on the carrier board.
     clusters: list[Cluster]
     tblock: TBlock
+    st0block: Optional[TBlock] = None
 
     @property
     def children(self):
         """Generator iterating through child entities of type :class:`.cluster.Cluster`."""
         yield from self.clusters
         yield self.tblock
+        if self.st0block:
+            yield self.st0block
 
     @classmethod
     def create_from_entity_type_tree(cls, path, tree):
@@ -50,6 +53,7 @@ class Carrier(Entity):
         # Generate child entities
         clusters = []
         tblock = None
+        st0block = None
         for sub_path, sub_tree in tree.items():
             if not sub_path.startswith("/"):
                 raise ValueError("Unexpected entities tree element. Expected only sub-paths to be left.")
@@ -61,12 +65,15 @@ class Carrier(Entity):
             if path_.id_ == "T":
                 tblock = TBlock.create_from_entity_type_tree(path_, sub_tree)
                 continue
+            if path_.id_ == "ST0":
+                st0block = TBlock.create_from_entity_type_tree(path_, sub_tree)
+                continue
             if path_.id_ in string.digits:
                 cluster = Cluster.create_from_entity_type_tree(path_, sub_tree)
                 clusters.append(cluster)
                 continue
 
-        return cls(path=path, clusters=clusters, tblock=tblock)
+        return cls(path=path, clusters=clusters, tblock=tblock, st0block=st0block)
 
     def resolve_signal(self, entity: "Entity"):
         # TODO: This should be extended to a general approach to defining inputs and outputs of elements
