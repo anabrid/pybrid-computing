@@ -36,7 +36,6 @@ class UserProgram(SimpleRun):
             computer.daq.capture(cluster_a.m0block.elements[0], cluster_b.m0block.elements[0])
 
         # And then we try to configure one sinusoidal between mREDACs.
-        # First, with the fixed connections
         # Assumptions: mREDAC slots 0 & 2 used
         # TODO: Implement backplane identification and check assumptions
         carrier_0, carrier_2 = computer.carriers[0:2]
@@ -45,31 +44,31 @@ class UserProgram(SimpleRun):
         # We use the first cluster on both carriers
         cluster_0, cluster_2 = carrier_0.clusters[0], carrier_2.clusters[0]
 
-        # Fixed connections look like this
-        # carrier_0.BPL_BL_OUT[12..15] -> carrier_2.BPL_BL_IN[8..11]
-        # carrier_2.BPL_BL_OUT[8..11] -> carrier_0.BPL_BL_IN[12..15]
+        # Set st0block to something "useless"
+        carrier_0.st0block.muxes = [0] * 96
 
-        # First integratorg
-
+        # First integrator from mREDAC_0 cluster_0
         cluster_0.m0block.elements[4].ic = -0.82
-        cluster_0.ublock.connect(4, 14)
-        cluster_0.cblock.elements[14].factor = -1.0
-        # Signal number 14 is 6. lane of T-block, thus muxes 24..27 are involved
-        carrier_0.tblock.muxes[24 + 0] = 1
-        # And it's "reduced by 4" in fixed connections on backplane
-        # -> 2. lane of T-block on carrier_2 involves muxes 8..11
-        carrier_2.tblock.muxes[8 + 1] = 0
-        cluster_2.iblock.connect(10, 4)
+        cluster_0.ublock.connect(4, 16)
+        cluster_0.cblock.elements[16].factor = -1.0
+        # Signal number 16 is 8. lane of T-block, thus muxes 32..35 are involved
+        carrier_0.tblock.muxes[32 + 0] = 1
+        # / Configure ST0 such that carrier_2 receives signal from carrier_0
+        carrier_0.st0block.muxes[32 + 3] = 1
+        # \
+        carrier_2.tblock.muxes[32 + 1] = 0
+        cluster_2.iblock.connect(16, 4)
         # Second integrator
         cluster_2.m0block.elements[4].ic = 0.0
-        cluster_2.ublock.connect(4, 11)
-        cluster_2.cblock.elements[11].factor = 1.0
-        # Signal number 11 is 4th lane of T-Block, thus muxes 12..15 are involved
-        carrier_2.tblock.muxes[12 + 0] = 1
-        # And it's "increased by 4" in fixed connections on backplane
-        # -> 8th lane of T-block on carrier_0 involves muxes 28..31
-        carrier_0.tblock.muxes[28 + 1] = 0
-        cluster_0.iblock.connect(15, 4)
+        cluster_2.ublock.connect(4, 16)
+        cluster_2.cblock.elements[16].factor = 1.0
+        # Signal number 16 is 8th lane of T-Block, thus muxes 32..35 are involved
+        carrier_2.tblock.muxes[32 + 0] = 1
+        # / Configure ST0 such that carrier_0 receives signal from carrier_2
+        carrier_0.st0block.muxes[32 + 1] = 3
+        # \
+        carrier_0.tblock.muxes[32 + 1] = 0
+        cluster_0.iblock.connect(16, 4)
 
         computer.daq.capture(cluster_0.m0block.elements[4], cluster_2.m0block.elements[4])
 
