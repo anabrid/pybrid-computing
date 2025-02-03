@@ -140,9 +140,16 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         :param computer: A representation of the specific analog computer
         :return: None
         """
-        raise NotImplementedError("You need to implement the 'initial_configuration' function.")
+        raise NotImplementedError(
+            "You need to implement the 'initial_configuration' function."
+        )
 
-    def next_configuration(self, run: BaseRun, computer: AnalogComputer, previous_runs: typing.List[BaseRun]):
+    def next_configuration(
+        self,
+        run: BaseRun,
+        computer: AnalogComputer,
+        previous_runs: typing.List[BaseRun],
+    ):
         """
         User-supplied function called before each run except the first.
 
@@ -154,7 +161,9 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         :param previous_runs: List of previous runs
         :return: None
         """
-        raise NotImplementedError("You need to implement the 'next_configuration' function.")
+        raise NotImplementedError(
+            "You need to implement the 'next_configuration' function."
+        )
 
     def run_done(self, run: BaseRun) -> bool:
         """
@@ -164,7 +173,7 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         If the loop should be stopped after this run, return True.
 
         :param run: The just completed run
-        :return: True if loop should be stopped, False to continue
+        :return: False if loop should be stopped, True to continue
         """
         return False
 

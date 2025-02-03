@@ -25,8 +25,7 @@ class BaseTransport(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    async def create(cls, *args, **kwargs):
-        ...
+    async def create(cls, *args, **kwargs): ...
 
     async def send_line(self, data: bytes) -> None:
         """Send one line of data over the transport. Newline character '\n' is appended automatically."""
