@@ -3,8 +3,10 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
+import json
 import logging
 from ipaddress import ip_network
+from typing import TextIO
 
 import asyncclick as click
 from asyncclick import Choice
@@ -561,8 +563,18 @@ async def hack():
 
 @redac.command()
 @click.pass_obj
-async def proxy(obj: dict):
-    async with Proxy(obj["controller"]) as (proxy_, server):
+@click.option(
+    "--map",
+    "-m",
+    "map_",
+    type=click.File("r"),
+    required=True,
+    help="JSON file containing the mapping of 'XX-00-WW-00-00-NN' virtual mac addresses to real ones.",
+)
+async def proxy(obj: dict, map_: TextIO):
+    mac_mapping = json.load(map_)
+    async with Proxy(obj["controller"], mac_mapping=mac_mapping) as (proxy_, server):
+        click.echo(f"Starting proxy on {proxy_.host}:{proxy_.port}... Press Ctrl+C to exit.")
         await server.serve_forever()
 
 

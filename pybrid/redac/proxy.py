@@ -8,7 +8,8 @@ import logging
 from asyncio import StreamReader, StreamWriter, Server
 from typing import Optional
 
-from pybrid.redac import Controller, Run
+from pybrid.base.hybrid import EntityDoesNotExist
+from pybrid.redac import Controller, Run, Path
 from pybrid.redac.protocol.envelope import Envelope
 from pybrid.redac.protocol.messages import (
     SetCircuitRequest,
@@ -29,13 +30,24 @@ class Proxy:
     """
 
     controller: Controller
+    mac_mapping: dict[str, str]
     _server: Optional[Server]
 
-    def __init__(self, controller: Controller, host: str = "localhost", port: int = 5732):
+    def __init__(
+        self, controller: Controller, host: str = "localhost", port: int = 5732, mac_mapping: dict[str, str] = None
+    ):
         self.controller = controller
         self.host = host
         self.port = port
         self._server = None
+
+        self.mac_mapping = mac_mapping or {}
+        for original, target in self.mac_mapping.items():
+            try:
+                path = Path.parse(target)
+                self.controller.computer.get_entity(path)
+            except EntityDoesNotExist:
+                logger.warning("Target for MAC mapping from %s to %s does not exist.", original, target)
 
     async def client_connected(self, reader: StreamReader, writer: StreamWriter):
         peer = writer.get_extra_info("peername")
