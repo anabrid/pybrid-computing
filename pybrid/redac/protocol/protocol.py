@@ -10,6 +10,7 @@ import uuid
 from typing import Callable
 
 from packaging.version import Version
+
 from pybrid.base.hybrid.protocol import (
     BaseProtocol,
     ProtocolError,
@@ -17,7 +18,6 @@ from pybrid.base.hybrid.protocol import (
     UnsuccessfulRequestError,
 )
 from pybrid.base.transport import BaseTransport
-
 from .envelope import Envelope
 from .messages import (
     Message,
@@ -67,14 +67,18 @@ class Protocol(BaseProtocol):
     #      ██ ██      ██  ██ ██ ██   ██ ██ ██  ██ ██ ██    ██
     # ███████ ███████ ██   ████ ██████  ██ ██   ████  ██████
 
+    async def send_envelope(self, envelope):
+        data = envelope.json().encode("ascii")
+        await self.transport.send_line(data)
+
     async def send_message_and_wait_response(self, message, timeout=3):
         response_fut = await self.send_message(message)
         await asyncio.wait_for(response_fut, timeout=timeout)
         return response_fut.result()
 
-    async def send_message(self, message):
+    async def send_message(self, message, envelope_id: typing.Optional[str] = None):
         # Generate an envelope
-        envelope = Envelope.from_message(message)
+        envelope = Envelope.from_message(message, id_=envelope_id)
         # The response to this envelope is a future
         response_future = asyncio.get_event_loop().create_future()
         # A response is only expected for requests
@@ -87,12 +91,14 @@ class Protocol(BaseProtocol):
             # But if the message is not a request, no response will ever come, just set result to None here
             response_future.set_result(None)
 
-        # Send out data
-        data = envelope.json().encode("ascii")
-        await self.transport.send_line(data)
+        await self.send_envelope(envelope)
 
         # Return future to response
         return response_future
+
+    async def send_error(self, msg_class: typing.Type[Message], error: str, envelope_id: typing.Optional[str] = None):
+        envelope = Envelope(id=envelope_id, type=msg_class, msg=None, success=False, error=error)
+        await self.send_envelope(envelope)
 
     # ██████  ███████  ██████ ███████ ██ ██    ██ ██ ███    ██  ██████
     # ██   ██ ██      ██      ██      ██ ██    ██ ██ ████   ██ ██
@@ -129,8 +135,15 @@ class Protocol(BaseProtocol):
                     response_future.set_result(message)
         else:
             msg_class = self._default_msg_base_class.get_class_for_type_identifier(envelope.type)
-            message = envelope.get_message(msg_class=msg_class)
-            await self.do_callback(message)
+            request = envelope.get_message(msg_class=msg_class)
+            try:
+                response = await self.do_callback(request)
+            except Exception as exc:
+                logger.exception("Error during callback for %s: %s", msg_class, exc)
+                await self.send_error(msg_class, str(exc), envelope_id=envelope.id)
+            else:
+                if response:
+                    await self.send_message(response, envelope_id=envelope.id)
 
     async def _receive_loop(self):
         while True:
@@ -163,7 +176,7 @@ class Protocol(BaseProtocol):
         except KeyError:
             pass
         else:
-            await callback(msg, *extra_args, **extra_kwargs)
+            return await callback(msg, *extra_args, **extra_kwargs)
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
