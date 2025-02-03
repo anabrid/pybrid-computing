@@ -134,7 +134,7 @@ class Protocol(BaseProtocol):
             # Incoming message is a notification
             try:
                 msg_class = Notification.get_class_for_type_identifier(envelope.type)
-                notification = envelope.get_message(msg_class=msg_class)
+                notification = envelope.get_message(msg_class)
                 response = await self.do_callback(notification)
             except Exception as exc:
                 logger.exception("Error during callback for %s: %s", envelope.type, exc)
@@ -149,7 +149,7 @@ class Protocol(BaseProtocol):
                 response_future.set_exception(UnsuccessfulRequestError(envelope.error))
             else:
                 try:
-                    message = envelope.get_message(msg_class=expected_response_type)
+                    message = envelope.get_message(expected_response_type)
                 except ProtocolError as exc:
                     response_future.set_exception(exc)
                 else:
@@ -163,7 +163,7 @@ class Protocol(BaseProtocol):
             # Incoming message is a request
             try:
                 msg_class = Request.get_class_for_type_identifier(envelope.type)
-                request = envelope.get_message(msg_class=msg_class)
+                request = envelope.get_message(msg_class)
                 response = await self.do_callback(request)
             except Exception as exc:
                 logger.exception("Error during callback for %s: %s", envelope.type, exc)

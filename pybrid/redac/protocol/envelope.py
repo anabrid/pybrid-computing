@@ -60,11 +60,10 @@ class Envelope(BaseModel):
                 kwargs["id"] = uuid4()
         return cls(**kwargs)
 
-    def get_message(self, msg_class=None) -> Message:
+    def get_message(self, msg_class: typing.Type[Message]) -> Message:
         if self.error:
             raise UnsuccessfulRequestError(self.error)
         try:
-            msg_class = msg_class or Message.get_class_for_type_identifier(self.type)
             msg = msg_class(**self.msg)
             return msg
         except (KeyError, AttributeError, ValidationError) as exc:
