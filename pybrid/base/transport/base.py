@@ -40,7 +40,7 @@ class BaseTransport(metaclass=ABCMeta):
         logger.debug("%s received: %s", self, data)
         # StreamReader.readline() may not necessarily return a whole line, see documentation
         if not data or data[-1] != 10:
-            raise RuntimeError
+            raise ConnectionError("Connection was probably closed.")
         else:
             return data
 
