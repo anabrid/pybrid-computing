@@ -146,7 +146,7 @@ class Controller:
         forwards = (fn.__get__(target, target.__class__)(*args, **kwargs) for target in targets)
         return asyncio.gather(*forwards)
 
-    async def forward_set_circuit(self, message: SetCircuitRequest):
+    def forward_set_circuit(self, message: SetCircuitRequest):
         # TODO: Think about whether this is actually the correct approach.
         #       Possibly, one should introduce a new MultiProtocol and move the forwarding there.
         return asyncio.gather(

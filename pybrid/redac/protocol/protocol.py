@@ -69,6 +69,9 @@ class Protocol(BaseProtocol):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.stop()
 
+    def __await__(self):
+        return self._receive_loop_task.__await__()
+
     # ███████ ███████ ███    ██ ██████  ██ ███    ██  ██████
     # ██      ██      ████   ██ ██   ██ ██ ████   ██ ██
     # ███████ █████   ██ ██  ██ ██   ██ ██ ██ ██  ██ ██   ███
@@ -198,6 +201,7 @@ class Protocol(BaseProtocol):
         try:
             callback, extra_args, extra_kwargs = self._callbacks[type(msg)]
         except KeyError:
+            logger.warning("No callback registered for incoming message of type %s.", type(msg))
             pass
         else:
             return await callback(msg, *extra_args, **extra_kwargs)
