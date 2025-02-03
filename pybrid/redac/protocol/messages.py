@@ -12,7 +12,7 @@ from pydantic import UUID4, BaseModel, Field
 
 from .types import SuccessInfo
 from ..entities import Path
-from ..run import RunConfig, RunFlags, RunState, DAQConfig
+from ..run import Run, RunConfig, RunFlags, RunState, DAQConfig
 
 logger = logging.getLogger(__name__)
 
@@ -687,6 +687,14 @@ class StartRunRequest(Request):
         :return: A StartRunRequest instance
         """
         ...
+
+    def to_run(self):
+        """
+        Generate a :py:class:`pybrid.redac.run.Run` instance with values from this message.
+
+        :return: A :py:class:`pybrid.redac.run.Run` instance
+        """
+        return Run(id_=self.id, config=self.config, daq=self.daq_config)
 
 
 class StartRunResponse(Response):
