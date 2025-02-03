@@ -176,10 +176,13 @@ class Protocol(BaseProtocol):
         while True:
             try:
                 await self._receive_message_and_process()
-            except asyncio.CancelledError:
-                break
             except asyncio.TimeoutError:
                 pass
+            except asyncio.CancelledError:
+                break
+            except ConnectionError as exc:
+                logger.exception(repr(exc))
+                break
             except ProtocolError as exc:
                 logger.exception("Error while receiving or processing envelope: %s.", exc)
             except Exception as exc:
