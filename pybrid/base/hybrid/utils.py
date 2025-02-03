@@ -7,13 +7,15 @@ from .entities import Entity, Path
 
 
 def _add_to_entity_path_dict(d, entity):
+    if not entity:
+        return
     d[entity.path] = entity
     for child in entity.children:
         _add_to_entity_path_dict(d, child)
 
 
 def build_entity_path_dict(
-        entities: list[Entity], recursive=True
+    entities: list[Entity], recursive=True
 ) -> dict[Path, Entity]:
     entities_by_path = dict()
     for entity in entities:
