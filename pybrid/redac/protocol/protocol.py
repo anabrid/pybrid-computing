@@ -21,6 +21,7 @@ from pybrid.base.transport import BaseTransport
 from .envelope import Envelope
 from .messages import (
     Message,
+    Notification,
     Request,
     Response,
     GetEntitiesRequest,
@@ -83,7 +84,7 @@ class Protocol(BaseProtocol):
         await asyncio.wait_for(response_fut, timeout=timeout)
         return response_fut.result()
 
-    async def send_message(self, message, envelope_id: typing.Optional[str] = None):
+    async def send_message(self, message, envelope_id: typing.Optional[uuid.UUID] = None):
         # Generate an envelope
         envelope = Envelope.from_message(message, id_=envelope_id)
         # The response to this envelope is a future
@@ -103,8 +104,8 @@ class Protocol(BaseProtocol):
         # Return future to response
         return response_future
 
-    async def send_error(self, msg_class: typing.Type[Message], error: str, envelope_id: typing.Optional[str] = None):
-        envelope = Envelope(id=envelope_id, type=msg_class, msg=None, success=False, error=error)
+    async def send_error(self, envelope_id: uuid.UUID, type_: str, error: str):
+        envelope = Envelope(id=envelope_id, type=type_, msg=None, success=False, error=error)
         await self.send_envelope(envelope)
 
     # ██████  ███████  ██████ ███████ ██ ██    ██ ██ ███    ██  ██████
@@ -125,7 +126,21 @@ class Protocol(BaseProtocol):
     async def _receive_message_and_process(self):
         data = await self._receive_json()
         envelope = Envelope(**data)
-        if envelope.id is not None and envelope.id in self._expected_responses:
+
+        if envelope.id is None:
+            # Incoming message is a notification
+            try:
+                msg_class = Notification.get_class_for_type_identifier(envelope.type)
+                notification = envelope.get_message(msg_class=msg_class)
+                response = await self.do_callback(notification)
+            except Exception as exc:
+                logger.exception("Error during callback for %s: %s", envelope.type, exc)
+            else:
+                if response is not None:
+                    logger.warning("Return values of notification callback handlers are ignored.")
+
+        elif envelope.id in self._expected_responses:
+            # Incoming message is a response to one of our previous requests
             expected_response_type, response_future = self._expected_responses[envelope.id]
             if not envelope.success:
                 response_future.set_exception(UnsuccessfulRequestError(envelope.error))
@@ -140,14 +155,16 @@ class Protocol(BaseProtocol):
                         lambda future: asyncio.ensure_future(self.do_callback(future.result()))
                     )
                     response_future.set_result(message)
+
         else:
-            msg_class = self._default_msg_base_class.get_class_for_type_identifier(envelope.type)
-            request = envelope.get_message(msg_class=msg_class)
+            # Incoming message is a request
             try:
+                msg_class = Request.get_class_for_type_identifier(envelope.type)
+                request = envelope.get_message(msg_class=msg_class)
                 response = await self.do_callback(request)
             except Exception as exc:
-                logger.exception("Error during callback for %s: %s", msg_class, exc)
-                await self.send_error(msg_class, str(exc), envelope_id=envelope.id)
+                logger.exception("Error during callback for %s: %s", envelope.type, exc)
+                await self.send_error(envelope.id, envelope.type, repr(exc))
             else:
                 if response:
                     await self.send_message(response, envelope_id=envelope.id)

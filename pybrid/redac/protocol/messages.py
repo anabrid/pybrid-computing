@@ -23,7 +23,9 @@ logger = logging.getLogger(__name__)
 # ██   ██ ██   ██      ██ ██          ██      ██      ██   ██      ██      ██ ██           ██
 # ██████  ██   ██ ███████ ███████      ██████ ███████ ██   ██ ███████ ███████ ███████ ███████
 
-TYPE_IDENTIFIER_MESSAGE_MAP = dict()
+TYPE_IDENTIFIER_TO_REQUEST_MAP = dict()
+TYPE_IDENTIFIER_TO_RESPONSE_MAP = dict()
+TYPE_IDENTIFIER_TO_NOTIFICATION_MAP = dict()
 
 
 class Message(BaseModel):
@@ -64,13 +66,21 @@ class Message(BaseModel):
         snake_case = inflection.underscore(pascal_case)
         return snake_case
 
+
+class Notification(Message):
+    """
+    Base class for notifications.
+
+    Notifications are messages that expect no response.
+    """
+
     @staticmethod
     def get_class_for_type_identifier(type_):
-        return TYPE_IDENTIFIER_MESSAGE_MAP[type_]
+        return TYPE_IDENTIFIER_TO_NOTIFICATION_MAP[type_]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        TYPE_IDENTIFIER_MESSAGE_MAP[cls.get_type_identifier()] = cls
+        TYPE_IDENTIFIER_TO_NOTIFICATION_MAP[cls.get_type_identifier()] = cls
 
 
 REQUEST_RESPONSE_MAP = dict()
@@ -91,6 +101,14 @@ class Request(Message):
     def get_expected_response_type(cls) -> typing.Type["Response"]:
         """The :py:class:`Response` subclass expected for the answer to this request."""
         return REQUEST_RESPONSE_MAP[cls]
+
+    @staticmethod
+    def get_class_for_type_identifier(type_):
+        return TYPE_IDENTIFIER_TO_REQUEST_MAP[type_]
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        TYPE_IDENTIFIER_TO_REQUEST_MAP[cls.get_type_identifier()] = cls
 
 
 class Response(Message):
@@ -118,8 +136,13 @@ class Response(Message):
         `None` if there was no error."""
         return None
 
+    @staticmethod
+    def get_class_for_type_identifier(type_):
+        return TYPE_IDENTIFIER_TO_REQUEST_MAP[type_]
+
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        TYPE_IDENTIFIER_TO_RESPONSE_MAP[cls.get_type_identifier()] = cls
         REQUEST_RESPONSE_MAP[cls.response_for] = cls
 
 
@@ -708,7 +731,7 @@ class CancelRunResponse(Response):
     success: SuccessInfo
 
 
-class RunStateChangeMessage(Message):
+class RunStateChangeMessage(Notification):
     """
     Notification that an ongoing :class:`Run` changed its :py:class:`RunState`.
     A run is done once it enters :attr:`RunState.DONE` or :attr:`RuntState.ERROR`.
@@ -743,7 +766,7 @@ class RunStateChangeMessage(Message):
     run_flags: typing.Optional[RunFlags]
 
 
-class RunDataMessage(Message):
+class RunDataMessage(Notification):
     """
     Notification containing data sampled during a :class:`RunState`
     according to the config set with :class:`SetDAQRequest`.

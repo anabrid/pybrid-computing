@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from pybrid.base.hybrid.protocol import MalformedDataError, MalformedMessageError, UnsuccessfulRequestError
 
-from .messages import Message
+from .messages import Message, Request, Response
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class Envelope(BaseModel):
     """
 
     #: Optional ID of the request and its response. None for Notifications
-    id: typing.Optional[UUID] = Field(default_factory=uuid4)
+    id: typing.Optional[UUID] = None
     #: Unique string defining the type of the contained message
     type: str
     #: The msg, None if :attr:`success` is false for responses
@@ -55,6 +55,9 @@ class Envelope(BaseModel):
         kwargs = {"type": message.get_type_identifier(), "msg": message}
         if id_ is not None:
             kwargs["id"] = id_
+        else:
+            if isinstance(message, (Request, Response)):
+                kwargs["id"] = uuid4()
         return cls(**kwargs)
 
     def get_message(self, msg_class=None) -> Message:
