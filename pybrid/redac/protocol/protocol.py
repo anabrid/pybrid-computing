@@ -118,15 +118,19 @@ class Protocol(BaseProtocol):
                 response_future.set_exception(UnsuccessfulRequestError(envelope.error))
             else:
                 try:
-                    message = envelope.get_message()
+                    message = envelope.get_message(msg_class=expected_response_type)
                 except ProtocolError as exc:
                     response_future.set_exception(exc)
                 else:
-                    response_future.add_done_callback(lambda future: self.do_callback(future.result()))
+                    # TODO: Catch any exceptions
+                    response_future.add_done_callback(
+                        lambda future: asyncio.ensure_future(self.do_callback(future.result()))
+                    )
                     response_future.set_result(message)
         else:
-            message = envelope.get_message()
-            self.do_callback(message)
+            msg_class = self._default_msg_base_class.get_class_for_type_identifier(envelope.type)
+            message = envelope.get_message(msg_class=msg_class)
+            await self.do_callback(message)
 
     async def _receive_loop(self):
         while True:
@@ -153,13 +157,13 @@ class Protocol(BaseProtocol):
     def get_callback(self, msg_type: typing.Type[Message]):
         return self._callbacks.get(msg_type, None)
 
-    def do_callback(self, msg: Message):
+    async def do_callback(self, msg: Message):
         try:
             callback, extra_args, extra_kwargs = self._callbacks[type(msg)]
         except KeyError:
             pass
         else:
-            callback(msg, *extra_args, **extra_kwargs)
+            await callback(msg, *extra_args, **extra_kwargs)
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██

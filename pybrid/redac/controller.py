@@ -119,7 +119,7 @@ class Controller:
     # ██   ██ ██   ██ ██  ██ ██ ██   ██ ██      ██      ██   ██      ██
     # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
 
-    def handle_run_state_change(self, msg: RunStateChangeMessage, path: Path):
+    async def handle_run_state_change(self, msg: RunStateChangeMessage, path: Path):
         """A handler for incoming :class:`.RunStateChangeMessage` messages."""
         logger.debug("Received run state change: %s.", msg)
         if distributed_run_state := self._ongoing_runs.get(msg.id, None):
@@ -127,7 +127,7 @@ class Controller:
         else:
             logger.warning("Received run state change with unknown id %s.", msg.id)
 
-    def handle_run_data(self, msg: RunDataMessage, path: Path):
+    async def handle_run_data(self, msg: RunDataMessage, path: Path):
         """A handler for incoming :class:`.RunDataMessage` messages."""
         if run := self.runs.get(msg.id, None):
             adc_paths = [Path(msg.entity).join(f"ADC{idx}") for idx in range(run.daq.num_channels)]
