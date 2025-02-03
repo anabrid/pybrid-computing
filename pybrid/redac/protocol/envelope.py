@@ -46,9 +46,9 @@ class Envelope(BaseModel):
     #: The msg, None if :attr:`success` is false for responses
     msg: typing.Optional[dict] = None
     #: Whether the request was handled successfully (only in responses)
-    success: typing.Optional[bool] = Field(exclude=True, default=True)
+    success: typing.Optional[bool] = True
     #: Optional error, in case :attr:`success` is false
-    error: typing.Optional[str] = Field(exclude=True, default="")
+    error: typing.Optional[str] = ""
 
     @classmethod
     def from_message(cls, message, *, id_=None):
@@ -70,3 +70,11 @@ class Envelope(BaseModel):
         except (KeyError, AttributeError, ValidationError) as exc:
             logger.exception("Error while parsing message from envelope: %s.", exc)
             raise MalformedMessageError() from exc
+
+    def json(self, *args, **kwargs):
+        if not self.success:
+            exclude_ = {"msg"}
+        else:
+            exclude_ = {"success", "error"}
+        kwargs.setdefault("exclude", exclude_)
+        return super().json(*args, **kwargs)
