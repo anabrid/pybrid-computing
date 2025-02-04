@@ -15,6 +15,8 @@ from pybrid.redac.protocol.messages import (
     StartRunRequest,
     SetCircuitResponse,
     StartRunResponse,
+    GetEntitiesRequest,
+    GetEntitiesResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -53,6 +55,7 @@ class Proxy:
         transport = await PassthroughTransport.create(reader, writer, name=str(peer))
         protocol = await Protocol.create(transport)
         # Register callbacks
+        protocol.register_callback(GetEntitiesRequest, self.handle_get_entities, extra_args=[protocol])
         protocol.register_callback(SetCircuitRequest, self.handle_set_circuit, extra_args=[protocol])
         protocol.register_callback(StartRunRequest, self.handle_start_run, extra_args=[protocol])
 
@@ -77,6 +80,10 @@ class Proxy:
     # ███████ ███████ ██ ██  ██ ██   ██ ██      █████   ██████  ███████
     # ██   ██ ██   ██ ██  ██ ██ ██   ██ ██      ██      ██   ██      ██
     # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
+
+    async def handle_get_entities(self, msg: GetEntitiesRequest, protocol: Protocol):
+        logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
+        return GetEntitiesResponse(entities=self.controller._raw_entity_dict)
 
     async def handle_set_circuit(self, msg: SetCircuitRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)

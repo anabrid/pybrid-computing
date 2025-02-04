@@ -5,6 +5,7 @@
 import asyncio
 import logging
 import typing
+from copy import deepcopy
 from uuid import UUID
 
 from pybrid.base.hybrid.utils import build_entity_path_dict
@@ -66,12 +67,16 @@ class Controller:
     #: Dictionary of all managed devices identified by their unique entity path.
     devices: dict[Path, Protocol]
     #: List of all runs started by this controller.
-    runs: dict[UUID, Run] = dict()
-    _ongoing_runs: dict[UUID, DistributedRunState] = dict()
+    runs: dict[UUID, Run]
+    _raw_entity_dict: dict
+    _ongoing_runs: dict[UUID, DistributedRunState]
 
     def __init__(self):
         self.computer = REDAC(entities=[])
         self.devices = dict()
+        self.runs = dict()
+        self._raw_entity_dict = dict()
+        self._ongoing_runs = dict()
         self.sync = None
 
     async def __aenter__(self):
@@ -103,8 +108,11 @@ class Controller:
         await protocol.start()
         # Get carrier the device controls. In the future, other device types may be added here.
         entities = await protocol.get_entities()
-        assert len(entities) == 1
+        assert len(entities) >= 1
         for entity_id, sub_entities in entities.items():
+            # Save entity in self._raw_entity_dict to respond to incoming GetEntitiesRequests
+            self._raw_entity_dict[entity_id] = deepcopy(sub_entities)
+            # Parse entity to the internal python abstraction
             path = Path.parse(entity_id)
             carrier = Carrier.create_from_entity_type_tree(path, sub_entities)
             protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change, extra_args=[path])
