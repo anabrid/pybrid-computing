@@ -257,7 +257,7 @@ class Controller:
         # Trigger the synchronized start of the run and wait until all involved entities are done.
         self.enable_sync()
         self.sync.trigger()
-        await run_state.wait_all(RunState.DONE)
+        await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=timeout)
         del self._ongoing_runs[run.id_]
         # Return run
         return run

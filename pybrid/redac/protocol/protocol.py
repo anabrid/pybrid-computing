@@ -182,6 +182,8 @@ class Protocol(BaseProtocol):
                 break
             except ConnectionError as exc:
                 logger.exception(repr(exc))
+                logger.warning("Remove this sleep :)")
+                await asyncio.sleep(5)
                 break
             except ProtocolError as exc:
                 logger.exception("Error while receiving or processing envelope: %s.", exc)

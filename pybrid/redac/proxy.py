@@ -9,7 +9,8 @@ from typing import Optional
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import PassthroughTransport
-from pybrid.redac import Controller, Path, Protocol
+from pybrid.redac import Controller, Path, Protocol, RunState
+from pybrid.redac.controller import DistributedRunState
 from pybrid.redac.protocol.messages import (
     SetCircuitRequest,
     StartRunRequest,
@@ -17,6 +18,7 @@ from pybrid.redac.protocol.messages import (
     StartRunResponse,
     GetEntitiesRequest,
     GetEntitiesResponse,
+    RunStateChangeMessage,
 )
 
 logger = logging.getLogger(__name__)
@@ -98,10 +100,21 @@ class Proxy:
 
         return SetCircuitResponse()
 
+    async def monitor_run_state(self, run_state: DistributedRunState, protocol: Protocol):
+        await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=3)
+        await protocol.send_message(
+            RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.TAKE_OFF)
+        )
+        await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=3)
+        await protocol.send_message(
+            RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.TAKE_OFF, new=RunState.DONE)
+        )
+
     async def handle_start_run(self, msg: StartRunRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
 
         run = msg.to_run()
-        await self.controller.start_and_await_run(run)
+        run_state = await self.controller.start_run(run)
+        asyncio.create_task(self.monitor_run_state(run_state, protocol))
 
         return StartRunResponse()
