@@ -8,6 +8,8 @@ import typing
 from copy import deepcopy
 from uuid import UUID
 
+from collections import defaultdict
+
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.base.transport import TCPTransport
 
@@ -30,7 +32,7 @@ class DistributedRunState:
     #: The run once it's done
     run_future: asyncio.Future
 
-    def __init__(self, run, paths: list[Path]):
+    def __init__(self, run, paths: typing.Iterable[Path]):
         self._states = {path: {state: asyncio.Semaphore(0) for state in RunState} for path in paths}
         self.run = run
         self.run_future = asyncio.Future()
@@ -65,7 +67,10 @@ class Controller:
     #: Representation of the current configuration of the analog computer.
     computer: REDAC
     #: Dictionary of all managed devices identified by their unique entity path.
+    #: TODO: Remove in favor of protocols below.
     devices: dict[Path, Protocol]
+    #: Dictionary of protocol connections mapped to entity paths they manage
+    protocols: dict[Protocol, set[Path]]
     #: List of all runs started by this controller.
     runs: dict[UUID, Run]
     _raw_entity_dict: dict
@@ -74,6 +79,7 @@ class Controller:
     def __init__(self):
         self.computer = REDAC(entities=[])
         self.devices = dict()
+        self.protocols = defaultdict(set)
         self.runs = dict()
         self._raw_entity_dict = dict()
         self._ongoing_runs = dict()
@@ -115,11 +121,12 @@ class Controller:
             # Parse entity to the internal python abstraction
             path = Path.parse(entity_id)
             carrier = Carrier.create_from_entity_type_tree(path, sub_entities)
-            protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change, extra_args=[path])
+            protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change, extra_args=[protocol])
             protocol.register_callback(RunDataMessage, self.handle_run_data, extra_args=[path])
             self.computer.carriers.append(carrier)
             self.computer._entities_by_path.update(build_entity_path_dict([carrier]))
             self.devices[path] = protocol
+            self.protocols[protocol].add(path)
 
     # ██   ██  █████  ███    ██ ██████  ██      ███████ ██████  ███████
     # ██   ██ ██   ██ ████   ██ ██   ██ ██      ██      ██   ██ ██
@@ -127,11 +134,12 @@ class Controller:
     # ██   ██ ██   ██ ██  ██ ██ ██   ██ ██      ██      ██   ██      ██
     # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
 
-    async def handle_run_state_change(self, msg: RunStateChangeMessage, path: Path):
+    async def handle_run_state_change(self, msg: RunStateChangeMessage, protocol: Protocol):
         """A handler for incoming :class:`.RunStateChangeMessage` messages."""
         logger.debug("Received run state change: %s.", msg)
         if distributed_run_state := self._ongoing_runs.get(msg.id, None):
-            distributed_run_state.track(path, msg.new)
+            for path in self.protocols[protocol]:
+                distributed_run_state.track(path, msg.new)
         else:
             logger.warning("Received run state change with unknown id %s.", msg.id)
 
@@ -215,11 +223,14 @@ class Controller:
             run = run_class()
         self.runs[run.id_] = run
         # Forward request to involved devices and track their individual state
-        involved_devices = self.devices
-        paths, protocols = list(involved_devices.keys()), involved_devices.values()
-        self._ongoing_runs[run.id_] = run_state = DistributedRunState(run, paths)
+        involved_devices = set(self.devices.keys())
+        self._ongoing_runs[run.id_] = run_state = DistributedRunState(run, involved_devices)
+        involved_protocols = set()
+        for protocol, managed_devices in self.protocols.items():
+            if managed_devices.intersection(involved_devices):
+                involved_protocols.add(protocol)
         await self._forward_to(
-            protocols, Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq
+            involved_protocols, Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq
         )
         return run_state
 
