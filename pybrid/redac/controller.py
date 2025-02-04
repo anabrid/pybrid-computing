@@ -5,14 +5,12 @@
 import asyncio
 import logging
 import typing
+from collections import defaultdict
 from copy import deepcopy
 from uuid import UUID
 
-from collections import defaultdict
-
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.base.transport import TCPTransport
-
 from .carrier import Carrier
 from .computer import REDAC
 from .entities import Entity, Path
@@ -165,14 +163,21 @@ class Controller:
     def forward_set_circuit(self, message: SetCircuitRequest):
         # TODO: Think about whether this is actually the correct approach.
         #       Possibly, one should introduce a new MultiProtocol and move the forwarding there.
-        return asyncio.gather(
-            *[
-                self.devices[Path.parse(key)].send_message_and_wait_response(
-                    SetCircuitRequest(entity=Path.parse(key), config=value)
-                )
-                for key, value in message.config.items()
-            ]
-        )
+        forwards = set()
+        for protocol, managed_paths in self.protocols.items():
+            partial_config = {}
+            target_entity = Path()
+            for path in managed_paths:
+                if config := message.config.pop(path.id_, None):
+                    if len(managed_paths) > 1:
+                        partial_config[path.id_] = config
+                    else:
+                        partial_config = config
+                        target_entity = path
+            forwards.add(
+                protocol.send_message_and_wait_response(SetCircuitRequest(entity=target_entity, config=partial_config))
+            )
+        return asyncio.gather(*forwards)
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
         """

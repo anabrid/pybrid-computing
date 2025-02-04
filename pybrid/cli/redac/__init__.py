@@ -5,6 +5,7 @@
 import asyncio
 import json
 import logging
+import typing
 from ipaddress import ip_network
 from typing import TextIO
 
@@ -24,6 +25,7 @@ from pybrid.redac.display import TreeDisplay
 from pybrid.redac.dummy import DummyController
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.monitor import Monitor
+from pybrid.redac.protocol.messages import SetCircuitRequest
 from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
 
@@ -462,6 +464,8 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
 # Run options
 @click.option("--op-time", type=int, default=None, help="OP time in nanoseconds.")
 @click.option("--ic-time", type=int, default=None, help="IC time in nanoseconds.")
+# Configuration options
+@click.option("--config-file", "-c", type=click.File("r"), help="A config.json file to apply before starting the run.")
 # Output options
 @click.option("--output", "-o", type=click.File("wt"), default="-", help="File to write data to.")
 @click.option(
@@ -476,12 +480,16 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
     default="dat",
     help="Format to write data in.",
 )
-async def run(obj, op_time, ic_time, output, output_format):
+async def run(obj, op_time, ic_time, config_file: typing.TextIO, output, output_format):
     """
     Start a run (computation) and wait until it is complete.
     """
     controller: Controller = obj["controller"]
     run_: Run = obj["run"]
+
+    # Read and send configuration
+    config = json.load(config_file)
+    await controller.forward_set_circuit(SetCircuitRequest(entity=Path(), config=config))
 
     # If the run in the context object is already done, we need a new one
     if run_.state.is_done():

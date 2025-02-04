@@ -42,7 +42,9 @@ class Proxy:
         self._server = None
 
         self.mac_mapping = mac_mapping or {}
+        self.reverse_mac_mapping = {}
         for original, target in self.mac_mapping.items():
+            self.reverse_mac_mapping[target] = original
             try:
                 path = Path.parse(target)
                 self.controller.computer.get_entity(path)
@@ -85,7 +87,10 @@ class Proxy:
 
     async def handle_get_entities(self, msg: GetEntitiesRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
-        return GetEntitiesResponse(entities=self.controller._raw_entity_dict)
+        mapped_raw_entity_dict = {
+            self.reverse_mac_mapping[key.strip("/")]: value for key, value in self.controller._raw_entity_dict.items()
+        }
+        return GetEntitiesResponse(entities=mapped_raw_entity_dict)
 
     async def handle_set_circuit(self, msg: SetCircuitRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)

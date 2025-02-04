@@ -92,7 +92,7 @@ class RunState(BaseRunState, Enum):
 class DAQConfigurationNumChannels(Validator):
 
     def set_default(self, instance, name, owner):
-        setattr(instance, name, 0)
+        setattr(instance, name, 4)
 
     def parse(self, instance, value):
         return int(value)
@@ -108,7 +108,7 @@ class DAQConfig(BaseDAQConfig):
     #: The element corresponding to each channel is implicitly defined by the computer's configuration.
     num_channels: int = field(default=DAQConfigurationNumChannels())
     #: Sample rate to use in samples/second.
-    sample_rate: int = 500_000
+    sample_rate: int = 100_000
     #: Whether to sample during IC
     sample_op: bool = True
     #: Whether to sample during OP_END
