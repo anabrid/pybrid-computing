@@ -19,6 +19,7 @@ from pybrid.redac.protocol.messages import (
     GetEntitiesRequest,
     GetEntitiesResponse,
     RunStateChangeMessage,
+    RunDataMessage,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,16 @@ class Proxy:
         protocol.register_callback(SetCircuitRequest, self.handle_set_circuit, extra_args=[protocol])
         protocol.register_callback(StartRunRequest, self.handle_start_run, extra_args=[protocol])
 
+        # Register forwarders that transparently forwards some messages (e.g. RunDataMessage)
+        # But first save original ones to restore them later
+        original_run_data_handlers = {
+            protocol_: protocol_.get_callback(RunDataMessage) for protocol_ in self.controller.protocols
+        }
+        for protocol_ in self.controller.protocols:
+            protocol_.register_callback(
+                RunDataMessage, self.forward_run_data, extra_args=[protocol, protocol_.get_callback(RunDataMessage)]
+            )
+
         # Start protocol and let it process incoming messages
         async with protocol:
             logger.debug("Initiated protocol communication with %s. Waiting for incoming requests...", peer)
@@ -70,6 +81,10 @@ class Proxy:
 
         writer.close()
         await writer.wait_closed()
+
+        # Restore original handlers
+        for protocol_, (handler, args, kwargs) in original_run_data_handlers.items():
+            protocol_.register_callback(RunDataMessage, handler, extra_args=args, extra_kwargs=kwargs)
 
     async def __aenter__(self):
         self._server = await asyncio.start_server(self.client_connected, self.host, self.port)
@@ -84,6 +99,8 @@ class Proxy:
     # ███████ ███████ ██ ██  ██ ██   ██ ██      █████   ██████  ███████
     # ██   ██ ██   ██ ██  ██ ██ ██   ██ ██      ██      ██   ██      ██
     # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
+
+    # Handlers handle incoming requests from the client side
 
     async def handle_get_entities(self, msg: GetEntitiesRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
@@ -123,3 +140,17 @@ class Proxy:
         asyncio.create_task(self.monitor_run_state(run_state, protocol))
 
         return StartRunResponse()
+
+    # ███████  ██████  ██████  ██     ██  █████  ██████  ██████  ███████ ██████  ███████
+    # ██      ██    ██ ██   ██ ██     ██ ██   ██ ██   ██ ██   ██ ██      ██   ██ ██
+    # █████   ██    ██ ██████  ██  █  ██ ███████ ██████  ██   ██ █████   ██████  ███████
+    # ██      ██    ██ ██   ██ ██ ███ ██ ██   ██ ██   ██ ██   ██ ██      ██   ██      ██
+    # ██       ██████  ██   ██  ███ ███  ██   ██ ██   ██ ██████  ███████ ██   ██ ███████
+
+    # Forwarders transparently "copy" messages from the mREDACs towards the client
+
+    async def forward_run_data(self, msg: RunDataMessage, protocol: Protocol, original_handler_info):
+        logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
+        if original_handler_info:
+            await original_handler_info[0](msg, *original_handler_info[1], **original_handler_info[2])
+        await protocol.send_message(msg)

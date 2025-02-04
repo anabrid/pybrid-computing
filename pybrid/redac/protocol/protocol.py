@@ -197,7 +197,9 @@ class Protocol(BaseProtocol):
     #  ██████ ██   ██ ███████ ███████ ██████  ██   ██  ██████ ██   ██ ███████
 
     def register_callback(self, msg_type: typing.Type[Message], callback: Callable, extra_args=None, extra_kwargs=None):
+        previous = self._callbacks.get(msg_type, None)
         self._callbacks[msg_type] = (callback, extra_args or list(), extra_kwargs or dict())
+        return previous
 
     def get_callback(self, msg_type: typing.Type[Message]):
         return self._callbacks.get(msg_type, None)
