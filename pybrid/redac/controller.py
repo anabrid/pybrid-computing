@@ -163,6 +163,7 @@ class Controller:
     def forward_set_circuit(self, message: SetCircuitRequest):
         # TODO: Think about whether this is actually the correct approach.
         #       Possibly, one should introduce a new MultiProtocol and move the forwarding there.
+        # TODO: This should not be here at least, but live in the Proxy
         forwards = set()
         for protocol, managed_paths in self.protocols.items():
             partial_config = {}
@@ -174,9 +175,12 @@ class Controller:
                     else:
                         partial_config = config
                         target_entity = path
-            forwards.add(
-                protocol.send_message_and_wait_response(SetCircuitRequest(entity=target_entity, config=partial_config))
-            )
+            if partial_config:
+                forwards.add(
+                    protocol.send_message_and_wait_response(
+                        SetCircuitRequest(entity=target_entity, config=partial_config)
+                    )
+                )
         return asyncio.gather(*forwards)
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
