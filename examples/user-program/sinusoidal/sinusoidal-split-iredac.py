@@ -14,14 +14,14 @@ class UserProgram(SimpleRun):
 
     def set_configuration(self, run: Run, computer: REDAC):
         # For each carrier, we configure one sinusoidal between clusters on the same carrier
-        for carrier in computer.carriers:
+        for idx, carrier in enumerate(computer.carriers):
             # Disconnect T-block as far as possible
             carrier.tblock.muxes = [0] * 96
 
             # Route sinusoidal between two clusters on the same carrier
             cluster_a, cluster_b = carrier.clusters[0:2]
             # First integrator to second integrator
-            cluster_a.m0block.elements[0].ic = -0.2
+            cluster_a.m0block.elements[0].ic = -0.2 - idx * 0.01
             cluster_a.ublock.connect(0, 8)
             cluster_a.cblock.elements[8].factor = -1.0
             carrier.tblock.muxes[2] = 1
@@ -38,45 +38,44 @@ class UserProgram(SimpleRun):
         # And then we try to configure one sinusoidal between iREDACs.
         # Assumptions: mREDAC slots 0 used
         # TODO: Implement backplane identification and check assumptions
-        carrier_0, carrier_2 = computer.carriers[0:2]
-        if carrier_0.id_ == "04-E9-E5-18-14-61":
-            carrier_0, carrier_2 = carrier_2, carrier_0
+        i0_m0, i1_m0 = computer.carriers[0:2]
+        if i0_m0.id_ == "04-E9-E5-18-14-61":
+            i0_m0, i1_m0 = i1_m0, i0_m0
         # We use the first cluster on both carriers
-        cluster_0, cluster_2 = carrier_0.clusters[0], carrier_2.clusters[0]
+        print(i0_m0.path, i1_m0.path)
+        i0_m0_cl0, i1_m0_cl0 = i0_m0.clusters[0], i1_m0.clusters[0]
 
         # Set st0block to something "useless"
-        carrier_0.st0block.muxes = [0] * 96
+        i0_m0.st0block.muxes = [0] * 96
+        i1_m0.st0block.muxes = [0] * 96
 
-        # First integrator from mREDAC_0 cluster_0
-        cluster_0.m0block.elements[4].ic = -0.82
-        cluster_0.ublock.connect(4, 16)
-        cluster_0.cblock.elements[16].factor = -1.0
-        # Signal number 16 is 8. lane of T-block, thus muxes 32..35 are involved
-        carrier_0.tblock.muxes[32 + 0] = 1
-        # / Configure T-blocks on backplane
-        # carrier_0.ST0 such that signal from mREDAC0 is sent to TAUX
-        carrier_0.st0block.muxes[32 + 0] = 1
-        # carrier_2.ST0 such that signal is taken from TAUX und sent to mREDAC0
-        carrier_2.st0block.muxes[32 + 1] = 0
-        # \
-        carrier_2.tblock.muxes[32 + 1] = 0
-        cluster_2.iblock.connect(16, 4)
-        # Second integrator
-        cluster_2.m0block.elements[4].ic = 0.0
-        cluster_2.ublock.connect(4, 16)
-        cluster_2.cblock.elements[16].factor = 1.0
+        # First integrator from iREDAC0 to iREDAC1
+        # Basically the same code for signal 24 did not work. But maybe just a stupid error
+        i0_m0_cl0.m0block.elements[4].ic = -0.82
+        i0_m0_cl0.ublock.connect(4, 31)
+        i0_m0_cl0.cblock.elements[31].factor = -1.0
+        i0_m0.tblock.muxes[92] = 1
+        i0_m0.st0block.muxes[92] = 1
+        i1_m0.st0block.muxes[93] = 0
+        i1_m0.tblock.muxes[93] = 0
+        i1_m0_cl0.iblock.connect(31, 4)
+
+        # Second integrator from iREDAC1 to iREDAC0
+        i1_m0_cl0.m0block.elements[4].ic = 0
+        i1_m0_cl0.ublock.connect(4, 16)
+        i1_m0_cl0.cblock.elements[16].factor = 1.0
         # Signal number 16 is 8th lane of T-Block, thus muxes 32..35 are involved
-        carrier_2.tblock.muxes[32 + 0] = 1
+        i1_m0.tblock.muxes[32 + 0] = 1
         # / Configure T-blocks on backplane
         # carrier_2.ST0 such that signal from mREDAC0 is sent to TAUX
-        carrier_2.st0block.muxes[32 + 0] = 1
+        i1_m0.st0block.muxes[32 + 0] = 1
         # carrier_0.ST0 such that signal from TAUX is sent to mREDAC0
-        carrier_0.st0block.muxes[32 + 1] = 0
+        i0_m0.st0block.muxes[32 + 1] = 0
         # \
-        carrier_0.tblock.muxes[32 + 1] = 0
-        cluster_0.iblock.connect(16, 4)
+        i0_m0.tblock.muxes[32 + 1] = 0
+        i0_m0_cl0.iblock.connect(16, 4)
 
-        computer.daq.capture(cluster_0.m0block.elements[4], cluster_2.m0block.elements[4])
+        computer.daq.capture(i0_m0_cl0.m0block.elements[4], i1_m0_cl0.m0block.elements[4])
 
     def run_done(self, run: Run):
         # This function is called once the run is done
