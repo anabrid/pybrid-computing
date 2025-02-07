@@ -20,6 +20,8 @@ from pybrid.redac.protocol.messages import (
     GetEntitiesResponse,
     RunStateChangeMessage,
     RunDataMessage,
+    ResetCircuitRequest,
+    ResetCircuitResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -61,6 +63,7 @@ class Proxy:
         protocol = await Protocol.create(transport)
         # Register callbacks
         protocol.register_callback(GetEntitiesRequest, self.handle_get_entities, extra_args=[protocol])
+        protocol.register_callback(ResetCircuitRequest, self.handle_reset_circuit, extra_args=[protocol])
         protocol.register_callback(SetCircuitRequest, self.handle_set_circuit, extra_args=[protocol])
         protocol.register_callback(StartRunRequest, self.handle_start_run, extra_args=[protocol])
 
@@ -108,6 +111,11 @@ class Proxy:
             self.reverse_mac_mapping[key.strip("/")]: value for key, value in self.controller._raw_entity_dict.items()
         }
         return GetEntitiesResponse(entities=mapped_raw_entity_dict)
+
+    async def handle_reset_circuit(self, msg: ResetCircuitRequest, protocol: Protocol):
+        logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
+        await self.controller.reset(keep_calibration=msg.keep_calibration, sync=msg.sync)
+        return ResetCircuitResponse()
 
     async def handle_set_circuit(self, msg: SetCircuitRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)

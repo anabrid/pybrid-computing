@@ -294,6 +294,4 @@ class Controller:
         :return: None
         """
         # TODO: Actually reset self.computer as well
-        return await self._forward_to(
-            self.devices.values(), Protocol.reset, keep_calibration=keep_calibration, sync=sync
-        )
+        return await self._forward_to(self.protocols, Protocol.reset, keep_calibration=keep_calibration, sync=sync)
