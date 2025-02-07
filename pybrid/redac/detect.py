@@ -85,7 +85,7 @@ async def detect_in_network(network: ip_network) -> list[tuple]:
         except asyncio.TimeoutError as exc:
             raise asyncio.TimeoutError("No available network devices found.") from exc
         # But give a bit more time for additional ones to be registered
-        await asyncio.sleep(2)
+        await asyncio.sleep(4.2)
         # Only use devices in selected network
         devices = list(filter(lambda host_port: ip_address(host_port[0]) in network, detector.devices))
         if not devices:
@@ -96,8 +96,7 @@ async def detect_in_network(network: ip_network) -> list[tuple]:
 if __name__ == "__main__":
 
     async def _main():
-        async with ZeroconfDetector() as zeroconf:
-            await asyncio.wait_for(zeroconf.await_at_least_one_service(), 1)
-            print(zeroconf.devices)
+        print("Detecting network devices...")
+        print(await detect_in_network(ip_network("0.0.0.0/0")))
 
     asyncio.run(_main())
