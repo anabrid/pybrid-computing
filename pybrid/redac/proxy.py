@@ -115,7 +115,7 @@ class Proxy:
         # The message may contain an entity path that we need to prepend
         if msg.entity:
             assert len(msg.entity) == 1, "Not implemented yet."
-            config = {msg.entity : msg.config}
+            config = {msg.entity[0]: msg.config}
         else:
             config = msg.config
 
