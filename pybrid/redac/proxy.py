@@ -112,9 +112,16 @@ class Proxy:
     async def handle_set_circuit(self, msg: SetCircuitRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
 
+        # The message may contain an entity path that we need to prepend
+        if msg.entity:
+            assert len(msg.entity) == 1, "Not implemented yet."
+            config = {msg.entity : msg.config}
+        else:
+            config = msg.config
+
         # Re-map carrier
         mapped_config = dict()
-        for original_carrier_id, carrier_config in msg.config.items():
+        for original_carrier_id, carrier_config in config.items():
             mapped_config[self.mac_mapping[original_carrier_id]] = carrier_config
         # Forward
         msg.config = mapped_config
