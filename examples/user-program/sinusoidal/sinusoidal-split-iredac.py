@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 
 from pybrid.base.hybrid.programs import SimpleRun
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
 
 
 class UserProgram(SimpleRun):
@@ -38,11 +38,11 @@ class UserProgram(SimpleRun):
         # And then we try to configure one sinusoidal between iREDACs.
         # Assumptions: mREDAC slots 0 used
         # TODO: Implement backplane identification and check assumptions
-        i0_m0, i1_m0 = computer.carriers[0:2]
-        if i0_m0.id_ == "04-E9-E5-18-14-61":
-            i0_m0, i1_m0 = i1_m0, i0_m0
+        i0_m0, i1_m0 = (
+            computer.get_entity(Path.parse("00-00-00-00-00-00")),
+            computer.get_entity(Path.parse("01-00-00-00-00-00")),
+        )
         # We use the first cluster on both carriers
-        print(i0_m0.path, i1_m0.path)
         i0_m0_cl0, i1_m0_cl0 = i0_m0.clusters[0], i1_m0.clusters[0]
 
         # Set st0block to something "useless"
