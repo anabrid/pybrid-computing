@@ -11,11 +11,11 @@ from typing import TextIO
 
 import asyncclick as click
 from asyncclick import Choice
+
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.cli.base import cli
 from pybrid.cli.base.commands import user_program
 from pybrid.cli.base.shell import Shell
-
 from pybrid.redac.blocks import SwitchingBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.controller import Controller
@@ -579,9 +579,11 @@ async def hack():
     required=True,
     help="JSON file containing the mapping of 'XX-00-WW-00-00-NN' virtual mac addresses to real ones.",
 )
-async def proxy(obj: dict, map_: TextIO):
+@click.argument("host", type=str, default="localhost")
+@click.argument("port", type=int, default=5732)
+async def proxy(obj: dict, map_: TextIO, host: str, port: int):
     mac_mapping = json.load(map_)
-    async with Proxy(obj["controller"], mac_mapping=mac_mapping) as (proxy_, server):
+    async with Proxy(obj["controller"], host=host, port=port, mac_mapping=mac_mapping) as (proxy_, server):
         click.echo(f"Starting proxy on {proxy_.host}:{proxy_.port}... Press Ctrl+C to exit.")
         await server.serve_forever()
 
