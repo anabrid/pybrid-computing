@@ -13,7 +13,6 @@ cache:
   paths:
     - .cache/pip
     
-    
 .anabrid-poetry-job:
   image:
     name: $CI_REGISTRY/pybrid-computing/pybrid-computing-base/python-poetry
@@ -62,7 +61,6 @@ docs_deploy:
         - chmod 600 "$STAGING_HOST_SSH_PRIVATE_KEY" "$STAGING_HOST_SSH_HOST_IDENT"
         - echo -e "cd anabrid.dev/docs/pybrid/\nput -R docs/_build/html/*" | sftp -o "UserKnownHostsFile=$STAGING_HOST_SSH_HOST_IDENT" -i"$STAGING_HOST_SSH_PRIVATE_KEY" $STAGING_HOST_SSH
 
-
 build_job:
   extends: [.anabrid-poetry-job, .anabrid-if-release-job]
   stage: build
@@ -109,4 +107,3 @@ release_gitlab_job:
           url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION-py3-none-any.whl'
         - name: 'Package (.tar.gz)'
           url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION.tar.gz'
-

@@ -2,8 +2,7 @@
 
 *pybrid* is a code that provides an interface to configure and control analog computers,
 in particular the network-enabled LUCIDAC/REDAC analog-digital hybrid computers made by
-[anabrid](https://anabrid.com/).
-The abstractions can be used by means of
+[anabrid](https://anabrid.com/). The abstractions can be used by means of
 
 * a fully [asyncio](https://docs.python.org/3/library/asyncio.html) library
 * a framework (users providing callbacks in a clean class structure, however giving
@@ -99,4 +98,3 @@ pybrid-computing-base = { path = "/path/to/where/you/checked/out/pybrid-computin
 After this edit, run `poetry install` again to update the paths.
 
 Some IDEs such as PyCharm can check this out by their own.
-
