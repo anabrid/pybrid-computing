@@ -40,6 +40,8 @@ class Proxy:
         self, controller: Controller, host: str = "localhost", port: int = 5732, mac_mapping: dict[str, str] = None
     ):
         self.controller = controller
+        self.controller.enable_sync()
+
         self.host = host
         self.port = port
         self._server = None
@@ -142,6 +144,7 @@ class Proxy:
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.TAKE_OFF)
         )
+        self.controller.sync.trigger()
         await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=3)
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.TAKE_OFF, new=RunState.DONE)

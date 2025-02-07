@@ -257,16 +257,9 @@ class Controller:
         except asyncio.TimeoutError as exc:
             raise asyncio.TimeoutError("Timeout while queueing run.") from exc
         try:
-            await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=timeout)
+            await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=timeout)
         except asyncio.TimeoutError as exc:
-            raise asyncio.TimeoutError(
-                "Timeout while waiting for all carriers to reach RunState.TAKE_OFF. "
-                "{} reached it, {} did not.".format(*run_state.status(RunState.TAKE_OFF))
-            ) from exc
-        # Trigger the synchronized start of the run and wait until all involved entities are done.
-        self.enable_sync()
-        self.sync.trigger()
-        await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=timeout)
+            raise asyncio.TimeoutError("Timeout while waiting for all carriers to reach RunState.DONE.") from exc
         del self._ongoing_runs[run.id_]
         # Return run
         return run
