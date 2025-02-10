@@ -169,6 +169,11 @@ class Proxy:
 
     async def forward_run_data(self, msg: RunDataMessage, protocol: Protocol, original_handler_info):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
+        
+        msg_ = msg.copy()
+        if msg_.entity[0] in self.reverse_mac_mapping:
+            msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]], msg_.entity[1])
+
         if original_handler_info:
             await original_handler_info[0](msg, *original_handler_info[1], **original_handler_info[2])
         await protocol.send_message(msg)
