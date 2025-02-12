@@ -95,14 +95,10 @@ class RunState(BaseRunState, Enum):
 class DAQConfigurationNumChannels(Validator):
 
     def set_default(self, instance, name, owner):
-        setattr(instance, name, 4)
+        setattr(instance, name, 0)
 
     def parse(self, instance, value):
         return int(value)
-
-    def validate(self, instance, value):
-        if value > 0 and (value & (value - 1)) != 0:
-            raise ValueError("Value must be a power-of-two.")
 
 
 @dataclass(kw_only=True)
@@ -111,7 +107,7 @@ class DAQConfig(BaseDAQConfig):
     #: The element corresponding to each channel is implicitly defined by the computer's configuration.
     num_channels: int = field(default=DAQConfigurationNumChannels())
     #: Sample rate to use in samples/second.
-    sample_rate: int = 100_000
+    sample_rate: int = 10_000
     #: Whether to sample during IC
     sample_op: bool = True
     #: Whether to sample during OP_END
