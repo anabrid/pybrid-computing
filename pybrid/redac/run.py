@@ -35,6 +35,9 @@ class RunConfig(BaseRunConfig):
     #: Duration of OP (operating) mode in nanoseconds.
     op_time: int = 2_000_000
 
+    #: Whether to calibrate used routes before the computation.
+    # calibrate: bool = False
+
     #: Whether to halt the computation when the external halt signal is triggered.
     halt_on_external_trigger: bool = False
     #: Whether to halt the computation when it enters an overload.
