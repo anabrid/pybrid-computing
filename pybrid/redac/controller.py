@@ -144,9 +144,10 @@ class Controller:
     async def handle_run_data(self, msg: RunDataMessage, path: Path):
         """A handler for incoming :class:`.RunDataMessage` messages."""
         if run := self.runs.get(msg.id, None):
-            adc_paths = [Path(msg.entity).join(f"ADC{idx}") for idx in range(run.daq.num_channels)]
             for data_pkg in msg.data:
-                for channel, data_point in zip(adc_paths, data_pkg):
+                for idx, data_point in enumerate(data_pkg):
+                    # TODO: This is pretty inefficient
+                    channel = Path(msg.entity).join(f"ADC{idx}")
                     run.data[channel].append(data_point)
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
