@@ -104,10 +104,10 @@ class Controller:
         except Exception as e:
             logger.exception(e)
 
-    async def add_device(self, host, port):
+    async def add_device(self, host, port, name=None):
         # Create a connection to the device
         async with asyncio.timeout(3):
-            transport_ = await TCPTransport.create(host, port)
+            transport_ = await TCPTransport.create(host, port, name=name)
             protocol = await Protocol.create(transport_)
         await protocol.start()
         # Get carrier the device controls. In the future, other device types may be added here.

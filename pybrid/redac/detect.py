@@ -69,7 +69,7 @@ class ZeroconfDetector:
     def service_info_to_device(service_info: AsyncServiceInfo) -> tuple:
         # TODO: Figure out when one would get multiple addresses.
         host = service_info.parsed_addresses(IPVersion.V4Only)[0]
-        return host, service_info.port
+        return host, service_info.port, service_info.name
 
     async def await_at_least_one_service(self):
         while not self.services:

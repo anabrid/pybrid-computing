@@ -9,6 +9,7 @@ from .base import BaseTransport
 
 class TCPTransport(BaseTransport):
     """A TCP/IP transport implementation for network communication."""
+
     @classmethod
     async def create(cls, host, port, /, **kwargs):
         """
@@ -19,5 +20,6 @@ class TCPTransport(BaseTransport):
         :param kwargs: Keyword arguments are passed on to :class:`.BaseTransport`.
         :return: A :class:`TCPTransport` instance.
         """
+        name = kwargs.pop("name", None)
         reader, writer = await asyncio.open_connection(host, port, **kwargs)
-        return cls(reader=reader, writer=writer, **kwargs)
+        return cls(reader=reader, writer=writer, name=name, **kwargs)

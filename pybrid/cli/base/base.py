@@ -9,7 +9,7 @@ import asyncclick as click
 from pybrid.base.utils.logging import set_pybrid_logging_level
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format="%(asctime)s.%(msecs)03d | %(levelname)s | %(module)s | %(message)s", datefmt="%S")
+logging.basicConfig(format="%(asctime)s.%(msecs)03d | %(levelname)s | %(module)s | %(message)s", datefmt="%H:%M:%S")
 
 
 @click.group()
@@ -18,7 +18,7 @@ logging.basicConfig(format="%(asctime)s.%(msecs)03d | %(levelname)s | %(module)s
     "--log-level",
     type=click.Choice([l for l in logging._levelToName.values() if not l == "NOTSET"]),
     default=logging._levelToName[logging.INFO],
-    help="Set all 'pybrid' loggers to the passed level."
+    help="Set all 'pybrid' loggers to the passed level.",
 )
 async def cli(context: click.Context, log_level: str):
     """

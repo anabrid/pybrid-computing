@@ -80,7 +80,7 @@ async def redac(ctx: click.Context, host: str, port: int, reset: bool, fake: boo
         devices = []
         # Either one host was passed explicitly or we auto-detect via zeroconf
         if host is not None and "/" not in host:
-            devices.append((host, port))
+            devices.append((host, port, str(host)))
         else:
             network = ip_network(host or "0.0.0.0/0")
             logger.info("Searching for available network devices in %s...", network)
@@ -89,8 +89,8 @@ async def redac(ctx: click.Context, host: str, port: int, reset: bool, fake: boo
 
         # Generate a controller and add devices
         controller = Controller()
-        for host, port in devices:
-            await controller.add_device(host, port)
+        for host, port, name in devices:
+            await controller.add_device(host, port, name=name)
     else:
         controller = DummyController()
 
