@@ -72,6 +72,9 @@ class Cluster(Entity):
         # TODO: Less hard-coding :)
         return cls(path=path, **blocks)
 
+    def set_constant(self, value: bool | float):
+        self.ublock.set_constant(value)
+
     def route(self, m_out: int, u_out: int, c_factor: float, m_in: int):
         """
         Convenience function to connect a signal from before the :class:`.blocks.UBlock` through a coefficient

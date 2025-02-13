@@ -23,9 +23,13 @@ class UBlock(SwitchingBlock):
     #: Use None (null in JSON) to disable an output.
     #: The firmware may accept additional JSON structures (see JSON schema).
     outputs: list[int | None] = field(default_factory=lambda: [None] * 32)
+    constant: float | bool = False
 
     def apply_partial_configuration(self, attribute, value):
         raise AttributeError("Can not apply configuration to attribute %s like this." % attribute)
+
+    def set_constant(self, value : bool | float):
+        self.constant = value
 
     def connect(self, input, output, *outputs, force=False):
         # Sanity check before actually doing anything
