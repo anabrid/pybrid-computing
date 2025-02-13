@@ -507,6 +507,8 @@ class SetCircuitRequest(Request):
     #: Whether to cycle the SH-block state once just before configuration.
     #: We generally don't want this, as it's unnecessary if all else works as expected.
     sh_kludge: bool = False
+    #: Whether to calibrate routes after applying the configuration
+    calibrate_routes: bool = False
 
     @classmethod
     def make(cls, entity):
