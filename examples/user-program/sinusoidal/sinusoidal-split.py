@@ -2,9 +2,9 @@
 #   pybrid redac -h <host> user-program path/to/this/file.py
 
 import matplotlib.pyplot as plt
-from pybrid.base.hybrid.programs import SimpleRun
 
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.base.hybrid.programs import SimpleRun
+from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
 
 
 class UserProgram(SimpleRun):
@@ -38,9 +38,10 @@ class UserProgram(SimpleRun):
         # And then we try to configure one sinusoidal between mREDACs.
         # Assumptions: mREDAC slots 0 & 2 used
         # TODO: Implement backplane identification and check assumptions
-        carrier_0, carrier_2 = computer.carriers[0:2]
-        if carrier_0.id_ != "04-E9-E5-18-14-61":
-            carrier_0, carrier_2 = carrier_2, carrier_0
+        carrier_0, carrier_2 = (
+            computer.get_entity(Path.parse("00-00-00-00-00-00")),
+            computer.get_entity(Path.parse("00-00-00-00-00-02")),
+        )
         # We use the first cluster on both carriers
         cluster_0, cluster_2 = carrier_0.clusters[0], carrier_2.clusters[0]
 
@@ -52,22 +53,22 @@ class UserProgram(SimpleRun):
         cluster_0.ublock.connect(4, 16)
         cluster_0.cblock.elements[16].factor = -1.0
         # Signal number 16 is 8. lane of T-block, thus muxes 32..35 are involved
-        carrier_0.tblock.muxes[32 + 0] = 1
+        carrier_0.tblock.muxes[32 + 1] = 0
         # / Configure ST0 such that carrier_2 receives signal from carrier_0
-        carrier_0.st0block.muxes[32 + 3] = 1
+        carrier_0.st0block.muxes[32 + 1] = 3
         # \
-        carrier_2.tblock.muxes[32 + 1] = 0
+        carrier_2.tblock.muxes[32 + 0] = 1
         cluster_2.iblock.connect(16, 4)
         # Second integrator
-        cluster_2.m0block.elements[4].ic = 0.0
+        cluster_2.m0block.elements[4].ic = 0.3
         cluster_2.ublock.connect(4, 16)
         cluster_2.cblock.elements[16].factor = 1.0
         # Signal number 16 is 8th lane of T-Block, thus muxes 32..35 are involved
-        carrier_2.tblock.muxes[32 + 0] = 1
+        carrier_2.tblock.muxes[32 + 1] = 0
         # / Configure ST0 such that carrier_0 receives signal from carrier_2
-        carrier_0.st0block.muxes[32 + 1] = 3
+        carrier_0.st0block.muxes[32 + 3] = 1
         # \
-        carrier_0.tblock.muxes[32 + 1] = 0
+        carrier_0.tblock.muxes[32 + 0] = 1
         cluster_0.iblock.connect(16, 4)
 
         computer.daq.capture(cluster_0.m0block.elements[4], cluster_2.m0block.elements[4])
