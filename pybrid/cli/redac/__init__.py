@@ -579,11 +579,23 @@ async def hack():
     required=True,
     help="JSON file containing the mapping of 'XX-00-WW-00-00-NN' virtual mac addresses to real ones.",
 )
+@click.option(
+    "--partitioning",
+    "-p",
+    "partitioning_",
+    type=click.File("r"),
+    required=True,
+    help="JSON file containing the definition of the machine partitioning.",
+)
 @click.argument("host", type=str, default="localhost")
 @click.argument("port", type=int, default=5732)
-async def proxy(obj: dict, map_: TextIO, host: str, port: int):
+@click.argument("mode", type=str, default="carrier")
+async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, host: str, port: int, mode: str):
+
     mac_mapping = json.load(map_)
-    async with Proxy(obj["controller"], host=host, port=port, mac_mapping=mac_mapping) as (proxy_, server):
+    part_config = json.load(partitioning_)
+
+    async with Proxy(obj["controller"], host=host, port=port, mac_mapping=mac_mapping, partition_config=part_config, mode=mode) as (proxy_, server):
         click.echo(f"Starting proxy on {proxy_.host}:{proxy_.port}... Press Ctrl+C to exit.")
         await server.serve_forever()
 

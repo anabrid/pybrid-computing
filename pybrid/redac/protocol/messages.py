@@ -9,6 +9,7 @@ from functools import cache
 
 import inflection
 from pydantic import UUID4, BaseModel, Field
+from typing import Optional, List
 
 from .types import SuccessInfo
 from ..entities import Path
@@ -645,6 +646,24 @@ class SetDAQResponse(Response):
     #: Whether the request was successful.
     success: SuccessInfo
 
+class GetPartitionInformationRequest(Request):
+    """
+    Request to get the partition information from a proxy that is virtualizing (parts of) the machine.
+    """
+
+    # no parameters required
+    pass
+
+class GetPartitionInformationResponse(Response):
+    """
+    A response  to a prior :class:`GetPartitionInformationRequest`, containing information about the partitioning of the device.
+    """
+
+    partition_mode: str
+    entities: Optional[List[List[str]]] = None
+
+    response_for = GetPartitionInformationRequest
+    
 
 # ██████  ██    ██ ███    ██
 # ██   ██ ██    ██ ████   ██
