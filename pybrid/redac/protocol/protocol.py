@@ -181,7 +181,7 @@ class Protocol(BaseProtocol):
             except asyncio.CancelledError:
                 break
             except ConnectionError as exc:
-                logger.exception(repr(exc))
+                logger.info("Connection %s closed.", self.transport.name)
                 logger.warning("Remove this sleep :)")
                 await asyncio.sleep(5)
                 break
