@@ -166,12 +166,19 @@ class Proxy:
         return SetCircuitResponse()
 
     async def monitor_run_state(self, run_state: DistributedRunState, protocol: Protocol):
-        await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=3)
+        try:
+            await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=3)
+        except Exception as e:
+            logger.exception(e)
+            return
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.TAKE_OFF)
         )
-        self.controller.sync.trigger()
-        await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=3)
+        self.controller.sync.trigger(run_state.run.sync.group)
+        try:
+            await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=3)
+        except Exception as e:
+            logger.exception(e)
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.TAKE_OFF, new=RunState.DONE)
         )
