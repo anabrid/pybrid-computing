@@ -6,6 +6,7 @@ import asyncio
 import logging
 from asyncio import StreamReader, StreamWriter, Server
 from typing import Optional
+from pydantic import BaseModel
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import PassthroughTransport
@@ -22,10 +23,13 @@ from pybrid.redac.protocol.messages import (
     RunDataMessage,
     ResetCircuitRequest,
     ResetCircuitResponse,
+    GetPartitionInformationRequest,
+    GetPartitionInformationResponse,
+    SysTemperaturesRequest,
+    SysTemperaturesResponse,
 )
 
 logger = logging.getLogger(__name__)
-
 
 class Proxy:
     """
@@ -37,7 +41,8 @@ class Proxy:
     _server: Optional[Server]
 
     def __init__(
-        self, controller: Controller, host: str = "localhost", port: int = 5732, mac_mapping: dict[str, str] = None
+        self, controller: Controller, host: str = "localhost", port: int = 5732, mac_mapping: dict[str, str] = None,
+        partition_config: dict = {}, mode: str = "carrier"
     ):
         self.controller = controller
         self.controller.enable_sync()
@@ -46,8 +51,16 @@ class Proxy:
         self.port = port
         self._server = None
 
+        ###
+        # Note: The proxy maps virtual MACs to entity MACs. However, when users
+        # query information about the system in total, ther eis no point in returning
+        # those addresses - since, when partitioned, every partition has a
+        # MAC 00-00-00-00-00-00. 
+        # Hence, when showing system state, we stick to the hardware macs.
+        ###
         self.mac_mapping = mac_mapping or {}
         self.reverse_mac_mapping = {}
+        
         for original, target in self.mac_mapping.items():
             self.reverse_mac_mapping[target] = original
             try:
@@ -56,6 +69,9 @@ class Proxy:
             except EntityDoesNotExist:
                 logger.warning("Target for MAC mapping from %s to %s does not exist.", original, target)
 
+        self.partition_mode = mode
+        self.partition_config = partition_config[mode]
+
     async def client_connected(self, reader: StreamReader, writer: StreamWriter):
         peer = writer.get_extra_info("peername")
         logger.debug("Established incoming connection from %s.", peer)
@@ -63,11 +79,14 @@ class Proxy:
         # Initiate a subordinate protocol that defaults to treating incoming messages as requests
         transport = await PassthroughTransport.create(reader, writer, name=str(peer))
         protocol = await Protocol.create(transport)
+
         # Register callbacks
         protocol.register_callback(GetEntitiesRequest, self.handle_get_entities, extra_args=[protocol])
         protocol.register_callback(ResetCircuitRequest, self.handle_reset_circuit, extra_args=[protocol])
         protocol.register_callback(SetCircuitRequest, self.handle_set_circuit, extra_args=[protocol])
         protocol.register_callback(StartRunRequest, self.handle_start_run, extra_args=[protocol])
+        protocol.register_callback(GetPartitionInformationRequest, self.handle_partition_information, extra_args=[protocol])
+        protocol.register_callback(SysTemperaturesRequest, self.handle_temperature_request, extra_args=[protocol])
 
         # Register forwarders that transparently forwards some messages (e.g. RunDataMessage)
         # But first save original ones to restore them later
@@ -159,6 +178,25 @@ class Proxy:
 
         return StartRunResponse()
 
+    async def handle_partition_information(self, msg: GetPartitionInformationRequest, protocol: Protocol):
+        logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
+
+        return GetPartitionInformationResponse(
+            partition_mode=self.partition_mode,
+            entities=self.partition_config
+        )
+
+    async def handle_temperature_request(self, msg: SysTemperaturesRequest, protocol: Protocol):
+        logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
+
+        hw_response = await self.controller.get_system_temperatures()
+        mapped_response = {self.reverse_mac_mapping[k[0]]: v for (k,v) in hw_response.items()}
+
+        return SysTemperaturesResponse(
+            entities=mapped_response
+        )
+
+
     # ███████  ██████  ██████  ██     ██  █████  ██████  ██████  ███████ ██████  ███████
     # ██      ██    ██ ██   ██ ██     ██ ██   ██ ██   ██ ██   ██ ██      ██   ██ ██
     # █████   ██    ██ ██████  ██  █  ██ ███████ ██████  ██   ██ █████   ██████  ███████
@@ -171,8 +209,7 @@ class Proxy:
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
         
         msg_ = msg.copy()
-        if msg_.entity[0] in self.reverse_mac_mapping:
-            msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]], msg_.entity[1])
+        msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]], msg_.entity[1])
 
         if original_handler_info:
             await original_handler_info[0](msg, *original_handler_info[1], **original_handler_info[2])
