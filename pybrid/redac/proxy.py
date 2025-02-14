@@ -99,12 +99,19 @@ class Proxy:
             )
 
         # Start protocol and let it process incoming messages
-        async with protocol:
-            logger.debug("Initiated protocol communication with %s. Waiting for incoming requests...", peer)
-            await protocol
-
-        writer.close()
-        await writer.wait_closed()
+        try:
+            async with protocol:
+                logger.debug("Initiated protocol communication with %s. Waiting for incoming requests...", peer)
+                await protocol
+        except ConnectionError:
+            # Client closed the connection
+            pass
+        try:
+            writer.close()
+            await writer.wait_closed()
+        except BrokenPipeError:
+            # Client closed the connection already
+            pass
 
         # Restore original handlers
         for protocol_, (handler, args, kwargs) in original_run_data_handlers.items():
