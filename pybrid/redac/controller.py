@@ -13,7 +13,7 @@ from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.base.transport import TCPTransport
 from .carrier import Carrier
 from .computer import REDAC
-from .entities import Entity, Path
+from .entities import Entity, Path, UnknownEntityTypeError
 from .protocol.messages import RunStateChangeMessage, RunDataMessage, SetCircuitRequest
 from .protocol.protocol import Protocol
 from .run import Run, RunState
@@ -182,6 +182,11 @@ class Controller:
                         SetCircuitRequest(entity=target_entity, config=partial_config)
                     )
                 )
+        # Check if there are remaining configurations
+        if message.config:
+            raise UnknownEntityTypeError(
+                "Could not forward configuration to unknown entities %s.", message.config.keys()
+            )
         return asyncio.gather(*forwards)
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
