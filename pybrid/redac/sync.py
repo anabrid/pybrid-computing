@@ -14,9 +14,9 @@ class Sync:
         self.spi.configure("ftdi://ftdi:232h:1/1")
         self.mosi = self.spi.get_port(cs=0, freq=12e6, mode=0)
 
-    def trigger(self):
+    def trigger(self, group_id):
         # TODO: Allow triggering different SYNC_ID
-        self.mosi.write([0b11110000, 0b10101010])
+        self.mosi.write([0b11110000, group_id])
 
 
 if __name__ == "__main__":

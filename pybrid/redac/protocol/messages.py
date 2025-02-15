@@ -646,6 +646,7 @@ class SetDAQResponse(Response):
     #: Whether the request was successful.
     success: SuccessInfo
 
+
 class GetPartitionInformationRequest(Request):
     """
     Request to get the partition information from a proxy that is virtualizing (parts of) the machine.
@@ -653,6 +654,7 @@ class GetPartitionInformationRequest(Request):
 
     # no parameters required
     pass
+
 
 class GetPartitionInformationResponse(Response):
     """
@@ -663,7 +665,7 @@ class GetPartitionInformationResponse(Response):
     entities: Optional[List[List[str]]] = None
 
     response_for = GetPartitionInformationRequest
-    
+
 
 # ██████  ██    ██ ███    ██
 # ██   ██ ██    ██ ████   ██
@@ -697,6 +699,9 @@ class StartRunRequest(Request):
     #: A :py:class:`pybrid.redac.daq.DAQConfig` that should be applied to the run.
     #: If None, the previous configuration is used.
     daq_config: typing.Optional[DAQConfig]
+
+    # TODO: Replace by dynamic snyc_config
+    sync_config: dict = {"mode": "slave", "group": 42}
 
     @classmethod
     def from_run(cls, run):

@@ -174,7 +174,7 @@ class Proxy:
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.TAKE_OFF)
         )
-        self.controller.sync.trigger(run_state.run.sync.group)
+        self.controller.sync.trigger(42)
         try:
             await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=3)
         except Exception as e:
