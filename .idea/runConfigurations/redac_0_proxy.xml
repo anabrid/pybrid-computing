@@ -15,7 +15,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="pybrid.cli.base" />
-    <option name="PARAMETERS" value="--log-level=DEBUG redac -h 192.168.104.0/24 proxy --map examples/proxy/map-redac-0.json --partitioning examples/proxy/partitioning-redac-0.json" />
+    <option name="PARAMETERS" value="--log-level=DEBUG redac -h 192.168.104.0/24 proxy --map examples/proxy/map-redac-0.json --partitioning examples/proxy/partitioning-redac-0.json 0.0.0.0" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="true" />
     <option name="MODULE_MODE" value="true" />

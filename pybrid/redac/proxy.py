@@ -7,6 +7,7 @@ import logging
 from asyncio import StreamReader, StreamWriter, Server
 from typing import Optional
 from pydantic import BaseModel
+from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import PassthroughTransport
@@ -40,9 +41,16 @@ class Proxy:
     mac_mapping: dict[str, str]
     _server: Optional[Server]
 
+    _path_to_client: WeakValueDictionary[Path, Protocol]
+
     def __init__(
-        self, controller: Controller, host: str = "localhost", port: int = 5732, mac_mapping: dict[str, str] = None,
-        partition_config: dict = {}, mode: str = "carrier"
+            self,
+            controller: Controller,
+            host: str = "localhost",
+            port: int = 5732,
+            mac_mapping: dict[str, str] = None,
+            partition_config: dict = {},
+            mode: str = "carrier",
     ):
         self.controller = controller
         self.controller.enable_sync()
@@ -55,12 +63,12 @@ class Proxy:
         # Note: The proxy maps virtual MACs to entity MACs. However, when users
         # query information about the system in total, ther eis no point in returning
         # those addresses - since, when partitioned, every partition has a
-        # MAC 00-00-00-00-00-00. 
+        # MAC 00-00-00-00-00-00.
         # Hence, when showing system state, we stick to the hardware macs.
         ###
         self.mac_mapping = mac_mapping or {}
         self.reverse_mac_mapping = {}
-        
+
         for original, target in self.mac_mapping.items():
             self.reverse_mac_mapping[target] = original
             try:
@@ -71,6 +79,25 @@ class Proxy:
 
         self.partition_mode = mode
         self.partition_config = partition_config[mode]
+
+        # We need to forward certain messages from the mREDACs to clients
+        self._path_to_client = WeakValueDictionary()
+        for protocol in self.controller.protocols:
+            protocol.register_callback(RunDataMessage, self.forward_run_data, extra_args=[protocol])
+
+    async def __aenter__(self):
+        self._server = await asyncio.start_server(self.client_connected, self.host, self.port)
+        await self._server.__aenter__()
+        return self, self._server
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self._server.__aexit__(exc_type, exc_val, exc_tb)
+
+    #  ██████ ██      ██ ███████ ███    ██ ████████ ███████
+    # ██      ██      ██ ██      ████   ██    ██    ██
+    # ██      ██      ██ █████   ██ ██  ██    ██    ███████
+    # ██      ██      ██ ██      ██  ██ ██    ██         ██
+    #  ██████ ███████ ██ ███████ ██   ████    ██    ███████
 
     async def client_connected(self, reader: StreamReader, writer: StreamWriter):
         peer = writer.get_extra_info("peername")
@@ -85,18 +112,10 @@ class Proxy:
         protocol.register_callback(ResetCircuitRequest, self.handle_reset_circuit, extra_args=[protocol])
         protocol.register_callback(SetCircuitRequest, self.handle_set_circuit, extra_args=[protocol])
         protocol.register_callback(StartRunRequest, self.handle_start_run, extra_args=[protocol])
-        protocol.register_callback(GetPartitionInformationRequest, self.handle_partition_information, extra_args=[protocol])
+        protocol.register_callback(
+            GetPartitionInformationRequest, self.handle_partition_information, extra_args=[protocol]
+        )
         protocol.register_callback(SysTemperaturesRequest, self.handle_temperature_request, extra_args=[protocol])
-
-        # Register forwarders that transparently forwards some messages (e.g. RunDataMessage)
-        # But first save original ones to restore them later
-        original_run_data_handlers = {
-            protocol_: protocol_.get_callback(RunDataMessage) for protocol_ in self.controller.protocols
-        }
-        for protocol_ in self.controller.protocols:
-            protocol_.register_callback(
-                RunDataMessage, self.forward_run_data, extra_args=[protocol, protocol_.get_callback(RunDataMessage)]
-            )
 
         # Start protocol and let it process incoming messages
         try:
@@ -113,17 +132,11 @@ class Proxy:
             # Client closed the connection already
             pass
 
-        # Restore original handlers
-        for protocol_, (handler, args, kwargs) in original_run_data_handlers.items():
-            protocol_.register_callback(RunDataMessage, handler, extra_args=args, extra_kwargs=kwargs)
+    def get_client_controlling_path(self, path: Path):
+        return self._path_to_client[path]
 
-    async def __aenter__(self):
-        self._server = await asyncio.start_server(self.client_connected, self.host, self.port)
-        await self._server.__aenter__()
-        return self, self._server
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self._server.__aexit__(exc_type, exc_val, exc_tb)
+    def set_client_controlling_path(self, protocol: Protocol, path: Path):
+        self._path_to_client[path] = protocol
 
     # ██   ██  █████  ███    ██ ██████  ██      ███████ ██████  ███████
     # ██   ██ ██   ██ ████   ██ ██   ██ ██      ██      ██   ██ ██
@@ -188,6 +201,9 @@ class Proxy:
 
         run = msg.to_run()
         run_state = await self.controller.start_run(run)
+
+        for path in run_state.get_invovlved_paths():
+            self.set_client_controlling_path(protocol, Path.parse(self.reverse_mac_mapping[path.id_]))
         asyncio.create_task(self.monitor_run_state(run_state, protocol))
 
         return StartRunResponse()
@@ -219,12 +235,21 @@ class Proxy:
 
     # Forwarders transparently "copy" messages from the mREDACs towards the client
 
-    async def forward_run_data(self, msg: RunDataMessage, protocol: Protocol, original_handler_info):
-        logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
-        
+    async def forward_run_data(self, msg: RunDataMessage, protocol: Protocol):
+        # protocol is the connection to the source of the data
+        logger.debug("Forwarding %s from %s", type(msg), protocol.transport.name)
+
         msg_ = msg.copy()
         msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]], msg_.entity[1])
 
-        if original_handler_info:
-            await original_handler_info[0](msg, *original_handler_info[1], **original_handler_info[2])
-        await protocol.send_message(msg)
+        # Forward data to client in control of the source
+        try:
+            client = self.get_client_controlling_path(Path.parse(msg_.entity[0]))
+            await client.send_message(msg)
+        except KeyError:
+            logger.warning("No client interested in incoming data from %s", protocol.transport.name)
+        except BrokenPipeError:
+            # Client disconnected
+            pass
+        except Exception as e:
+            logger.exception(e)

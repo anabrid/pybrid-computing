@@ -35,6 +35,9 @@ class DistributedRunState:
         self.run = run
         self.run_future = asyncio.Future()
 
+    def get_invovlved_paths(self) -> typing.Iterable[Path]:
+        return self._states.keys()
+
     def track(self, path: Path, state: RunState):
         self._states[path][state].release()
 
