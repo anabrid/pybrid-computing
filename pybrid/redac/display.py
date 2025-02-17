@@ -24,5 +24,7 @@ class TreeDisplay:
             buffer += "├── " + carrier.tblock.__class__.__name__ + " @ " + str(carrier.tblock.path) + "\n"
             if carrier.st0block:
                 buffer += "├── " + carrier.st0block.__class__.__name__ + " @ " + str(carrier.st0block.path) + "\n"
+            if carrier.st1block:
+                buffer += "├── " + carrier.st1block.__class__.__name__ + " @ " + str(carrier.st1block.path) + "\n"
 
         return buffer
