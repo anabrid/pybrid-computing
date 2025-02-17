@@ -33,6 +33,8 @@ from .messages import (
     ResetCircuitRequest,
     GetStatusRequest,
     SysTemperaturesRequest,
+    SetStandbyRequest,
+    SysRebootRequest,
 )
 from .serializer import build_config
 from ..entities import Path, Entity
@@ -259,10 +261,21 @@ class Protocol(BaseProtocol):
     async def set_daq_request(self, daq: DAQConfig, session: typing.Optional[uuid.UUID] = None):
         await self.send_message_and_wait_response(SetDAQRequest(daq=daq))
 
+    async def set_standby(self, standby: bool, **kwargs):
+        await self.send_message_and_wait_response(SetStandbyRequest(standby=standby, **kwargs))
+
     async def start_run_request(self, id_: uuid.UUID, config: RunConfig, daq_config: DAQConfig = None):
         await self.send_message_and_wait_response(
             StartRunRequest(id=id_, config=config, daq_config=daq_config, session=None)
         )
+
+    async def sys_reboot(self):
+        logger.warning("System reboot is a matter of faith.")
+        try:
+            await self.send_message_and_wait_response(SysRebootRequest())
+        except TimeoutError:
+            # You will not receive a response, because controller restarts before sending it
+            pass
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         await self.send_message_and_wait_response(ResetCircuitRequest(keep_calibration=keep_calibration, sync=sync))

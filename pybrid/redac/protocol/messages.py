@@ -6,10 +6,10 @@ import logging
 import typing
 from datetime import datetime
 from functools import cache
+from typing import Optional, List
 
 import inflection
 from pydantic import UUID4, BaseModel, Field
-from typing import Optional, List
 
 from .types import SuccessInfo
 from ..entities import Path
@@ -200,6 +200,25 @@ class HackRequest(Request):
 class HackResponse(Response):
     response_for = HackRequest
     data: typing.Any
+
+
+class SetStandbyRequest(Request):
+    standby: bool = False
+    hack_pwm_ramp: typing.Optional[bool] = False
+
+
+class SetStandbyResponse(Response):
+    response_for = SetStandbyRequest
+
+
+class SysRebootRequest(Request):
+    pass
+
+
+class SysRebootResponse(Response):
+    # You will never receive this,
+    # as reboot happens immediately after receiving SysRebootRequest
+    response_for = SysRebootRequest
 
 
 # ██ ███    ██ ██ ████████ ██  █████  ██      ██ ███████  █████  ████████ ██  ██████  ███    ██

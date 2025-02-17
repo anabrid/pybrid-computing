@@ -572,6 +572,35 @@ async def hack():
     pass
 
 
+@hack.command()
+@click.pass_obj
+@click.argument("path", type=str, required=False)
+async def power_up(obj: dict, path: typing.Optional[str] = None):
+    """
+    Automate the current hack-power-up sequence,
+    which is believed to be necessary to get the system in a fully functional state.
+    """
+    controller: Controller = obj["controller"]
+
+    if path is not None:
+        path = Path.parse(path)
+
+    for protocol, managed_paths in controller.protocols.items():
+        if path is None or path in managed_paths:
+            logger.info("Power cycling and then rebooting %s... Press CTRL+C to cancel.", managed_paths)
+            await asyncio.sleep(3)
+            logger.info("Putting it into standby...")
+            await protocol.set_standby(True)
+            await asyncio.sleep(2)
+            logger.info("Ramping out of standby...")
+            await protocol.set_standby(False, hack_pwm_ramp=True)
+            await asyncio.sleep(2)
+            logger.info("Rebooting firmware...")
+            await protocol.sys_reboot()
+            await asyncio.sleep(2)
+            logger.info("Power-up sequence for %s done.", managed_paths)
+
+
 @redac.command()
 @click.pass_obj
 @click.option(
