@@ -6,8 +6,7 @@ import asyncio
 import logging
 from asyncio import StreamReader, StreamWriter, Server
 from typing import Optional
-from pydantic import BaseModel
-from weakref import WeakKeyDictionary, WeakValueDictionary
+from weakref import WeakValueDictionary
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import PassthroughTransport
@@ -32,6 +31,7 @@ from pybrid.redac.protocol.messages import (
 
 logger = logging.getLogger(__name__)
 
+
 class Proxy:
     """
     A proxy server accepting network connections from the outside world and forwarding them as needed to the internal devices.
@@ -44,13 +44,13 @@ class Proxy:
     _path_to_client: WeakValueDictionary[Path, Protocol]
 
     def __init__(
-            self,
-            controller: Controller,
-            host: str = "localhost",
-            port: int = 5732,
-            mac_mapping: dict[str, str] = None,
-            partition_config: dict = {},
-            mode: str = "carrier",
+        self,
+        controller: Controller,
+        host: str = "localhost",
+        port: int = 5732,
+        mac_mapping: dict[str, str] = None,
+        partition_config: dict = {},
+        mode: str = "carrier",
     ):
         self.controller = controller
         self.controller.enable_sync()
@@ -211,21 +211,15 @@ class Proxy:
     async def handle_partition_information(self, msg: GetPartitionInformationRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
 
-        return GetPartitionInformationResponse(
-            partition_mode=self.partition_mode,
-            entities=self.partition_config
-        )
+        return GetPartitionInformationResponse(partition_mode=self.partition_mode, entities=self.partition_config)
 
     async def handle_temperature_request(self, msg: SysTemperaturesRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
 
         hw_response = await self.controller.get_system_temperatures()
-        mapped_response = {self.reverse_mac_mapping[k[0]]: v for (k,v) in hw_response.items()}
+        mapped_response = {self.reverse_mac_mapping[k[0]]: v for (k, v) in hw_response.items()}
 
-        return SysTemperaturesResponse(
-            entities=mapped_response
-        )
-
+        return SysTemperaturesResponse(entities=mapped_response)
 
     # ███████  ██████  ██████  ██     ██  █████  ██████  ██████  ███████ ██████  ███████
     # ██      ██    ██ ██   ██ ██     ██ ██   ██ ██   ██ ██   ██ ██      ██   ██ ██

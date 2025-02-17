@@ -598,7 +598,9 @@ async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, host: str, port:
     mac_mapping = json.load(map_)
     part_config = json.load(partitioning_)
 
-    async with Proxy(obj["controller"], host=host, port=port, mac_mapping=mac_mapping, partition_config=part_config, mode=mode) as (proxy_, server):
+    async with Proxy(
+        obj["controller"], host=host, port=port, mac_mapping=mac_mapping, partition_config=part_config, mode=mode
+    ) as (proxy_, server):
         click.echo(f"Starting proxy on {proxy_.host}:{proxy_.port}... Press Ctrl+C to exit.")
         await server.serve_forever()
 
