@@ -10,14 +10,11 @@ from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
 class UserProgram(SimpleRun):
     # Shortcut to configure run
     RUN_CONFIG = RunConfig(op_time=1_000_000)
-    DAQ_CONFIG = DAQConfig(num_channels=4, sample_rate=100_000)
+    DAQ_CONFIG = DAQConfig(sample_rate=50_000)
 
     def set_configuration(self, run: Run, computer: REDAC):
         # For each carrier, we configure one sinusoidal between clusters on the same carrier
         for idx, carrier in enumerate(computer.carriers):
-            # Disconnect T-block as far as possible
-            carrier.tblock.muxes = [0] * 96
-
             # Route sinusoidal between two clusters on the same carrier
             cluster_a, cluster_b = carrier.clusters[0:2]
             # First integrator to second integrator
@@ -44,10 +41,6 @@ class UserProgram(SimpleRun):
         )
         # We use the first cluster on both carriers
         i0_m0_cl0, i1_m0_cl0 = i0_m0.clusters[0], i1_m0.clusters[0]
-
-        # Set st0block to something "useless"
-        i0_m0.st0block.muxes = [0] * 96
-        i1_m0.st0block.muxes = [0] * 96
 
         # First integrator from iREDAC0 to iREDAC1
         # Basically the same code for signal 24 did not work. But maybe just a stupid error

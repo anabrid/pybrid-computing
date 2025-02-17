@@ -15,9 +15,6 @@ class UserProgram(SimpleRun):
     def set_configuration(self, run: Run, computer: REDAC):
         # For each carrier, we configure one sinusoidal between clusters on the same carrier
         for idx, carrier in enumerate(computer.carriers):
-            # Disconnect T-block as far as possible
-            carrier.tblock.muxes = [0] * 96
-
             # Route sinusoidal between two clusters on the same carrier
             cluster_a, cluster_b = carrier.clusters[0:2]
             cluster_a.m0block.elements[0].k = 100
@@ -46,26 +43,6 @@ class UserProgram(SimpleRun):
         )
         # We use the first cluster on both carriers
         i0_m0_cl0, i1_m0_cl0 = i0_m0.clusters[0], i1_m0.clusters[0]
-
-        # i0_m0_cl0.m0block.elements[0].ic = -0.2
-        # i0_m0_cl0.m0block.elements[0].k = 100
-        # i0_m0_cl0.m0block.elements[1].k = 100
-        # i0_m0_cl0.route(0, 0, -1.0, 1)
-        # i0_m0_cl0.route(1, 1, 1.0, 0)
-        # computer.daq.capture(i0_m0_cl0.m0block.elements[0])
-        # computer.daq.capture(i0_m0_cl0.m0block.elements[1])
-        #
-        # i1_m0_cl0.m0block.elements[0].ic = -0.1
-        # i1_m0_cl0.m0block.elements[0].k = 100
-        # i1_m0_cl0.m0block.elements[1].k = 100
-        # i1_m0_cl0.route(0, 0, -1.0, 1)
-        # i1_m0_cl0.route(1, 1, 1.0, 0)
-        # computer.daq.capture(i1_m0_cl0.m0block.elements[0])
-        # computer.daq.capture(i1_m0_cl0.m0block.elements[1])
-
-        # Set st0block to something "useless"
-        i0_m0.st0block.muxes = [0] * 96
-        i1_m0.st0block.muxes = [0] * 96
 
         # First integrator from iREDAC0 to iREDAC1
         # Basically the same code for signal 24 did not work. But maybe just a stupid error
