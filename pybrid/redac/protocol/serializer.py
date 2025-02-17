@@ -2,6 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+import typing
 from dataclasses import asdict
 from functools import singledispatch
 
@@ -25,7 +26,9 @@ def include(*fields):
     return _dict_factory_including
 
 
-def build_config(entity: Entity, config: dict):
+def build_config(entity: Entity, config: typing.Optional[dict] = None):
+    if config is None:
+        config = {}
     entity_config, convert_children = to_dict(entity)
     config.update(entity_config)
     if convert_children:

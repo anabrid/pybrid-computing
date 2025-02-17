@@ -249,6 +249,13 @@ class Protocol(BaseProtocol):
         await self.set_config_request(entity=entity.path, config=config)
         return True
 
+    async def set_configs(self, entities: list[Entity]):
+        for entity in entities:
+            if not entity.path.depth == 1:
+                raise NotImplementedError("Not yet implemented.")
+        config = {entity.path.id_: build_config(entity) for entity in entities}
+        await self.set_config_request(entity=Path(), config=config)
+
     async def set_daq_request(self, daq: DAQConfig, session: typing.Optional[uuid.UUID] = None):
         await self.send_message_and_wait_response(SetDAQRequest(daq=daq))
 

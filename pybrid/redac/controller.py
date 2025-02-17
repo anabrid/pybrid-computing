@@ -226,8 +226,15 @@ class Controller:
         :param computer: The :class:`.REDAC` object containing the configuration to be set.
         :return: None
         """
-        for carrier in computer.carriers:
-            await self.set_config(carrier)
+        # TODO: Add proper comparison/hash functions and use sets
+        carriers_left = list(computer.carriers)
+        for protocol, managed_paths in self.protocols.items():
+            carriers_here = list()
+            for carrier in carriers_left:
+                if carrier.path in managed_paths:
+                    carriers_here.append(carrier)
+                    carriers_left.remove(carrier)
+            await protocol.set_configs(carriers_here)
 
     async def start_run(self, run: typing.Optional[Run] = None) -> DistributedRunState:
         """
