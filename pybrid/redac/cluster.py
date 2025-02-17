@@ -88,6 +88,9 @@ class Cluster(Entity):
         :return: ``None``
         """
         # TODO: Sanity checks and error handling
+        if abs(c_factor) > 1.0:
+            c_factor = c_factor / 10.0
+            self.iblock.upscaling[u_out] = True
         self.ublock.connect(m_out, u_out)
         self.cblock.elements[u_out].factor = c_factor
         self.iblock.connect(u_out, m_in)

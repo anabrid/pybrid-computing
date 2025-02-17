@@ -26,12 +26,16 @@ class ScalarMultiplicationFactor(Validator):
 
     def validate(self, instance, value):
         if not self._min <= value <= self._max:
-            raise ValueError("Value must be between %s and %s, not %s." % (self._min, self._max, value))
+            raise ValueError(
+                "Value must be between %s and %s, not %s. "
+                "Your analog computer may support upscaling to increase this range." % (self._min, self._max, value)
+            )
 
 
 @dataclass(kw_only=True)
 class ScalarMultiplication(BaseComputation):
     """A scalar multiplication computing :math:`α \\cdot x(t)` for input :math:`x(t)` and fixed factor :math:`α`."""
+
     #: Scalar factor.
     factor: float = field(default=ScalarMultiplicationFactor(min=-1.0, max=+1.0, default=1.0))
 
@@ -39,6 +43,7 @@ class ScalarMultiplication(BaseComputation):
 @dataclass(kw_only=True)
 class Integration(BaseComputation):
     """An integration computing :math:`k \\cdot \\int_0^t x(t) \\mathrm{d}t + ic` for input :math:`x(t)`."""
+
     # Inherent initial value is not supported for all integrators (Model-1 only has an IC input)
     pass
 
@@ -46,6 +51,7 @@ class Integration(BaseComputation):
 @dataclass(kw_only=True)
 class Multiplication(BaseComputation):
     """A multiplication computing :math:`x(t) \\cdot y(t)` for inputs :math:`x(t)` and :math:`y(t)`."""
+
     pass
 
 

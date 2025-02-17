@@ -26,7 +26,7 @@ class Integration(BaseIntegration):
 @dataclass(kw_only=True)
 class ScalarMultiplication(BaseScalarMultiplication):
     #: Scalar factor α. Must be in range [-20.0, 20.0].
-    factor: float = field(default=ScalarMultiplicationFactor(min=-20.0, max=+20.0, default=1.0))
+    factor: float = field(default=ScalarMultiplicationFactor(min=-1.0, max=+1.0, default=1.0))
 
     # Inherit __doc__
     __doc__ = BaseScalarMultiplication.__doc__
