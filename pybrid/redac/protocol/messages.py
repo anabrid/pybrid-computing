@@ -13,7 +13,9 @@ from pydantic import UUID4, BaseModel, Field
 
 from .types import SuccessInfo
 from ..entities import Path
+from ..partitioning import PartitionConfig
 from ..run import Run, RunConfig, RunFlags, RunState, DAQConfig
+from ..sync import SyncConfig
 
 logger = logging.getLogger(__name__)
 
@@ -529,11 +531,16 @@ class SetCircuitRequest(Request):
     sh_kludge: bool = False
     #: Whether to calibrate routes after applying the configuration
     calibrate_routes: bool = False
+    #: A :py:class`pybrid.redac.partitioning.PartitionConfig` that should be applied to the run.
+    partition_config: typing.Optional[PartitionConfig] = None
 
     @classmethod
     def make(cls, entity):
         """Factory method to create a config request for some entity."""
         ...
+
+    class Config:
+        fields = {"partition_config": {"exclude": True}}
 
 
 class SetCircuitResponse(Response):
@@ -718,9 +725,10 @@ class StartRunRequest(Request):
     #: A :py:class:`pybrid.redac.daq.DAQConfig` that should be applied to the run.
     #: If None, the previous configuration is used.
     daq_config: typing.Optional[DAQConfig]
-
-    # TODO: Replace by dynamic snyc_config
-    sync_config: dict = {"mode": "slave", "group": 42}
+    #: A :py:class`pybrid.redac.run.SyncConfig` that should be applied to the run.
+    sync_config: SyncConfig = Field(default_factory=SyncConfig)
+    #: A :py:class`pybrid.redac.partitioning.PartitionConfig` that should be applied to the run.
+    partition_config: PartitionConfig = Field(default_factory=PartitionConfig)
 
     @classmethod
     def from_run(cls, run):
@@ -739,7 +747,13 @@ class StartRunRequest(Request):
 
         :return: A :py:class:`pybrid.redac.run.Run` instance
         """
-        return Run(id_=self.id, config=self.config, daq=self.daq_config)
+        return Run(
+            id_=self.id,
+            config=self.config,
+            daq=self.daq_config,
+            sync=self.sync_config,
+            partition=self.partition_config,
+        )
 
 
 class StartRunResponse(Response):

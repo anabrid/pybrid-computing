@@ -18,6 +18,8 @@ from pybrid.base.hybrid import (
 from pybrid.base.utils.descriptors import Validator
 
 from .entities import Path
+from .sync import SyncConfig
+from .partitioning import PartitionConfig
 
 
 class RunError(Exception):
@@ -125,6 +127,10 @@ class Run(BaseRun):
     #: Defines the duration the run should be executed and similar parameters.
     #: Does not contain element configuration.
     config: RunConfig = field(default_factory=RunConfig)
+    #: Define how the computation is synchronized, e.g. to other parts of the computer.
+    sync: SyncConfig = field(default_factory=SyncConfig)
+    # s Define on which partition the run should be executed
+    partition: PartitionConfig = field(default_factory=PartitionConfig)
 
     #: The current state of the run.
     state: RunState = RunState.NEW

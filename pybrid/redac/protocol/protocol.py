@@ -38,7 +38,9 @@ from .messages import (
 )
 from .serializer import build_config
 from ..entities import Path, Entity
+from ..partitioning import PartitionConfig
 from ..run import RunConfig, DAQConfig
+from ..sync import SyncConfig
 
 logger = logging.getLogger(__name__)
 
@@ -264,9 +266,23 @@ class Protocol(BaseProtocol):
     async def set_standby(self, standby: bool, **kwargs):
         await self.send_message_and_wait_response(SetStandbyRequest(standby=standby, **kwargs))
 
-    async def start_run_request(self, id_: uuid.UUID, config: RunConfig, daq_config: DAQConfig = None):
+    async def start_run_request(
+        self,
+        id_: uuid.UUID,
+        config: RunConfig,
+        daq_config: DAQConfig = None,
+        sync_config: SyncConfig = None,
+        partition_config: PartitionConfig = None,
+    ):
         await self.send_message_and_wait_response(
-            StartRunRequest(id=id_, config=config, daq_config=daq_config, session=None)
+            StartRunRequest(
+                id=id_,
+                config=config,
+                daq_config=daq_config,
+                sync_config=sync_config,
+                partition_config=partition_config,
+                session=None,
+            )
         )
 
     async def sys_reboot(self):

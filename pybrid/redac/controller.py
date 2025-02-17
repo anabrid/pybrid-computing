@@ -237,7 +237,9 @@ class Controller:
                 carriers_left.remove(carrier)
             await protocol.set_configs(carriers_here)
 
-    async def start_run(self, run: typing.Optional[Run] = None) -> DistributedRunState:
+    async def start_run(
+        self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None
+    ) -> DistributedRunState:
         """
         Start a run (computation) on the REDAC.
 
@@ -247,16 +249,29 @@ class Controller:
         if run is None:
             run_class = self.get_run_implementation()
             run = run_class()
+
+        logger.info("Starting run %s with %s.", repr(run), run.partition)
+
+        # Do preparations for runs that will actually be started
         self.runs[run.id_] = run
+        run.sync.group = run.partition.id
+
         # Forward request to involved devices and track their individual state
-        involved_devices = set(self.devices.keys())
-        self._ongoing_runs[run.id_] = run_state = DistributedRunState(run, involved_devices)
+        if not entities:
+            entities = set(self.devices.keys())
+        self._ongoing_runs[run.id_] = run_state = DistributedRunState(run, entities)
         involved_protocols = set()
         for protocol, managed_devices in self.protocols.items():
-            if managed_devices.intersection(involved_devices):
+            if managed_devices.intersection(entities):
                 involved_protocols.add(protocol)
         await self._forward_to(
-            involved_protocols, Protocol.start_run_request, id_=run.id_, config=run.config, daq_config=run.daq
+            involved_protocols,
+            Protocol.start_run_request,
+            id_=run.id_,
+            config=run.config,
+            daq_config=run.daq,
+            sync_config=run.sync,
+            partition_config=run.partition,
         )
         return run_state
 

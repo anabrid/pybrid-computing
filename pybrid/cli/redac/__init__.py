@@ -25,6 +25,7 @@ from pybrid.redac.display import TreeDisplay
 from pybrid.redac.dummy import DummyController
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.monitor import Monitor
+from pybrid.redac.partitioning import PartitionMode
 from pybrid.redac.protocol.messages import SetCircuitRequest
 from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
@@ -619,16 +620,21 @@ async def power_up(obj: dict, path: typing.Optional[str] = None):
     required=True,
     help="JSON file containing the definition of the machine partitioning.",
 )
+@click.option("--partitioning-mode", type=str, default="device")
 @click.argument("host", type=str, default="localhost")
 @click.argument("port", type=int, default=5732)
-@click.argument("mode", type=str, default="carrier")
-async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, host: str, port: int, mode: str):
+async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, partitioning_mode: str, host: str, port: int):
 
     mac_mapping = json.load(map_)
     part_config = json.load(partitioning_)
 
     async with Proxy(
-        obj["controller"], host=host, port=port, mac_mapping=mac_mapping, partition_config=part_config, mode=mode
+        obj["controller"],
+        host=host,
+        port=port,
+        mac_mapping=mac_mapping,
+        partition_config=part_config,
+        mode=partitioning_mode,
     ) as (proxy_, server):
         click.echo(f"Starting proxy on {proxy_.host}:{proxy_.port}... Press Ctrl+C to exit.")
         await server.serve_forever()

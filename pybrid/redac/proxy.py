@@ -6,12 +6,13 @@ import asyncio
 import logging
 from asyncio import StreamReader, StreamWriter, Server
 from typing import Optional
-from weakref import WeakValueDictionary
+from weakref import WeakValueDictionary, WeakKeyDictionary
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import PassthroughTransport
 from pybrid.redac import Controller, Path, Protocol, RunState
 from pybrid.redac.controller import DistributedRunState
+from pybrid.redac.partitioning import PartitionConfig
 from pybrid.redac.protocol.messages import (
     SetCircuitRequest,
     StartRunRequest,
@@ -42,6 +43,9 @@ class Proxy:
     _server: Optional[Server]
 
     _path_to_client: WeakValueDictionary[Path, Protocol]
+    _client_to_partition: WeakKeyDictionary[Protocol, PartitionConfig]
+
+    _partitioning: dict[str, list[list]]
 
     def __init__(
         self,
@@ -50,7 +54,7 @@ class Proxy:
         port: int = 5732,
         mac_mapping: dict[str, str] = None,
         partition_config: dict = {},
-        mode: str = "carrier",
+        mode: str = "device",
     ):
         self.controller = controller
         self.controller.enable_sync()
@@ -77,8 +81,10 @@ class Proxy:
             except EntityDoesNotExist:
                 logger.warning("Target for MAC mapping from %s to %s does not exist.", original, target)
 
+        self.partitioning = partition_config
         self.partition_mode = mode
-        self.partition_config = partition_config[mode]
+        self.partitions = partition_config[mode]
+        self._client_to_partition = WeakKeyDictionary()
 
         # We need to forward certain messages from the mREDACs to clients
         self._path_to_client = WeakValueDictionary()
@@ -138,6 +144,12 @@ class Proxy:
     def set_client_controlling_path(self, protocol: Protocol, path: Path):
         self._path_to_client[path] = protocol
 
+    def get_client_partition(self, protocol: Protocol) -> PartitionConfig:
+        return self._client_to_partition[protocol]
+
+    def set_client_partition(self, protocol: Protocol, partition: PartitionConfig):
+        self._client_to_partition[protocol] = partition
+
     # ██   ██  █████  ███    ██ ██████  ██      ███████ ██████  ███████
     # ██   ██ ██   ██ ████   ██ ██   ██ ██      ██      ██   ██ ██
     # ███████ ███████ ██ ██  ██ ██   ██ ██      █████   ██████  ███████
@@ -168,7 +180,11 @@ class Proxy:
         else:
             config = msg.config
 
-        # Re-map carrier
+        if msg.partition_config:
+            # Re-map from partition-local to global virtual ids
+            config = {msg.partition_config.remap_virtual_entity_id(key_): value_ for key_, value_ in config.items()}
+
+        # Re-map from virtual to real entity ids
         mapped_config = dict()
         for original_carrier_id, carrier_config in config.items():
             mapped_config[self.mac_mapping[original_carrier_id]] = carrier_config
@@ -183,15 +199,22 @@ class Proxy:
             await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=3)
         except Exception as e:
             logger.exception(e)
+            await protocol.send_message(
+                RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.ERROR)
+            )
             return
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.TAKE_OFF)
         )
-        self.controller.sync.trigger(42)
+        self.controller.sync.trigger(run_state.run.sync.group)
         try:
-            await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=3)
+            await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=10)
         except Exception as e:
             logger.exception(e)
+            await protocol.send_message(
+                RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.TAKE_OFF, new=RunState.ERROR)
+            )
+            return
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.TAKE_OFF, new=RunState.DONE)
         )
@@ -199,11 +222,20 @@ class Proxy:
     async def handle_start_run(self, msg: StartRunRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
 
-        run = msg.to_run()
-        run_state = await self.controller.start_run(run)
+        devices = self.partitions[msg.partition_config.id]
+        mapped_devices = [self.mac_mapping[device] for device in devices]
+        mapped_paths = [Path.parse(device) for device in mapped_devices]
+        logger.debug("Incoming StartRunRequest is relevant for %s", mapped_paths)
 
+        run = msg.to_run()
+        run_state = await self.controller.start_run(run, mapped_paths)
+
+        # Remember stuff about the client
+        self.set_client_partition(protocol, msg.partition_config)
         for path in run_state.get_invovlved_paths():
-            self.set_client_controlling_path(protocol, Path.parse(self.reverse_mac_mapping[path.id_]))
+            self.set_client_controlling_path(protocol, path)
+        # Monitor run state
+        # TODO: This is really cumbersome to have as a task...
         asyncio.create_task(self.monitor_run_state(run_state, protocol))
 
         return StartRunResponse()
@@ -211,7 +243,7 @@ class Proxy:
     async def handle_partition_information(self, msg: GetPartitionInformationRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
 
-        return GetPartitionInformationResponse(partition_mode=self.partition_mode, entities=self.partition_config)
+        return GetPartitionInformationResponse(partition_mode=self.partition_mode, entities=self.partitions)
 
     async def handle_temperature_request(self, msg: SysTemperaturesRequest, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.transport.name)
@@ -232,18 +264,33 @@ class Proxy:
     async def forward_run_data(self, msg: RunDataMessage, protocol: Protocol):
         # protocol is the connection to the source of the data
         logger.debug("Forwarding %s from %s", type(msg), protocol.transport.name)
-
         msg_ = msg.copy()
-        msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]], msg_.entity[1])
 
         # Forward data to client in control of the source
         try:
             client = self.get_client_controlling_path(Path.parse(msg_.entity[0]))
-            await client.send_message(msg_)
         except KeyError:
             logger.warning("No client interested in incoming data from %s", protocol.transport.name)
+            return
         except BrokenPipeError:
             # Client disconnected
+            return
+        except Exception as e:
+            logger.exception(e)
+            return
+
+        # Map from real to global virtual entity ids
+        msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]], msg_.entity[1])
+
+        try:
+            # Map from global virtual entity ids to partition-local ones
+            partition_config = self.get_client_partition(client)
+        except KeyError:
+            # Client doesn't care about partitions
             pass
         except Exception as e:
             logger.exception(e)
+        else:
+            msg_.entity = (partition_config.inv_remap_virtual_entity_id(msg_.entity[0]), msg_.entity[1])
+
+        await client.send_message(msg_)
