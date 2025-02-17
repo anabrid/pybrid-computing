@@ -36,7 +36,7 @@ class RunConfig(BaseRunConfig):
     op_time: int = 2_000_000
 
     #: Whether to calibrate routes before the computation.
-    calibrate: bool = False
+    calibrate: bool = True
 
     #: Whether to halt the computation when the external halt signal is triggered.
     halt_on_external_trigger: bool = False
