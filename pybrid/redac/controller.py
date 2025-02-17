@@ -9,7 +9,6 @@ from collections import defaultdict
 from copy import deepcopy
 from uuid import UUID
 
-from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.base.transport import TCPTransport
 from .carrier import Carrier
 from .computer import REDAC
@@ -108,6 +107,8 @@ class Controller:
             logger.exception(e)
 
     async def add_device(self, host, port, name=None):
+        # TODO: This function does too much :)
+
         # Create a connection to the device
         async with asyncio.timeout(3):
             transport_ = await TCPTransport.create(host, port, name=name)
@@ -124,8 +125,7 @@ class Controller:
             carrier = Carrier.create_from_entity_type_tree(path, sub_entities)
             protocol.register_callback(RunStateChangeMessage, self.handle_run_state_change, extra_args=[protocol])
             protocol.register_callback(RunDataMessage, self.handle_run_data, extra_args=[path])
-            self.computer.carriers.append(carrier)
-            self.computer._entities_by_path.update(build_entity_path_dict([carrier]))
+            self.computer.add_carrier(carrier)
             self.devices[path] = protocol
             self.protocols[protocol].add(path)
 

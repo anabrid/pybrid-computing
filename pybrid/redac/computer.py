@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 from pybrid.base.hybrid import AnalogComputer
+from pybrid.base.hybrid.utils import build_entity_path_dict
 
 from .blocks import FunctionBlock
 from .carrier import Carrier
 from .cluster import Cluster
 from .elements import ComputationElement
 from .entities import Path
+from .router import Router
 
 
 class DAQ:
@@ -37,10 +39,12 @@ class REDAC(AnalogComputer):
     entities: list[Carrier]
 
     daq: DAQ
+    router: Router
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.daq = DAQ(self)
+        self.router = Router()
 
     @property
     def name(self) -> str:
@@ -61,3 +65,8 @@ class REDAC(AnalogComputer):
 
     def __repr__(self):
         return repr(self.entities)
+
+    def add_carrier(self, carrier: Carrier):
+        self.carriers.append(carrier)
+        self._entities_by_path.update(build_entity_path_dict([carrier]))
+        self.router.add_carrier(carrier)

@@ -19,6 +19,8 @@ As described in :class:`Path`, the hierarchy represented is as follows.
 import typing
 from dataclasses import dataclass, fields, replace
 from enum import Enum
+from typing import Iterable
+
 from packaging.version import Version
 
 from pybrid.base.hybrid import Entity as BaseEntity
@@ -140,6 +142,91 @@ class EntityType:
                 except ValueError:
                     raise UnknownEntityTypeError("Neither entity type %s nor any fallbacks are registered." % type_)
 
+@dataclass
+class Loc:
+    """
+    Locator class for localization of one cluster
+    """
+    path : [int]
+
+    def __init__(self, args: [int]):
+        self.path = args
+
+    @staticmethod
+    def new_stack(id: int):
+        return Loc([id])
+
+    def stack_id(self) -> int:
+        return self.path[0]
+
+    def is_stack(self) -> bool:
+        return len(self.path) == 1
+
+    def stack(self) -> 'Loc':
+        assert len(self.path) >= 1
+        return Loc(self.path[:1])
+
+    @staticmethod
+    def new_wing(stack: int, id: int):
+        return Loc([stack, id])
+
+    def wing_id(self) -> int:
+        return self.path[1]
+
+    def is_wing(self) -> bool:
+        return len(self.path) == 2
+
+    def wing(self) -> 'Loc':
+        assert len(self.path) >= 2
+        return Loc(self.path[:2])
+
+    @staticmethod
+    def new_carrier(stack: int, wing: int, id: int):
+        return Loc([stack, wing, id])
+
+    def carrier_id(self) -> int:
+        return self.path[2]
+
+    def is_carrier(self) -> bool:
+        return len(self.path) == 3
+
+    def carrier(self) -> 'Loc':
+        assert len(self.path) >= 3
+        return Loc(self.path[:3])
+
+    @staticmethod
+    def new_cluster(stack: int, wing: int, carrier: int, id: int):
+        return Loc([stack, wing, carrier, id])
+
+    def cluster_id(self) -> int:
+        return self.path[3]
+
+    def is_cluster(self) -> bool:
+        return len(self.path) == 4
+
+    def cluster(self) -> 'Loc':
+        assert len(self.path) >= 4
+        return Loc(self.path[:4])
+
+    @staticmethod
+    def new_lane(stack: int, wing: int, carrier: int, cluster: int, id: int):
+        return Loc([stack, wing, carrier, cluster, id])
+
+    def lane_id(self) -> int:
+        return self.path[4]
+
+    def is_lane(self) -> bool:
+        return len(self.path) == 5
+
+    def lane(self) -> 'Loc':
+        assert len(self.path) >= 5
+        return Loc(self.path[:5])
+
+    def __hash__(self):
+        return hash(tuple(self.path))
+
+    def __truediv__(self, other: int):
+        return Loc(self.path + [other])
 
 class Path(BasePath):
     """
