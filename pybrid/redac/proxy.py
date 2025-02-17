@@ -239,7 +239,7 @@ class Proxy:
         # Forward data to client in control of the source
         try:
             client = self.get_client_controlling_path(Path.parse(msg_.entity[0]))
-            await client.send_message(msg)
+            await client.send_message(msg_)
         except KeyError:
             logger.warning("No client interested in incoming data from %s", protocol.transport.name)
         except BrokenPipeError:
