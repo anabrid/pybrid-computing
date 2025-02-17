@@ -205,11 +205,11 @@ class Controller:
 
     async def get_system_temperatures(self):
         # TODO: Don't access self.devices.values() and self.devices.keys() separately
-        temperatures = {}
-        responses = await self._forward_to(self.protocols, Protocol.get_system_temperatures)
-        for response in responses:
-            temperatures.update(response)
-        return temperatures
+        result = {}
+        responses = await self._forward_to(self.devices.values(), Protocol.get_system_temperatures)
+        for path, response in zip(self.devices.keys(), responses):
+            result[path] = response
+        return result
 
     async def get_computer(self) -> REDAC:
         """
