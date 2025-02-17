@@ -37,8 +37,10 @@ logger = logging.getLogger(__name__)
 @click.option(
     "--host",
     "-h",
+    "hosts",
     type=str,
     required=False,
+    multiple=True,
     help="Network name or address of the REDAC. Or address range to use for auto-detection.",
 )
 @click.option(
@@ -63,7 +65,7 @@ logger = logging.getLogger(__name__)
     show_default=True,
     help="Whether to fake any communication, allowing you to run without any computer present.",
 )
-async def redac(ctx: click.Context, host: str, port: int, reset: bool, fake: bool):
+async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool):
     """
     Entrypoint for all REDAC commands.
 
@@ -78,14 +80,15 @@ async def redac(ctx: click.Context, host: str, port: int, reset: bool, fake: boo
 
     if not fake:
         devices = []
-        # Either one host was passed explicitly or we auto-detect via zeroconf
-        if host is not None and "/" not in host:
-            devices.append((host, port, str(host)))
-        else:
-            network = ip_network(host or "0.0.0.0/0")
-            logger.info("Searching for available network devices in %s...", network)
-            devices = await detect_in_network(network)
-            logger.info("Found network devices at %s.", devices)
+        for host in hosts:
+            # Either one host was passed explicitly or we auto-detect via zeroconf
+            if host is not None and "/" not in host:
+                devices.append((host, port, str(host)))
+            else:
+                network = ip_network(host or "0.0.0.0/0")
+                logger.info("Searching for available network devices in %s...", network)
+                devices = await detect_in_network(network)
+                logger.info("Found network devices at %s.", devices)
 
         # Generate a controller and add devices
         controller = Controller()
