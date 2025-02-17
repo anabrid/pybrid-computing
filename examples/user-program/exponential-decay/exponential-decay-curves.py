@@ -5,15 +5,15 @@ from itertools import cycle
 import matplotlib.pyplot as plt
 
 from pybrid.base.hybrid.programs import SimpleRun
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
 
 decay_rate = iter(cycle(map(lambda x: x / 100.0, reversed(range(0, 100, 5)))))
 
 
 class UserProgram(SimpleRun):
     # Shortcut to configure run
-    RUN_CONFIG = RunConfig(op_time=2_560_000)
-    DAQ_CONFIG = DAQConfig(num_channels=8, sample_rate=50_000)
+    RUN_CONFIG = RunConfig(op_time=4_560_000)
+    DAQ_CONFIG = DAQConfig(sample_rate=20_000)
 
     def set_configuration(self, run: Run, computer: REDAC):
         for carrier in computer.carriers:
