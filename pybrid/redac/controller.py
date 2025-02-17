@@ -233,7 +233,8 @@ class Controller:
             for carrier in carriers_left:
                 if carrier.path in managed_paths:
                     carriers_here.append(carrier)
-                    carriers_left.remove(carrier)
+            for carrier in carriers_here:
+                carriers_left.remove(carrier)
             await protocol.set_configs(carriers_here)
 
     async def start_run(self, run: typing.Optional[Run] = None) -> DistributedRunState:
