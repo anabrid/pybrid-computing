@@ -2,6 +2,8 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+import logging
+
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
 
@@ -11,6 +13,8 @@ from .cluster import Cluster
 from .elements import ComputationElement
 from .entities import Path
 from .router import Router
+
+logger = logging.getLogger(__name__)
 
 
 class DAQ:
@@ -69,4 +73,7 @@ class REDAC(AnalogComputer):
     def add_carrier(self, carrier: Carrier):
         self.carriers.append(carrier)
         self._entities_by_path.update(build_entity_path_dict([carrier]))
-        self.router.add_carrier(carrier)
+        try:
+            self.router.add_carrier(carrier)
+        except Exception as exc:
+            logger.warning("Could not add carrier to router: %s", exc)
