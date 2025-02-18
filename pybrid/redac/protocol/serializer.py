@@ -6,7 +6,7 @@ import typing
 from dataclasses import asdict
 from functools import singledispatch
 
-from ..blocks import ElementBlock, SwitchingBlock, CBlock, MMulBlock, TBlock
+from ..blocks import ElementBlock, SwitchingBlock, CBlock, MMulBlock, TBlock, MIntBlock
 from ..carrier import Carrier
 from ..elements import ComputationElement
 from ..entities import Entity
@@ -66,6 +66,11 @@ def _(entity: CBlock):
 @to_dict.register
 def _(entity: MMulBlock):
     return {}, False
+
+
+@to_dict.register
+def _(entity: MIntBlock):
+    return {"elements": [to_dict(element)[0] for element in entity.elements], "limiters": entity.limiters}, False
 
 
 @to_dict.register

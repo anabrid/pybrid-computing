@@ -2,6 +2,8 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+from dataclasses import field, dataclass
+
 from .block import ElementBlock
 from ..computations import Integration, Multiplication
 from ..elements import ComputationElement
@@ -16,6 +18,7 @@ class MBlock(ElementBlock):
 
 
 @EntityType.register(EntityClass.MBLOCK, 1)
+@dataclass(kw_only=True)
 class MIntBlock(MBlock):
     """
     A math block consisting of eight integrators.
@@ -23,6 +26,7 @@ class MIntBlock(MBlock):
 
     ELEMENTS = (ComputationElement[Integration],) * 8
     elements: list[ComputationElement[Integration]]
+    limiters: list[bool] = field(default_factory=lambda: [False] * 8)
     """
     List of elements on the block.
     In case of the MIntBlock, these are eight integration computation elements.
