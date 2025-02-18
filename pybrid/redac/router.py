@@ -104,7 +104,7 @@ class Router:
             return
 
         if 16 <= output.lane_id() < 32:
-            if output != input:
+            if output.lane_id() != input.lane_id():
                 raise RoutingException("Carrier connections only allowed between common lanes")
 
             sector_lane = input.lane_id() - 8
