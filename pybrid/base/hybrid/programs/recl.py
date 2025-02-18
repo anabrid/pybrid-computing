@@ -41,7 +41,6 @@ import typing
 
 from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.hybrid.run import BaseRun
-
 from .base import BaseProgram
 
 logger = logging.getLogger(__name__)
@@ -67,6 +66,9 @@ class RunEvaluateReconfigureLoop(BaseProgram):
     """
 
     runs: typing.List[BaseRun]
+
+    #: Whether to ignore errors during a run by default
+    ignore_run_errors: typing.ClassVar[bool] = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -97,10 +99,14 @@ class RunEvaluateReconfigureLoop(BaseProgram):
             await self.controller.set_computer(self.computer)
 
             # Run
-            finished_run = await self.controller.start_and_await_run(new_run)
-            self.runs.append(finished_run)
-            if not self.run_done(finished_run):
-                break
+            try:
+                finished_run = await self.controller.start_and_await_run(new_run)
+            except Exception as exc:
+                self.run_error(new_run, exc)
+            else:
+                self.runs.append(finished_run)
+                if not self.run_done(finished_run):
+                    break
         self.loop_done(self.runs)
 
     # Convenience functions
@@ -140,9 +146,7 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         :param computer: A representation of the specific analog computer
         :return: None
         """
-        raise NotImplementedError(
-            "You need to implement the 'initial_configuration' function."
-        )
+        raise NotImplementedError("You need to implement the 'initial_configuration' function.")
 
     def next_configuration(
         self,
@@ -161,9 +165,7 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         :param previous_runs: List of previous runs
         :return: None
         """
-        raise NotImplementedError(
-            "You need to implement the 'next_configuration' function."
-        )
+        raise NotImplementedError("You need to implement the 'next_configuration' function.")
 
     def run_done(self, run: BaseRun) -> bool:
         """
@@ -176,6 +178,15 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         :return: False if loop should be stopped, True to continue
         """
         return False
+
+    def run_error(self, run: BaseRun, error: Exception):
+        """
+        Error handling function.
+
+        Is called on any exception raised during a computation.
+        """
+        if not self.ignore_run_errors:
+            raise
 
     def loop_done(self, runs: typing.List[BaseRun]):
         """

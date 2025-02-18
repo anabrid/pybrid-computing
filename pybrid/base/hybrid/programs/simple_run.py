@@ -24,6 +24,9 @@ class SimpleRun(BaseProgram):
 
     run: typing.Optional[BaseRun]
 
+    #: Whether to ignore errors during a run by default
+    ignore_run_errors: typing.ClassVar[bool] = False
+
     async def start(self):
         """
         Pre-implemented specialization of :func:`BaseProgram.start`.
@@ -35,7 +38,10 @@ class SimpleRun(BaseProgram):
         """
         self.set_configuration(self.run, self.computer)
         await self.controller.set_computer(self.computer)
-        self.run = await self.controller.start_and_await_run(self.run)
+        try:
+            self.run = await self.controller.start_and_await_run(self.run)
+        except Exception as exc:
+            self.run_error(self.run, exc)
         self.run_done(self.run)
 
     # Methods to overwrite
@@ -64,3 +70,11 @@ class SimpleRun(BaseProgram):
         """
         self.print("Successfully completed %s." % run)
 
+    def run_error(self, run: BaseRun, error: Exception):
+        """
+        Error handling function.
+
+        Is called on any exception raised during a computation.
+        """
+        if not self.ignore_run_errors:
+            raise
