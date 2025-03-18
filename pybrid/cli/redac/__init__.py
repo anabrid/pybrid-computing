@@ -25,7 +25,6 @@ from pybrid.redac.display import TreeDisplay
 from pybrid.redac.dummy import DummyController
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.monitor import Monitor
-from pybrid.redac.partitioning import PartitionMode
 from pybrid.redac.protocol.messages import SetCircuitRequest
 from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
@@ -66,7 +65,17 @@ logger = logging.getLogger(__name__)
     show_default=True,
     help="Whether to fake any communication, allowing you to run without any computer present.",
 )
-async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool):
+@click.option(
+    "--sync-controller",
+    type=str,
+    default=None,
+    required=False,
+    show_default=True,
+    help="Have this mREDAC generate the SYNC signal, necessary when running without super controller.",
+)
+async def redac(
+    ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool, sync_controller: typing.Optional[str]
+):
     """
     Entrypoint for all REDAC commands.
 
@@ -95,6 +104,8 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
         controller = Controller()
         for host, port, name in devices:
             await controller.add_device(host, port, name=name)
+        if sync_controller:
+            controller.set_sync_controller(Path.parse(sync_controller))
     else:
         controller = DummyController()
 

@@ -7,6 +7,7 @@ import logging
 import typing
 from collections import defaultdict
 from copy import deepcopy
+from dataclasses import replace
 from uuid import UUID
 
 from pybrid.base.transport import TCPTransport
@@ -16,7 +17,7 @@ from .entities import Entity, Path, UnknownEntityTypeError
 from .protocol.messages import RunStateChangeMessage, RunDataMessage, SetCircuitRequest
 from .protocol.protocol import Protocol
 from .run import Run, RunState
-from .sync import Sync
+from .sync import Sync, SyncMode
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,10 @@ class Controller:
     _raw_entity_dict: dict
     _ongoing_runs: dict[UUID, DistributedRunState]
 
+    sync: typing.Optional[Sync]
+    _sync_controller_path: typing.Optional[Path]
+    _sync_controller_protocol: typing.Optional[Protocol]
+
     def __init__(self):
         self.computer = REDAC(entities=[])
         self.devices = dict()
@@ -83,7 +88,10 @@ class Controller:
         self.runs = dict()
         self._raw_entity_dict = dict()
         self._ongoing_runs = dict()
+
         self.sync = None
+        self._sync_controller_path = None
+        self._sync_controller_protocol = None
 
     async def __aenter__(self):
         # Devices are already started in add_device
@@ -105,6 +113,17 @@ class Controller:
             self.sync = Sync()
         except Exception as e:
             logger.exception(e)
+
+    def set_sync_controller(self, path: Path):
+        for protocol, managed_paths in self.protocols.items():
+            if path in managed_paths:
+                if len(managed_paths) > 1:
+                    raise NotImplementedError("Having a non-directly managed sync controller is not yet implemented.")
+                self._sync_controller_path = path
+                self._sync_controller_protocol = protocol
+                break
+        else:
+            raise ValueError(f"No protocol is managing the sync controller at {path}")
 
     async def add_device(self, host, port, name=None):
         # TODO: This function does too much :)
@@ -256,7 +275,7 @@ class Controller:
         self.runs[run.id_] = run
         run.sync.group = run.partition.id
 
-        # Forward request to involved devices and track their individual state
+        # Find involved protocols and track their individual state
         if not entities:
             entities = set(self.devices.keys())
         self._ongoing_runs[run.id_] = run_state = DistributedRunState(run, entities)
@@ -264,15 +283,22 @@ class Controller:
         for protocol, managed_devices in self.protocols.items():
             if managed_devices.intersection(entities):
                 involved_protocols.add(protocol)
-        await self._forward_to(
-            involved_protocols,
-            Protocol.start_run_request,
-            id_=run.id_,
-            config=run.config,
-            daq_config=run.daq,
-            sync_config=run.sync,
-            partition_config=run.partition,
+        # Send out messages, handle sync specially for _sync_controller_protocol
+        forwards = (
+            Protocol.start_run_request.__get__(target, target.__class__)(
+                id_=run.id_,
+                config=run.config,
+                daq_config=run.daq,
+                sync_config=(
+                    run.sync
+                    if target is not self._sync_controller_protocol
+                    else replace(run.sync, mode=SyncMode.MASTER)
+                ),
+                partition_config=run.partition,
+            )
+            for target in involved_protocols
         )
+        await asyncio.gather(*forwards)
         return run_state
 
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:
