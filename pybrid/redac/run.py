@@ -144,4 +144,4 @@ class Run(BaseRun):
 
     @classmethod
     def get_persistent_attributes(cls) -> set[str]:
-        return super().get_persistent_attributes().union({"daq"})
+        return super().get_persistent_attributes().union({"daq", "sync", "partition"})
