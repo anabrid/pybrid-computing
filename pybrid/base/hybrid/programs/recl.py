@@ -90,7 +90,7 @@ class RunEvaluateReconfigureLoop(BaseProgram):
 
         # Then loop until user decides to stop
         while True:
-            new_run = self.create_run()
+            new_run = self.create_run(self.run)
             # Set configuration
             if not self.runs:
                 self.initial_configuration(new_run, self.computer)
@@ -112,10 +112,9 @@ class RunEvaluateReconfigureLoop(BaseProgram):
     # Convenience functions
     # These may be overwritten by the user, but less likely
 
-    def create_run(self):
+    def create_run(self, previous_run=None):
         run_class = self.controller.get_run_implementation()
         # Possibly persist some configuration from previous runs or class attributes
-        previous_run = self.runs[-1] if self.runs else None
         overwrites = self.get_run_kwargs()
         run = run_class.make_from_other_run(previous_run, **overwrites)
         return run
