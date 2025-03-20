@@ -30,10 +30,13 @@ class DistributedRunState:
     #: The run once it's done
     run_future: asyncio.Future
 
-    def __init__(self, run, paths: typing.Iterable[Path]):
-        self._states = {path: {state: asyncio.Semaphore(0) for state in RunState} for path in paths}
+    def __init__(self, run, paths: typing.Optional[typing.Iterable[Path]] = None):
         self.run = run
         self.run_future = asyncio.Future()
+        # Adding initial paths using the add_paths method
+        self._states = {}
+        if paths:
+            self.add_paths(*paths)
 
     def get_invovlved_paths(self) -> typing.Iterable[Path]:
         return self._states.keys()
@@ -53,6 +56,16 @@ class DistributedRunState:
 
     async def wait_all(self, state: RunState):
         await asyncio.gather(*[entity[state].acquire() for entity in self._states.values()])
+
+    def add_paths(self, *paths: Path):
+        """
+        Adds multiple Paths to the _states dictionary with initialized states.
+        Accepts a variable number of Path arguments.
+        """
+        for path in paths:
+            if path in self._states:
+                raise ValueError(f"Path {path} is already being tracked.")
+            self._states[path] = {state: asyncio.Semaphore(0) for state in RunState}
 
 
 class Controller:
@@ -78,10 +91,9 @@ class Controller:
     _ongoing_runs: dict[UUID, DistributedRunState]
 
     sync: typing.Optional[Sync]
-    _sync_controller_path: typing.Optional[Path]
-    _sync_controller_protocol: typing.Optional[Protocol]
+    standalone: bool
 
-    def __init__(self):
+    def __init__(self, standalone: bool = False):
         self.computer = REDAC(entities=[])
         self.devices = dict()
         self.protocols = defaultdict(set)
@@ -90,8 +102,7 @@ class Controller:
         self._ongoing_runs = dict()
 
         self.sync = None
-        self._sync_controller_path = None
-        self._sync_controller_protocol = None
+        self.standalone = standalone
 
     async def __aenter__(self):
         # Devices are already started in add_device
@@ -113,17 +124,6 @@ class Controller:
             self.sync = Sync()
         except Exception as e:
             logger.exception(e)
-
-    def set_sync_controller(self, path: Path):
-        for protocol, managed_paths in self.protocols.items():
-            if path in managed_paths:
-                if len(managed_paths) > 1:
-                    raise NotImplementedError("Having a non-directly managed sync controller is not yet implemented.")
-                self._sync_controller_path = path
-                self._sync_controller_protocol = protocol
-                break
-        else:
-            raise ValueError(f"No protocol is managing the sync controller at {path}")
 
     async def add_device(self, host, port, name=None):
         # TODO: This function does too much :)
@@ -257,48 +257,76 @@ class Controller:
             await protocol.set_configs(carriers_here)
 
     async def start_run(
-        self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None
+        self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None, timeout=3
     ) -> DistributedRunState:
         """
         Start a run (computation) on the REDAC.
-
         :param run: The :class:`.Run` to be started, including its configuration. If None, a new run is created.
-        :return: An :class:`asyncio.Future` which can be awaited and will return the run object once it is done.
+        :param entities: Optional list of entities to include in the run.
+        :param timeout: Optional timeout.
+        :return: A :class:`DistributedRunState` that tracks the run's state.
         """
         if run is None:
             run_class = self.get_run_implementation()
             run = run_class()
-
-        logger.info("Starting run %s with %s.", repr(run), run.partition)
-
-        # Do preparations for runs that will actually be started
         self.runs[run.id_] = run
+        self._ongoing_runs[run.id_] = run_state = DistributedRunState(run)
+        logger.info("Starting run %s.", repr(run))
+
+        # Set SYNC id
         run.sync.group = run.partition.id
 
-        # Find involved protocols and track their individual state
+        # Determine involved protocols based on the selected entities
         if not entities:
             entities = set(self.devices.keys())
-        self._ongoing_runs[run.id_] = run_state = DistributedRunState(run, entities)
-        involved_protocols = set()
-        for protocol, managed_devices in self.protocols.items():
-            if managed_devices.intersection(entities):
-                involved_protocols.add(protocol)
-        # Send out messages, handle sync specially for _sync_controller_protocol
-        forwards = (
-            Protocol.start_run_request.__get__(target, target.__class__)(
+        involved_protocols = {
+            protocol for protocol, managed_devices in self.protocols.items() if managed_devices.intersection(entities)
+        }
+        if not involved_protocols:
+            raise ValueError("No protocols are involved in the selected entities for the run.")
+
+        # In standalone mode, we tell the first mREDAC to generate the SYNC signal
+        if self.standalone:
+            protocol_with_sync_sender, *protocols_with_sync_listening = involved_protocols
+            if len(self.protocols[protocol_with_sync_sender]) > 1:
+                raise NotImplementedError("Standalone mode does not yet support non-direct connections to mREDACs.")
+        else:
+            protocol_with_sync_sender = None
+            protocols_with_sync_listening = involved_protocols
+
+        # First, we need to start all mREDACs that are listening to a SYNC signal
+        forwards_with_sync_listeninng = []
+        for protocol in protocols_with_sync_listening:
+            run_state.add_paths(*self.protocols[protocol])
+            forwards_with_sync_listeninng.append(
+                Protocol.start_run_request.__get__(protocol, protocol.__class__)(
+                    id_=run.id_,
+                    config=run.config,
+                    daq_config=run.daq,
+                    sync_config=run.sync,  # Use original sync config
+                    partition_config=run.partition,
+                )
+            )
+        await asyncio.gather(*forwards_with_sync_listeninng)
+
+        # And wait for all listening devices to actually be ready,
+        # less they might miss the SYNC signal from the one sending it out
+        try:
+            await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=timeout)
+        except asyncio.TimeoutError as exc:
+            raise asyncio.TimeoutError("Timeout while waiting for all carriers to reach RunState.TAKE_OFF.") from exc
+
+        # Finally, we tell the mREDAC sending out the SYNC signal to do so
+        if protocol_with_sync_sender:
+            run_state.add_paths(*self.protocols[protocol_with_sync_sender])
+            await protocol_with_sync_sender.start_run_request(
                 id_=run.id_,
                 config=run.config,
                 daq_config=run.daq,
-                sync_config=(
-                    run.sync
-                    if target is not self._sync_controller_protocol
-                    else replace(run.sync, mode=SyncMode.MASTER)
-                ),
+                sync_config=replace(run.sync, mode=SyncMode.MASTER),
                 partition_config=run.partition,
             )
-            for target in involved_protocols
-        )
-        await asyncio.gather(*forwards)
+
         return run_state
 
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:

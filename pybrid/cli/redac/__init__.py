@@ -66,16 +66,14 @@ logger = logging.getLogger(__name__)
     help="Whether to fake any communication, allowing you to run without any computer present.",
 )
 @click.option(
-    "--sync-controller",
-    type=str,
-    default=None,
+    "--standalone/--no-standalone",
+    is_flag=True,
+    default=False,
     required=False,
     show_default=True,
-    help="Have this mREDAC generate the SYNC signal, necessary when running without super controller.",
+    help="Run in standalone mode, which does not require an external super-controller or SYNC generator.",
 )
-async def redac(
-    ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool, sync_controller: typing.Optional[str]
-):
+async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool, standalone: bool):
     """
     Entrypoint for all REDAC commands.
 
@@ -101,13 +99,11 @@ async def redac(
                 logger.info("Found network devices at %s.", devices)
 
         # Generate a controller and add devices
-        controller = Controller()
+        controller = Controller(standalone=standalone)
         for host, port, name in devices:
             await controller.add_device(host, port, name=name)
-        if sync_controller:
-            controller.set_sync_controller(Path.parse(sync_controller))
     else:
-        controller = DummyController()
+        controller = DummyController(standalone=standalone)
 
     # Put controller in context and make sure that we clean up after ourselves
     ctx.obj["controller"] = controller
