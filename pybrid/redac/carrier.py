@@ -37,7 +37,8 @@ class Carrier(Entity):
     def children(self):
         """Generator iterating through child entities of type :class:`.cluster.Cluster`."""
         yield from self.clusters
-        yield self.tblock
+        if self.tblock:
+            yield self.tblock
         if self.st0block:
             yield self.st0block
         if self.st1block:
