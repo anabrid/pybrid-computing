@@ -166,12 +166,16 @@ async def set_alias(obj, path, alias):
 
 @redac.command()
 @click.pass_obj
-async def display(obj):
+@click.option("--export", "-e", type=click.File("w"), default=None, help="File to export list of entities to.")
+async def display(obj, export: typing.Optional[typing.TextIO]):
     """
     Display the hardware structure of the REDAC.
     """
     controller: Controller = obj["controller"]
     click.echo(TreeDisplay().render(controller.computer))
+
+    if export:
+        export.write(json.dumps(controller._raw_entity_dict))
 
 
 @redac.command()

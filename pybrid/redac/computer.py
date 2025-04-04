@@ -2,11 +2,16 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+import json
 import logging
+import typing
+from contextlib import nullcontext
+from pathlib import Path as FilePath
+
+from pydantic.json import pydantic_encoder
 
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
-
 from .blocks import FunctionBlock
 from .carrier import Carrier
 from .cluster import Cluster
@@ -59,14 +64,6 @@ class REDAC(AnalogComputer):
         """The list of :class:`.Carrier` boards in this REDAC."""
         return self.entities
 
-    @classmethod
-    def create_from_entity_type_tree(cls, type_tree):
-        carriers = []
-        for sub_path, sub_tree in type_tree.items():
-            carrier = Carrier.create_from_entity_type_tree(Path.parse(sub_path), sub_tree)
-            carriers.append(carrier)
-        return cls(entities=carriers)
-
     def __repr__(self):
         return repr(self.entities)
 
@@ -77,3 +74,63 @@ class REDAC(AnalogComputer):
             self.router.add_carrier(carrier)
         except Exception as exc:
             logger.warning("Could not add carrier to router: %s", exc)
+
+    # ██████  ███████        ██ ███████ ███████ ██████  ██  █████  ██      ██ ███████  █████  ████████ ██  ██████  ███    ██
+    # ██   ██ ██            ██  ██      ██      ██   ██ ██ ██   ██ ██      ██    ███  ██   ██    ██    ██ ██    ██ ████   ██
+    # ██   ██ █████ █████  ██   ███████ █████   ██████  ██ ███████ ██      ██   ███   ███████    ██    ██ ██    ██ ██ ██  ██
+    # ██   ██ ██          ██         ██ ██      ██   ██ ██ ██   ██ ██      ██  ███    ██   ██    ██    ██ ██    ██ ██  ██ ██
+    # ██████  ███████    ██     ███████ ███████ ██   ██ ██ ██   ██ ███████ ██ ███████ ██   ██    ██    ██  ██████  ██   ████
+
+    @classmethod
+    def create_from_entity_type_tree(cls, type_tree):
+        carriers = []
+        for sub_path, sub_tree in type_tree.items():
+            carrier = Carrier.create_from_entity_type_tree(Path.parse(sub_path), sub_tree)
+            carriers.append(carrier)
+        return cls(entities=carriers)
+
+    @classmethod
+    def create_from(cls, data):
+        """
+        Create a computer instance from a given hardware structure.
+
+        The function accepts the following data sources
+         - dict representing an entity type tree
+         - path to a file containing a json encoded entity type tree
+         - file descriptor to such a file
+        """
+        if isinstance(data, dict):
+            entity_tree = data
+        elif isinstance(data, typing.TextIO):
+            entity_tree = json.load(data)
+        elif isinstance(data, str | FilePath):
+            with open(data) as fs:
+                entity_tree = json.load(fs)
+        return REDAC.create_from_entity_type_tree(entity_tree)
+
+    def _get_dump_config(self, kwargs):
+        from .protocol.serializer import build_config
+
+        config = {entity.path.id_: build_config(entity) for entity in self.entities}
+        kwargs.setdefault("default", pydantic_encoder)
+        return config, kwargs
+
+    def dumps(self, **kwargs):
+        """
+        Dump computer configuration into a JSON string like json.dumps(...).
+        """
+        config, kwargs = self._get_dump_config(kwargs)
+        return json.dumps(config, **kwargs)
+
+    def dump(self, target, **kwargs):
+        """
+        Dump computer configuration into a JSON file like json.dump(...).
+        """
+        config, kwargs = self._get_dump_config(kwargs)
+        # If a file path is passed, open file
+        if isinstance(target, str | FilePath):
+            open_file = open(target, "w")
+        else:
+            open_file = nullcontext(target)
+        with open_file as fs:
+            return json.dump(config, fs, **kwargs)
