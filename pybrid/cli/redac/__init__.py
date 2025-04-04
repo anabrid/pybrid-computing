@@ -89,17 +89,17 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
     if not fake:
         networks = []
         devices = []
+        if not hosts:
+            logger.warning(
+                "Falling back to 0.0.0.0/0 zeroconf. Pass an explicit host or network with -h to silence this warning."
+            )
+            networks.append(ip_network("0.0.0.0/0"))
         for host in hosts:
             # Either one host was passed explicitly or we auto-detect via zeroconf
             if "/" not in host:
                 devices.append((host, port, str(host)))
             else:
                 networks.append(ip_network(host))
-        else:
-            logger.warning(
-                "Falling back to 0.0.0.0/0 zeroconf. Pass an explicit host or network with -h to silence this warning."
-            )
-            networks.append(ip_network("0.0.0.0/0"))
         for network in networks:
             logger.info("Searching for available network devices in %s...", network)
             devices = await detect_in_network(network)
