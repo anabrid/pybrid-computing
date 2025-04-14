@@ -1,3 +1,2 @@
-from .base import BaseProgram
-from .simple_run import SimpleRun
+from .base import BaseProgram, SingleRun, MultipleRuns
 from .recl import RunEvaluateReconfigureLoop

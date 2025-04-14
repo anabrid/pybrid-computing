@@ -3,11 +3,11 @@
 
 import matplotlib.pyplot as plt
 
-from pybrid.base.hybrid.programs import SimpleRun
+from pybrid.base.hybrid.programs import SingleRun
 from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
 
 
-class UserProgram(SimpleRun):
+class UserProgram(SingleRun):
     # Shortcut to configure run
     RUN_CONFIG = RunConfig(op_time=2_560_000)
     DAQ_CONFIG = DAQConfig(num_channels=2, sample_rate=100_000)
