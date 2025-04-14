@@ -858,12 +858,12 @@ class RunDataMessage(Notification):
     id: UUID4
     #: Entity (cluster) that produced the data
     entity: Path
-    #: Current state of the run
-    # state: RunState
     #: Time of the first datapoint in `data` in microseconds
     # t_0: int
     #: Acquired data by entity path, normalized to [-1,+1]
     data: list[list[float]]
+    #: Current state of the run
+    state: RunState = RunState.OP
 
 
 class GetOverloadRequest(Request):

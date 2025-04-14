@@ -166,11 +166,23 @@ class Controller:
     async def handle_run_data(self, msg: RunDataMessage, path: Path):
         """A handler for incoming :class:`.RunDataMessage` messages."""
         if run := self.runs.get(msg.id, None):
-            for data_pkg in msg.data:
-                for idx, data_point in enumerate(data_pkg):
-                    # TODO: This is pretty inefficient
-                    channel = Path(msg.entity).join(f"ADC{idx}")
-                    run.data[channel].append(data_point)
+            if msg.state == RunState.OP:
+                # For RunState.OP, data is sent only for channels explicitly requested
+                for data_pkg in msg.data:
+                    for block_idx, data_point in enumerate(data_pkg):
+                        # TODO: This is pretty inefficient
+                        channel = Path(msg.entity).join(f"ADC{block_idx}")
+                        run.data[channel].append(data_point)
+            elif msg.state == RunState.OP_END:
+                # For RunState.OP_END, all math block output signals are sampled and sent
+                for block_idx, data in enumerate(msg.data):
+                    block_path = Path(msg.entity).join(f"{block_idx//2}").join(f"M{block_idx%2}")
+                    for output_idx, value in enumerate(data):
+                        run.final_values[block_path.join(str(output_idx))] = value
+            else:
+                logger.warning("Received run data with unexpected state %s.", msg.state)
+        else:
+            logger.warning("Received run data with unknown id %s.", msg.id)
 
     #  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
     # ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██

@@ -41,6 +41,7 @@ class BaseRun:
 
     daq: BaseDAQConfig = field(default_factory=BaseDAQConfig)
     data: typing.Optional[typing.Any] = None
+    final_values: typing.Optional[typing.Any] = None
 
     def __str__(self):
         return f"Run {self.id_} @{self.state}"

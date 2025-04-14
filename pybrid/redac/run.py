@@ -141,6 +141,8 @@ class Run(BaseRun):
     daq: DAQConfig = field(default_factory=DAQConfig)
     #: Data captured for this run.
     data: dict[Path | str, list[float]] = field(default_factory=lambda: defaultdict(list))
+    #: Value of signals at end of computation, only available if daq.sample_op_end is set
+    final_values: dict[Path | str, float] = field(default_factory=dict)
 
     @classmethod
     def get_persistent_attributes(cls) -> set[str]:
