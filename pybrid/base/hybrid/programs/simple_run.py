@@ -22,11 +22,6 @@ class SimpleRun(BaseProgram):
       for evaluating a completed run
     """
 
-    run: typing.Optional[BaseRun]
-
-    #: Whether to ignore errors during a run by default
-    ignore_run_errors: typing.ClassVar[bool] = False
-
     async def start(self):
         """
         Pre-implemented specialization of :func:`BaseProgram.start`.
@@ -69,12 +64,3 @@ class SimpleRun(BaseProgram):
         Use ``run.data`` to access the data captured during computation.
         """
         self.print("Successfully completed %s." % run)
-
-    def run_error(self, run: BaseRun, error: Exception):
-        """
-        Error handling function.
-
-        Is called on any exception raised during a computation.
-        """
-        if not self.ignore_run_errors:
-            raise

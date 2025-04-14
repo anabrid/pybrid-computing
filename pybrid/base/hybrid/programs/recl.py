@@ -67,9 +67,6 @@ class RunEvaluateReconfigureLoop(BaseProgram):
 
     runs: typing.List[BaseRun]
 
-    #: Whether to ignore errors during a run by default
-    ignore_run_errors: typing.ClassVar[bool] = False
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.runs = list()
@@ -96,13 +93,16 @@ class RunEvaluateReconfigureLoop(BaseProgram):
                 self.initial_configuration(new_run, self.computer)
             else:
                 self.next_configuration(new_run, self.computer, self.runs)
-            await self.controller.set_computer(self.computer)
+            try:
+                await self.controller.set_computer(self.computer)
+            except Exception as exc:
+                self.on_config_error(new_run, exc)
 
             # Run
             try:
                 finished_run = await self.controller.start_and_await_run(new_run)
             except Exception as exc:
-                self.run_error(new_run, exc)
+                self.on_run_error(new_run, exc)
             else:
                 self.runs.append(finished_run)
                 if not self.run_done(finished_run):
@@ -177,15 +177,6 @@ class RunEvaluateReconfigureLoop(BaseProgram):
         :return: False if loop should be stopped, True to continue
         """
         return False
-
-    def run_error(self, run: BaseRun, error: Exception):
-        """
-        Error handling function.
-
-        Is called on any exception raised during a computation.
-        """
-        if not self.ignore_run_errors:
-            raise
 
     def loop_done(self, runs: typing.List[BaseRun]):
         """
