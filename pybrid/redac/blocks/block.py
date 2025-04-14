@@ -48,7 +48,7 @@ class ElementBlock(FunctionBlock):
     def initialize_elements(cls, base_path) -> list[ComputationElement]:
         if not cls.ELEMENTS:
             return []
-        elements: list[ComputationElement] = list(E(path=base_path / idx) for idx, E in enumerate(cls.ELEMENTS))
+        elements: list[ComputationElement] = list(E(path=base_path / str(idx)) for idx, E in enumerate(cls.ELEMENTS))
         return elements
 
 
