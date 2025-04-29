@@ -392,6 +392,42 @@ async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
 @redac.command()
 @click.pass_obj
 @click.option(
+    "--sync/--no-sync",
+    default=True,
+    help="Whether to immediately send configuration to hybrid controller.",
+)
+@click.argument("path", type=str)
+@click.argument("u_out", type=int)
+@click.argument("c_factor", type=float)
+@click.argument("m_in", type=int)
+@click.argument("constant_value", type=float, default=1.0)
+async def add_constant(obj, sync, path, u_out, c_factor, m_in, constant_value):
+    """
+    Inject a constant and add it to the math block input `m_in`.
+    This replaces the b-group inputs in the U-block with constants, which limits some future connections.
+
+    PATH is the unique path of the entity.
+    U_OUT is the U-Block signal output index (equals coefficient index).
+    C_FACTOR is the factor of the coefficient.
+    M_IN is the M-Block signal input index (equals I-Block signal output index).
+    """
+    controller: Controller = obj["controller"]
+
+    # Try to get the entity by its path
+    path_ = Path.parse(path, aliases=obj.get("aliases", None))
+    cluster = controller.computer.get_entity(path_)
+    # It must be a cluster
+    if not isinstance(cluster, Cluster):
+        raise ValueError("Expected a path to a Cluster.")
+
+    cluster.add_constant(u_out, c_factor, m_in, constant_value=constant_value)
+    if sync:
+        await controller.set_config(cluster)
+
+
+@redac.command()
+@click.pass_obj
+@click.option(
     "--sample-rate",
     "-r",
     type=Choice(

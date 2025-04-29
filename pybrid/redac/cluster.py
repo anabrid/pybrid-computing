@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import typing
+import warnings
 from dataclasses import dataclass
 
 from .blocks import FunctionBlock, MBlock, UBlock, CBlock, IBlock
@@ -94,3 +95,17 @@ class Cluster(Entity):
         self.ublock.connect(m_out, u_out)
         self.cblock.elements[u_out].factor = c_factor
         self.iblock.connect(u_out, m_in)
+
+    def add_constant(self, u_out: int, c_factor: float, m_in: int, constant_value: float | bool = 1.0):
+        """
+        Inject a constant and add it to the math block input `m_in`.
+
+        This replaces the b-group inputs in the U-block with constants, which limits some future connections.
+        """
+        warnings.warn(
+            "Injecting constants prevents some other connections from working as normal. "
+            "This is currently not checked, so you need to do it manually."
+        )
+        self.ublock.set_constant(constant_value)
+        u_in = 14 if u_out > 15 else 15
+        self.route(u_in, u_out, c_factor, m_in)

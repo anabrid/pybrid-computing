@@ -28,7 +28,17 @@ class UBlock(SwitchingBlock):
     def apply_partial_configuration(self, attribute, value):
         raise AttributeError("Can not apply configuration to attribute %s like this." % attribute)
 
-    def set_constant(self, value : bool | float):
+    def set_constant(self, value: bool | float):
+        """
+        Enable or disable the constant value on B-group inputs (i.e. IN15 on first chip, IN14 on second chip),
+        allowing you to inject a constant by connecting input 14 to outputs 16-31 or input 15 to outputs 0-15.
+
+        Consider using Cluster.add_constant instead.
+
+        `value` must be -1.0, -0.1, 0, +0.1 or +1.0 and corresponds to the magnitude and sign of the constant.
+        `false` or zero disables the constant input such that the original analog inputs are available.
+        `true` is equivalent to +1.0.
+        """
         self.constant = value
 
     def connect(self, input, output, *outputs, force=False):
