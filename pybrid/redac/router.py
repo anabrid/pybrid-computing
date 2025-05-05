@@ -112,7 +112,7 @@ class Router:
             output_carrier_block.connect(output.cluster_id() + 1, 0, sector_lane)
             input_carrier_block.connect(0, input.cluster_id() + 1, sector_lane)
             stack_block = self.find_wing_t_block(output)
-            stack_block.connect(output.cluster_id() + 1, input.cluster_id() + 1, sector_lane)
+            stack_block.connect(output.carrier_id() + 1, input.carrier_id() + 1, sector_lane)
             return
 
         raise RoutingException("Lane outside [0, 31]")
@@ -151,8 +151,8 @@ class Router:
 
         output_stack_block = self.find_wing_t_block(output)
         input_stack_block = self.find_wing_t_block(input)
-        output_stack_block.connect(output.cluster_id() + 1, 0, sector_lane)
-        input_stack_block.connect(0, input.cluster_id() + 1, sector_lane)
+        output_stack_block.connect(output.carrier_id() + 1, 0, sector_lane)
+        input_stack_block.connect(0, input.carrier_id() + 1, sector_lane)
         return
 
     def route(self, output: Loc, input: Loc):
