@@ -292,6 +292,7 @@ class Proxy:
         except Exception as e:
             logger.exception(e)
         else:
-            msg_.entity = (partition_config.inv_remap_virtual_entity_id(msg_.entity[0]), msg_.entity[1])
+            # NOTE: len(msg.entity) == 1 if ms.state == OP_END, otherwise its length is two
+            msg_.entity = (partition_config.inv_remap_virtual_entity_id(msg_.entity[0]),) + msg_.entity[1:]
 
         await client.send_message(msg_)
