@@ -280,7 +280,8 @@ class Proxy:
             return
 
         # Map from real to global virtual entity ids
-        msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]], msg_.entity[1])
+        # NOTE: len(msg.entity) == 1 if ms.state == OP_END, otherwise its length is two
+        msg_.entity = (self.reverse_mac_mapping[msg_.entity[0]],) + msg_.entity[1:]
 
         try:
             # Map from global virtual entity ids to partition-local ones
