@@ -42,7 +42,7 @@ class DistributedRunState:
         return self._states.keys()
 
     def track(self, path: Path, state: RunState, reason: str | None = None):
-        self._states[path][state].release()
+        self._states[path][state].set()
         if state == RunState.ERROR and not self._any_error_future.done():
             self._any_error_future.set_exception(RunError(f"Error on entity {path}: {reason or "Unknown Error"}"))
 
@@ -62,7 +62,7 @@ class DistributedRunState:
 
         Raises `RunError` if any entity enters `RunState.ERROR` while waiting.
         """
-        waiting_for = {asyncio.create_task(states[state].acquire()): entity for entity, states in self._states.items()}
+        waiting_for = {asyncio.create_task(states[state].wait()): entity for entity, states in self._states.items()}
         try:
             while waiting_for:
                 # Wait for the next entity to reach the target state.
@@ -95,7 +95,7 @@ class DistributedRunState:
         for path in paths:
             if path in self._states:
                 raise ValueError(f"Path {path} is already being tracked.")
-            self._states[path] = {state: asyncio.Semaphore(0) for state in RunState}
+            self._states[path] = {state: asyncio.Event() for state in RunState}
 
 
 class Controller:
