@@ -90,7 +90,9 @@ class Cluster(Entity):
         """
         # TODO: Sanity checks and error handling
         if abs(c_factor) > 1.0:
-            c_factor = c_factor / 10.0
+            c_factor = c_factor / 8.0
+            if abs(c_factor) > 1.0:
+                raise ValueError("Factor is still greater than 1, even after enabling up-scaling.")
             self.iblock.upscaling[u_out] = True
         self.ublock.connect(m_out, u_out)
         self.cblock.elements[u_out].factor = c_factor
