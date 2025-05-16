@@ -16,7 +16,7 @@ from .computer import REDAC
 from .entities import Entity, Path, UnknownEntityTypeError
 from .protocol.messages import RunStateChangeMessage, RunDataMessage, SetCircuitRequest
 from .protocol.protocol import Protocol
-from .run import Run, RunState
+from .run import Run, RunState, RunError
 from .sync import Sync, SyncMode
 
 logger = logging.getLogger(__name__)
@@ -28,11 +28,11 @@ class DistributedRunState:
     #: The run which state we are tracking
     run: Run
     #: The run once it's done
-    run_future: asyncio.Future
+    _any_error_future: asyncio.Future
 
     def __init__(self, run, paths: typing.Optional[typing.Iterable[Path]] = None):
         self.run = run
-        self.run_future = asyncio.Future()
+        self._any_error_future = asyncio.Future()
         # Adding initial paths using the add_paths method
         self._states = {}
         if paths:
@@ -41,8 +41,10 @@ class DistributedRunState:
     def get_invovlved_paths(self) -> typing.Iterable[Path]:
         return self._states.keys()
 
-    def track(self, path: Path, state: RunState):
+    def track(self, path: Path, state: RunState, reason: str | None = None):
         self._states[path][state].release()
+        if state == RunState.ERROR:
+            self._any_error_future.set_exception(RunError(f"Error on entity {path}: {reason or "Unknown Error"}"))
 
     def status(self, state: RunState):
         reached = []
@@ -55,7 +57,18 @@ class DistributedRunState:
         return reached, notreached
 
     async def wait_all(self, state: RunState):
-        await asyncio.gather(*[entity[state].acquire() for entity in self._states.values()])
+        # Wait until state is reached by all involved entities.
+        # Raises a RunError if any entity enters RunState.ERROR
+        expected_state_reached = asyncio.gather(
+            *[entity[state].acquire() for entity in self._states.values()], return_exceptions=True
+        )
+        await asyncio.wait(
+            (self._any_error_future, expected_state_reached),
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+        if self._any_error_future.done():
+            if exc := self._any_error_future.exception():
+                raise exc
 
     def add_paths(self, *paths: Path):
         """
@@ -159,7 +172,7 @@ class Controller:
         logger.debug("Received run state change: %s.", msg)
         if distributed_run_state := self._ongoing_runs.get(msg.id, None):
             for path in self.protocols[protocol]:
-                distributed_run_state.track(path, msg.new)
+                distributed_run_state.track(path, msg.new, msg.reason)
         else:
             logger.warning("Received run state change with unknown id %s.", msg.id)
 

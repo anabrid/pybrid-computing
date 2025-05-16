@@ -201,7 +201,7 @@ class Proxy:
         except Exception as e:
             logger.exception(e)
             await protocol.send_message(
-                RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.ERROR)
+                RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.ERROR, reason=str(e))
             )
             return
         await protocol.send_message(
@@ -214,7 +214,9 @@ class Proxy:
         except Exception as e:
             logger.exception(e)
             await protocol.send_message(
-                RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.TAKE_OFF, new=RunState.ERROR)
+                RunStateChangeMessage(
+                    id=run_state.run.id_, t=0, old=RunState.TAKE_OFF, new=RunState.ERROR, reason=str(e)
+                )
             )
             return
         await protocol.send_message(

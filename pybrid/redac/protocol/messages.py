@@ -829,8 +829,10 @@ class RunStateChangeMessage(Notification):
     old: RunState
     #: New state
     new: RunState
+    #: Reason of change (mostly used for error reporting)
+    reason: str | None = None
     #: Any :class:`RunFlags` that the run has triggered (persistent across state changes).
-    run_flags: typing.Optional[RunFlags]
+    run_flags: RunFlags | None = None
 
 
 class RunDataMessage(Notification):
