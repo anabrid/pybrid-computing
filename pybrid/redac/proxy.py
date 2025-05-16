@@ -57,7 +57,8 @@ class Proxy:
         mode: str = "device",
     ):
         self.controller = controller
-        self.controller.enable_sync()
+        if not self.controller.standalone:
+            self.controller.enable_sync()
 
         self.host = host
         self.port = port
@@ -206,7 +207,8 @@ class Proxy:
         await protocol.send_message(
             RunStateChangeMessage(id=run_state.run.id_, t=0, old=RunState.NEW, new=RunState.TAKE_OFF)
         )
-        self.controller.sync.trigger(run_state.run.sync.group)
+        if not self.controller.standalone:
+            self.controller.sync.trigger(run_state.run.sync.group)
         try:
             await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=10)
         except Exception as e:
