@@ -57,18 +57,35 @@ class DistributedRunState:
         return reached, notreached
 
     async def wait_all(self, state: RunState):
-        # Wait until state is reached by all involved entities.
-        # Raises a RunError if any entity enters RunState.ERROR
-        expected_state_reached = asyncio.gather(
-            *[entity[state].acquire() for entity in self._states.values()], return_exceptions=True
-        )
-        await asyncio.wait(
-            (self._any_error_future, expected_state_reached),
-            return_when=asyncio.FIRST_COMPLETED,
-        )
-        if self._any_error_future.done():
-            if exc := self._any_error_future.exception():
-                raise exc
+        """
+        Wait for all entities to reach the target state.
+
+        Raises `RunError` if any entity enters `RunState.ERROR` while waiting.
+        """
+        waiting_for = {asyncio.create_task(states[state].acquire()): entity for entity, states in self._states.items()}
+        try:
+            while waiting_for:
+                # Wait for the next entity to reach the target state.
+                # This is short-circuited by self._any_error_future in case any entity enters RunState.ERROR
+                waiting_or_error = [self._any_error_future, *waiting_for]
+                done, _ = await asyncio.wait(waiting_or_error, return_when=asyncio.FIRST_COMPLETED)
+                for task in done:
+                    if exc := task.exception():
+                        # Any entity entered RunState.ERROR or there was another error while waiting
+                        raise exc
+                    else:
+                        # Entity reached target state without issue.
+                        waiting_for.pop(task)
+        except asyncio.CancelledError:
+            # We have been cancelled, most like due to an externally enforced timeout.
+            # Report which entities did not reach the target state.
+            # Convert to a TimeoutError, otherwise asyncio.timeout() and asyncio.wait_for() drop the error description.
+            raise asyncio.TimeoutError(f"Entities {list(map(str, waiting_for.values()))} did not reach {state}.")
+        finally:
+            # Clean-up tasks which may not have finished.
+            for task in waiting_for:
+                task.cancel()
+            await asyncio.gather(*waiting_for, return_exceptions=True)
 
     def add_paths(self, *paths: Path):
         """
@@ -336,10 +353,8 @@ class Controller:
 
         # And wait for all listening devices to actually be ready,
         # less they might miss the SYNC signal from the one sending it out
-        try:
-            await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=timeout)
-        except asyncio.TimeoutError as exc:
-            raise asyncio.TimeoutError("Timeout while waiting for all carriers to reach RunState.TAKE_OFF.") from exc
+        async with asyncio.timeout(timeout):
+            await run_state.wait_all(RunState.TAKE_OFF)
 
         # Finally, we tell the mREDAC sending out the SYNC signal to do so
         if protocol_with_sync_sender:
@@ -354,7 +369,7 @@ class Controller:
 
         return run_state
 
-    async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=5) -> Run:
+    async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=6) -> Run:
         """
         A convenience function which starts a run, blocks until it is completed and returns it.
 
@@ -366,11 +381,12 @@ class Controller:
         try:
             run_state = await asyncio.wait_for(self.start_run(run), timeout=timeout)
         except asyncio.TimeoutError as exc:
-            raise asyncio.TimeoutError("Timeout while queueing run.") from exc
-        try:
-            await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=timeout)
-        except asyncio.TimeoutError as exc:
-            raise asyncio.TimeoutError("Timeout while waiting for all carriers to reach RunState.DONE.") from exc
+            if exc.args:
+                raise
+            else:
+                raise asyncio.TimeoutError("Timeout while queueing run.") from exc
+        async with asyncio.timeout(timeout):
+            await run_state.wait_all(RunState.DONE)
         del self._ongoing_runs[run.id_]
         # Return run
         return run

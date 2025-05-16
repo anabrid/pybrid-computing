@@ -197,7 +197,8 @@ class Proxy:
 
     async def monitor_run_state(self, run_state: DistributedRunState, protocol: Protocol):
         try:
-            await asyncio.wait_for(run_state.wait_all(RunState.TAKE_OFF), timeout=3)
+            async with asyncio.timeout(3):
+                await run_state.wait_all(RunState.TAKE_OFF)
         except Exception as e:
             logger.exception(e)
             await protocol.send_message(
@@ -210,7 +211,8 @@ class Proxy:
         if not self.controller.standalone:
             self.controller.sync.trigger(run_state.run.sync.group)
         try:
-            await asyncio.wait_for(run_state.wait_all(RunState.DONE), timeout=10)
+            async with asyncio.timeout(10):
+                await run_state.wait_all(RunState.DONE)
         except Exception as e:
             logger.exception(e)
             await protocol.send_message(
