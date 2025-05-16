@@ -43,7 +43,7 @@ class DistributedRunState:
 
     def track(self, path: Path, state: RunState, reason: str | None = None):
         self._states[path][state].release()
-        if state == RunState.ERROR:
+        if state == RunState.ERROR and not self._any_error_future.done():
             self._any_error_future.set_exception(RunError(f"Error on entity {path}: {reason or "Unknown Error"}"))
 
     def status(self, state: RunState):
