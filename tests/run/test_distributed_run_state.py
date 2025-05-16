@@ -16,6 +16,13 @@ async def test_distributed_run_state_error():
     path_two = Path.parse("00-00-00-00-00-01")
     run_state.add_paths(path_one, path_two)
 
+    run_state.track(path_one, RunState.QUEUED)
+    run_state.track(path_two, RunState.QUEUED)
+    async with asyncio.timeout(0.1):
+        await run_state.wait_all(RunState.QUEUED)
+    async with asyncio.timeout(0.1):
+        await run_state.wait_all(RunState.QUEUED)
+
     run_state.track(path_one, RunState.TAKE_OFF)
     with pytest.raises(asyncio.TimeoutError):
         async with asyncio.timeout(0.1):
