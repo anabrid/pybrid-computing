@@ -86,10 +86,9 @@ class Protocol(BaseProtocol):
         data = envelope.json().encode("ascii")
         await self.transport.send_line(data)
 
-    async def send_message_and_wait_response(self, message, timeout=3):
+    async def send_message_and_wait_response(self, message):
         response_fut = await self.send_message(message)
-        await asyncio.wait_for(response_fut, timeout=timeout)
-        return response_fut.result()
+        return await response_fut
 
     async def send_message(self, message, envelope_id: typing.Optional[uuid.UUID] = None):
         # Generate an envelope
