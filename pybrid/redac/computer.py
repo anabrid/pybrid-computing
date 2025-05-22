@@ -5,6 +5,7 @@
 import json
 import logging
 import typing
+import warnings
 from contextlib import nullcontext
 from pathlib import Path as FilePath
 
@@ -34,8 +35,11 @@ class DAQ:
             # TODO: entities should have a pybrid.redac.entities.path object with to_carrier() function
             carrier: Carrier = self.computer.get_entity(entity.path.to_root())
             adc_channel = carrier.resolve_signal(entity)
-            carrier.adc_channels.append(adc_channel)
-            changed_carriers.append(carrier)
+            if adc_channel not in carrier.adc_channels:
+                carrier.adc_channels.append(adc_channel)
+                changed_carriers.append(carrier)
+            else:
+                warnings.warn("Signal is already being captured, ignoring duplicate capture request.")
         return changed_carriers
 
 
