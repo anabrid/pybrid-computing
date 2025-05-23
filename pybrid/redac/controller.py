@@ -299,7 +299,7 @@ class Controller:
             await protocol.set_configs(carriers_here)
 
     async def start_run(
-        self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None, timeout=3
+        self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None
     ) -> DistributedRunState:
         """
         Start a run (computation) on the REDAC.
@@ -353,8 +353,7 @@ class Controller:
 
         # And wait for all listening devices to actually be ready,
         # less they might miss the SYNC signal from the one sending it out
-        async with asyncio.timeout(timeout):
-            await run_state.wait_all(RunState.TAKE_OFF)
+        await run_state.wait_all(RunState.TAKE_OFF)
 
         # Finally, we tell the mREDAC sending out the SYNC signal to do so
         if protocol_with_sync_sender:
