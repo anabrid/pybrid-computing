@@ -7,6 +7,7 @@ import json
 import logging
 import typing
 import uuid
+import os
 from typing import Callable
 
 from packaging.version import Version
@@ -82,8 +83,14 @@ class Protocol(BaseProtocol):
     #      ██ ██      ██  ██ ██ ██   ██ ██ ██  ██ ██ ██    ██
     # ███████ ███████ ██   ████ ██████  ██ ██   ████  ██████
 
-    async def send_envelope(self, envelope):
-        data = envelope.json().encode("ascii")
+    async def send_envelope(self, envelope, meta: typing.Optional[dict] = None):
+        envelope_mod = envelope
+
+        # TODO: same as below, find a nicer way for the hack
+        if meta:
+            envelope_mod.msg['meta'] = meta
+
+        data = envelope_mod.json().encode("ascii")
         await self.transport.send_line(data)
 
     async def send_message_and_wait_response(self, message):
@@ -94,6 +101,7 @@ class Protocol(BaseProtocol):
         # Generate an envelope
         envelope = Envelope.from_message(message, id_=envelope_id)
         # The response to this envelope is a future
+        
         response_future = asyncio.get_event_loop().create_future()
         # A response is only expected for requests
         if isinstance(message, Request):
@@ -105,7 +113,15 @@ class Protocol(BaseProtocol):
             # But if the message is not a request, no response will ever come, just set result to None here
             response_future.set_result(None)
 
-        await self.send_envelope(envelope)
+        # TODO: removew this hack and find a better way to add authentication
+        meta = None
+        bearer = os.getenv("PYBRID_META_AUTHENTICATION", None)
+        if bearer:
+            meta = {
+                "Authorization": f"Bearer {bearer}"
+            }
+
+        await self.send_envelope(envelope, meta)
 
         # Return future to response
         return response_future
