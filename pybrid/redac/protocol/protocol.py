@@ -101,7 +101,7 @@ class Protocol(BaseProtocol):
         # Generate an envelope
         envelope = Envelope.from_message(message, id_=envelope_id)
         # The response to this envelope is a future
-        
+
         response_future = asyncio.get_event_loop().create_future()
         # A response is only expected for requests
         if isinstance(message, Request):
@@ -113,7 +113,7 @@ class Protocol(BaseProtocol):
             # But if the message is not a request, no response will ever come, just set result to None here
             response_future.set_result(None)
 
-        # TODO: removew this hack and find a better way to add authentication
+        # TODO: remove this hack and find a better way to add authentication
         meta = None
         bearer = os.getenv("PYBRID_META_AUTHENTICATION", None)
         if bearer:
