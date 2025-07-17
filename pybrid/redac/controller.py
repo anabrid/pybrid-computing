@@ -302,7 +302,27 @@ class Controller:
         self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None
     ) -> DistributedRunState:
         """
-        Start a run (computation) on the REDAC.
+        Start a run (computation) and return a :class:`.DistributedRunState` object tracking its progress.
+
+        The start of a computation is synchronized across all involved mREDACs. The actual start is
+        triggered globally via the SYNC signal connected to all mREDACs. But before that, one needs
+        to ensure that all mREDACs are already listening to the SYNC signal. The necessary steps
+        depend on the deployment type of the analog computer and whether calibration is enabled.
+
+        In standalone mode, an arbitrarily chosen mREDAC sends out the SYNC signal immediately after
+        it reaches TAKE_OFF state. Thus, it needs to be ensured that all other mREDACs are ready
+        to receive it before that happens (i.e. they need to reach TAKE_OFF before). It is not possible
+        to send StartRunRequests to all but the first mREDAC and then send the "master" StartRunRequest after,
+        since all mREDACs need to enter the calibration process as part of preparing a run. Additionally,
+        some information necessary for the calibration is tied to the run (e.g. the partitioning).
+        Luckily, the calibration process already implicitly synchronizes all mREDACs. So the firmware simply
+        makes the chosen mREDAC wait a small amount of time after calibration is done, to ensure that it
+        reaches TAKE_OFF after all other mREDACs and can safely send out the SYNC signal.
+
+        In SC (proxy) mode, all mREDACs wait for an incoming SYNC signal after they have reached TAKE_OFF.
+        Once that is confirmed, the super-controller can generate the SYNC signal (see Proxy class).
+        This function does not take care of that.
+
         :param run: The :class:`.Run` to be started, including its configuration. If None, a new run is created.
         :param entities: Optional list of entities to include in the run.
         :param timeout: Optional timeout.
@@ -328,43 +348,28 @@ class Controller:
             raise ValueError("No protocols are involved in the selected entities for the run.")
 
         # In standalone mode, we tell the first mREDAC to generate the SYNC signal
+        protocol_for_sync_mredac = None
         if self.standalone:
-            protocol_with_sync_sender, *protocols_with_sync_listening = involved_protocols
-            if len(self.protocols[protocol_with_sync_sender]) > 1:
+            protocol_for_sync_mredac = next(iter(involved_protocols))
+            if not run.config.calibrate:
+                raise NotImplementedError("Standalone mode requires calibration for implicit synchronisation.")
+            if len(self.protocols[protocol_for_sync_mredac]) > 1:
                 raise NotImplementedError("Standalone mode does not yet support non-direct connections to mREDACs.")
-        else:
-            protocol_with_sync_sender = None
-            protocols_with_sync_listening = involved_protocols
 
-        # First, we need to start all mREDACs that are listening to a SYNC signal
-        forwards_with_sync_listeninng = []
-        for protocol in protocols_with_sync_listening:
+        # Send StartRunRequests to all mREDAC, possibly adapting run.sync_config
+        start_run_requests = []
+        for protocol in involved_protocols:
             run_state.add_paths(*self.protocols[protocol])
-            forwards_with_sync_listeninng.append(
+            start_run_requests.append(
                 Protocol.start_run_request.__get__(protocol, protocol.__class__)(
                     id_=run.id_,
                     config=run.config,
                     daq_config=run.daq,
-                    sync_config=run.sync,  # Use original sync config
+                    sync_config=run.sync if protocol is not protocol_for_sync_mredac else replace(run.sync, mode=SyncMode.MASTER),
                     partition_config=run.partition,
                 )
             )
-        await asyncio.gather(*forwards_with_sync_listeninng)
-
-        # And wait for all listening devices to actually be ready,
-        # less they might miss the SYNC signal from the one sending it out
-        await run_state.wait_all(RunState.TAKE_OFF)
-
-        # Finally, we tell the mREDAC sending out the SYNC signal to do so
-        if protocol_with_sync_sender:
-            run_state.add_paths(*self.protocols[protocol_with_sync_sender])
-            await protocol_with_sync_sender.start_run_request(
-                id_=run.id_,
-                config=run.config,
-                daq_config=run.daq,
-                sync_config=replace(run.sync, mode=SyncMode.MASTER),
-                partition_config=run.partition,
-            )
+        await asyncio.gather(*start_run_requests)
 
         return run_state
 
