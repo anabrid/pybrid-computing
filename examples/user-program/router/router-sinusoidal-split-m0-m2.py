@@ -1,6 +1,8 @@
 # Example of a UserProgram configuring a harmonic oscillator on the REDAC. Use as
 #   pybrid redac -h <host> user-program path/to/this/file.py
 
+from ipaddress import IPv4Address
+
 import matplotlib.pyplot as plt
 
 from pybrid.base.hybrid.programs import SingleRun
@@ -10,7 +12,7 @@ from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
 class UserProgram(SingleRun):
     # Shortcut to configure run
     RUN_CONFIG = RunConfig(op_time=1_000_000, ic_time=500_000)
-    DAQ_CONFIG = DAQConfig(sample_rate=30_000)
+    DAQ_CONFIG = DAQConfig(sample_rate=20_000)
 
     def set_configuration(self, run: Run, computer: REDAC):
         router = computer.router
@@ -50,12 +52,14 @@ class UserProgram(SingleRun):
         i0_m0_cl0.cblock.elements[31].factor = -1.0
         router.route(i0_m0.tblock.loc() / 0 / 31, i0_m2.tblock.loc() / 0 / 31)
         i0_m2_cl0.iblock.connect(31, 4)
+        i0_m2.tblock.sources[31] = IPv4Address("192.168.88.242")
         # <-
         i0_m2_cl0.m0block.elements[4].ic = 0
         i0_m2_cl0.ublock.connect(4, 16)
         i0_m2_cl0.cblock.elements[16].factor = 1.0
         router.route(i0_m2.tblock.loc() / 0 / 16, i0_m0.tblock.loc() / 0 / 16)
         i0_m0_cl0.iblock.connect(16, 4)
+        i0_m0.tblock.sources[16] = IPv4Address("192.168.88.241")
         # DAQ
         computer.daq.capture(i0_m0_cl0.m0block.elements[4], i0_m2_cl0.m0block.elements[4])
 
@@ -69,6 +73,7 @@ class UserProgram(SingleRun):
         router.route(i0_m0.tblock.loc() / 1 / 30, i0_m2.tblock.loc() / 1 / 30)
         i0_m2_cl1.iblock.connect(30, 4)
         i0_m2_cl1.iblock.upscaling[30] = True
+        i0_m2.tblock.sources[30] = IPv4Address("192.168.88.242")
         # <-
         i0_m2_cl1.m0block.elements[4].ic = 0
         i0_m2_cl1.ublock.connect(4, 17)
@@ -76,6 +81,7 @@ class UserProgram(SingleRun):
         router.route(i0_m2.tblock.loc() / 1 / 17, i0_m0.tblock.loc() / 1 / 17)
         i0_m0_cl1.iblock.connect(17, 4)
         i0_m0_cl1.iblock.upscaling[17] = True
+        i0_m0.tblock.sources[17] = IPv4Address("192.168.88.241")
         # DAQ
         computer.daq.capture(i0_m0_cl1.m0block.elements[4], i0_m2_cl1.m0block.elements[4])
 

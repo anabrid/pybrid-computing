@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 from dataclasses import field, dataclass
+from ipaddress import IPv4Address
 
 from .block import FunctionBlock
 from ..entities import EntityClass, EntityType, Loc
@@ -12,6 +13,7 @@ from ..entities import EntityClass, EntityType, Loc
 @dataclass
 class TBlock(FunctionBlock):
     muxes: list[int] = field(default_factory=lambda: [0, 1, 2, 3] * 24)
+    sources: dict[int, IPv4Address] = field(default_factory=lambda: {})
 
     def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
         dst_lane = sector_lane * 4 + dst_sector
