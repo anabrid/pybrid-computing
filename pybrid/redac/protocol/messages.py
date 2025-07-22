@@ -6,6 +6,7 @@ import logging
 import typing
 from datetime import datetime
 from functools import cache
+from ipaddress import IPv4Address
 from typing import Optional, List
 
 import inflection
@@ -321,6 +322,14 @@ class SysTemperaturesResponse(Response):
     entities: dict
 
     response_for = SysTemperaturesRequest
+
+
+class RegisterExternalEntitiesRequest(Request):
+    entities: dict[str, IPv4Address]
+
+
+class RegisterExternalEntitiesResponse(Response):
+    response_for = RegisterExternalEntitiesRequest
 
 
 # ███████ ███████ ███████ ███████ ██  ██████  ███    ██

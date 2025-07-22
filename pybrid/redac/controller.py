@@ -5,9 +5,11 @@
 import asyncio
 import logging
 import typing
+import warnings
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import replace
+from ipaddress import IPv4Address
 from uuid import UUID
 
 from pybrid.base.transport import TCPTransport
@@ -177,6 +179,33 @@ class Controller:
             self.computer.add_carrier(carrier)
             self.devices[path] = protocol
             self.protocols[protocol].add(path)
+
+        # Register all other entities as external entities
+        # As always, this is "just" complicated bookkeeping.
+        # Note that we can not check whether the external entities
+        # are actually reachable by the entity we register them with.
+        # TODO: The super controller proxy registers virtualized entity_id's,
+        #       which currently only happens once, but should happen anytime add_device is called
+        new_external_entities = {Path.parse(entity_id).id_: transport_.get_remote_ip() for entity_id in entities}
+        other_external_entities: dict[str, IPv4Address] = {}
+        for other_protocol, paths in self.protocols.items():
+            if other_protocol is protocol:
+                continue
+            # Register the new device with this existing protocol
+            await other_protocol.register_external_entities(new_external_entities)
+            # Collect existing entities to register with the new device
+            if not isinstance(other_protocol.transport, TCPTransport):
+                warnings.warn(
+                    f"Can not register external entity {other_protocol.transport.name}, "
+                    "since it is not connected via network"
+                )
+                continue
+            for path in paths:
+                if not path.depth == 1:
+                    warnings.warn(f"Can not register external entity {path}, since it has a path with depth > 1.")
+                other_external_entities[path.id_] = other_protocol.transport.get_remote_ip()
+        if other_external_entities:
+            await protocol.register_external_entities(other_external_entities)
 
     # ██   ██  █████  ███    ██ ██████  ██      ███████ ██████  ███████
     # ██   ██ ██   ██ ████   ██ ██   ██ ██      ██      ██   ██ ██
@@ -365,7 +394,11 @@ class Controller:
                     id_=run.id_,
                     config=run.config,
                     daq_config=run.daq,
-                    sync_config=run.sync if protocol is not protocol_for_sync_mredac else replace(run.sync, mode=SyncMode.MASTER),
+                    sync_config=(
+                        run.sync
+                        if protocol is not protocol_for_sync_mredac
+                        else replace(run.sync, mode=SyncMode.MASTER)
+                    ),
                     partition_config=run.partition,
                 )
             )

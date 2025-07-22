@@ -7,7 +7,7 @@ import json
 import logging
 import typing
 import uuid
-import os
+from ipaddress import IPv4Address
 from typing import Callable
 
 from packaging.version import Version
@@ -36,6 +36,7 @@ from .messages import (
     SysTemperaturesRequest,
     SetStandbyRequest,
     SysRebootRequest,
+    RegisterExternalEntitiesRequest,
 )
 from .serializer import build_config
 from ..entities import Path, Entity
@@ -310,3 +311,8 @@ class Protocol(BaseProtocol):
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         await self.send_message_and_wait_response(ResetCircuitRequest(keep_calibration=keep_calibration, sync=sync))
+
+    async def register_external_entities(self, entities: dict[str, IPv4Address]):
+        # TODO: For large systems, we might not be able to send all items at once (limited JSON buffer size in firmware).
+        #       In that case, split the request in multiple ones here, so other call sites don't have to do it themselves.
+        await self.send_message_and_wait_response(RegisterExternalEntitiesRequest(entities=entities))

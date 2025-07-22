@@ -4,7 +4,9 @@
 
 import asyncio
 import logging
+import warnings
 from asyncio import StreamReader, StreamWriter, Server
+from ipaddress import IPv4Address
 from typing import Optional
 from weakref import WeakValueDictionary, WeakKeyDictionary
 
@@ -27,7 +29,7 @@ from pybrid.redac.protocol.messages import (
     GetPartitionInformationRequest,
     GetPartitionInformationResponse,
     SysTemperaturesRequest,
-    SysTemperaturesResponse,
+    SysTemperaturesResponse, RegisterExternalEntitiesRequest, RegisterExternalEntitiesResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -93,12 +95,36 @@ class Proxy:
             protocol.register_callback(RunDataMessage, self.forward_run_data, extra_args=[protocol])
 
     async def __aenter__(self):
+        # Register the virtualized external entities with everyone
+        # TODO: This needs to not only happen once, but everytime Controller.add_device is called
+        await self._register_virtualized_external_entities()
         self._server = await asyncio.start_server(self.client_connected, self.host, self.port)
         await self._server.__aenter__()
         return self, self._server
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._server.__aexit__(exc_type, exc_val, exc_tb)
+
+    # ███    ███ ██ ███████  ██████
+    # ████  ████ ██ ██      ██
+    # ██ ████ ██ ██ ███████ ██
+    # ██  ██  ██ ██      ██ ██
+    # ██      ██ ██ ███████  ██████
+
+    async def _register_virtualized_external_entities(self):
+        virtual_external_entities: dict[str, IPv4Address] = {}
+        # Collect
+        for protocol, paths in self.controller.protocols.items():
+            for path in paths:
+                if virtual_id := self.reverse_mac_mapping.get(path.id_, None):
+                    virtual_external_entities[virtual_id] = protocol.transport.get_remote_ip()
+                else:
+                    warnings.warn(f"Can not register virtual external entity for path {path}.")
+        # Register
+        # Note that we also register the virtualized "self", which should not matter
+        for protocol in self.controller.protocols:
+            await protocol.register_external_entities(virtual_external_entities)
+
 
     #  ██████ ██      ██ ███████ ███    ██ ████████ ███████
     # ██      ██      ██ ██      ████   ██    ██    ██
@@ -123,6 +149,7 @@ class Proxy:
             GetPartitionInformationRequest, self.handle_partition_information, extra_args=[protocol]
         )
         protocol.register_callback(SysTemperaturesRequest, self.handle_temperature_request, extra_args=[protocol])
+        protocol.register_callback(RegisterExternalEntitiesRequest, self.handle_register_external_entities_request, extra_args=[protocol])
 
         # Start protocol and let it process incoming messages
         try:
@@ -258,6 +285,11 @@ class Proxy:
         mapped_response = {self.reverse_mac_mapping[k[0]]: v for (k, v) in hw_response.items()}
 
         return SysTemperaturesResponse(entities=mapped_response)
+
+    async def handle_register_external_entities_request(self, msg: RegisterExternalEntitiesRequest, protocol: Protocol):
+        # This request does not need to be forwarded, as the proxy currently only works with
+        # virtualized entity ids which are already registered. So just do nothing.
+        return RegisterExternalEntitiesResponse()
 
     # ███████  ██████  ██████  ██     ██  █████  ██████  ██████  ███████ ██████  ███████
     # ██      ██    ██ ██   ██ ██     ██ ██   ██ ██   ██ ██   ██ ██      ██   ██ ██

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
+from ipaddress import IPv4Address
 
 from .base import BaseTransport
 
@@ -23,3 +24,11 @@ class TCPTransport(BaseTransport):
         name = kwargs.pop("name", None)
         reader, writer = await asyncio.open_connection(host, port, **kwargs)
         return cls(reader=reader, writer=writer, name=name, **kwargs)
+
+    def get_remote_ip(self) -> IPv4Address:
+        socket = self.writer.get_extra_info('socket')
+        if socket is not None:
+            remote_ip, remote_port = socket.getpeername()
+            return IPv4Address(remote_ip)
+        else:
+            return IPv4Address("0.0.0.0")
