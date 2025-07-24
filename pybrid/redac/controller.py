@@ -380,12 +380,13 @@ class Controller:
         protocol_for_sync_mredac = None
         if self.standalone:
             protocol_for_sync_mredac = next(iter(involved_protocols))
-            if not run.config.calibrate:
+            if not run.calibration.enabled:
                 raise NotImplementedError("Standalone mode requires calibration for implicit synchronisation.")
             if len(self.protocols[protocol_for_sync_mredac]) > 1:
                 raise NotImplementedError("Standalone mode does not yet support non-direct connections to mREDACs.")
 
         # Send StartRunRequests to all mREDAC, possibly adapting run.sync_config
+        # We always tell the first device it should lead the calibration process
         start_run_requests = []
         for protocol in involved_protocols:
             run_state.add_paths(*self.protocols[protocol])
@@ -399,6 +400,7 @@ class Controller:
                         if protocol is not protocol_for_sync_mredac
                         else replace(run.sync, mode=SyncMode.MASTER)
                     ),
+                    calibration_config=replace(run.calibration, is_leader=not start_run_requests),
                     partition_config=run.partition,
                 )
             )

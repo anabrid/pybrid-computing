@@ -37,9 +37,6 @@ class RunConfig(BaseRunConfig):
     #: Duration of OP (operating) mode in nanoseconds.
     op_time: int = 2_000_000
 
-    #: Whether to calibrate routes before the computation.
-    calibrate: bool = True
-
     #: Whether to halt the computation when the external halt signal is triggered.
     halt_on_external_trigger: bool = False
     #: Whether to halt the computation when it enters an overload.
@@ -117,6 +114,14 @@ class DAQConfig(BaseDAQConfig):
 
 
 @dataclass(kw_only=True)
+class CalibrationConfig:
+    #: Whether to calibrate before starting the run
+    enabled: bool = True
+    #: Whether to act as leader of the calibration process
+    is_leader: bool = False
+
+
+@dataclass(kw_only=True)
 class Run(BaseRun):
     """A run is one computation executed by the REDAC."""
 
@@ -129,6 +134,8 @@ class Run(BaseRun):
     config: RunConfig = field(default_factory=RunConfig)
     #: Define how the computation is synchronized, e.g. to other parts of the computer.
     sync: SyncConfig = field(default_factory=SyncConfig)
+    #: Define how the system is calibrated for this run
+    calibration: CalibrationConfig = field(default_factory=CalibrationConfig)
     # s Define on which partition the run should be executed
     partition: PartitionConfig = field(default_factory=PartitionConfig)
 

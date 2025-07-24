@@ -15,7 +15,7 @@ from pydantic import UUID4, BaseModel, Field
 from .types import SuccessInfo
 from ..entities import Path
 from ..partitioning import PartitionConfig
-from ..run import Run, RunConfig, RunFlags, RunState, DAQConfig
+from ..run import Run, RunConfig, RunFlags, RunState, DAQConfig, CalibrationConfig
 from ..sync import SyncConfig
 
 logger = logging.getLogger(__name__)
@@ -736,6 +736,8 @@ class StartRunRequest(Request):
     daq_config: typing.Optional[DAQConfig]
     #: A :py:class`pybrid.redac.run.SyncConfig` that should be applied to the run.
     sync_config: SyncConfig = Field(default_factory=SyncConfig)
+    #: A :py:class`pybrid.run.CalibrationConfig` that should be applied to the run.
+    calibration_config: CalibrationConfig = Field(default_factory=CalibrationConfig)
     #: A :py:class`pybrid.redac.partitioning.PartitionConfig` that should be applied to the run.
     partition_config: PartitionConfig = Field(default_factory=PartitionConfig)
 
@@ -761,6 +763,7 @@ class StartRunRequest(Request):
             config=self.config,
             daq=self.daq_config,
             sync=self.sync_config,
+            calibration=self.calibration_config,
             partition=self.partition_config,
         )
 

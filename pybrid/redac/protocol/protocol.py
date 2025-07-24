@@ -5,6 +5,7 @@
 import asyncio
 import json
 import logging
+import os
 import typing
 import uuid
 from ipaddress import IPv4Address
@@ -41,7 +42,7 @@ from .messages import (
 from .serializer import build_config
 from ..entities import Path, Entity
 from ..partitioning import PartitionConfig
-from ..run import RunConfig, DAQConfig
+from ..run import RunConfig, DAQConfig, CalibrationConfig
 from ..sync import SyncConfig
 
 logger = logging.getLogger(__name__)
@@ -288,6 +289,7 @@ class Protocol(BaseProtocol):
         config: RunConfig,
         daq_config: DAQConfig = None,
         sync_config: SyncConfig = None,
+        calibration_config: CalibrationConfig = None,
         partition_config: PartitionConfig = None,
     ):
         await self.send_message_and_wait_response(
@@ -296,6 +298,7 @@ class Protocol(BaseProtocol):
                 config=config,
                 daq_config=daq_config,
                 sync_config=sync_config,
+                calibration_config=calibration_config,
                 partition_config=partition_config,
                 session=None,
             )
