@@ -14,6 +14,7 @@ from ..entities import EntityClass, EntityType, Loc
 class TBlock(FunctionBlock):
     muxes: list[int] = field(default_factory=lambda: [0, 1, 2, 3] * 24)
     sources: dict[int, str] = field(default_factory=lambda: {})
+    targets_upscaled: dict[int, bool] = field(default_factory=lambda: {})
 
     def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
         dst_lane = sector_lane * 4 + dst_sector

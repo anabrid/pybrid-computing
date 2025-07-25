@@ -70,14 +70,20 @@ class UserProgram(SingleRun):
         i0_m0_cl1.m0block.elements[4].ic = -0.5
         i0_m0_cl1.ublock.connect(4, 30)
         i0_m0_cl1.cblock.elements[30].factor = -1/8
+        # Source mREDAC needs to know whether to set 0.1 or 1 as calibration input
+        # TODO: Move all of this (maybe including factors) into router.route
+        i0_m0.tblock.targets_upscaled[30] = True
         router.route(i0_m0.tblock.loc() / 1 / 30, i0_m2.tblock.loc() / 1 / 30)
         i0_m2_cl1.iblock.connect(30, 4)
         i0_m2_cl1.iblock.upscaling[30] = True
+        # Target mREDAC needs to know where to send calibration data
+        # TODO: Move all of this (maybe including factors) into router.route
         i0_m2.tblock.sources[30] = i0_m0.id_
         # <-
         i0_m2_cl1.m0block.elements[4].ic = 0
         i0_m2_cl1.ublock.connect(4, 17)
         i0_m2_cl1.cblock.elements[17].factor = 1/8
+        i0_m2.tblock.targets_upscaled[17] = True
         router.route(i0_m2.tblock.loc() / 1 / 17, i0_m0.tblock.loc() / 1 / 17)
         i0_m0_cl1.iblock.connect(17, 4)
         i0_m0_cl1.iblock.upscaling[17] = True
