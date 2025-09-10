@@ -26,6 +26,7 @@ class Carrier(Entity):
     """
 
     adc_channels: list[Optional[int]] = field(default_factory=list)
+    acl_select: list[str] = field(default_factory=lambda : 8 * ["internal"])
 
     #: List of clusters on the carrier board.
     clusters: list[Cluster]

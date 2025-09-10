@@ -30,6 +30,10 @@ class BaseDAQConfig:
     pass
 
 
+class BaseSimConfig:
+    pass
+
+
 @dataclass(kw_only=True)
 class BaseRun:
     id_: typing.Any

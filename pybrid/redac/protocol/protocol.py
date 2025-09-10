@@ -290,7 +290,7 @@ class Protocol(BaseProtocol):
         daq_config: DAQConfig = None,
         sync_config: SyncConfig = None,
         calibration_config: CalibrationConfig = None,
-        partition_config: PartitionConfig = None,
+        partition_config: PartitionConfig = None
     ):
         await self.send_message_and_wait_response(
             StartRunRequest(

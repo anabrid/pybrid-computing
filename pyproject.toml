@@ -33,7 +33,7 @@ anyio = "^3.6.1"
 asyncclick = "^8.1.3.4"
 inflection = "^0.5.1"
 matplotlib = { version = "^3.5.3", extras = ["examples"] }
-packaging = "^22.0"
+packaging = "^25.0"
 pydantic = "^1.10.5"
 pyftdi = "^0.55.4"
 pyqt5 = { version = "^5.15.2", extras = ["examples"] }
