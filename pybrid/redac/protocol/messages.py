@@ -156,7 +156,6 @@ class Response(Message):
 # ██    ██    ██    ██ ██      ██    ██       ██
 #  ██████     ██    ██ ███████ ██    ██       ██
 
-
 class PingRequest(Request):
     """
     A heartbeat request to check for controller status.

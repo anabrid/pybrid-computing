@@ -13,7 +13,7 @@ from pybrid.base.hybrid import (
     BaseRunConfig,
     BaseRunFlags,
     BaseRunState,
-    BaseDAQConfig,
+    BaseDAQConfig
 )
 from pybrid.base.utils.descriptors import Validator
 
@@ -120,7 +120,6 @@ class CalibrationConfig:
     #: Whether to act as leader of the calibration process
     is_leader: bool = False
 
-
 @dataclass(kw_only=True)
 class Run(BaseRun):
     """A run is one computation executed by the REDAC."""
@@ -153,4 +152,4 @@ class Run(BaseRun):
 
     @classmethod
     def get_persistent_attributes(cls) -> set[str]:
-        return super().get_persistent_attributes().union({"daq", "sync", "partition"})
+        return super().get_persistent_attributes().union({"daq", "sim", "sync", "partition"})

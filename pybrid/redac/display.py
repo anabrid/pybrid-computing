@@ -10,7 +10,7 @@ class TreeDisplay:
     @staticmethod
     def render(redac: REDAC):
         buffer = ""
-        buffer += "REDAC Analag Computer\n"
+        buffer += "Analog Computer\n"
 
         # TODO: Do it better :)
         for carrier in redac.carriers:

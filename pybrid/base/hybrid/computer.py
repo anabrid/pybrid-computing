@@ -32,3 +32,7 @@ class AnalogComputer(ABC):
             return self._entities_by_path[path]
         except KeyError:
             raise EntityDoesNotExist("Entity with path %s does not exist." % str(path))
+
+    @classmethod
+    def get_timeout(cls) -> int:
+        return 6

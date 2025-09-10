@@ -50,7 +50,7 @@ def _(entity: ComputationElement):
 
 @to_dict.register
 def _(entity: Carrier):
-    return asdict(entity, dict_factory=include("adc_channels")), True
+    return asdict(entity, dict_factory=include("adc_channels", "acl_select")), True
 
 
 @to_dict.register

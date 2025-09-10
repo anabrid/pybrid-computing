@@ -119,7 +119,6 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
     # Unless chosen otherwise, reset the analog computer
     if reset:
         await controller.reset()
-    logger.warning("REMOVE")
     await asyncio.sleep(3)
 
     # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
@@ -169,7 +168,7 @@ async def set_alias(obj, path, alias):
 @click.option("--export", "-e", type=click.File("w"), default=None, help="File to export list of entities to.")
 async def display(obj, export: typing.Optional[typing.TextIO]):
     """
-    Display the hardware structure of the REDAC.
+    Display the hardware structure of the computer.
     """
     controller: Controller = obj["controller"]
     click.echo(TreeDisplay().render(controller.computer))
@@ -188,7 +187,7 @@ async def display(obj, export: typing.Optional[typing.TextIO]):
 )
 async def reset(obj, keep_calibration, sync):
     """
-    Reset the REDAC to initial configuration.
+    Reset the computer to initial configuration.
     """
     controller: Controller = obj["controller"]
     await controller.reset(keep_calibration=keep_calibration, sync=sync)

@@ -8,6 +8,7 @@ import typing
 import warnings
 from contextlib import nullcontext
 from pathlib import Path as FilePath
+from dataclasses import dataclass, field
 
 from pydantic.json import pydantic_encoder
 
@@ -21,7 +22,6 @@ from .entities import Path
 from .router import Router
 
 logger = logging.getLogger(__name__)
-
 
 class DAQ:
     computer: "REDAC"
@@ -41,7 +41,6 @@ class DAQ:
             else:
                 warnings.warn("Signal is already being captured, ignoring duplicate capture request.")
         return changed_carriers
-
 
 class REDAC(AnalogComputer):
     """
@@ -67,7 +66,7 @@ class REDAC(AnalogComputer):
     def carriers(self) -> list[Carrier]:
         """The list of :class:`.Carrier` boards in this REDAC."""
         return self.entities
-
+    
     def __repr__(self):
         return repr(self.entities)
 
@@ -111,7 +110,7 @@ class REDAC(AnalogComputer):
             with open(data) as fs:
                 entity_tree = json.load(fs)
         return REDAC.create_from_entity_type_tree(entity_tree)
-
+    
     def _get_dump_config(self, kwargs):
         from .protocol.serializer import build_config
 

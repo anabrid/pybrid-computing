@@ -46,7 +46,7 @@ class DistributedRunState:
     def track(self, path: Path, state: RunState, reason: str | None = None):
         self._states[path][state].set()
         if state == RunState.ERROR and not self._any_error_future.done():
-            self._any_error_future.set_exception(RunError(f"Error on entity {path}: {reason or "Unknown Error"}"))
+            self._any_error_future.set_exception(RunError(f"Error on entity {path}: {reason or 'Unknown Error'}"))
 
     def status(self, state: RunState):
         reached = []
@@ -145,6 +145,11 @@ class Controller:
             await device.stop()
 
     @classmethod
+    def get_protocol_implementation(cls):
+        """Returns the specific :class:`.Protocol` implementation by this device"""
+        return Protocol
+
+    @classmethod
     def get_run_implementation(cls) -> typing.Type[Run]:
         """Returns the specific :class:`.Run` implementation used by the REDAC."""
         return Run
@@ -163,7 +168,7 @@ class Controller:
         # Create a connection to the device
         async with asyncio.timeout(3):
             transport_ = await TCPTransport.create(host, port, name=name)
-            protocol = await Protocol.create(transport_)
+            protocol = await self.get_protocol_implementation().create(transport_)
         await protocol.start()
         # Get carrier the device controls. In the future, other device types may be added here.
         entities = await protocol.get_entities()
@@ -316,6 +321,7 @@ class Controller:
         :param computer: The :class:`.REDAC` object containing the configuration to be set.
         :return: None
         """
+
         # TODO: Add proper comparison/hash functions and use sets
         carriers_left = list(computer.carriers)
         for protocol, managed_paths in self.protocols.items():
@@ -325,6 +331,7 @@ class Controller:
                     carriers_here.append(carrier)
             for carrier in carriers_here:
                 carriers_left.remove(carrier)
+
             await protocol.set_configs(carriers_here)
 
     async def start_run(
