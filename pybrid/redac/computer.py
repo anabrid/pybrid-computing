@@ -8,7 +8,6 @@ import typing
 import warnings
 from contextlib import nullcontext
 from pathlib import Path as FilePath
-from dataclasses import dataclass, field
 
 from pydantic.json import pydantic_encoder
 
@@ -21,7 +20,10 @@ from .elements import ComputationElement
 from .entities import Path
 from .router import Router
 
+import pybrid.base.proto.main_pb2 as pb
+
 logger = logging.getLogger(__name__)
+
 
 class DAQ:
     computer: "REDAC"
@@ -41,6 +43,7 @@ class DAQ:
             else:
                 warnings.warn("Signal is already being captured, ignoring duplicate capture request.")
         return changed_carriers
+
 
 class REDAC(AnalogComputer):
     """
@@ -66,7 +69,7 @@ class REDAC(AnalogComputer):
     def carriers(self) -> list[Carrier]:
         """The list of :class:`.Carrier` boards in this REDAC."""
         return self.entities
-    
+
     def __repr__(self):
         return repr(self.entities)
 
@@ -76,6 +79,8 @@ class REDAC(AnalogComputer):
         try:
             self.router.add_carrier(carrier)
         except Exception as exc:
+            import traceback
+            traceback.print_exc()
             logger.warning("Could not add carrier to router: %s", exc)
 
     # ██████  ███████        ██ ███████ ███████ ██████  ██  █████  ██      ██ ███████  █████  ████████ ██  ██████  ███    ██
@@ -110,7 +115,7 @@ class REDAC(AnalogComputer):
             with open(data) as fs:
                 entity_tree = json.load(fs)
         return REDAC.create_from_entity_type_tree(entity_tree)
-    
+
     def _get_dump_config(self, kwargs):
         from .protocol.serializer import build_config
 
@@ -137,3 +142,12 @@ class REDAC(AnalogComputer):
             open_file = nullcontext(target)
         with open_file as fs:
             return json.dump(config, fs, **kwargs)
+        
+    def to_pb(self) -> typing.List[pb.Config]:
+        from .protocol.serializer import build_config
+
+        configs = []
+        for entity in self.entities:
+            configs += build_config(entity)
+        return configs
+

@@ -54,6 +54,9 @@ class Path(tuple):
         parts_ = (cls._parse_part(depth_, part_) for depth_, part_ in enumerate(parts))
         return cls(parts_)
 
+    def __itruediv__(self, other):
+        return self.join(other)
+
     def join(self, other):
         """Concatenates another path to this one and returns a copy."""
         if isinstance(other, Path):
@@ -75,7 +78,11 @@ class Path(tuple):
         if isinstance(path, Path):
             return path
         if isinstance(path, str):
-            parts = path.strip("/").split("/")
+            path = path.strip("/")
+            if path == "":
+                return cls.make()
+
+            parts = path.split("/")
             # Paths may not have a trailing slash
             if not parts:
                 raise ValueError("Empty path.")

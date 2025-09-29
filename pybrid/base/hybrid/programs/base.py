@@ -10,7 +10,7 @@ from dataclasses import replace
 
 from ..computer import AnalogComputer
 from ..controller import BaseController
-from ..run import BaseRun, BaseRunConfig, BaseDAQConfig, BaseSimConfig
+from ..run import BaseRun, BaseRunConfig, BaseDAQConfig
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +22,8 @@ class BaseProgram(ABC):
 
     #: Shortcut to set :attr:`.BaseRun.config` if not None.
     RUN_CONFIG: BaseRunConfig = None
-    #: Shortcut to set :attr:`.BaseRun.daq` if not None.
+    #: Shortcut to set :attr:`.BaseRun.daq_config` if not None.
     DAQ_CONFIG: BaseDAQConfig = None
-    #: Shortcut to set :attr:`.BaseRun.sim` if not None.
-    SIM_CONFIG: BaseSimConfig = None
 
     #: Underlying controller used by this program.
     controller: BaseController
@@ -88,7 +86,7 @@ class BaseProgram(ABC):
 
     def get_run_kwargs(self) -> dict:
         """
-        Collects shortcut :attr:`RUN_CONFIG`, :attr:`SIM_CONFIG` and :attr:`DAQ_CONFIG` used when creating new runs.
+        Collects shortcut :attr:`RUN_CONFIG` and :attr:`DAQ_CONFIG` used when creating new runs.
         """
         kwargs = {}
 
@@ -153,7 +151,7 @@ class SingleRun(BaseProgram):
         self.set_configuration(self.run, self.computer)
         await self.controller.set_computer(self.computer)
         try:
-            self.run = await self.controller.start_and_await_run(self.run, self.computer.get_timeout())
+            self.run = await self.controller.start_and_await_run(self.run)
         except Exception as exc:
             self.on_run_error(self.run, exc)
         self.run_done(self.run)

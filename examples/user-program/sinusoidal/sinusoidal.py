@@ -9,8 +9,8 @@ from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
 
 class UserProgram(SingleRun):
     # Shortcut to configure run
-    RUN_CONFIG = RunConfig(op_time=0.1 * 1_000_000)
-    DAQ_CONFIG = DAQConfig(num_channels=2, sample_rate=1_000_000)
+    RUN_CONFIG = RunConfig(op_time=8_000_560_000)
+    DAQ_CONFIG = DAQConfig(num_channels=2, sample_rate=400_000)
 
     def set_configuration(self, run: Run, computer: REDAC):
         # Reference to first cluster on first carrier board
@@ -20,7 +20,7 @@ class UserProgram(SingleRun):
         cluster.route(0, 0, -1.0 * omega, 1)
         cluster.route(1, 1, 1.0 * omega, 0)
         # Configure initial value
-        cluster.m0block.elements[0].ic = 0.5
+        cluster.m0block.elements[0].ic = -0.42
 
         # Configure which signals you want to capture
         computer.daq.capture(cluster.m0block.elements[0], cluster.m0block.elements[1])

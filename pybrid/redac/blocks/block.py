@@ -8,16 +8,14 @@ from dataclasses import dataclass
 from ..elements import ComputationElement
 from ..entities import Entity, EntityType
 
+from pybrid.base.proto import main_pb2 as pb
 
 class FunctionBlock(Entity):
     @classmethod
-    def create_from_entity_type_tree(cls, sub_path, sub_tree):
+    def create_from_entity_type_tree(cls, sub_path, sub_tree: pb.Entity):
         # TODO: Refactor out common code
         # Check information on self
         this_entity_type = EntityType.pop_from_dict(sub_tree)
-
-        # TODO: Actually use the EUI
-        sub_tree.pop("eui", None)
 
         # Generate type-specific entity
         entity_class = EntityType.lookup(this_entity_type, decay=True)

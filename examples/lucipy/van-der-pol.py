@@ -2,15 +2,14 @@ from pybrid.lucipy import Circuit, LUCIDAC
 import matplotlib.pyplot as plt
 import numpy as np
 
-op_secs = 1.0 # duration of OP cycle in seconds
-sample_rate = 10_000
 
-eta = 4
 
 vdp = Circuit()
 
-mdy = vdp.int(slow=True)
-y   = vdp.int(ic = 0.1, slow=True)
+eta = 4
+
+mdy = vdp.int()
+y   = vdp.int(ic = 0.1)
 y2  = vdp.mul(1)
 fb  = vdp.mul(2)
 c   = vdp.const()
@@ -32,6 +31,12 @@ vdp.probe(y,   front_port=1)
 
 vdp.measure(mdy)
 vdp.measure(y)
+
+
+
+
+op_secs = 0.01 # duration of OP cycle in seconds
+sample_rate = 100_000
 
 luci = LUCIDAC()
 luci.set_circuit(vdp)

@@ -8,17 +8,18 @@ from dataclasses import dataclass, field
 from enum import Enum
 from uuid import UUID, uuid4
 
+import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid import (
     BaseRun,
     BaseRunConfig,
     BaseRunFlags,
     BaseRunState,
-    BaseDAQConfig
+    BaseDAQConfig,
 )
 from pybrid.base.utils.descriptors import Validator
 
-from .entities import Path
 from .sync import SyncConfig
+from .entities import Path
 from .partitioning import PartitionConfig
 
 
@@ -90,6 +91,20 @@ class RunState(BaseRunState, Enum):
     def is_done(self):
         return self in (RunState.DONE, RunState.ERROR)
 
+    @classmethod
+    def from_pb(cls, state: pb.RunState):
+        match state:
+            case pb.RunState.NEW: return RunState.NEW
+            case pb.RunState.ERROR: return RunState.ERROR
+            case pb.RunState.DONE: return RunState.DONE
+            case pb.RunState.QUEUED: return RunState.QUEUED
+            case pb.RunState.TAKE_OFF: return RunState.TAKE_OFF
+            case pb.RunState.IC: return RunState.IC
+            case pb.RunState.OP: return RunState.OP
+            case pb.RunState.OP_END: return RunState.OP_END
+            case pb.RunState.TMP_HALT: return RunState.TMP_HALT
+        return RunState.ERROR
+
 
 class DAQConfigurationNumChannels(Validator):
 
@@ -117,8 +132,9 @@ class DAQConfig(BaseDAQConfig):
 class CalibrationConfig:
     #: Whether to calibrate before starting the run
     enabled: bool = True
-    #: Whether to act as leader of the calibration process
-    is_leader: bool = False
+    #path of leader of the calibration process
+    leader: None | Path = None
+
 
 @dataclass(kw_only=True)
 class Run(BaseRun):
@@ -152,4 +168,4 @@ class Run(BaseRun):
 
     @classmethod
     def get_persistent_attributes(cls) -> set[str]:
-        return super().get_persistent_attributes().union({"daq", "sim", "sync", "partition"})
+        return super().get_persistent_attributes().union({"daq", "sync", "partition"})

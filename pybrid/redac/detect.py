@@ -81,7 +81,7 @@ async def detect_in_network(network: ip_network) -> list[tuple]:
     async with ZeroconfDetector() as detector:
         # We need at least one host
         try:
-            await asyncio.wait_for(detector.await_at_least_one_service(), 2)
+            await asyncio.wait_for(detector.await_at_least_one_service(), 5)
         except asyncio.TimeoutError as exc:
             raise asyncio.TimeoutError("No available network devices found.") from exc
         # But give a bit more time for additional ones to be registered

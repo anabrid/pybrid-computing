@@ -14,14 +14,14 @@ class UserProgram(SingleRun):
 
     def set_configuration(self, run: Run, computer: REDAC):
         # For each carrier, we configure one sinusoidal between clusters on the same carrier
-        for carrier in computer.carriers:
+        for idx, carrier in enumerate(computer.carriers):
             # Disconnect T-block as far as possible
             carrier.tblock.muxes = [0] * 96
 
             # Route sinusoidal between two clusters on the same carrier
             cluster_a, cluster_b = carrier.clusters[0:2]
             # First integrator to second integrator
-            cluster_a.m0block.elements[0].ic = -0.2
+            cluster_a.m0block.elements[0].ic = -0.05 * (idx + 1)
             cluster_a.ublock.connect(0, 8)
             cluster_a.cblock.elements[8].factor = -1.0
             carrier.tblock.muxes[2] = 1

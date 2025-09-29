@@ -1,0 +1,638 @@
+syntax = "proto3";
+
+package pb;
+
+message OptionalLane {
+    optional uint32 idx = 1;
+}
+
+message DeviceConfig {}
+
+message AdcConfig {
+    repeated OptionalLane channels = 1;
+}
+
+message ClusterConfig {}
+message MulConfig {
+    message Calibration {
+        uint32 offset_x = 1;
+        uint32 offset_y = 2;
+        uint32 offset_z = 3;
+        uint32 gain = 4;
+    }
+
+    repeated Calibration calibration = 1;
+}
+
+message ShiftHoldConfig {
+    enum State {
+        TRACK = 0;
+        TRACK_AT_IC = 1;
+        INJECT = 2;
+        GAIN_ZERO_TO_SEVEN = 3;
+        GAIN_EIGHT_TO_FIFTEEN = 4;
+        PASSTHROUGH = 5;
+    }
+
+    State state = 1;
+}
+
+message CoefConfig {
+    message Element{
+        uint32 idx = 1;
+        float factor = 2;
+    }
+    repeated Element elements = 1;
+}
+
+message ItorConfig {
+    message Element {
+        uint32 idx = 1;
+        float ic = 2;
+        uint32 k = 3;
+    }
+
+    repeated Element elements = 1;
+}
+
+message LimiterConfig{
+    message Element {
+        uint32 idx = 1;
+        bool enable = 2;
+    }
+
+    repeated Element elements = 1;
+}
+
+//UBLOCK Config
+//select math output for specific lane
+message SelectConfig {
+    enum ConstantConfig {
+        GROUND = 0;
+        POS_REF = 1;
+        NEG_REF = 2;
+    }
+
+    enum Magnitude {
+        ONE = 0;
+        ONE_TENTH = 1;
+    }
+
+    repeated SelectConnectionConfig connections = 1;
+    ConstantConfig constant = 2;
+    Magnitude magnitude = 3;
+}
+
+message SelectConnectionConfig{
+    uint32 input = 1;
+    uint32 output = 2;
+}
+
+//IBlock Config
+//summing currents
+message SumConfig {
+    repeated SumConnectionConfig connections = 1;
+    repeated UpscaleConfig upscales = 2;
+}
+
+message SumConnectionConfig {
+    repeated uint32 inputs = 1;
+    uint32 output = 2;
+}
+
+message UpscaleConfig {
+    uint32 lane = 1;
+    bool enabled = 2;
+}
+
+message Address {
+    bytes data = 1;
+}
+
+message Mux {
+    optional uint32 state = 1;
+}
+
+//TBlock Config
+//switch signals to other cluster or carrier
+message SwitchConfig {
+    repeated Mux muxes = 1;
+}
+
+message Use {
+    //index of lane
+    uint32 idx = 1;
+
+    //Below are source informations
+    //optional source id from registered addresses when source of signal is from different carrier
+    optional uint32 source = 10;
+
+    //Below are target informations
+    //how many times the signal is used
+    uint32 count = 20;
+
+    //check if use of signal is upscaled
+    bool upscaled = 21;
+}
+
+message UseConfig{
+    repeated Use uses = 1;
+}
+
+message SignalGeneratorConfig {
+    enum WaveForm {
+        SINE = 0;
+        SINE_AND_SQUARE = 1;
+        TRIANGLE = 2;
+    }
+
+    float frequency = 1;
+    float phase = 2;
+    WaveForm wave_form = 3;
+    float amplitude = 4;
+    float square_voltage_low = 5;
+    float square_voltage_high = 6;
+    float offset = 7;
+    bool sleep = 8;
+    repeated float dac_outputs = 9;
+}
+
+message FrontPanelConfig {
+    uint32 leds = 1;
+}
+
+message PortConfig {
+    enum AclState {
+        EXTERNAL = 0;
+        INTERNAL = 1;
+    }
+
+    repeated AclState states = 1;
+}
+
+message Config {
+    EntityId entity = 1;
+    oneof kind {
+        AdcConfig adc_config = 10;
+        ClusterConfig cluster_config = 11;
+        MulConfig mul_config = 12;
+        ShiftHoldConfig shift_hold_config = 13;
+        CoefConfig coef_config = 14;
+        ItorConfig itor_config = 15;
+        SelectConfig select_config = 16;
+        SumConfig sum_config = 17;
+        SwitchConfig switch_config = 18;
+        DeviceConfig device_config = 19;
+        LimiterConfig limiter_config = 20;
+        FrontPanelConfig front_panel_config = 21;
+        SignalGeneratorConfig signal_generator_config = 22;
+        PortConfig port_config = 23;
+        UseConfig use_config = 24;
+    }
+}
+
+message EntityId {
+    string path = 1;
+}
+
+message DescribeCommand {
+
+}
+message ResetCommand {
+    optional EntityId entity = 1;
+    bool keep_calibration = 2;
+    bool overload_reset = 3;
+    bool circuit_reset = 4;
+    bool sync = 5;
+}
+message ExtractCommand {
+    optional EntityId entity = 1;
+    bool recursive = 2;
+}
+message ConfigCommand {
+    ConfigBundle bundle = 1;
+    bool reset_before = 2;
+    bool sh_kludge = 3;
+    bool calibrate_mblock = 4;
+    bool calibrate_offset = 5;
+    bool calibrate_routes = 6;
+}
+
+message ConfigBundle{
+    repeated Config configs = 1;
+}
+
+enum Prefix {
+    NONE = 0;
+    MILLI = 1;
+    MICRO = 2;
+    NANO = 3;
+}
+
+message Time {
+    uint64 value = 1;
+    Prefix prefix = 2;
+}
+
+message Temperature {
+    enum Unit {
+        NONE = 0;
+        CELSIUS = 1;
+        FAHRENHEIT = 2;
+        KELVIN = 3;
+    }
+
+    float value = 1;
+    Unit unit = 2;
+}
+
+
+message RunConfig {
+    Time ic_time = 1;
+    Time op_time = 2;
+    optional bool halt_on_overload = 3;
+    optional bool streaming = 4;
+    optional bool repetitive = 5;
+    optional bool write_run_state_changes = 6;
+}
+
+message DaqConfig {
+    uint32 num_channels = 1;
+    uint32 sample_rate = 2;
+    bool sample_op = 3;
+    bool sample_op_end = 4;
+}
+
+message SyncConfig {
+    bool enabled = 1;
+    optional EntityId master = 2;
+    uint32 group = 3;
+}
+
+message CalibrationConfig {
+    bool enabled = 1;
+    optional EntityId leader = 2;
+}
+
+message UdpDataStreamingCommand {
+    fixed32 port = 1;
+}
+
+message StartRunCommand {
+    RunConfig run_config = 1;
+    DaqConfig daq_config = 2;
+    SyncConfig sync_config = 3;
+    CalibrationConfig calibration_config = 4;
+    string run_id = 5;
+    bool end_repetitive = 6;
+    bool clear_queue = 7;
+}
+
+message StopRunCommand {}
+message StandByCommand {
+    bool standby = 1;
+    bool hack_pwm_ramp = 2;
+}
+
+message ManualControlCommand {
+    enum State {
+        IC = 0;
+        OP = 1;
+        HALT = 2;
+        MINION = 3;
+    }
+
+    State to = 1;
+}
+
+message PingCommand {
+
+}
+
+message RegisterExternalEntitiesCommand {
+    map<uint32, Address> entities = 1;
+}
+
+message SyslogCommand {}
+message SystemStatsCommand {}
+
+
+message Version {
+    uint32 major = 1;
+    uint32 minor = 2;
+    uint32 patch = 3;
+}
+
+message Entity {
+    enum Class {
+        UNKNOWN = 0;
+        CARRIER = 1;
+        CLUSTER = 2;
+        M_BLOCK = 3;
+        U_BLOCK = 4;
+        C_BLOCK = 5;
+        I_BLOCK = 6;
+        SH_BLOCK = 7;
+        FRONT_PANEL = 8;
+        CTRL_BLOCK = 9;
+        T_BLOCK = 10;
+        BACK_PANEL = 11;
+        DEVICE = 30;
+    };
+
+    string id = 1;
+    Class class_ = 2;
+    uint32 type = 3;
+    uint32 variant = 4;
+    Version version = 5;
+    string eui = 6;
+
+    repeated Entity children = 7;
+}
+
+message DescribeResponse {
+    Entity entity = 1;
+}
+
+message ResetResponse {
+    EntityId entity = 1;
+}
+
+message ExtractResponse {
+    ConfigBundle bundle = 1;
+}
+
+message ConfigResponse {
+    optional EntityId entity = 1;
+
+}
+
+message StartRunResponse {
+
+}
+
+enum RunState {
+    NEW = 0;
+    ERROR = 1;
+    DONE = 2;
+    QUEUED = 3;
+    TAKE_OFF = 4;
+    IC = 5;
+    OP = 6;
+    OP_END = 7;
+    TMP_HALT = 8;
+}
+
+message RunStateChangeMessage {
+    RunState old = 1;
+    RunState new_ = 2;
+    Time time = 3;
+    string reason = 4;
+    string run_id = 5;
+}
+
+
+
+message IntegerType{
+    enum Signedness{
+        Signed = 0;
+        Unsigned = 1;
+    }
+
+    Signedness signess = 1;
+    uint32 bitwidth = 2;
+}
+
+message FloatType{
+    uint32 bitwidth = 2;
+}
+
+message DataType{
+    oneof kind{
+        FloatType float_ = 1;
+        IntegerType integer = 2;
+    }
+}
+
+message DaqData {
+    bytes data = 1;
+    double gain = 2;
+    double offset = 3;
+    DataType type = 4;
+}
+
+message RunDataMessage {
+    EntityId entity = 1;
+    string run_id = 2;
+    DaqData data = 3;
+    uint32 sample_count = 4;
+    uint32 channel_count = 5;
+    uint32 alignment = 6;
+}
+
+message RunDataEndMessage {
+    string run_id = 1;
+    EntityId entity = 2;
+    DaqData data = 3;
+}
+
+message PingResponse {
+    uint64 micros = 1;
+}
+
+message FirmwareBuild {
+    map<string, string> entries = 1;
+}
+
+message FirmwareImage {
+    uint64 size = 1;
+    string sha256sum = 2;
+}
+
+message GetSystemIdentResponse {
+    string mac = 1;
+    FirmwareBuild fw_build = 2;
+    FirmwareImage fw_image = 3;
+}
+
+message SyslogResponse {
+    bool is_active = 1;
+    uint64 max_size = 2;
+    repeated string entries = 3;
+}
+
+message PerformanceCounters {
+    uint64 total_ic_time_us = 1;
+    uint64 total_op_time_us = 2;
+    uint64 total_halt_time_us = 3;
+    uint64 total_number_of_runs = 4;
+}
+
+message SystemStatsResponse {
+    PerformanceCounters perf_counters = 1;
+}
+
+message ReadSystemIdentCommand {
+    bool read_from_eeprom = 1;
+}
+
+message ReadSystemIdentResponse {
+
+}
+
+message ResetSystemIdentCommand {
+    bool write_to_hardware = 1;
+}
+
+message ResetSystemIdentResponse {
+
+}
+
+message WriteSystemIdentCommand {
+    Vendor vendor = 1;
+}
+
+message Vendor {
+    fixed32 serial_number = 1;
+    string serial_uuid = 2;
+    string default_admin_password = 3;
+    string default_user_password = 4;
+}
+
+message WriteSystemIdentResponse {
+    bool valid = 1;
+}
+
+message GetSystemIdentCommand {
+
+}
+
+message CalibrateInitCommand {
+
+}
+message CalibrateFinalizeCommand {
+
+}
+message CalibrateOffsetCommand {
+
+}
+message CalibrateLaneCommand {
+    uint32 lane = 1;
+}
+
+message CalibrationData {
+    uint32 lane = 1;
+    float gain_correction = 2;
+}
+
+message CalibrateDataCommand {
+    CalibrationData data = 1;
+}
+
+message ReadTemperatureCommand {
+}
+
+message TemperatureMeasurement{
+    EntityId entity = 1;
+    Temperature temperature = 2;
+}
+
+message TemperatureDataset{
+    repeated TemperatureMeasurement measurements = 1;
+}
+
+message ReadTemperatureResponse {
+    TemperatureDataset dataset = 1;
+}
+
+message SuccessMessage {}
+
+enum ErrorCode{
+    None = 0;
+}
+
+message ErrorMessage {
+    ErrorCode code = 1;
+    string description = 2;
+}
+
+message Envelope{
+    Version version = 1;
+
+    //each major version is introducing breaks therefore a new variant has to be added
+    //the minor version just adds features which can be ignored by a older firmware version
+    oneof kind{
+        //generic messages shall always be supported
+        GenericMessage generic = 100;
+        MessageV1 message_v1 = 101;
+
+        //message v2 if required
+        //each message which is majorly altered gets a V{N} as postfix
+        MessageV2 message_v2 = 102;
+    }
+}
+
+message GenericMessage{
+    oneof kind{
+        //can be used to ask endpoint if it is alive and returned version can be used to use right messages
+        PingCommand ping_command = 100;
+        PingResponse ping_response = 101;
+    }
+}
+
+message MessageV1 {
+    optional string id = 1;
+
+    oneof kind {
+        SuccessMessage success_message = 100;
+        ErrorMessage error_message = 101;
+
+        //From client to device
+        StandByCommand stand_by_command = 200;
+        DescribeCommand describe_command = 201;
+        ResetCommand reset_command = 202;
+        ExtractCommand extract_command = 203;
+        ConfigCommand config_command = 204;
+        StartRunCommand start_run_command = 205;
+        StopRunCommand stop_run_command = 206;
+        ManualControlCommand manual_control_command = 207;
+        RegisterExternalEntitiesCommand register_external_entities_command = 208;
+        GetSystemIdentCommand get_system_ident_command = 209;
+        SyslogCommand syslog_command = 210;
+        SystemStatsCommand system_stats_command = 211;
+        ReadSystemIdentCommand read_system_ident_command = 212;
+        ResetSystemIdentCommand reset_system_ident_command = 213;
+        WriteSystemIdentCommand write_system_ident_command = 214;
+        UdpDataStreamingCommand udp_data_streaming_command = 215;
+        ReadTemperatureCommand read_temperature_command = 216;
+
+        //from device to client
+        DescribeResponse describe_response = 300;
+        ExtractResponse extract_response = 301;
+        ConfigResponse config_response = 302;
+        ResetResponse reset_response = 303;
+        StartRunResponse start_run_response = 304;
+        RunStateChangeMessage run_state_change_message = 305;
+        RunDataMessage run_data_message = 306;
+        RunDataEndMessage run_data_end_message = 307;
+        GetSystemIdentResponse get_system_ident_response = 308;
+        SyslogResponse syslog_response = 309;
+        SystemStatsResponse system_stats_response = 310;
+        ReadSystemIdentResponse read_system_ident_response = 311;
+        ResetSystemIdentResponse reset_system_ident_response = 312;
+        WriteSystemIdentResponse write_system_ident_response = 313;
+        ReadTemperatureResponse read_temperature_response = 314;
+
+        //from device to device
+        CalibrateInitCommand calibrate_init_command = 400;
+        CalibrateLaneCommand calibrate_lane_command = 401;
+        CalibrateOffsetCommand calibrate_offset_command = 402;
+        CalibrateFinalizeCommand calibrate_finalize_command = 403;
+        CalibrateDataCommand calibrate_data_command = 404;
+    }
+}
+
+message MessageV2 {
+
+
+}

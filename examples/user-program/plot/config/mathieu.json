@@ -1,0 +1,286 @@
+{
+  "00-00-00-00-00-00": {
+    "/0": {
+      "/C": {
+        "elements": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0,
+          -0.2,
+          0.2,
+          1.0,
+          -0.65,
+          -0.65,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "/I": {
+        "outputs": [
+          [
+            9
+          ],
+          [
+            10
+          ],
+          [
+            13,
+            12
+          ],
+          [
+            14
+          ],
+          [],
+          [],
+          [],
+          [],
+          [
+            11
+          ],
+          [
+            8
+          ],
+          [],
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "upscaling": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "/M0": {
+        "elements": [
+          {
+            "ic": -0.0,
+            "k": 10000
+          },
+          {
+            "ic": -1.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": -0.11376277775873084,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          }
+        ]
+      },
+      "/M1": {},
+      "/U": {
+        "constant": true,
+        "outputs": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          3,
+          1,
+          0,
+          1,
+          8,
+          3,
+          2,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "/T": {
+      "muxes": [
+        null,
+        1,
+        null,
+        null,
+        null,
+        1,
+        null,
+        null,
+        null,
+        1,
+        null,
+        null,
+        null,
+        1,
+        null,
+        null,
+        null,
+        1,
+        null,
+        null,
+        null,
+        1,
+        null,
+        null,
+        null,
+        1,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "adc_channels": [
+      3
+    ]
+  }
+}

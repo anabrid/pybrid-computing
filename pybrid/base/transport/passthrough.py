@@ -4,10 +4,10 @@
 
 import asyncio
 
-from .base import BaseTransport
+from .stream import StreamTransport
 
 
-class PassthroughTransport(BaseTransport):
+class PassthroughTransport(StreamTransport):
     """
     A utility passthrough transport for testing purposes.
 

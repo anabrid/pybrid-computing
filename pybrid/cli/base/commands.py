@@ -7,7 +7,7 @@ import asyncclick as click
 from pybrid.base.hybrid import BaseController, BaseRun, RunEvaluateReconfigureLoop
 from pybrid.base.utils.imports import import_file_as_module
 
-
+@click.command
 @click.pass_obj
 @click.option('--output', '-o', type=click.File('w'), default='-')
 @click.argument('user_program_file', type=click.Path(exists=True, file_okay=True, dir_okay=False))

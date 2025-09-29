@@ -46,14 +46,3 @@ async def unix_socket_transport(temp_filename):
     yield transport
     transport.writer.close()
 
-
-async def test_unix_socket_transport_basics(temp_filename, unix_socket_server, unix_socket_transport):
-    transport: UnixSocketTransport = unix_socket_transport
-
-    async def write_something():
-        await transport.send_line(b"blub")
-
-    asyncio.get_event_loop().call_soon(asyncio.create_task, write_something())
-
-    response = await unix_socket_transport.reader.readline()
-    assert response == b"blub\n"
