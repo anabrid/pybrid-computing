@@ -4,10 +4,10 @@
 
 from serial_asyncio import open_serial_connection
 
-from .base import BaseTransport
+from .stream import StreamTransport
 
 
-class SerialTransport(BaseTransport):
+class SerialTransport(StreamTransport):
     """
     A transport abstraction for serial connections.
     """

@@ -1,0 +1,621 @@
+{
+  "00-00-00-00-00-00": {
+    "/0": {
+      "/C": {
+        "elements": [
+          1.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "/I": {
+        "outputs": [
+          [
+            0
+          ],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [
+            3,
+            2
+          ],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "upscaling": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "/M0": {
+        "elements": [
+          {
+            "ic": -0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": -0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          }
+        ]
+      },
+      "/M1": {},
+      "/U": {
+        "constant": true,
+        "outputs": [
+          0,
+          6,
+          null,
+          null,
+          null,
+          6,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "/1": {
+      "/C": {
+        "elements": [
+          -0.5805431449727627,
+          0.5,
+          0.0,
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "/I": {
+        "outputs": [
+          [],
+          [],
+          [
+            3,
+            5
+          ],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [
+            1
+          ],
+          [
+            0
+          ],
+          [],
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "upscaling": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "/M0": {
+        "elements": [
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.17225248608299681,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          }
+        ]
+      },
+      "/M1": {},
+      "/U": {
+        "constant": true,
+        "outputs": [
+          2,
+          8,
+          null,
+          2,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "/2": {
+      "/C": {
+        "elements": [
+          0.5805431449727627,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "/I": {
+        "outputs": [
+          [],
+          [
+            1,
+            0
+          ],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "upscaling": [
+          false,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "/M0": {
+        "elements": [
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          },
+          {
+            "ic": 0.0,
+            "k": 10000
+          }
+        ]
+      },
+      "/M1": {},
+      "/U": {
+        "constant": true,
+        "outputs": [
+          1,
+          null,
+          1,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "/T": {
+      "muxes": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "adc_channels": [
+      6,
+      18
+    ]
+  }
+}

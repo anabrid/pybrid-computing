@@ -9,6 +9,8 @@ from enum import Enum
 
 from pyftdi.spi import SpiController
 
+from pybrid.redac.entities import Path
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,8 +26,9 @@ class SyncMode(Enum):
 
 @dataclass(kw_only=True)
 class SyncConfig:
+    enabled: bool = True
     #: Select SYNC mode.
-    mode: SyncMode = SyncMode.SLAVE
+    master: None | Path = None
     #: Set SYNC group
     group: typing.Optional[int] = None
 

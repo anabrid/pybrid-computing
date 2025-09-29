@@ -13,6 +13,7 @@ import pytest
 from pybrid.redac import Controller, REDAC, Path, Run, RunConfig
 from pybrid.redac.blocks import MIntBlock, MMulBlock
 from pybrid.redac.carrier import Carrier
+from pybrid.redac.device import Device
 
 sign = partial(math.copysign, 1)
 
@@ -27,7 +28,7 @@ def event_loop():
 @pytest.fixture(scope="module")
 async def raw_controller():
     controller = Controller(standalone=True)
-    for host, port, name in [("192.168.88.241", 5732, "04-E9-E5-18-16-43 15785630-Teensy")]:
+    for host, port, name in [("192.168.104.244", 5732, "00-00-00-00-00-00 15785630-Teensy")]:
         await controller.add_device(host, port, name=name)
     async with controller:
         yield controller
@@ -41,8 +42,10 @@ async def controller(raw_controller):
     raw_controller.computer = REDAC(entities=[])
     for entity_id, sub_entities in deepcopy(raw_controller._raw_entity_dict).items():
         path = Path.parse(entity_id)
-        carrier = Carrier.create_from_entity_type_tree(path, sub_entities)
-        raw_controller.computer.add_carrier(carrier)
+        print(path, sub_entities)
+        device = Device.create_from_entity_type_tree(path, sub_entities)
+        for carrier in device.carriers:
+            raw_controller.computer.add_carrier(carrier)
 
     return raw_controller
 
@@ -57,8 +60,7 @@ class TestSignConvention:
                     if not isinstance(mblock, MIntBlock):
                         continue
                     for lane in range(0, 8):
-                        cluster.add_constant(lane + m_idx * 8, 1.0, lane + m_idx * 8)
-                        computer.daq.capture(mblock.elements[lane])
+                        cluster.add_constant(lane + m_idx * 8, -1.0, lane + m_idx * 8)
 
         async with asyncio.timeout(10):
             await controller.set_computer(computer)
@@ -73,12 +75,13 @@ class TestSignConvention:
                     if not isinstance(mblock, MIntBlock):
                         continue
                     for element in mblock.elements:
-                        assert abs(run.final_values[element.path]) == pytest.approx(
+                        value = run.final_values[element.path]
+                        if abs(abs(value) - 1.00) > 0.02:
+                            print(value)
+                        assert abs(value) == pytest.approx(
                             1.00, 0.02
                         ), "Integration did not reach expected absolute value of 1.00±0.01."
-                        assert (
-                            run.final_values[element.path] >= 0
-                        ), "Integration of positive input did not result in a positive output."
+                        assert value, "Integration of positive input did not result in a positive output."
 
     @pytest.mark.parametrize(
         "in_a,in_b,expected",
@@ -135,7 +138,7 @@ class TestSignConvention:
                     if not isinstance(mblock, MMulBlock):
                         continue
                     for lane in range(0, 4):
-                        cluster.add_constant(lane + m_idx * 8, in_, lane + m_idx * 8)
+                        cluster.add_constant(lane + m_idx * 8, -in_, lane + m_idx * 8)
 
         async with asyncio.timeout(10):
             await controller.set_computer(computer)

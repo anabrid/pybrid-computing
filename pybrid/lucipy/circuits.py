@@ -719,7 +719,7 @@ class Routing(Probes):
     @staticmethod
     def coeff_upscale(c_elements, raise_out_of_bounds=True):
         upscaling = [ (v < -1 or v > 1) for v in c_elements ]
-        scaled_c = [ (c/10 if sc else c) for sc, c in zip(upscaling, c_elements) ]
+        scaled_c = [ (c/8 if sc else c) for sc, c in zip(upscaling, c_elements) ]
         return upscaling, scaled_c
     
     def sanity_check(self, also_print=True):
@@ -896,7 +896,7 @@ class Routing(Probes):
         if "upscaling" in cluster_config["/I"]:
             for i in range(32):
                 if cluster_config["/I"]["upscaling"][i]:
-                    C[i] *= 10
+                    C[i] *= 8
         
         if "constant" in cluster_config["/U"]:
             self.use_constant(cluster_config["/U"]["constant"])

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from .blocks import FunctionBlock, MBlock, UBlock, CBlock, IBlock
 from .entities import Entity, Path, EntityType, EntityClass
 
+from pybrid.base.proto import main_pb2 as pb
 
 @dataclass(kw_only=True)
 class Cluster(Entity):
@@ -52,22 +53,17 @@ class Cluster(Entity):
         return self.m0block, self.m1block, self.ublock, self.cblock, self.iblock
 
     @classmethod
-    def create_from_entity_type_tree(cls, path, tree):
+    def create_from_entity_type_tree(cls, path, tree: pb.Entity):
         # TODO: Refactor out common code
         # Check information on self
         this_entity_type = EntityType.pop_from_dict(tree)
         assert this_entity_type.class_ is EntityClass.CLUSTER
 
-        # TODO: Actually use the EUI
-        tree.pop("eui", None)
-
         # Generate child entities
         blocks = dict()
-        for sub_path, sub_tree in tree.items():
-            if not sub_path.startswith("/"):
-                raise ValueError("Unexpected entities tree element. Expected only sub-paths to be left.")
-            path_ = path / Path((sub_path.removeprefix("/"),))
-            block = FunctionBlock.create_from_entity_type_tree(path_, sub_tree)
+        for child in tree.children:
+            path_ = path / Path.parse(child.id)
+            block = FunctionBlock.create_from_entity_type_tree(path_, child)
             blocks[f"{path_.id_.lower()}block"] = block
 
         # TODO: Less hard-coding :)

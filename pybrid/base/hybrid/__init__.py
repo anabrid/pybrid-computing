@@ -5,4 +5,4 @@ from .entities import Entity, Path, EntityDoesNotExist
 from .modules import ComputationModule
 from .protocol import BaseProtocol, ProtocolError
 from pybrid.base.hybrid.programs.recl import RunEvaluateReconfigureLoop
-from .run import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig, BaseSimConfig
+from .run import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig

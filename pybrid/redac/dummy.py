@@ -13,7 +13,7 @@ from .computer import REDAC
 from .controller import Controller
 from .entities import Entity
 from .protocol.messages import SetCircuitRequest
-from .protocol.serializer import to_dict, build_config
+from .protocol.serializer import to_pb, build_config
 
 logger = logging.getLogger(__name__)
 
@@ -231,7 +231,7 @@ class DummyController:
 
     async def get_config(self, entity: Entity, *, recursive: bool = True):
         entity = self.computer.get_entity(entity.path)
-        return to_dict(entity)
+        return to_pb(entity)
 
     async def set_config(self, *args, **kwargs):
         self.log_action("set_config", *args, **kwargs)

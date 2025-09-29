@@ -2,11 +2,12 @@ from pybrid.lucipy import Circuit, LUCIDAC
 import matplotlib.pyplot as plt
 import numpy as np
 
-op_secs = .1 # duration of OP cycle in seconds
-sample_rate = 50_000
+luci    = LUCIDAC()
 
-sprott = Circuit()
+sprott  = Circuit()                     # Create a circuit
+
 scale = 0.7
+
 mx      = sprott.int(ic = .1)
 my      = sprott.int()
 mz      = sprott.int()
@@ -32,20 +33,20 @@ sprott.measure(mx, adc_channel=0)
 sprott.measure(my, adc_channel=1)
 sprott.measure(mz, adc_channel=2)
 
-luci = LUCIDAC()
 luci.set_circuit(sprott)
+
+
+
+op_secs = .1                            # duration of OP cycle in seconds
+sample_rate = 100_000                   # samples per second
+
 luci.set_daq(num_channels=3, sample_rate=sample_rate)
 luci.set_run(ic_time = 1_000, op_time=int(op_secs * 1_000_000_000))
+
 run = luci.run()
 
-def time_series(sample_rate, sample_count):
-    sample_period_micros = 1_000_000 // sample_rate
-    sample_period = sample_period_micros / 1_000_000
-    real_sample_time = sample_period * (sample_count - 1)
-    return np.linspace(0, real_sample_time, sample_count)
-
 ax = plt.figure().add_subplot(projection='3d')
-ax.plot(*np.array(list(run.data.values())), ls="", marker=".", markersize=1.5)
+ax.plot(*np.array(list(run.data.values())), ls="-", marker="", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_zlabel("Z")

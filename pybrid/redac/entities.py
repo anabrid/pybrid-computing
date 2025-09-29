@@ -19,13 +19,12 @@ As described in :class:`Path`, the hierarchy represented is as follows.
 import typing
 from dataclasses import dataclass, fields, replace
 from enum import Enum
-from typing import Iterable
 
 from packaging.version import Version
 
 from pybrid.base.hybrid import Entity as BaseEntity
 from pybrid.base.hybrid import Path as BasePath
-
+import pybrid.base.proto.main_pb2 as pb
 
 class UnknownEntityTypeError(ValueError):
     """Exception thrown when trying to get an unknown :class:`EntityType` instance."""
@@ -53,6 +52,7 @@ class EntityClass(Enum):
     FRONTPANEL = 8
     CTRLBLOCK = 9
     TBLOCK = 10
+    DEVICE = 30
     OTHER = 31
 
 
@@ -94,15 +94,15 @@ class EntityType:
     variant: typing.Optional[int] = None
 
     @classmethod
-    def pop_from_dict(cls, d):
-        version_tuple = d.pop("version")
-        version_string = ".".join(map(str, version_tuple))
+    def pop_from_dict(cls, entity: pb.Entity):
+        version = entity.version
+        version_string = ".".join(map(str, [version.major, version.minor, version.patch]))
         version = Version(version_string)
         return cls(
-            class_=EntityClass(d.pop("class")),
-            type_=d.pop("type"),
+            class_=EntityClass(entity.class_),
+            type_=entity.type,
             version=version,
-            variant=d.pop("variant"),
+            variant=entity.variant,
         )
 
     def fallback_type(self):
@@ -303,3 +303,4 @@ class Entity(BaseEntity):
 
     def apply_partial_configuration(self, attribute, value):
         raise NotImplementedError
+

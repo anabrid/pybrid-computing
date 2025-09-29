@@ -4,9 +4,11 @@
 
 import typing
 from abc import ABC, abstractmethod
+from ipaddress import IPv4Address
 
 from packaging.version import Version
-from pybrid.base.transport import BaseTransport
+from pybrid.base.transport import StreamTransport
+from pybrid.base.transport.base import BaseTransport
 
 
 class ProtocolError(Exception):
@@ -34,12 +36,11 @@ class UnsuccessfulRequestError(ProtocolError):
 
 
 class BaseProtocol(ABC):
-    transport: BaseTransport
     version: Version
 
     @classmethod
     async def create(
-            cls, transport: BaseTransport, version_: typing.Union[Version, int, str] = None
+            cls, remote_address: IPv4Address, transport: BaseTransport, version_: typing.Union[Version, int, str] = None
     ) -> 'BaseProtocol':
         if version_ is None:
             version = Version("1.0")
@@ -54,11 +55,10 @@ class BaseProtocol(ABC):
             version = Version(version_)
         else:
             raise TypeError("version parameter has wrong type")
-        protocol = cls(version=version, transport=transport)
+        protocol = cls(remote_address=remote_address, version=version, ctrl_transport=transport)
         return protocol
 
-    def __init__(self, transport: BaseTransport, version: Version):
-        self.transport = transport
+    def __init__(self, version: Version):
         self.version = version
 
     @abstractmethod

@@ -1,13 +1,10 @@
-"""
-The simple LUCIDAC python client classes.
+from .circuits import *
+from .computer import LUCIDACWrapper as LUCIDAC
 
-Provides:
+import numpy as np
 
-* LUCIDAC analog configuration and run managament
-* An easy HybridController class
-* Basic typing
-
-"""
-
-from .lucidac import LUCIDAC
-from .circuits import Circuit, Route
+def time_series(sample_rate, sample_count):
+    sample_period_micros = 1_000_000 // sample_rate
+    sample_period = sample_period_micros / 1_000_000
+    real_sample_time = sample_period * (sample_count - 1)
+    return np.linspace(0, real_sample_time, sample_count)

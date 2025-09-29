@@ -7,10 +7,10 @@ import os
 import tempfile
 import typing
 
-from .base import BaseTransport
+from .stream import StreamTransport
 
 
-class UnixSocketTransport(BaseTransport):
+class UnixSocketTransport(StreamTransport):
     """
     Transport based on unix sockets, mostly for testing purposes.
     """

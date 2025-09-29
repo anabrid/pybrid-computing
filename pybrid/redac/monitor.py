@@ -7,6 +7,8 @@ import json
 import logging
 import typing
 
+from google.protobuf.json_format import MessageToJson
+
 from .controller import Controller
 
 logger = logging.getLogger(__name__)
@@ -42,7 +44,7 @@ class Monitor:
         while True:
             logger.info("Getting current temperatures...")
             temperatures = await self.controller.get_system_temperatures()
-            self.output.write(json.dumps({str(key): value for key, value in temperatures.items()}))
+            self.output.write(MessageToJson(temperatures))
             self.output.write("\n")
             self.output.flush()
             await asyncio.sleep(30)
