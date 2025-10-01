@@ -10,7 +10,7 @@ from ipaddress import IPv4Address
 from typing import Optional, List
 
 import inflection
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, BaseModel, Field, ConfigDict
 
 from pybrid.redac.protocol.types import SuccessInfo
 from pybrid.redac.entities import Path
@@ -541,15 +541,12 @@ class SetCircuitRequest(Request):
     #: Whether to calibrate routes after applying the configuration
     calibrate_routes: bool = False
     #: A :py:class`pybrid.redac.partitioning.PartitionConfig` that should be applied to the run.
-    partition_config: typing.Optional[PartitionConfig] = None
+    partition_config: typing.Optional[PartitionConfig] = Field(default={}, exclude=True)
 
     @classmethod
     def make(cls, entity):
         """Factory method to create a config request for some entity."""
         ...
-
-    class Config:
-        fields = {"partition_config": {"exclude": True}}
 
 
 class SetCircuitResponse(Response):

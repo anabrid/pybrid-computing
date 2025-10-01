@@ -14,6 +14,26 @@ class EntityDoesNotExist(Exception):
 class Path(tuple):
     SCHEMA = None
 
+    @classmethod
+    def __get_pydantic_core_schema__(cls, _source_type, _handler):
+        """Pydantic v2 schema generation"""
+        from pydantic_core import core_schema
+        return core_schema.no_info_before_validator_function(
+            cls._pydantic_validate,
+            core_schema.any_schema()
+        )
+
+    @classmethod
+    def _pydantic_validate(cls, value):
+        """Validate and convert value to Path instance"""
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, (list, tuple)):
+            return cls(value)
+        if isinstance(value, str):
+            return cls.parse(value)
+        raise ValueError(f"Cannot convert {type(value)} to Path")
+
     @property
     def parent(self):
         return Path(self[:-1])

@@ -52,7 +52,9 @@ class Envelope(BaseModel):
 
     @classmethod
     def from_message(cls, message, *, id_=None):
-        kwargs = {"type": message.get_type_identifier(), "msg": message}
+        # Convert message to dict for Pydantic validation
+        msg_dict = message.model_dump() if hasattr(message, 'model_dump') else message.dict()
+        kwargs = {"type": message.get_type_identifier(), "msg": msg_dict}
         if id_ is not None:
             kwargs["id"] = id_
         else:

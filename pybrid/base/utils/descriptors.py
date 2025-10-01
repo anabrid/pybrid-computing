@@ -10,12 +10,9 @@ class Validator:
 
     def __get__(self, instance, owner=None):
         if instance is None:
-            # Argument instance is None when default value should be generated for dataclasses,
-            # see https://docs.python.org/3/library/dataclasses.html#descriptor-typed-fields.
-            # But we don't support this syntax. Instead you should use
-            # a_field = field(default=Validator())
-            raise RuntimeError("Validators can not be assigned as class descriptor fields. "
-                               "Instead use 'a_field: type_of_field = field(default=Validator())'.")
+            # Return the validator itself when accessed from class level
+            # This allows Pydantic v2 to introspect the field without raising an error
+            return self
         if not hasattr(instance, self._name):
             self.set_default(instance, self._name, owner)
         return getattr(instance, self._name)

@@ -36,6 +36,9 @@ from pybrid.lucidac.controller import Controller as LUCIDACController
 from pybrid.base.utils.json import JSONConfigAdapter
 import pybrid.base.proto.main_pb2 as pb
 
+# controls logging verbosity - use for debugging
+# logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 ###
@@ -135,6 +138,7 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
     run_class = controller.get_run_implementation()
     ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
+    ctx.obj["use_virtual_macs"] = True
 
 ###
 # LUCIDAC initialization
@@ -173,15 +177,7 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
     show_default=True,
     help="Whether to fake any communication, allowing you to run without any computer present.",
 )
-@click.option(
-    "--standalone/--no-standalone",
-    is_flag=True,
-    default=True,
-    required=False,
-    show_default=True,
-    help="Run in standalone mode, which does not require an external super-controller or SYNC generator.",
-)
-async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool, standalone: bool):
+async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool, standalone: bool = True):
     """
     Entrypoint for all LUCIDAC commands.
 
@@ -215,8 +211,12 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, 
 
         # Generate a controller and add devices
         controller = LUCIDACController(standalone=standalone)
-        for host, port, name in devices:
-            await controller.add_device(host, port, name=name)
+
+        if len(devices) > 1:
+            logger.warning("Multiple LUCIDACs found, using the first one - use options -h and -p to select a specific LUCIDAC.")
+
+        host, port, name = devices[0]
+        await controller.add_device(host, port, name=name)
         # await controller.reset()
     else:
         controller = DummyController(standalone=standalone)
@@ -234,6 +234,7 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, 
     run_class = controller.get_run_implementation()
     ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
+    ctx.obj["use_virtual_macs"] = False
 
 @click.command()
 @click.pass_obj
@@ -646,10 +647,11 @@ async def run(obj, op_time, ic_time, config_file: typing.TextIO, output, output_
     """
     controller: REDACController = obj["controller"]
     run_: Run = obj["run"]
+    use_virtual_macs : bool = obj["use_virtual_macs"]
 
     # Read and send configuration (as protobuf file)
     config = json.load(config_file)
-    pb_config = JSONConfigAdapter.parse(config, controller.computer)
+    pb_config = JSONConfigAdapter.parse(config, controller.computer, use_virtual_macs)
     await controller.forward_set_config(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=pb_config)))
 
     # If the run in the context object is already done, we need a new one
@@ -663,6 +665,7 @@ async def run(obj, op_time, ic_time, config_file: typing.TextIO, output, output_
         run_.config.op_time = op_time
 
     timeout = max(run_.config.op_time / 1_000_000_000 + 3, 3)
+    print("STARTING RUN")
     run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=timeout)
     if run_.state is RunState.ERROR:
         raise RunError("Error while executing run.")

@@ -199,7 +199,7 @@ class Controller:
         # Create a connection to the device
         async with asyncio.timeout(3):
             ctrl_transport_ = await TCPTransport.create(host, port, name=name)
-            ctrl_protocol = await Protocol.create(ctrl_transport_.get_remote_ip(), ctrl_transport_)
+            ctrl_protocol = await type(self).get_protocol_implementation().create(ctrl_transport_.get_remote_ip(), ctrl_transport_)
             await ctrl_protocol.start()
 
         # Get carrier the device controls. In the future, other device types may be added here.
@@ -359,13 +359,16 @@ class Controller:
             partial_request.CopyFrom(empty_message)
 
             for path in managed_paths:
+                to_delete = []
                 for config in message.bundle.configs:
                     if config.entity.path.startswith(path):
+                        to_delete.append(config)
                         partial_request.bundle.configs.append(config)
 
                 # remove items from original message
-                for config in partial_request.bundle.configs:
+                for config in to_delete:
                     message.bundle.configs.remove(config)
+
             if len(partial_request.bundle.configs) > 0:
                 forwards.add(
                     protocol.send_body_and_wait_response(partial_request)

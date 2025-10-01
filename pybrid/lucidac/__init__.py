@@ -10,4 +10,4 @@ Provides:
 """
 
 from pybrid.lucidac.computer import LUCIDAC
-from pybrid.lucipy.circuits import Circuit, Route
+from pybrid.lucidac.lucipy.circuits import Circuit, Route

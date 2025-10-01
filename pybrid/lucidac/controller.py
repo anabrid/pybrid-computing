@@ -11,6 +11,7 @@ from pybrid.redac.computer import REDAC
 
 from pybrid.lucidac.computer import LUCIDAC
 from pybrid.redac.controller import Controller as REDACController
+from pybrid.redac.protocol.protocol import Protocol
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,11 @@ class Controller(REDACController):
     def lucidac_entity(self) -> str:
         return self._lucidac_entity
     
+    @classmethod
+    def get_protocol_implementation(cls):
+        """Returns the specific :class:`.Protocol` implementation by this device"""
+        return Protocol
+
     async def add_device(self, host, port, name=None):
         """
         Overwrite REDAC's add_device function to check and store the real entity
@@ -58,5 +64,5 @@ class Controller(REDACController):
         assert(len(self.protocols) == 1)
         assert(len(self._raw_entity_dict) == 1)
         self._lucidac_entity = list(self._raw_entity_dict.keys())[0][1:]
-        logger.info("LUCIDAC entity MAC:", self._lucidac_entity)
+        logger.info("LUCIDAC entity MAC:" + self._lucidac_entity)
         
