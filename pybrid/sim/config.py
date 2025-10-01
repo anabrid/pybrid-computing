@@ -49,7 +49,7 @@ class SimConfig:
     #: Whether to simulate with limits on the integrators, similar to hardware integrators.
     with_limits: bool = True
     #: Lets users overwrite the config's k0 with an arbitrary (e.g. device-unsupported) k0
-    k0: typing.Optional[int] = None
+    k0: typing.Optional[int] = 10_000
     #: Throws away REDAC-like end-of-OP sinks.
     only_module_sinks: bool = False
     #: Sets plugin connections for simulated ACLs.
