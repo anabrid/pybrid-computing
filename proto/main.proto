@@ -218,6 +218,32 @@ message ConfigCommand {
     bool calibrate_routes = 6;
 }
 
+// Simulator-only
+message ACLPlugin {
+    string plugin = 1;
+    string label = 2;
+    repeated float parameters = 3;
+}
+
+message ACLBind {
+    uint32 acl = 1;
+    string plugin = 2;
+    uint32 pin = 3;
+}
+
+message ACLConfig {
+    repeated ACLPlugin plugins = 1;
+    repeated ACLBind inputs = 2;
+    repeated ACLBind outputs = 3;
+};
+
+message SimConfigCommand {
+    uint32 k0 = 1;
+    bool with_limits = 2;
+    bool only_module_sinks = 3;
+    optional ACLConfig acl_config = 4;
+}
+
 message ConfigBundle{
     repeated Config configs = 1;
 }
@@ -632,6 +658,9 @@ message MessageV1 {
         CalibrateOffsetCommand calibrate_offset_command = 402;
         CalibrateFinalizeCommand calibrate_finalize_command = 403;
         CalibrateDataCommand calibrate_data_command = 404;
+
+        //specifics for simulation and debugging; generally not applicable for device
+        SimConfigCommand sim_config_command = 500;
     }
 }
 

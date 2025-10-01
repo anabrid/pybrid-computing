@@ -366,6 +366,48 @@ class ConfigCommand(_message.Message):
     calibrate_routes: bool
     def __init__(self, bundle: _Optional[_Union[ConfigBundle, _Mapping]] = ..., reset_before: bool = ..., sh_kludge: bool = ..., calibrate_mblock: bool = ..., calibrate_offset: bool = ..., calibrate_routes: bool = ...) -> None: ...
 
+class ACLPlugin(_message.Message):
+    __slots__ = ("plugin", "label", "parameters")
+    PLUGIN_FIELD_NUMBER: _ClassVar[int]
+    LABEL_FIELD_NUMBER: _ClassVar[int]
+    PARAMETERS_FIELD_NUMBER: _ClassVar[int]
+    plugin: str
+    label: str
+    parameters: _containers.RepeatedScalarFieldContainer[float]
+    def __init__(self, plugin: _Optional[str] = ..., label: _Optional[str] = ..., parameters: _Optional[_Iterable[float]] = ...) -> None: ...
+
+class ACLBind(_message.Message):
+    __slots__ = ("acl", "plugin", "pin")
+    ACL_FIELD_NUMBER: _ClassVar[int]
+    PLUGIN_FIELD_NUMBER: _ClassVar[int]
+    PIN_FIELD_NUMBER: _ClassVar[int]
+    acl: int
+    plugin: str
+    pin: int
+    def __init__(self, acl: _Optional[int] = ..., plugin: _Optional[str] = ..., pin: _Optional[int] = ...) -> None: ...
+
+class ACLConfig(_message.Message):
+    __slots__ = ("plugins", "inputs", "outputs")
+    PLUGINS_FIELD_NUMBER: _ClassVar[int]
+    INPUTS_FIELD_NUMBER: _ClassVar[int]
+    OUTPUTS_FIELD_NUMBER: _ClassVar[int]
+    plugins: _containers.RepeatedCompositeFieldContainer[ACLPlugin]
+    inputs: _containers.RepeatedCompositeFieldContainer[ACLBind]
+    outputs: _containers.RepeatedCompositeFieldContainer[ACLBind]
+    def __init__(self, plugins: _Optional[_Iterable[_Union[ACLPlugin, _Mapping]]] = ..., inputs: _Optional[_Iterable[_Union[ACLBind, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[ACLBind, _Mapping]]] = ...) -> None: ...
+
+class SimConfigCommand(_message.Message):
+    __slots__ = ("k0", "with_limits", "only_module_sinks", "acl_config")
+    K0_FIELD_NUMBER: _ClassVar[int]
+    WITH_LIMITS_FIELD_NUMBER: _ClassVar[int]
+    ONLY_MODULE_SINKS_FIELD_NUMBER: _ClassVar[int]
+    ACL_CONFIG_FIELD_NUMBER: _ClassVar[int]
+    k0: int
+    with_limits: bool
+    only_module_sinks: bool
+    acl_config: ACLConfig
+    def __init__(self, k0: _Optional[int] = ..., with_limits: bool = ..., only_module_sinks: bool = ..., acl_config: _Optional[_Union[ACLConfig, _Mapping]] = ...) -> None: ...
+
 class ConfigBundle(_message.Message):
     __slots__ = ("configs",)
     CONFIGS_FIELD_NUMBER: _ClassVar[int]
@@ -895,7 +937,7 @@ class GenericMessage(_message.Message):
     def __init__(self, ping_command: _Optional[_Union[PingCommand, _Mapping]] = ..., ping_response: _Optional[_Union[PingResponse, _Mapping]] = ...) -> None: ...
 
 class MessageV1(_message.Message):
-    __slots__ = ("id", "success_message", "error_message", "stand_by_command", "describe_command", "reset_command", "extract_command", "config_command", "start_run_command", "stop_run_command", "manual_control_command", "register_external_entities_command", "get_system_ident_command", "syslog_command", "system_stats_command", "read_system_ident_command", "reset_system_ident_command", "write_system_ident_command", "udp_data_streaming_command", "read_temperature_command", "describe_response", "extract_response", "config_response", "reset_response", "start_run_response", "run_state_change_message", "run_data_message", "run_data_end_message", "get_system_ident_response", "syslog_response", "system_stats_response", "read_system_ident_response", "reset_system_ident_response", "write_system_ident_response", "read_temperature_response", "calibrate_init_command", "calibrate_lane_command", "calibrate_offset_command", "calibrate_finalize_command", "calibrate_data_command")
+    __slots__ = ("id", "success_message", "error_message", "stand_by_command", "describe_command", "reset_command", "extract_command", "config_command", "start_run_command", "stop_run_command", "manual_control_command", "register_external_entities_command", "get_system_ident_command", "syslog_command", "system_stats_command", "read_system_ident_command", "reset_system_ident_command", "write_system_ident_command", "udp_data_streaming_command", "read_temperature_command", "describe_response", "extract_response", "config_response", "reset_response", "start_run_response", "run_state_change_message", "run_data_message", "run_data_end_message", "get_system_ident_response", "syslog_response", "system_stats_response", "read_system_ident_response", "reset_system_ident_response", "write_system_ident_response", "read_temperature_response", "calibrate_init_command", "calibrate_lane_command", "calibrate_offset_command", "calibrate_finalize_command", "calibrate_data_command", "sim_config_command")
     ID_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_MESSAGE_FIELD_NUMBER: _ClassVar[int]
     ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
@@ -936,6 +978,7 @@ class MessageV1(_message.Message):
     CALIBRATE_OFFSET_COMMAND_FIELD_NUMBER: _ClassVar[int]
     CALIBRATE_FINALIZE_COMMAND_FIELD_NUMBER: _ClassVar[int]
     CALIBRATE_DATA_COMMAND_FIELD_NUMBER: _ClassVar[int]
+    SIM_CONFIG_COMMAND_FIELD_NUMBER: _ClassVar[int]
     id: str
     success_message: SuccessMessage
     error_message: ErrorMessage
@@ -976,7 +1019,8 @@ class MessageV1(_message.Message):
     calibrate_offset_command: CalibrateOffsetCommand
     calibrate_finalize_command: CalibrateFinalizeCommand
     calibrate_data_command: CalibrateDataCommand
-    def __init__(self, id: _Optional[str] = ..., success_message: _Optional[_Union[SuccessMessage, _Mapping]] = ..., error_message: _Optional[_Union[ErrorMessage, _Mapping]] = ..., stand_by_command: _Optional[_Union[StandByCommand, _Mapping]] = ..., describe_command: _Optional[_Union[DescribeCommand, _Mapping]] = ..., reset_command: _Optional[_Union[ResetCommand, _Mapping]] = ..., extract_command: _Optional[_Union[ExtractCommand, _Mapping]] = ..., config_command: _Optional[_Union[ConfigCommand, _Mapping]] = ..., start_run_command: _Optional[_Union[StartRunCommand, _Mapping]] = ..., stop_run_command: _Optional[_Union[StopRunCommand, _Mapping]] = ..., manual_control_command: _Optional[_Union[ManualControlCommand, _Mapping]] = ..., register_external_entities_command: _Optional[_Union[RegisterExternalEntitiesCommand, _Mapping]] = ..., get_system_ident_command: _Optional[_Union[GetSystemIdentCommand, _Mapping]] = ..., syslog_command: _Optional[_Union[SyslogCommand, _Mapping]] = ..., system_stats_command: _Optional[_Union[SystemStatsCommand, _Mapping]] = ..., read_system_ident_command: _Optional[_Union[ReadSystemIdentCommand, _Mapping]] = ..., reset_system_ident_command: _Optional[_Union[ResetSystemIdentCommand, _Mapping]] = ..., write_system_ident_command: _Optional[_Union[WriteSystemIdentCommand, _Mapping]] = ..., udp_data_streaming_command: _Optional[_Union[UdpDataStreamingCommand, _Mapping]] = ..., read_temperature_command: _Optional[_Union[ReadTemperatureCommand, _Mapping]] = ..., describe_response: _Optional[_Union[DescribeResponse, _Mapping]] = ..., extract_response: _Optional[_Union[ExtractResponse, _Mapping]] = ..., config_response: _Optional[_Union[ConfigResponse, _Mapping]] = ..., reset_response: _Optional[_Union[ResetResponse, _Mapping]] = ..., start_run_response: _Optional[_Union[StartRunResponse, _Mapping]] = ..., run_state_change_message: _Optional[_Union[RunStateChangeMessage, _Mapping]] = ..., run_data_message: _Optional[_Union[RunDataMessage, _Mapping]] = ..., run_data_end_message: _Optional[_Union[RunDataEndMessage, _Mapping]] = ..., get_system_ident_response: _Optional[_Union[GetSystemIdentResponse, _Mapping]] = ..., syslog_response: _Optional[_Union[SyslogResponse, _Mapping]] = ..., system_stats_response: _Optional[_Union[SystemStatsResponse, _Mapping]] = ..., read_system_ident_response: _Optional[_Union[ReadSystemIdentResponse, _Mapping]] = ..., reset_system_ident_response: _Optional[_Union[ResetSystemIdentResponse, _Mapping]] = ..., write_system_ident_response: _Optional[_Union[WriteSystemIdentResponse, _Mapping]] = ..., read_temperature_response: _Optional[_Union[ReadTemperatureResponse, _Mapping]] = ..., calibrate_init_command: _Optional[_Union[CalibrateInitCommand, _Mapping]] = ..., calibrate_lane_command: _Optional[_Union[CalibrateLaneCommand, _Mapping]] = ..., calibrate_offset_command: _Optional[_Union[CalibrateOffsetCommand, _Mapping]] = ..., calibrate_finalize_command: _Optional[_Union[CalibrateFinalizeCommand, _Mapping]] = ..., calibrate_data_command: _Optional[_Union[CalibrateDataCommand, _Mapping]] = ...) -> None: ...
+    sim_config_command: SimConfigCommand
+    def __init__(self, id: _Optional[str] = ..., success_message: _Optional[_Union[SuccessMessage, _Mapping]] = ..., error_message: _Optional[_Union[ErrorMessage, _Mapping]] = ..., stand_by_command: _Optional[_Union[StandByCommand, _Mapping]] = ..., describe_command: _Optional[_Union[DescribeCommand, _Mapping]] = ..., reset_command: _Optional[_Union[ResetCommand, _Mapping]] = ..., extract_command: _Optional[_Union[ExtractCommand, _Mapping]] = ..., config_command: _Optional[_Union[ConfigCommand, _Mapping]] = ..., start_run_command: _Optional[_Union[StartRunCommand, _Mapping]] = ..., stop_run_command: _Optional[_Union[StopRunCommand, _Mapping]] = ..., manual_control_command: _Optional[_Union[ManualControlCommand, _Mapping]] = ..., register_external_entities_command: _Optional[_Union[RegisterExternalEntitiesCommand, _Mapping]] = ..., get_system_ident_command: _Optional[_Union[GetSystemIdentCommand, _Mapping]] = ..., syslog_command: _Optional[_Union[SyslogCommand, _Mapping]] = ..., system_stats_command: _Optional[_Union[SystemStatsCommand, _Mapping]] = ..., read_system_ident_command: _Optional[_Union[ReadSystemIdentCommand, _Mapping]] = ..., reset_system_ident_command: _Optional[_Union[ResetSystemIdentCommand, _Mapping]] = ..., write_system_ident_command: _Optional[_Union[WriteSystemIdentCommand, _Mapping]] = ..., udp_data_streaming_command: _Optional[_Union[UdpDataStreamingCommand, _Mapping]] = ..., read_temperature_command: _Optional[_Union[ReadTemperatureCommand, _Mapping]] = ..., describe_response: _Optional[_Union[DescribeResponse, _Mapping]] = ..., extract_response: _Optional[_Union[ExtractResponse, _Mapping]] = ..., config_response: _Optional[_Union[ConfigResponse, _Mapping]] = ..., reset_response: _Optional[_Union[ResetResponse, _Mapping]] = ..., start_run_response: _Optional[_Union[StartRunResponse, _Mapping]] = ..., run_state_change_message: _Optional[_Union[RunStateChangeMessage, _Mapping]] = ..., run_data_message: _Optional[_Union[RunDataMessage, _Mapping]] = ..., run_data_end_message: _Optional[_Union[RunDataEndMessage, _Mapping]] = ..., get_system_ident_response: _Optional[_Union[GetSystemIdentResponse, _Mapping]] = ..., syslog_response: _Optional[_Union[SyslogResponse, _Mapping]] = ..., system_stats_response: _Optional[_Union[SystemStatsResponse, _Mapping]] = ..., read_system_ident_response: _Optional[_Union[ReadSystemIdentResponse, _Mapping]] = ..., reset_system_ident_response: _Optional[_Union[ResetSystemIdentResponse, _Mapping]] = ..., write_system_ident_response: _Optional[_Union[WriteSystemIdentResponse, _Mapping]] = ..., read_temperature_response: _Optional[_Union[ReadTemperatureResponse, _Mapping]] = ..., calibrate_init_command: _Optional[_Union[CalibrateInitCommand, _Mapping]] = ..., calibrate_lane_command: _Optional[_Union[CalibrateLaneCommand, _Mapping]] = ..., calibrate_offset_command: _Optional[_Union[CalibrateOffsetCommand, _Mapping]] = ..., calibrate_finalize_command: _Optional[_Union[CalibrateFinalizeCommand, _Mapping]] = ..., calibrate_data_command: _Optional[_Union[CalibrateDataCommand, _Mapping]] = ..., sim_config_command: _Optional[_Union[SimConfigCommand, _Mapping]] = ...) -> None: ...
 
 class MessageV2(_message.Message):
     __slots__ = ()

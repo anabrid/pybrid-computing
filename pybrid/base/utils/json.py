@@ -46,7 +46,7 @@ class JSONConfigAdapter:
     ]
 
     @classmethod
-    def parse(cls, config: typing.Dict[str, typing.Any], computer: AnalogComputer) -> typing.List[pb.Config]:
+    def parse(cls, config: typing.Dict[str, typing.Any], computer: AnalogComputer, use_virtual_macs: bool = False) -> typing.List[pb.Config]:
         has_virtual_warning = False
 
         for carrier_id, carrier_config in config.items():
@@ -54,7 +54,7 @@ class JSONConfigAdapter:
             # find carrier object in computer
             carrier = None
 
-            if carrier_id in cls._VIRTUAL_ADRESSES:
+            if not use_virtual_macs and carrier_id in cls._VIRTUAL_ADRESSES:
                 if not has_virtual_warning:
                     logger.warning(f"Detected virtual MAC address {carrier_id} in config, will heuristically map to entities...")
                     has_virtual_warning = True

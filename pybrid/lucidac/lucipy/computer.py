@@ -5,7 +5,7 @@
 import logging, os, urllib.parse, asyncio
 from pybrid.redac import DAQConfig, RunConfig, Run
 
-from pybrid.lucipy.circuits import *
+from pybrid.lucidac.lucipy.circuits import *
 from pybrid.lucidac.controller import Controller as LUCIDACController
 
 import pybrid.base.proto.main_pb2 as pb
