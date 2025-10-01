@@ -38,7 +38,7 @@ Class Documentation
 
 import logging
 
-from .base import MultipleRuns
+from pybrid.base.hybrid.programs.base import MultipleRuns
 
 logger = logging.getLogger(__name__)
 

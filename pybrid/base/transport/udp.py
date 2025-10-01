@@ -4,7 +4,7 @@
 
 import asyncio
 
-from .base import BaseTransport
+from pybrid.base.transport.base import BaseTransport
 
 import queue
 import threading

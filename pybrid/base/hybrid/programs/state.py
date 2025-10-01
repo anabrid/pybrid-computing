@@ -5,9 +5,9 @@ import typing
 
 from pybrid.base.hybrid import EntityDoesNotExist
 
-from .base import MultipleRuns
-from ..computer import AnalogComputer
-from ..run import BaseRun
+from pybrid.base.hybrid.programs.base import MultipleRuns
+from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.base.hybrid.run import BaseRun
 
 
 class StateInheritingRuns(MultipleRuns):

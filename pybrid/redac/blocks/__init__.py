@@ -2,10 +2,10 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from .block import FunctionBlock, ElementBlock, SwitchingBlock
-from .cblock import CBlock
-from .iblock import IBlock
-from .mblock import MBlock, MIntBlock, MMulBlock
-from .shblock import SHBlock
-from .tblock import TBlock
-from .ublock import UBlock
+from pybrid.redac.blocks.block import FunctionBlock, ElementBlock, SwitchingBlock
+from pybrid.redac.blocks.cblock import CBlock
+from pybrid.redac.blocks.iblock import IBlock
+from pybrid.redac.blocks.mblock import MBlock, MIntBlock, MMulBlock
+from pybrid.redac.blocks.shblock import SHBlock
+from pybrid.redac.blocks.tblock import TBlock
+from pybrid.redac.blocks.ublock import UBlock

@@ -2,8 +2,8 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from .base import cli
-from .loader import load_cli_plugins
+from pybrid.cli.base.base import cli
+from pybrid.cli.base.loader import load_cli_plugins
 
 
 def entrypoint():

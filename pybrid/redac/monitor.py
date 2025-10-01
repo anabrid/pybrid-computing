@@ -9,7 +9,7 @@ import typing
 
 from google.protobuf.json_format import MessageToJson
 
-from .controller import Controller
+from pybrid.redac.controller import Controller
 
 logger = logging.getLogger(__name__)
 

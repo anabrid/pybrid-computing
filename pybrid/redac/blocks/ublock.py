@@ -5,8 +5,8 @@
 from dataclasses import field, dataclass
 from itertools import chain
 
-from .block import SwitchingBlock, SignalConnectionError
-from ..entities import EntityClass, EntityType
+from pybrid.redac.blocks.block import SwitchingBlock, SignalConnectionError
+from pybrid.redac.entities import EntityClass, EntityType
 
 
 @EntityType.register(EntityClass.UBLOCK)

@@ -1,8 +1,8 @@
-from .computer import AnalogComputer
-from .controller import BaseController
-from .elements import ComputationElement
-from .entities import Entity, Path, EntityDoesNotExist
-from .modules import ComputationModule
-from .protocol import BaseProtocol, ProtocolError
+from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.base.hybrid.controller import BaseController
+from pybrid.base.hybrid.elements import ComputationElement
+from pybrid.base.hybrid.entities import Entity, Path, EntityDoesNotExist
+from pybrid.base.hybrid.modules import ComputationModule
+from pybrid.base.hybrid.protocol import BaseProtocol, ProtocolError
 from pybrid.base.hybrid.programs.recl import RunEvaluateReconfigureLoop
-from .run import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig
+from pybrid.base.hybrid.run import BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState, BaseDAQConfig

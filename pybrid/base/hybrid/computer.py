@@ -4,8 +4,8 @@
 
 from abc import ABC, abstractmethod
 
-from .entities import Entity, Path, EntityDoesNotExist
-from .utils import build_entity_path_dict
+from pybrid.base.hybrid.entities import Entity, Path, EntityDoesNotExist
+from pybrid.base.hybrid.utils import build_entity_path_dict
 
 
 class AnalogComputer(ABC):

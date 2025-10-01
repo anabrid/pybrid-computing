@@ -2,10 +2,10 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from .block import ElementBlock
-from ..computations import ScalarMultiplication
-from ..elements import ComputationElement
-from ..entities import EntityClass, EntityType
+from pybrid.redac.blocks.block import ElementBlock
+from pybrid.redac.computations import ScalarMultiplication
+from pybrid.redac.elements import ComputationElement
+from pybrid.redac.entities import EntityClass, EntityType
 
 
 @EntityType.register(EntityClass.CBLOCK)

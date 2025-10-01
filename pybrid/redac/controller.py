@@ -17,16 +17,16 @@ import numpy as np
 from google.protobuf.json_format import MessageToJson, MessageToDict
 
 from pybrid.base.transport import TCPTransport
-from .carrier import Carrier
-from .computer import REDAC
-from .device import Device
-from .entities import Entity, Path, UnknownEntityTypeError
-from .port import get_free_udp_port
-from .protocol.protocol import Protocol
-from .run import Run, RunState, RunError
-from .sync import Sync, SyncMode, SyncConfig
-from ..base.transport.tcp import TCPTransport
-from ..base.transport.udp import UDPTransport
+from pybrid.redac.carrier import Carrier
+from pybrid.redac.computer import REDAC
+from pybrid.redac.device import Device
+from pybrid.redac.entities import Entity, Path, UnknownEntityTypeError
+from pybrid.redac.port import get_free_udp_port
+from pybrid.redac.protocol.protocol import Protocol
+from pybrid.redac.run import Run, RunState, RunError
+from pybrid.redac.sync import Sync, SyncMode, SyncConfig
+from pybrid.base.transport.tcp import TCPTransport
+from pybrid.base.transport.udp import UDPTransport
 
 import pybrid.base.proto.main_pb2 as pb
 logger = logging.getLogger(__name__)
@@ -268,11 +268,11 @@ class Controller:
     async def handle_run_state_change(self, msg: pb.RunStateChangeMessage, protocol: Protocol):
         """A handler for incoming :class:`.RunStateChangeMessage` messages."""
         logger.debug("Received run state change: %s.", repr(msg.new_))
-        if distributed_run_state := self._ongoing_runs.get(UUID(msg.run_id), None):
+        if distributed_run_state := self._ongoing_runs.get(UUID(msg.run.id), None):
             for path in self.protocols[protocol]:
                 distributed_run_state.track(path, RunState.from_pb(msg.new_), msg.reason)
         else:
-            logger.warning("Received run state change with unknown id %s.", msg.run_id)
+            logger.warning("Received run state change with unknown id %s.", msg.run.id)
 
     def decode_data(self, data_pb: pb.DaqData):
         data_type = data_pb.type
@@ -288,15 +288,17 @@ class Controller:
                 bitwidth = data_type.float_.bitwidth
                 dtype = np.dtype(f'float{bitwidth}')
             case _:
-                return
+                return np.array([], dtype=dtype)
 
         data = np.frombuffer(data_pb.data, dtype=dtype)
         return (data * data_pb.gain) + data_pb.offset
 
     async def handle_run_data(self, msg: pb.RunDataMessage):
         """A handler for incoming :class:`.RunDataMessage` messages."""
-        if run := self.runs.get(UUID(msg.run_id), None):
+        if run := self.runs.get(UUID(msg.run.id), None):
             pb_data = msg.data
+
+            chunk = msg.run.chunk
 
             data = self.decode_data(pb_data)
             data = data.reshape(msg.alignment, msg.sample_count, order='F')
@@ -314,7 +316,7 @@ class Controller:
 
     async def handle_run_data_end(self, msg: pb.RunDataEndMessage):
         """A handler for incoming :class:`.RunDataEndMessage` messages."""
-        if run := self.runs.get(UUID(msg.run_id), None):
+        if run := self.runs.get(UUID(msg.run.id), None):
 
             data = self.decode_data(msg.data)
             if data is None:

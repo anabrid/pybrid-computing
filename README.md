@@ -61,6 +61,15 @@ Commands:
   user-program
 ```
 
+Pybrid is not the fastest, therefore increase network buffers
+```
+    net.core.wmem_max=26214400
+    net.core.rmem_max=26214400
+    net.core.wmem_default=26214400
+    net.core.rmem_default=26214400
+    net.ipv4.tcp_wmem='4096 131072 134217728'
+    net.ipv4.tcp_rmem='4096 131072 134217728'
+```
 ## Documentation
 
 > **You can read the documentation online at https://anabrid.dev/docs/pybrid/html/**

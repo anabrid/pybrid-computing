@@ -1,5 +1,5 @@
-from .circuits import *
-from .computer import LUCIDACWrapper as LUCIDAC
+from pybrid.lucipy.circuits import *
+from pybrid.lucipy.computer import LUCIDACWrapper as LUCIDAC
 
 import numpy as np
 

@@ -4,7 +4,7 @@
 
 from serial_asyncio import open_serial_connection
 
-from .stream import StreamTransport
+from pybrid.base.transport.stream import StreamTransport
 
 
 class SerialTransport(StreamTransport):

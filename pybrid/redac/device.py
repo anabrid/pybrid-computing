@@ -10,9 +10,9 @@ from typing import Optional, Any
 
 from pybrid.base.hybrid import EntityDoesNotExist
 
-from .blocks import TBlock
-from .carrier import Carrier
-from .entities import Entity, Path, EntityType, EntityClass
+from pybrid.redac.blocks import TBlock
+from pybrid.redac.carrier import Carrier
+from pybrid.redac.entities import Entity, Path, EntityType, EntityClass
 
 logger = logging.getLogger(__name__)
 import pybrid.base.proto.main_pb2 as pb

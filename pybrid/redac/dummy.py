@@ -8,12 +8,12 @@ import math
 import typing
 from uuid import UUID
 
-from . import Run, RunState
-from .computer import REDAC
-from .controller import Controller
-from .entities import Entity
-from .protocol.messages import SetCircuitRequest
-from .protocol.serializer import to_pb, build_config
+from pybrid.redac import Run, RunState
+from pybrid.redac.computer import REDAC
+from pybrid.redac.controller import Controller
+from pybrid.redac.entities import Entity
+from pybrid.redac.protocol.messages import SetCircuitRequest
+from pybrid.redac.protocol.serializer import to_pb, build_config
 
 logger = logging.getLogger(__name__)
 

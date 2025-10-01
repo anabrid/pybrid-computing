@@ -451,22 +451,22 @@ class UdpDataStreamingCommand(_message.Message):
     def __init__(self, port: _Optional[int] = ...) -> None: ...
 
 class StartRunCommand(_message.Message):
-    __slots__ = ("run_config", "daq_config", "sync_config", "calibration_config", "run_id", "end_repetitive", "clear_queue")
+    __slots__ = ("run", "run_config", "daq_config", "sync_config", "calibration_config", "end_repetitive", "clear_queue")
+    RUN_FIELD_NUMBER: _ClassVar[int]
     RUN_CONFIG_FIELD_NUMBER: _ClassVar[int]
     DAQ_CONFIG_FIELD_NUMBER: _ClassVar[int]
     SYNC_CONFIG_FIELD_NUMBER: _ClassVar[int]
     CALIBRATION_CONFIG_FIELD_NUMBER: _ClassVar[int]
-    RUN_ID_FIELD_NUMBER: _ClassVar[int]
     END_REPETITIVE_FIELD_NUMBER: _ClassVar[int]
     CLEAR_QUEUE_FIELD_NUMBER: _ClassVar[int]
+    run: Run
     run_config: RunConfig
     daq_config: DaqConfig
     sync_config: SyncConfig
     calibration_config: CalibrationConfig
-    run_id: str
     end_repetitive: bool
     clear_queue: bool
-    def __init__(self, run_config: _Optional[_Union[RunConfig, _Mapping]] = ..., daq_config: _Optional[_Union[DaqConfig, _Mapping]] = ..., sync_config: _Optional[_Union[SyncConfig, _Mapping]] = ..., calibration_config: _Optional[_Union[CalibrationConfig, _Mapping]] = ..., run_id: _Optional[str] = ..., end_repetitive: bool = ..., clear_queue: bool = ...) -> None: ...
+    def __init__(self, run: _Optional[_Union[Run, _Mapping]] = ..., run_config: _Optional[_Union[RunConfig, _Mapping]] = ..., daq_config: _Optional[_Union[DaqConfig, _Mapping]] = ..., sync_config: _Optional[_Union[SyncConfig, _Mapping]] = ..., calibration_config: _Optional[_Union[CalibrationConfig, _Mapping]] = ..., end_repetitive: bool = ..., clear_queue: bool = ...) -> None: ...
 
 class StopRunCommand(_message.Message):
     __slots__ = ()
@@ -606,18 +606,18 @@ class StartRunResponse(_message.Message):
     def __init__(self) -> None: ...
 
 class RunStateChangeMessage(_message.Message):
-    __slots__ = ("old", "new_", "time", "reason", "run_id")
+    __slots__ = ("run", "old", "new_", "time", "reason")
+    RUN_FIELD_NUMBER: _ClassVar[int]
     OLD_FIELD_NUMBER: _ClassVar[int]
     NEW__FIELD_NUMBER: _ClassVar[int]
     TIME_FIELD_NUMBER: _ClassVar[int]
     REASON_FIELD_NUMBER: _ClassVar[int]
-    RUN_ID_FIELD_NUMBER: _ClassVar[int]
+    run: Run
     old: RunState
     new_: RunState
     time: Time
     reason: str
-    run_id: str
-    def __init__(self, old: _Optional[_Union[RunState, str]] = ..., new_: _Optional[_Union[RunState, str]] = ..., time: _Optional[_Union[Time, _Mapping]] = ..., reason: _Optional[str] = ..., run_id: _Optional[str] = ...) -> None: ...
+    def __init__(self, run: _Optional[_Union[Run, _Mapping]] = ..., old: _Optional[_Union[RunState, str]] = ..., new_: _Optional[_Union[RunState, str]] = ..., time: _Optional[_Union[Time, _Mapping]] = ..., reason: _Optional[str] = ...) -> None: ...
 
 class IntegerType(_message.Message):
     __slots__ = ("signess", "bitwidth")
@@ -659,31 +659,39 @@ class DaqData(_message.Message):
     type: DataType
     def __init__(self, data: _Optional[bytes] = ..., gain: _Optional[float] = ..., offset: _Optional[float] = ..., type: _Optional[_Union[DataType, _Mapping]] = ...) -> None: ...
 
+class Run(_message.Message):
+    __slots__ = ("id", "chunk")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    CHUNK_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    chunk: int
+    def __init__(self, id: _Optional[str] = ..., chunk: _Optional[int] = ...) -> None: ...
+
 class RunDataMessage(_message.Message):
-    __slots__ = ("entity", "run_id", "data", "sample_count", "channel_count", "alignment")
+    __slots__ = ("run", "entity", "data", "sample_count", "channel_count", "alignment")
+    RUN_FIELD_NUMBER: _ClassVar[int]
     ENTITY_FIELD_NUMBER: _ClassVar[int]
-    RUN_ID_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     SAMPLE_COUNT_FIELD_NUMBER: _ClassVar[int]
     CHANNEL_COUNT_FIELD_NUMBER: _ClassVar[int]
     ALIGNMENT_FIELD_NUMBER: _ClassVar[int]
+    run: Run
     entity: EntityId
-    run_id: str
     data: DaqData
     sample_count: int
     channel_count: int
     alignment: int
-    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., run_id: _Optional[str] = ..., data: _Optional[_Union[DaqData, _Mapping]] = ..., sample_count: _Optional[int] = ..., channel_count: _Optional[int] = ..., alignment: _Optional[int] = ...) -> None: ...
+    def __init__(self, run: _Optional[_Union[Run, _Mapping]] = ..., entity: _Optional[_Union[EntityId, _Mapping]] = ..., data: _Optional[_Union[DaqData, _Mapping]] = ..., sample_count: _Optional[int] = ..., channel_count: _Optional[int] = ..., alignment: _Optional[int] = ...) -> None: ...
 
 class RunDataEndMessage(_message.Message):
-    __slots__ = ("run_id", "entity", "data")
-    RUN_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("run", "entity", "data")
+    RUN_FIELD_NUMBER: _ClassVar[int]
     ENTITY_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
-    run_id: str
+    run: Run
     entity: EntityId
     data: DaqData
-    def __init__(self, run_id: _Optional[str] = ..., entity: _Optional[_Union[EntityId, _Mapping]] = ..., data: _Optional[_Union[DaqData, _Mapping]] = ...) -> None: ...
+    def __init__(self, run: _Optional[_Union[Run, _Mapping]] = ..., entity: _Optional[_Union[EntityId, _Mapping]] = ..., data: _Optional[_Union[DaqData, _Mapping]] = ...) -> None: ...
 
 class PingResponse(_message.Message):
     __slots__ = ("micros",)

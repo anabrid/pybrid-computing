@@ -7,7 +7,7 @@ import os
 import tempfile
 import typing
 
-from .stream import StreamTransport
+from pybrid.base.transport.stream import StreamTransport
 
 
 class UnixSocketTransport(StreamTransport):

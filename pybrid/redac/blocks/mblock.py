@@ -4,10 +4,10 @@
 
 from dataclasses import field, dataclass
 
-from .block import ElementBlock
-from ..computations import Integration, Multiplication
-from ..elements import ComputationElement
-from ..entities import EntityClass, EntityType
+from pybrid.redac.blocks.block import ElementBlock
+from pybrid.redac.computations import Integration, Multiplication
+from pybrid.redac.elements import ComputationElement
+from pybrid.redac.entities import EntityClass, EntityType
 
 
 @EntityType.register(EntityClass.MBLOCK, None)

@@ -8,9 +8,9 @@ import typing
 from abc import ABC, abstractmethod
 from dataclasses import replace
 
-from ..computer import AnalogComputer
-from ..controller import BaseController
-from ..run import BaseRun, BaseRunConfig, BaseDAQConfig
+from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.base.hybrid.controller import BaseController
+from pybrid.base.hybrid.run import BaseRun, BaseRunConfig, BaseDAQConfig
 
 logger = logging.getLogger(__name__)
 

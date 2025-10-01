@@ -9,8 +9,8 @@ import copy
 
 from pybrid.redac.computer import REDAC
 
-from .computer import LUCIDAC
-from ..redac.controller import Controller as REDACController
+from pybrid.lucidac.computer import LUCIDAC
+from pybrid.redac.controller import Controller as REDACController
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 
 from pybrid.base.analog import BaseComputation
 
-from .entities import Entity
+from pybrid.base.hybrid.entities import Entity
 
 
 @dataclass(kw_only=True)

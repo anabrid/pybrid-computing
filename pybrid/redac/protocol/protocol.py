@@ -23,8 +23,8 @@ from pybrid.base.hybrid.protocol import (
     UnsuccessfulRequestError,
 )
 from pybrid.base.transport import StreamTransport, TCPTransport
-from .envelope import Envelope
-from .messages import (
+from pybrid.redac.protocol.envelope import Envelope
+from pybrid.redac.protocol.messages import (
     Message,
     Notification,
     Request,
@@ -42,13 +42,13 @@ from .messages import (
     SysRebootRequest,
     RegisterExternalEntitiesRequest,
 )
-from .receiver import Receiver
-from .serializer import build_config
-from ..controller import get_free_udp_port
-from ..entities import Path, Entity
-from ..partitioning import PartitionConfig
-from ..run import RunConfig, DAQConfig, CalibrationConfig
-from ..sync import SyncConfig, SyncMode
+from pybrid.redac.protocol.receiver import Receiver
+from pybrid.redac.protocol.serializer import build_config
+from pybrid.redac.controller import get_free_udp_port
+from pybrid.redac.entities import Path, Entity
+from pybrid.redac.partitioning import PartitionConfig
+from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
+from pybrid.redac.sync import SyncConfig, SyncMode
 
 from uuid import UUID, uuid4
 
@@ -56,8 +56,8 @@ from google.protobuf.json_format import MessageToJson
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
 import pybrid.base.proto.main_pb2 as pb
-from ...base.transport.base import BaseTransport
-from ...base.transport.udp import UDPTransport
+from pybrid.base.transport.base import BaseTransport
+from pybrid.base.transport.udp import UDPTransport
 
 logger = logging.getLogger(__name__)
 
@@ -344,7 +344,7 @@ class Protocol(BaseProtocol):
 
         current_time = time.perf_counter()
         await self.send_body_and_wait_response(pb.StartRunCommand(
-            run_id=str(id_),
+            run = pb.Run(id=str(id_), chunk=0),
             run_config=pb_run_config,
             daq_config=pb_daq_config,
             sync_config=pb_sync_config,
