@@ -4,7 +4,7 @@
 
 import asyncio
 
-from .stream import StreamTransport
+from pybrid.base.transport.stream import StreamTransport
 
 
 class PassthroughTransport(StreamTransport):

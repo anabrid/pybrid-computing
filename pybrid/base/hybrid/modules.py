@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 
-from .entities import Entity
+from pybrid.base.hybrid.entities import Entity
 
 
 @dataclass(kw_only=True)

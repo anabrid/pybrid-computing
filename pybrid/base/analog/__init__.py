@@ -1,1 +1,1 @@
-from .computations import *
+from pybrid.base.analog.computations import *

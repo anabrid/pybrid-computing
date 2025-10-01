@@ -23,8 +23,8 @@ from pybrid.base.hybrid.protocol import (
     UnsuccessfulRequestError,
 )
 from pybrid.base.transport import StreamTransport
-from .envelope import Envelope
-from .messages import (
+from pybrid.redac.protocol.envelope import Envelope
+from pybrid.redac.protocol.messages import (
     Message,
     Notification,
     Request,
@@ -42,11 +42,11 @@ from .messages import (
     SysRebootRequest,
     RegisterExternalEntitiesRequest,
 )
-from .serializer import build_config
-from ..entities import Path, Entity
-from ..partitioning import PartitionConfig
-from ..run import RunConfig, DAQConfig, CalibrationConfig
-from ..sync import SyncConfig, SyncMode
+from pybrid.redac.protocol.serializer import build_config
+from pybrid.redac.entities import Path, Entity
+from pybrid.redac.partitioning import PartitionConfig
+from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
+from pybrid.redac.sync import SyncConfig, SyncMode
 
 from uuid import UUID, uuid4
 
@@ -54,7 +54,7 @@ from google.protobuf.json_format import MessageToJson
 from google.protobuf.internal import encoder
 from google.protobuf.internal import decoder
 import pybrid.base.proto.main_pb2 as pb
-from ...base.transport.base import BaseTransport
+from pybrid.base.transport.base import BaseTransport
 
 logger = logging.getLogger(__name__)
 
@@ -99,14 +99,15 @@ class Receiver:
             try:
                 if not await self._receive_message_and_process():
                     return False
+            except EOFError:
+                logger.info("Connection closed.")
+                break
             except asyncio.TimeoutError:
                 pass
             except asyncio.CancelledError:
                 break
             except ConnectionError as exc:
                 logger.info("Connection closed.")
-                logger.warning("Remove this sleep :)")
-                await asyncio.sleep(1)
                 break
             except ProtocolError as exc:
                 logger.exception("Error while receiving or processing envelope: %s.", exc)

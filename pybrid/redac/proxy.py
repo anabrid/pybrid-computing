@@ -104,6 +104,7 @@ class Proxy:
         for protocol in self.controller.protocols:
             protocol.register_callback(pb.MessageV1.RUN_DATA_MESSAGE_FIELD_NUMBER, self.forward_run_data, extra_args=[protocol])
             protocol.register_callback(pb.MessageV1.RUN_DATA_END_MESSAGE_FIELD_NUMBER, self.forward_run_data, extra_args=[protocol])
+            protocol.register_callback(pb.MessageV1.ERROR_MESSAGE_FIELD_NUMBER, self.forward_error, extra_args=[protocol])
 
     async def __aenter__(self):
         # Register the virtualized external entities with everyone
@@ -296,11 +297,11 @@ class Proxy:
         except Exception as e:
             logger.exception(e)
             await protocol.send_body_with_response(
-                pb.RunStateChangeMessage(run_id=str(run_state.run.id_), time=zero_time, old=pb.RunState.NEW,
+                pb.RunStateChangeMessage(run=pb.Run(id=str(run_state.run.id_), chunk=0), time=zero_time, old=pb.RunState.NEW,
                                          new_=pb.RunState.ERROR, reason=str(e)))
             return
         await protocol.send_body_with_response(
-            pb.RunStateChangeMessage(run_id=str(run_state.run.id_), time=zero_time, old=pb.RunState.NEW,
+            pb.RunStateChangeMessage(run=pb.Run(id=str(run_state.run.id_), chunk=0), time=zero_time, old=pb.RunState.NEW,
                                      new_=pb.RunState.TAKE_OFF))
         if not self.controller.standalone:
             self.controller.sync.trigger(run_state.run.sync.group)
@@ -310,12 +311,12 @@ class Proxy:
         except Exception as e:
             logger.exception(e)
             await protocol.send_body_with_response(pb.RunStateChangeMessage(
-                run_id=str(run_state.run.id_), time=zero_time, old=pb.RunState.TAKE_OFF, new_=pb.RunState.ERROR,
+                run=pb.Run(id=str(run_state.run.id_), chunk=0), time=zero_time, old=pb.RunState.TAKE_OFF, new_=pb.RunState.ERROR,
                 reason=str(e)
             ))
             return
         await protocol.send_body_with_response(
-            pb.RunStateChangeMessage(run_id=str(run_state.run.id_), time=zero_time, old=pb.RunState.TAKE_OFF,
+            pb.RunStateChangeMessage(run=pb.Run(id=str(run_state.run.id_), chunk=0), time=zero_time, old=pb.RunState.TAKE_OFF,
                                      new_=pb.RunState.DONE))
 
     @staticmethod
@@ -356,7 +357,7 @@ class Proxy:
         #run = msg.to_run()
 
         run = Run(
-            id_=UUID(msg.run_id),
+            id_=UUID(msg.run.id),
             config=RunConfig(
                 ic_time=self.time_to_nanos(msg.run_config.ic_time),
                 op_time=self.time_to_nanos(msg.run_config.op_time)
@@ -417,6 +418,11 @@ class Proxy:
     # ██       ██████  ██   ██  ███ ███  ██   ██ ██   ██ ██████  ███████ ██   ██ ███████
 
     # Forwarders transparently "copy" messages from the mREDACs towards the client
+
+    async def forward_error(self, msg: pb.ErrorMessage, protocol: Protocol):
+        logger.error(msg.description)
+
+
 
     async def forward_run_data(self, msg: pb.RunDataMessage | pb.RunDataEndMessage, protocol: Protocol):
         # protocol is the connection to the source of the data

@@ -13,12 +13,12 @@ from pydantic.json import pydantic_encoder
 
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
-from .blocks import FunctionBlock
-from .carrier import Carrier
-from .cluster import Cluster
-from .elements import ComputationElement
-from .entities import Path
-from .router import Router
+from pybrid.redac.blocks import FunctionBlock
+from pybrid.redac.carrier import Carrier
+from pybrid.redac.cluster import Cluster
+from pybrid.redac.elements import ComputationElement
+from pybrid.redac.entities import Path
+from pybrid.redac.router import Router
 
 import pybrid.base.proto.main_pb2 as pb
 
@@ -117,7 +117,7 @@ class REDAC(AnalogComputer):
         return REDAC.create_from_entity_type_tree(entity_tree)
 
     def _get_dump_config(self, kwargs):
-        from .protocol.serializer import build_config
+        from pybrid.redac.protocol.serializer import build_config
 
         config = {entity.path.id_: build_config(entity) for entity in self.entities}
         kwargs.setdefault("default", pydantic_encoder)
@@ -144,7 +144,7 @@ class REDAC(AnalogComputer):
             return json.dump(config, fs, **kwargs)
         
     def to_pb(self) -> typing.List[pb.Config]:
-        from .protocol.serializer import build_config
+        from pybrid.redac.protocol.serializer import build_config
 
         configs = []
         for entity in self.entities:

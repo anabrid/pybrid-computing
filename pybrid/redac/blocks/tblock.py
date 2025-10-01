@@ -5,8 +5,8 @@
 from dataclasses import field, dataclass
 from ipaddress import IPv4Address
 
-from .block import FunctionBlock
-from ..entities import EntityClass, EntityType, Loc
+from pybrid.redac.blocks.block import FunctionBlock
+from pybrid.redac.entities import EntityClass, EntityType, Loc
 
 
 @EntityType.register(EntityClass.TBLOCK)

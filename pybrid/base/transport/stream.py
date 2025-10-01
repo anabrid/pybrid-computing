@@ -16,6 +16,8 @@ from google.protobuf.internal import decoder
 
 logger = logging.getLogger(__name__)
 
+encoder = encoder._VarintEncoder()
+
 class StreamTransport(BaseTransport):
     """
     Abstract base class for transports.
@@ -24,6 +26,7 @@ class StreamTransport(BaseTransport):
     """
 
     def __init__(self, reader: StreamReader, writer: StreamWriter, name: str = None):
+        super().__init__()
         self.reader = reader
         self.writer = writer
         self.name = name
@@ -34,23 +37,25 @@ class StreamTransport(BaseTransport):
 
     async def send_packet(self, data: bytes) -> None:
         """Send one line of data over the transport. Newline character '\n' is appended automatically."""
-        self.writer.write(encoder._VarintBytes(len(data)))
+        encoder(self.writer.write, len(data))
         self.writer.write(data)
         return await self.writer.drain()
 
     async def receive_varint(self, timeout=3) -> int | None:
         """Receive the length of the next message."""
-        varint_buffer = bytes()
+        shift = 0
+        result = 0
         while True:
-            new_byte = await wait_for(self.reader.read(1), timeout=timeout)
-            if len(new_byte) == 0:
-                return None
-            varint_buffer += new_byte
-            if varint_buffer[-1] & 0x80 == 0:
+            b = await wait_for(self.reader.read(1), timeout=timeout)
+            if b == b"":
+                raise EOFError("Unexpected EOF while reading varint")
+            i = b[0]
+            result |= (i & 0x7f) << shift
+            if not (i & 0x80):
                 break
+            shift += 7
 
-        msg_len, bytes_read = decoder._DecodeVarint32(varint_buffer, 0)
-        return msg_len
+        return result
 
     async def receive_packet(self, timeout=3) -> bytes | None:
         """Receive one line of data from the transport."""

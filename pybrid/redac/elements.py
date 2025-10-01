@@ -4,7 +4,7 @@
 
 from pybrid.base.hybrid import ComputationElement as BaseComputationElement
 
-from .entities import Entity
+from pybrid.redac.entities import Entity
 
 
 class ComputationElement(BaseComputationElement, Entity):

@@ -5,8 +5,8 @@
 import typing
 from dataclasses import dataclass
 
-from ..elements import ComputationElement
-from ..entities import Entity, EntityType
+from pybrid.redac.elements import ComputationElement
+from pybrid.redac.entities import Entity, EntityType
 
 from pybrid.base.proto import main_pb2 as pb
 

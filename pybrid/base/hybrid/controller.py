@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 
 from pybrid.base.hybrid.computer import AnalogComputer
 
-from .protocol import BaseProtocol
-from .run import BaseRun
+from pybrid.base.hybrid.protocol import BaseProtocol
+from pybrid.base.hybrid.run import BaseRun
 
 
 class BaseController(ABC):

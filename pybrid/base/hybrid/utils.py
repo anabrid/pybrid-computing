@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 
-from .entities import Entity, Path
+from pybrid.base.hybrid.entities import Entity, Path
 
 
 def _add_to_entity_path_dict(d, entity):

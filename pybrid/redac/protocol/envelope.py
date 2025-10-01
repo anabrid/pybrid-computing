@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from pybrid.base.hybrid.protocol import MalformedDataError, MalformedMessageError, UnsuccessfulRequestError
 
-from .messages import Message, Request, Response
+from pybrid.redac.protocol.messages import Message, Request, Response
 
 logger = logging.getLogger(__name__)
 

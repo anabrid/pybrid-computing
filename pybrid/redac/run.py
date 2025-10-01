@@ -18,9 +18,9 @@ from pybrid.base.hybrid import (
 )
 from pybrid.base.utils.descriptors import Validator
 
-from .sync import SyncConfig
-from .entities import Path
-from .partitioning import PartitionConfig
+from pybrid.redac.sync import SyncConfig
+from pybrid.redac.entities import Path
+from pybrid.redac.partitioning import PartitionConfig
 
 
 class RunError(Exception):

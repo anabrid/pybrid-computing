@@ -279,11 +279,11 @@ message UdpDataStreamingCommand {
 }
 
 message StartRunCommand {
-    RunConfig run_config = 1;
-    DaqConfig daq_config = 2;
-    SyncConfig sync_config = 3;
-    CalibrationConfig calibration_config = 4;
-    string run_id = 5;
+    Run run = 1;
+    RunConfig run_config = 2;
+    DaqConfig daq_config = 3;
+    SyncConfig sync_config = 4;
+    CalibrationConfig calibration_config = 5;
     bool end_repetitive = 6;
     bool clear_queue = 7;
 }
@@ -384,14 +384,12 @@ enum RunState {
 }
 
 message RunStateChangeMessage {
-    RunState old = 1;
-    RunState new_ = 2;
-    Time time = 3;
-    string reason = 4;
-    string run_id = 5;
+    Run run = 1;
+    RunState old = 2;
+    RunState new_ = 3;
+    Time time = 4;
+    string reason = 5;
 }
-
-
 
 message IntegerType{
     enum Signedness{
@@ -421,9 +419,14 @@ message DaqData {
     DataType type = 4;
 }
 
+message Run{
+    string id = 1;
+    uint32 chunk = 2;
+}
+
 message RunDataMessage {
-    EntityId entity = 1;
-    string run_id = 2;
+    Run run = 1;
+    EntityId entity = 2;
     DaqData data = 3;
     uint32 sample_count = 4;
     uint32 channel_count = 5;
@@ -431,7 +434,7 @@ message RunDataMessage {
 }
 
 message RunDataEndMessage {
-    string run_id = 1;
+    Run run = 1;
     EntityId entity = 2;
     DaqData data = 3;
 }
