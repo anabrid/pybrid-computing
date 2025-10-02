@@ -665,7 +665,6 @@ async def run(obj, op_time, ic_time, config_file: typing.TextIO, output, output_
         run_.config.op_time = op_time
 
     timeout = max(run_.config.op_time / 1_000_000_000 + 3, 3)
-    print("STARTING RUN")
     run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=timeout)
     if run_.state is RunState.ERROR:
         raise RunError("Error while executing run.")
