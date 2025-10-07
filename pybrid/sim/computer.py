@@ -5,10 +5,8 @@
 import logging
 import typing
 
-
 from pybrid.redac.computer import REDAC
 from pybrid.sim.config import SimConfig
-from pybrid.sim.protocol.protocol import Protocol
 
 logger = logging.getLogger(__name__)
 

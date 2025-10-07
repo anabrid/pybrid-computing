@@ -2,18 +2,19 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-import asyncio
 import logging
 import math
 import typing
 from uuid import UUID
 
+from google.protobuf.json_format import MessageToJson
+
 from pybrid.redac import Run, RunState
 from pybrid.redac.computer import REDAC
 from pybrid.redac.controller import Controller
 from pybrid.redac.entities import Entity
-from pybrid.redac.protocol.messages import SetCircuitRequest
 from pybrid.redac.protocol.serializer import to_pb, build_config
+import pybrid.base.proto.main_pb2 as pb
 
 logger = logging.getLogger(__name__)
 
@@ -206,8 +207,13 @@ class DummyController:
 
     async def set_computer(self, *args, **kwargs):
         self.log_action("set_computer", *args, **kwargs)
-        for carrier in self.computer.carriers:
-            logger.debug(SetCircuitRequest(entity=carrier.path, config=build_config(carrier, dict())).json())
+
+
+        configs : typing.List[pb.Config] = []
+        for entity in self.computer.carriers:
+            configs.extend(build_config(entity))
+
+        logger.debug(MessageToJson(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=configs))))
 
     async def start_run(self, *args, **kwargs):
         self.log_action("start_run", *args, **kwargs)

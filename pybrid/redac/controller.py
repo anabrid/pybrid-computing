@@ -1,35 +1,46 @@
 # Copyright (c) 2022-2024 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-import array
 import asyncio
 import logging
-import socket
 import typing
-import warnings
 from collections import defaultdict
-from copy import deepcopy
 from dataclasses import replace
 from ipaddress import IPv4Address
 from uuid import UUID
-import struct
-import numpy as np
-from google.protobuf.json_format import MessageToJson, MessageToDict
 
-from pybrid.base.transport import TCPTransport
-from pybrid.redac.carrier import Carrier
+import numpy as np
+
+import pybrid.base.proto.main_pb2 as pb
+from pybrid.base.transport.tcp import TCPTransport
 from pybrid.redac.computer import REDAC
 from pybrid.redac.device import Device
 from pybrid.redac.entities import Entity, Path, UnknownEntityTypeError
 from pybrid.redac.port import get_free_udp_port
 from pybrid.redac.protocol.protocol import Protocol
 from pybrid.redac.run import Run, RunState, RunError
-from pybrid.redac.sync import Sync, SyncMode, SyncConfig
-from pybrid.base.transport.tcp import TCPTransport
-from pybrid.base.transport.udp import UDPTransport
+from pybrid.redac.sync import Sync
 
-import pybrid.base.proto.main_pb2 as pb
 logger = logging.getLogger(__name__)
+
+def decode_data(data_pb: pb.DaqData):
+    data_type = data_pb.type
+    dtype = None
+    match data_type.WhichOneof("kind"):
+        case "integer":
+            bitwidth = data_type.integer.bitwidth
+            if data_type.integer.signess == pb.IntegerType.Signedness.Signed:
+                dtype = np.dtype(f'int{bitwidth}')
+            else:
+                dtype = np.dtype(f'uint{bitwidth}')
+        case "float_":
+            bitwidth = data_type.float_.bitwidth
+            dtype = np.dtype(f'float{bitwidth}')
+        case _:
+            return np.array([], dtype=dtype)
+
+    data = np.frombuffer(data_pb.data, dtype=dtype)
+    return (data * data_pb.gain) + data_pb.offset
 
 
 class DistributedRunState:
@@ -274,25 +285,6 @@ class Controller:
         else:
             logger.warning("Received run state change with unknown id %s.", msg.run.id)
 
-    def decode_data(self, data_pb: pb.DaqData):
-        data_type = data_pb.type
-        dtype = None
-        match data_type.WhichOneof("kind"):
-            case "integer":
-                bitwidth = data_type.integer.bitwidth
-                if data_type.integer.signess == pb.IntegerType.Signedness.Signed:
-                    dtype = np.dtype(f'int{bitwidth}')
-                else:
-                    dtype = np.dtype(f'uint{bitwidth}')
-            case "float_":
-                bitwidth = data_type.float_.bitwidth
-                dtype = np.dtype(f'float{bitwidth}')
-            case _:
-                return np.array([], dtype=dtype)
-
-        data = np.frombuffer(data_pb.data, dtype=dtype)
-        return (data * data_pb.gain) + data_pb.offset
-
     async def handle_run_data(self, msg: pb.RunDataMessage):
         """A handler for incoming :class:`.RunDataMessage` messages."""
         if run := self.runs.get(UUID(msg.run.id), None):
@@ -300,14 +292,14 @@ class Controller:
 
             chunk = msg.run.chunk
 
-            data = self.decode_data(pb_data)
+            data = decode_data(pb_data)
             data = data.reshape(msg.alignment, msg.sample_count, order='F')
             data = data[0:msg.channel_count, :]
 
             path = Path(msg.entity.path.split('/'))
             for block_idx, values in enumerate(data):
                 channel = path.join(f"ADC{block_idx}")
-                run.data[channel].extend(values)
+                run.data[channel].extend(values.tolist())
         else:
             logger.warning("Received run data with unknown id %s.", msg.id)
 
@@ -318,7 +310,7 @@ class Controller:
         """A handler for incoming :class:`.RunDataEndMessage` messages."""
         if run := self.runs.get(UUID(msg.run.id), None):
 
-            data = self.decode_data(msg.data)
+            data = decode_data(msg.data)
             if data is None:
                 return
             path = Path(msg.entity.path.split("/"))

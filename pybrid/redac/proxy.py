@@ -12,32 +12,13 @@ from uuid import UUID
 from weakref import WeakValueDictionary, WeakKeyDictionary
 
 import pybrid.base.proto.main_pb2 as pb
-
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import PassthroughTransport
-from pybrid.base.transport.udp import UDPTransport
 from pybrid.redac import Controller, Path, Protocol, RunState, Run, RunConfig, DAQConfig
 from pybrid.redac.controller import DistributedRunState
 from pybrid.redac.partitioning import PartitionConfig
 from pybrid.redac.port import get_free_udp_port
-from pybrid.redac.protocol.messages import (
-    SetCircuitRequest,
-    StartRunRequest,
-    SetCircuitResponse,
-    StartRunResponse,
-    GetEntitiesRequest,
-    GetEntitiesResponse,
-    RunStateChangeMessage,
-    RunDataMessage,
-    ResetCircuitRequest,
-    ResetCircuitResponse,
-    GetPartitionInformationRequest,
-    GetPartitionInformationResponse,
-    SysTemperaturesRequest,
-    SysTemperaturesResponse, RegisterExternalEntitiesRequest, RegisterExternalEntitiesResponse,
-)
-from pybrid.base.proto import main_pb2
-from pybrid.redac.protocol.receiver import Receiver
+
 from pybrid.redac.run import CalibrationConfig
 from pybrid.redac.sync import SyncConfig
 
@@ -202,7 +183,7 @@ class Proxy:
     # Handlers handle incoming requests from the client side
 
     async def handle_get_entities(self, msg: pb.DescribeCommand, protocol: Protocol):
-        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.name)
+        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.get_name())
         carriers = []
         for carrier in self.controller._raw_entity_dict.values():
             entity = pb.Entity()
@@ -214,7 +195,7 @@ class Proxy:
         return pb.DescribeResponse(entity=machine)
 
     async def handle_reset_config(self, msg: pb.ResetCommand, protocol: Protocol):
-        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.name)
+        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.get_name())
         await self.controller.reset(keep_calibration=msg.keep_calibration, sync=msg.sync)
         return pb.ResetResponse()
 
@@ -290,7 +271,7 @@ class Proxy:
         return pb.ConfigResponse()
 
     async def monitor_run_state(self, run_state: DistributedRunState, protocol: Protocol):
-        zero_time = pb.Time(value=0, prefix=pb.Prefix.NONE)
+        zero_time = pb.Time(value=0, prefix=pb.Prefix.BASE)
         try:
             async with asyncio.timeout(3):
                 await run_state.wait_all(RunState.TAKE_OFF)
@@ -327,7 +308,7 @@ class Proxy:
             return time.value * 1_000
         if time.prefix == pb.Prefix.MILLI:
             return time.value * 1_000_000
-        if time.prefix == pb.Prefix.NONE:
+        if time.prefix == pb.Prefix.BASE:
             return time.value * 1_000_000_000
 
         return 0
@@ -342,11 +323,8 @@ class Proxy:
         await client_protocol.udp_data_receiving(port = msg.port)
         return pb.SuccessMessage()
 
-    async def test(msg):
-        pass
-
     async def handle_start_run(self, msg: pb.StartRunCommand, protocol: Protocol):
-        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.name)
+        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.get_name())
 
         #devices = self.partitions[msg.partition_config.id]
         #mapped_devices = [self.mac_mapping[device] for device in devices]
@@ -393,20 +371,8 @@ class Proxy:
         asyncio.create_task(self.monitor_run_state(run_state, protocol))
         return pb.StartRunResponse()
 
-    async def handle_partition_information(self, msg: GetPartitionInformationRequest, protocol: Protocol):
-        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.name)
 
-        return GetPartitionInformationResponse(partition_mode=self.partition_mode, entities=self.partitions)
-
-    async def handle_temperature_request(self, msg: SysTemperaturesRequest, protocol: Protocol):
-        logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.name)
-
-        hw_response = await self.controller.get_system_temperatures()
-        mapped_response = {self.reverse_mac_mapping[k[0]]: v for (k, v) in hw_response.items()}
-
-        return SysTemperaturesResponse(entities=mapped_response)
-
-    async def handle_register_external_entities_request(self, msg: RegisterExternalEntitiesRequest, protocol: Protocol):
+    async def handle_register_external_entities_request(self, msg: pb.RegisterExternalEntitiesCommand, protocol: Protocol):
         # This request does not need to be forwarded, as the proxy currently only works with
         # virtualized entity ids which are already registered. So just do nothing.
         return pb.SuccessMessage()

@@ -17,7 +17,11 @@ ExtIn/ADC/etc. But it makes it very simple and transparent to work with routes
 and setup the circuit configuration low level.
 """
 
-import functools, operator, textwrap, pprint, itertools, random
+import functools
+import itertools
+import operator
+import pprint
+import random
 from collections import namedtuple
 from typing import get_args, List, Dict, Union, Optional
 

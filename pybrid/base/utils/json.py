@@ -2,13 +2,12 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-import typing
 import logging
+import typing
+from json import JSONEncoder as BuiltinJSONEncoder
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid.computer import AnalogComputer
-
-from json import JSONEncoder as BuiltinJSONEncoder
 
 logger = logging.getLogger(__name__)
 

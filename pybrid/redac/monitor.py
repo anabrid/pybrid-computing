@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
-import json
 import logging
 import typing
 

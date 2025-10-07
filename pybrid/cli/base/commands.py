@@ -4,8 +4,9 @@
 
 import asyncclick as click
 
-from pybrid.base.hybrid import BaseController, BaseRun, RunEvaluateReconfigureLoop
+from pybrid.base.hybrid import BaseController, BaseRun
 from pybrid.base.utils.imports import import_file_as_module
+
 
 @click.command
 @click.pass_obj
@@ -17,7 +18,7 @@ async def user_program(obj, output, user_program_file):
 
     # Load user program
     user_program_module = import_file_as_module(user_program_file, "user_program")
-    user_program_class: RunEvaluateReconfigureLoop = user_program_module.UserProgram
+    user_program_class = user_program_module.UserProgram
     user_program_ = user_program_class(controller, run_, output=output)
 
     await user_program_.entrypoint()

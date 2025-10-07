@@ -20,7 +20,7 @@ from pybrid.redac.run import Run
 class BaseExporter:
     FORMAT = None
 
-    def export(self, run, **kwargs): ...
+    def export(self, run : Run, **kwargs): ...
 
 
 class DatExporter(BaseExporter):
@@ -58,7 +58,7 @@ class DatExporter(BaseExporter):
         for idx, data_pkg in enumerate(zip_longest(*run.data.values(), fillvalue=None)):
             self._write_data_line(idx, data_pkg)
 
-    def export(self, run):
+    def export(self, run : Run, **kwargs):
         self._write_header(run)
         self._write_line("#")
         self._write_data(run)

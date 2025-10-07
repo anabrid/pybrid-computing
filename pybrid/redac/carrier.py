@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from pybrid.base.hybrid import EntityDoesNotExist
-
 from pybrid.redac.blocks import TBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.entities import Entity, Path, EntityType, EntityClass

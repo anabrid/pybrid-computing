@@ -2,14 +2,9 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from abc import ABCMeta, abstractmethod
-from asyncio import StreamReader, StreamWriter, wait_for
-
 import logging
-import pybrid.base.proto.main_pb2 as pb
-
-from google.protobuf.internal import encoder
-from google.protobuf.internal import decoder
+from abc import ABCMeta, abstractmethod
+from ipaddress import IPv4Address
 
 logger = logging.getLogger(__name__)
 
@@ -23,5 +18,11 @@ class BaseTransport(metaclass=ABCMeta):
     async def send_packet(self, data: bytes) -> None: ...
 
     async def receive_packet(self, timeout=3) -> bytes: ...
+
+    def get_remote_ip(self) -> IPv4Address:
+        return IPv4Address("0.0.0.0")
+
+    def get_name(self) -> str:
+        return ""
 
     def close(self): ...

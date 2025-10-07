@@ -6,7 +6,6 @@ import typing
 from dataclasses import dataclass, field
 
 from pybrid.base.analog import BaseComputation
-
 from pybrid.base.hybrid.entities import Entity
 
 

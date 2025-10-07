@@ -11,6 +11,7 @@ from pathlib import Path as FilePath
 
 from pydantic.json import pydantic_encoder
 
+import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.redac.blocks import FunctionBlock
@@ -19,8 +20,6 @@ from pybrid.redac.cluster import Cluster
 from pybrid.redac.elements import ComputationElement
 from pybrid.redac.entities import Path
 from pybrid.redac.router import Router
-
-import pybrid.base.proto.main_pb2 as pb
 
 logger = logging.getLogger(__name__)
 
