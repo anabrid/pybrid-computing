@@ -3,16 +3,11 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import logging
-import string
 import typing
-from dataclasses import dataclass, field
-from typing import Optional, Any
+from dataclasses import dataclass
 
-from pybrid.base.hybrid import EntityDoesNotExist
-
-from pybrid.redac.blocks import TBlock
 from pybrid.redac.carrier import Carrier
-from pybrid.redac.entities import Entity, Path, EntityType, EntityClass
+from pybrid.redac.entities import Entity, Path
 
 logger = logging.getLogger(__name__)
 import pybrid.base.proto.main_pb2 as pb

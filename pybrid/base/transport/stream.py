@@ -2,17 +2,11 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from abc import ABCMeta, abstractmethod
-from asyncio import StreamReader, StreamWriter, wait_for, BaseTransport
-
 import logging
-
-from google.protobuf.json_format import MessageToJson
-
-import pybrid.base.proto.main_pb2 as pb
-
+from abc import abstractmethod, ABC
+from asyncio import StreamReader, StreamWriter, wait_for
+from pybrid.base.transport.base import BaseTransport
 from google.protobuf.internal import encoder
-from google.protobuf.internal import decoder
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +69,9 @@ class StreamTransport(BaseTransport):
     def close(self):
         """Close the underlying :class:`asyncio.StreamWriter`."""
         self.writer.close()
+
+    def get_name(self) -> str:
+        return self.name
 
     def __repr__(self):
         return self.name or super().__repr__()

@@ -17,10 +17,9 @@ from pybrid.base.hybrid import (
     BaseDAQConfig,
 )
 from pybrid.base.utils.descriptors import Validator
-
-from pybrid.redac.sync import SyncConfig
 from pybrid.redac.entities import Path
 from pybrid.redac.partitioning import PartitionConfig
+from pybrid.redac.sync import SyncConfig
 
 
 class RunError(Exception):

@@ -5,10 +5,10 @@
 import typing
 from dataclasses import dataclass
 
+from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.elements import ComputationElement
 from pybrid.redac.entities import Entity, EntityType
 
-from pybrid.base.proto import main_pb2 as pb
 
 class FunctionBlock(Entity):
     @classmethod
@@ -56,5 +56,5 @@ class SignalConnectionError(Exception):
 
 @dataclass
 class SwitchingBlock(FunctionBlock):
-    def connect(self, *connections, force=False):
+    def connect(self, input, output, *outputs, force=False):
         raise NotImplementedError

@@ -48,3 +48,4 @@ class PartitionConfig:
             return "00-00-00-00" + entity_id[11:]
         elif self.mode is PartitionMode.CARRIER:
             return "00-00-00-00-00-00"
+        return None

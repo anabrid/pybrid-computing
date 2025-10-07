@@ -3,12 +3,10 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
+import queue
 
 from pybrid.base.transport.base import BaseTransport
 
-import queue
-import threading
-import time
 
 class UDPClientProtocol(asyncio.DatagramProtocol):
     packets : asyncio.Queue

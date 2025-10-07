@@ -3,21 +3,24 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
+import inspect
 import json
 import logging
-import typing
 import sys
-import inspect
+import typing
 from ipaddress import ip_network
 from typing import TextIO
 
 import asyncclick as click
 from asyncclick import Choice
 
+import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid import EntityDoesNotExist
+from pybrid.base.utils.json import JSONConfigAdapter
 from pybrid.cli.base import cli
 from pybrid.cli.base.commands import user_program
 from pybrid.cli.base.shell import Shell
+from pybrid.lucidac.controller import Controller as LUCIDACController
 from pybrid.redac.blocks import SwitchingBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.controller import Controller as REDACController
@@ -27,14 +30,8 @@ from pybrid.redac.display import TreeDisplay
 from pybrid.redac.dummy import DummyController
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.monitor import Monitor
-from pybrid.redac.protocol.messages import SetCircuitRequest
 from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
-
-from pybrid.lucidac.controller import Controller as LUCIDACController
-
-from pybrid.base.utils.json import JSONConfigAdapter
-import pybrid.base.proto.main_pb2 as pb
 
 # controls logging verbosity - use for debugging
 # logging.basicConfig(level=logging.INFO)

@@ -22,9 +22,10 @@ from enum import Enum
 
 from packaging.version import Version
 
+import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid import Entity as BaseEntity
 from pybrid.base.hybrid import Path as BasePath
-import pybrid.base.proto.main_pb2 as pb
+
 
 class UnknownEntityTypeError(ValueError):
     """Exception thrown when trying to get an unknown :class:`EntityType` instance."""
@@ -147,9 +148,9 @@ class Loc:
     """
     Locator class for localization of one cluster
     """
-    path : [int]
+    path : typing.List[int]
 
-    def __init__(self, args: [int]):
+    def __init__(self, args: typing.List[int]):
         self.path = args
 
     @staticmethod

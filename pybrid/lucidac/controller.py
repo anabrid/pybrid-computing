@@ -2,12 +2,9 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from collections import defaultdict
 import logging
 import typing
-import copy
-
-from pybrid.redac.computer import REDAC
+from collections import defaultdict
 
 from pybrid.lucidac.computer import LUCIDAC
 from pybrid.redac.controller import Controller as REDACController

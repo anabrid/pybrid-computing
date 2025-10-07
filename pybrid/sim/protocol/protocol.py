@@ -4,9 +4,9 @@
 
 import logging
 
-from pybrid.sim.config import SimConfig
-from pybrid.redac.protocol.protocol import Protocol as REDACProtocol
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.redac.protocol.protocol import Protocol as REDACProtocol
+from pybrid.sim.config import SimConfig
 
 logger = logging.getLogger(__name__)
 
@@ -51,5 +51,5 @@ class Protocol(REDACProtocol):
                 outputs=outputs
             )
 
-        response = await self.send_body_and_wait_response(new_msg)
+        return await self.send_body_and_wait_response(new_msg)
   

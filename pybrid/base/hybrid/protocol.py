@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from ipaddress import IPv4Address
 
 from packaging.version import Version
-from pybrid.base.transport import StreamTransport
+
 from pybrid.base.transport.base import BaseTransport
 
 

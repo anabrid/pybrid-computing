@@ -4,9 +4,9 @@
 
 import logging
 
+from pybrid.redac.controller import Controller as REDACController
 from pybrid.sim.computer import Simulator
 from pybrid.sim.protocol.protocol import Protocol
-from pybrid.redac.controller import Controller as REDACController
 
 logger = logging.getLogger(__name__)
 

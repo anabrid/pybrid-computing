@@ -4,9 +4,8 @@
 import typing
 
 from pybrid.base.hybrid import EntityDoesNotExist
-
-from pybrid.base.hybrid.programs.base import MultipleRuns
 from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.base.hybrid.programs.base import MultipleRuns
 from pybrid.base.hybrid.run import BaseRun
 
 

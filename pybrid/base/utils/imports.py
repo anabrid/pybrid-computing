@@ -2,9 +2,8 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-import importlib
+import importlib.util
 import sys
-
 
 def import_file_as_module(file, name):
     spec = importlib.util.spec_from_file_location('user_program', file)

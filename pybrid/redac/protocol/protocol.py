@@ -3,61 +3,31 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
-import json
 import logging
-import os
-import sys
 import time
 import typing
 import uuid
 from asyncio import tasks
 from ipaddress import IPv4Address
 from typing import Callable
-
-from packaging.version import Version
-
-from pybrid.base.hybrid.protocol import (
-    BaseProtocol,
-    ProtocolError,
-    MalformedDataError,
-    UnsuccessfulRequestError,
-)
-from pybrid.base.transport import StreamTransport, TCPTransport
-from pybrid.redac.protocol.envelope import Envelope
-from pybrid.redac.protocol.messages import (
-    Message,
-    Notification,
-    Request,
-    Response,
-    GetEntitiesRequest,
-    GetCircuitRequest,
-    SetCircuitRequest,
-    StartRunRequest,
-    HackRequest,
-    SetDAQRequest,
-    ResetCircuitRequest,
-    GetStatusRequest,
-    SysTemperaturesRequest,
-    SetStandbyRequest,
-    SysRebootRequest,
-    RegisterExternalEntitiesRequest,
-)
-from pybrid.redac.protocol.receiver import Receiver
-from pybrid.redac.protocol.serializer import build_config
-from pybrid.redac.controller import get_free_udp_port
-from pybrid.redac.entities import Path, Entity
-from pybrid.redac.partitioning import PartitionConfig
-from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
-from pybrid.redac.sync import SyncConfig, SyncMode
-
 from uuid import UUID, uuid4
 
 from google.protobuf.json_format import MessageToJson
-from google.protobuf.internal import encoder
-from google.protobuf.internal import decoder
+from packaging.version import Version
+
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.base.hybrid.protocol import (
+    BaseProtocol,
+    ProtocolError,
+)
 from pybrid.base.transport.base import BaseTransport
 from pybrid.base.transport.udp import UDPTransport
+from pybrid.redac.entities import Path, Entity
+from pybrid.redac.partitioning import PartitionConfig
+from pybrid.redac.protocol.receiver import Receiver
+from pybrid.redac.protocol.serializer import build_config
+from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
+from pybrid.redac.sync import SyncConfig
 
 logger = logging.getLogger(__name__)
 
@@ -269,10 +239,6 @@ class Protocol(BaseProtocol):
         response = await self.send_body_and_wait_response(pb.DescribeCommand())
         return response.describe_response.entity
 
-    async def get_status(self, *, recursive: bool = True) -> dict:
-        response = await self.send_body_and_wait_response(GetStatusRequest(recursive=recursive))
-        return response.status
-
     async def get_system_temperatures(self) -> pb.TemperatureDataset:
         response = await self.send_body_and_wait_response(pb.ReadTemperatureCommand())
         return response.read_temperature_response.dataset
@@ -301,12 +267,6 @@ class Protocol(BaseProtocol):
             configs.extend(build_config(entity))
 
         await self.set_config_request(configs=configs)
-
-    async def set_daq_request(self, daq: DAQConfig, session: typing.Optional[uuid.UUID] = None):
-        await self.send_body_and_wait_response(SetDAQRequest(daq=daq))
-
-    async def set_standby(self, standby: bool, **kwargs):
-        await self.send_body_and_wait_response(SetStandbyRequest(standby=standby, **kwargs))
 
     async def start_run_request(
         self,
@@ -356,14 +316,6 @@ class Protocol(BaseProtocol):
         final_time = time.perf_counter()
         roundtrip_time_pybrid_teensy_request = final_time - current_time
         logger.debug(f'roundtrip_time_pybrid_teensy_request: {roundtrip_time_pybrid_teensy_request} Sekunden')
-
-    async def sys_reboot(self):
-        logger.warning("System reboot is a matter of faith.")
-        try:
-            await self.send_body_and_wait_response(SysRebootRequest())
-        except TimeoutError:
-            # You will not receive a response, because controller restarts before sending it
-            pass
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         await self.send_body_and_wait_response(pb.ResetCommand(keep_calibration=keep_calibration, sync=sync))

@@ -2,14 +2,16 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-import logging, os, urllib.parse, asyncio
-from pybrid.redac import DAQConfig, RunConfig, Run
-
-from pybrid.lucidac.lucipy.circuits import *
-from pybrid.lucidac.controller import Controller as LUCIDACController
+import asyncio
+import logging
+import os
+import urllib.parse
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.utils.json import JSONConfigAdapter
+from pybrid.lucidac.controller import Controller as LUCIDACController
+from pybrid.lucidac.lucipy.circuits import *
+from pybrid.redac import DAQConfig, RunConfig, Run
 
 logging.basicConfig(level=40)
 formatter = logging.Formatter(fmt="{asctime} | {levelname} | {module} | {message}",

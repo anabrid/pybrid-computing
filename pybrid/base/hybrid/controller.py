@@ -6,7 +6,6 @@ import typing
 from abc import ABC, abstractmethod
 
 from pybrid.base.hybrid.computer import AnalogComputer
-
 from pybrid.base.hybrid.protocol import BaseProtocol
 from pybrid.base.hybrid.run import BaseRun
 

@@ -249,7 +249,7 @@ message ConfigBundle{
 }
 
 enum Prefix {
-    NONE = 0;
+    BASE = 0;
     MILLI = 1;
     MICRO = 2;
     NANO = 3;
@@ -577,7 +577,7 @@ message ReadTemperatureResponse {
 message SuccessMessage {}
 
 enum ErrorCode{
-    None = 0;
+    UNKNOWN = 0;
 }
 
 message ErrorMessage {

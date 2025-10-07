@@ -3,16 +3,14 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import queue
 import typing
-from dataclasses import asdict
 from functools import singledispatch
 
+from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.elements import ComputationElement
 from pybrid.redac.entities import Entity
 
-from pybrid.base.proto import main_pb2 as pb
-from pybrid.redac.router import Router
 
 class ConfigCollector:
     configs : typing.List[pb.Config]

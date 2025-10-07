@@ -9,7 +9,7 @@ DESCRIPTOR: _descriptor.FileDescriptor
 
 class Prefix(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
-    NONE: _ClassVar[Prefix]
+    BASE: _ClassVar[Prefix]
     MILLI: _ClassVar[Prefix]
     MICRO: _ClassVar[Prefix]
     NANO: _ClassVar[Prefix]
@@ -28,8 +28,8 @@ class RunState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
 
 class ErrorCode(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
-    None: _ClassVar[ErrorCode]
-NONE: Prefix
+    UNKNOWN: _ClassVar[ErrorCode]
+BASE: Prefix
 MILLI: Prefix
 MICRO: Prefix
 NANO: Prefix
@@ -42,7 +42,7 @@ IC: RunState
 OP: RunState
 OP_END: RunState
 TMP_HALT: RunState
-None: ErrorCode
+UNKNOWN: ErrorCode
 
 class OptionalLane(_message.Message):
     __slots__ = ("idx",)

@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import asyncio
-
-from pybrid.base.transport.stream import StreamTransport
 from ipaddress import IPv4Address
 
+from pybrid.base.transport.stream import StreamTransport
 
 class TCPTransport(StreamTransport):
     """A TCP/IP transport implementation for network communication."""

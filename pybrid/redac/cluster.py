@@ -6,10 +6,10 @@ import typing
 import warnings
 from dataclasses import dataclass
 
+from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import FunctionBlock, MBlock, UBlock, CBlock, IBlock
 from pybrid.redac.entities import Entity, Path, EntityType, EntityClass
 
-from pybrid.base.proto import main_pb2 as pb
 
 @dataclass(kw_only=True)
 class Cluster(Entity):

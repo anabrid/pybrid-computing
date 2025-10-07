@@ -1,8 +1,8 @@
 from typing import Dict, Set
 
-from pybrid.redac.entities import Path, Loc
 from pybrid.redac.blocks import TBlock
 from pybrid.redac.carrier import Carrier
+from pybrid.redac.entities import Path, Loc
 
 
 class RoutingException(Exception):
@@ -54,7 +54,7 @@ class Router:
         if output.lane_id() < 8:
             if output != input:
                 raise RoutingException("First 8 lanes only to same indices routable")
-            return
+            return None
 
         output_sector_lane = output.lane_id() - 8
         input_sector_lane = input.lane_id() - 8
@@ -101,7 +101,7 @@ class Router:
 
             output_carrier_block.connect(output.cluster_id() + 1, 0, output_sector_lane)
             input_carrier_block.connect(0, input.cluster_id() + 1, input_sector_lane)
-            return
+            return None
 
         if 16 <= output.lane_id() < 32:
             if output.lane_id() != input.lane_id():
@@ -113,7 +113,7 @@ class Router:
             input_carrier_block.connect(0, input.cluster_id() + 1, sector_lane)
             stack_block = self.find_wing_t_block(output)
             stack_block.connect(output.carrier_id() + 1, input.carrier_id() + 1, sector_lane)
-            return
+            return None
 
         raise RoutingException("Lane outside [0, 31]")
 

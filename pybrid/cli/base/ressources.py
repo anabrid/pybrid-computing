@@ -11,7 +11,7 @@ class ManagedAsyncResource:
 
     async def _call(self, key):
         if key is None:
-            return
+            return None
 
         if isinstance(key, str):
             attr_ = getattr(self.obj, key)

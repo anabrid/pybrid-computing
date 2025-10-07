@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 from dataclasses import field, dataclass
-from ipaddress import IPv4Address
 
 from pybrid.redac.blocks.block import FunctionBlock
 from pybrid.redac.entities import EntityClass, EntityType, Loc
