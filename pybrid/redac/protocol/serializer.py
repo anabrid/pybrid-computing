@@ -54,12 +54,20 @@ def _(entity: Carrier, collector: ConfigCollector):
     adc_channels = adc_config.channels
 
     for adc_channel in entity.adc_channels:
-        pb_adc_channel = adc_channels.add()
         if adc_channel is not None:
+            pb_adc_channel = adc_channels.add()
             pb_adc_channel.idx = adc_channel
 
     if len(adc_config.channels) == 0:
         collector.pop_config()
+
+    if entity.acl_select:
+        acl_config = collector.new_config(entity).port_config
+        acl_select = acl_config.states
+
+        for interface in entity.acl_select:
+            acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
+                interface == "external" else pb.PortConfig.AclState.INTERNAL)
 
 @to_pb.register
 def _(entity: CBlock, collector: ConfigCollector):

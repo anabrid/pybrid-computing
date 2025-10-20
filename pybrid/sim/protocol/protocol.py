@@ -17,12 +17,7 @@ class Protocol(REDACProtocol):
 
     async def set_sim_config(self, sim_config: SimConfig):
         # convert to protobuf message
-        new_msg = pb.SimConfigCommand(
-            with_limits=sim_config.with_limits,
-            k0=sim_config.k0,
-            only_module_sinks=sim_config.only_module_sinks
-        )
-
+        acl_config = None
         if sim_config.acl_config:
             plugins = [
                 pb.ACLPlugin(
@@ -45,11 +40,18 @@ class Protocol(REDACProtocol):
                     pin=obj.pin
                 ) for obj in sim_config.acl_config.outputs
             ]
-            new_msg.acl_config = pb.ACLConfig(
+            acl_config = pb.ACLConfig(
                 plugins=plugins,
                 inputs=inputs,
                 outputs=outputs
             )
+
+        new_msg = pb.SimConfigCommand(
+            with_limits=sim_config.with_limits,
+            k0=sim_config.k0,
+            only_module_sinks=sim_config.only_module_sinks,
+            acl_config=acl_config
+        )
 
         return await self.send_body_and_wait_response(new_msg)
   
