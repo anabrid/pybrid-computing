@@ -8,8 +8,14 @@ message OptionalLane {
 
 message DeviceConfig {}
 
+message AdcChannel {
+    uint32 idx = 1;
+    double gain = 2;
+    double offset = 3;
+}
+
 message AdcConfig {
-    repeated OptionalLane channels = 1;
+    repeated AdcChannel channels = 1;
 }
 
 message ClusterConfig {}
@@ -188,6 +194,8 @@ message Config {
         SignalGeneratorConfig signal_generator_config = 22;
         PortConfig port_config = 23;
         UseConfig use_config = 24;
+
+        SimConfig sim_config = 1000;
     }
 }
 
@@ -225,6 +233,21 @@ message ACLPlugin {
     repeated float parameters = 3;
 }
 
+message ACLWire {
+    ACLPlug lhs = 1;
+    ACLPlug rhs = 2;
+}
+
+message ACLPlug {
+    enum Kind{
+        Device = 0;
+        Plugin = 1;
+    }
+
+    EntityId entity_id = 1;
+    Kind kind = 2;
+}
+
 message ACLBind {
     uint32 acl = 1;
     string plugin = 2;
@@ -233,11 +256,12 @@ message ACLBind {
 
 message ACLConfig {
     repeated ACLPlugin plugins = 1;
-    repeated ACLBind inputs = 2;
-    repeated ACLBind outputs = 3;
+    //repeated ACLBind inputs = 2;
+    //repeated ACLBind outputs = 3;
+    repeated ACLWire wires = 4;
 };
 
-message SimConfigCommand {
+message SimConfig {
     uint32 k0 = 1;
     bool with_limits = 2;
     bool only_module_sinks = 3;
@@ -249,7 +273,7 @@ message ConfigBundle{
 }
 
 enum Prefix {
-    BASE = 0;
+    NONE = 0;
     MILLI = 1;
     MICRO = 2;
     NANO = 3;
@@ -577,7 +601,7 @@ message ReadTemperatureResponse {
 message SuccessMessage {}
 
 enum ErrorCode{
-    UNKNOWN = 0;
+    None = 0;
 }
 
 message ErrorMessage {
@@ -658,13 +682,22 @@ message MessageV1 {
         CalibrateOffsetCommand calibrate_offset_command = 402;
         CalibrateFinalizeCommand calibrate_finalize_command = 403;
         CalibrateDataCommand calibrate_data_command = 404;
-
-        //specifics for simulation and debugging; generally not applicable for device
-        SimConfigCommand sim_config_command = 500;
     }
+
+    reserved 500;
 }
 
 message MessageV2 {
 
 
+}
+
+
+
+message File{
+    Version version = 1;
+
+    oneof kind{
+        ConfigBundle bundle = 2;
+    }
 }

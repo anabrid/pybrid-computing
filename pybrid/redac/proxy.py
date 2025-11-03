@@ -184,14 +184,22 @@ class Proxy:
 
     async def handle_get_entities(self, msg: pb.DescribeCommand, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.get_name())
+
         carriers = []
         for carrier in self.controller._raw_entity_dict.values():
-            entity = pb.Entity()
-            entity.CopyFrom(carrier)  # deep copy carrier into new entity
-            entity.id = self.reverse_mac_mapping[carrier.id.strip("/")]  # override id
-            carriers.append(entity)
+            if carrier.class_ == pb.Entity.Class.DEVICE:
+                carriers.extend(carrier.children)
+            else:
+                carriers.append(carrier)
 
-        machine = pb.Entity(id="/", class_=pb.Entity.Class.DEVICE, children=carriers)
+        mapped_carriers = []
+        for carrier in carriers:
+            mapped_entity = pb.Entity()
+            mapped_entity.CopyFrom(carrier)  # deep copy carrier into new entity
+            mapped_entity.id = self.reverse_mac_mapping[carrier.id.strip("/")]  # override id
+            mapped_carriers.append(mapped_entity)
+
+        machine = pb.Entity(id="/", class_=pb.Entity.Class.DEVICE, children=mapped_carriers)
         return pb.DescribeResponse(entity=machine)
 
     async def handle_reset_config(self, msg: pb.ResetCommand, protocol: Protocol):
@@ -318,7 +326,7 @@ class Proxy:
             free_port = get_free_udp_port(6733)
             response = await protocol.udp_data_streaming(free_port)
             if response.WhichOneof("kind") != "success_message":
-                return response
+                return response.error_message
 
         await client_protocol.udp_data_receiving(port = msg.port)
         return pb.SuccessMessage()

@@ -338,7 +338,6 @@ class Protocol(BaseProtocol):
 
         if get_message_kind(response) == "error_message":
             await self.reset_data_stream()
-            return False
 
         return response
 

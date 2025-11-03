@@ -23,6 +23,8 @@ def _(entity: Carrier, collector: ConfigCollector):
         if adc_channel is not None:
             pb_adc_channel = adc_channels.add()
             pb_adc_channel.idx = adc_channel
+            pb_adc_channel.gain = 1.0
+            pb_adc_channel.offset = 0.0
 
     if len(adc_config.channels) == 0:
         collector.pop_config()
