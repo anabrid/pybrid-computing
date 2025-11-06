@@ -54,7 +54,7 @@ def _(entity: MIntBlock, collector: ConfigCollector):
         pb_element = itor_config.elements.add()
         pb_element.idx = elem_idx
         pb_element.ic = element.ic
-        pb_element.k = element.k
+        pb_element.k = int(element.k)
 
     config = collector.new_config(entity)
     limiter_config = config.limiter_config

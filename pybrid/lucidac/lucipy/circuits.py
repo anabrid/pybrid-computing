@@ -20,6 +20,7 @@ and setup the circuit configuration low level.
 import functools
 import itertools
 import operator
+import math
 import pprint
 import random
 import warnings
@@ -375,14 +376,21 @@ class FrontPanel:
         self.rect_signal = None
         self.sleep = True
         self.aux_signal = None
+        self.phase = 0.0
 
     def set_frequency(self, frequency: float):
         self.frequency = frequency
 
+    def set_phase(self, phase: float):
+        if phase < 0 or phase > 2 * math.pi:
+            raise Exception("Phase must be in [0, 2 * pi]!")
+
+        self.phase = phase
+
     def set_sleep(self, sleep: bool = False):
         self.sleep = sleep
 
-    def set_sine(self, amplitude: float = 1.0, offset: float = 0.0):
+    def set_sine(self, amplitude: float = 0.5, offset: float = 0.0):
         if amplitude < 0 or amplitude > 1:
             raise Exception("Amplitude must be in [0, 1.0]")
         
@@ -405,15 +413,15 @@ class FrontPanel:
         self.wave_form = FrontPanel.WaveForm.SINE_AND_SQUARE
         self.sleep = False
         
-    def set_triangle(self, amplitude: float = 1.0, offset: float = 0.0):
+    def set_triangle(self, amplitude: float = 0.5, offset: float = 0.0):
         if amplitude < 0 or amplitude > 1:
             raise Exception("Amplitude must be in [0, 1]")
         
         if amplitude < 0.25 or amplitude > 0.75:
             warnings.warn("Some older models of the LUCIDAC only support amplitudes in [0.25, 0.75]!")
         
-        if offset < -1 or offset > 1:
-            raise Exception("Offset must be in [-1, 1]")
+        if offset < -0.5 or offset > 0.5:
+            raise Exception("Offset must be in [-0.5, 0.5]")
         
         self.sine_signal = FrontPanel._sine_signal(amplitude, offset)
         self.wave_form = FrontPanel.WaveForm.TRIANGLE
@@ -446,9 +454,9 @@ class FrontPanel:
     def generate(self):
         return {
             "leds": self.leds,
-            "frequency" : self.frequency,
-            "phase": 0,
-            "wave_form": self.wave_form.value,
+            "frequency" : int(self.frequency),
+            "phase": self.phase,
+            "wave_form": int(self.wave_form.value),
             "amplitude": self.sine_signal.amplitude if self.sine_signal else 0,
             "square_voltage_low": self.rect_signal.square_voltage_low if self.rect_signal else 0,
             "square_voltage_high": self.rect_signal.square_voltage_high if self.rect_signal else 0,
