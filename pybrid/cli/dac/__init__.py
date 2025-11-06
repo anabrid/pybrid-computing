@@ -13,6 +13,7 @@ from typing import TextIO
 
 import asyncclick as click
 from asyncclick import Choice
+import matplotlib.pyplot as plt
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid import EntityDoesNotExist
@@ -120,7 +121,7 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
         for host, port, name in devices:
             await controller.add_device(host, port, name=name)
     else:
-        controller = DummyController(standalone=standalone)
+        controller = DummyController()
 
     # Put controller in context and make sure that we clean up after ourselves
     ctx.obj["controller"] = controller
@@ -163,7 +164,7 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
 @click.option(
     "--reset/--no-reset",
     is_flag=True,
-    default=True,
+    default=False,
     show_default=True,
     help="Whether to reset the LUCIDAC after connecting.",
 )
@@ -214,9 +215,11 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, 
 
         host, port, name = devices[0]
         await controller.add_device(host, port, name=name)
-        # await controller.reset()
+
+        if reset:
+            await controller.reset()
     else:
-        controller = DummyController(standalone=standalone)
+        controller = DummyController()
 
     # Put controller in context and make sure that we clean up after ourselves
     ctx.obj["controller"] = controller
@@ -225,7 +228,6 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, 
     # Unless chosen otherwise, reset the analog computer
     if reset:
         await controller.reset()
-    logger.warning("REMOVE")
 
     # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
     run_class = controller.get_run_implementation()
@@ -621,6 +623,7 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
 @click.pass_obj
 # Run options
 @click.option("--op-time", type=int, default=None, help="OP time in nanoseconds.")
+@click.option("--sample-rate", type=int, default=None, help="Sample rate in Hz.")
 @click.option("--ic-time", type=int, default=None, help="IC time in nanoseconds.")
 # Configuration options
 @click.option("--config-file", "-c", type=click.File("r"), help="A config.json file to apply before starting the run.")
@@ -638,7 +641,12 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
     default="dat",
     help="Format to write data in.",
 )
-async def run(obj, op_time, ic_time, config_file: typing.TextIO, output, output_format):
+@click.option("--plot", 
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Use matplotlib to draw a simple plot of the returned data")
+async def run(obj, op_time, sample_rate: int, ic_time, config_file: typing.TextIO, output, output_format, plot):
     """
     Start a run (computation) and wait until it is complete.
     """
@@ -660,6 +668,8 @@ async def run(obj, op_time, ic_time, config_file: typing.TextIO, output, output_
         run_.config.ic_time = ic_time
     if op_time is not None:
         run_.config.op_time = op_time
+    if sample_rate is not None:
+        run_.daq.sample_rate = sample_rate
 
     timeout = max(run_.config.op_time / 1_000_000_000 + 3, 3)
     run_ = obj["run"] = await controller.start_and_await_run(run_, timeout=timeout)
@@ -669,6 +679,21 @@ async def run(obj, op_time, ic_time, config_file: typing.TextIO, output, output_
     if output_format == "dat":
         exporter = DatExporter(output)
         exporter.export(run_)
+
+    # Plot data if requested
+    if plot:
+        if run_.data:
+            plt.figure(figsize=(10, 6))
+            for channel_name, channel_data in run_.data.items():
+                plt.plot(channel_data, label=str(channel_name))
+            plt.xlabel('Sample Index')
+            plt.ylabel('Value')
+            plt.title('Run Data')
+            plt.legend()
+            plt.grid(True)
+            plt.show()
+        else:
+            click.echo("No data available to plot.")
 redac.add_command(run)
 lucidac.add_command(run)
 

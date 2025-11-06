@@ -1,8 +1,12 @@
 # Copyright (c) 2025 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
+import typing
 
+import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.computer import REDAC
+from pybrid.redac.carrier import Carrier
+from pybrid.lucidac.front_panel import FrontPanel
 
 class LUCIDAC(REDAC):
     """
@@ -17,9 +21,28 @@ class LUCIDAC(REDAC):
     the LUCIDAC is its own proxy
     """
 
+    #: models the (crrently) LUCIDAC-exclusive front panel with signal generators and LEDs
+    front_panel: typing.Optional[FrontPanel] = None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @property
     def name(self) -> str:
         return "LUCIDAC"
+    
+    def to_pb(self) -> typing.List[pb.Config]:
+        # maintain "unused" imports which registers handlers to `to_pb` function
+        import pybrid.lucidac.protocol.serializer
+        from pybrid.base.hybrid.serializer import build_config
+
+        assert(len(self.entities) == 1)
+
+        # call REDAC-like method for the carrier board
+        configs = super().to_pb()
+
+        # add front panel config on top
+        if self.front_panel is not None:
+            configs += build_config(self.front_panel)
+
+        return configs

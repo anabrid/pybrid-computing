@@ -163,8 +163,8 @@ message FrontPanelConfig {
 
 message PortConfig {
     enum AclState {
-        EXTERNAL = 0;
-        INTERNAL = 1;
+        INTERNAL = 0;
+        EXTERNAL = 1;
     }
 
     repeated AclState states = 1;

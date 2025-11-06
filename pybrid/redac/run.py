@@ -92,16 +92,24 @@ class RunState(BaseRunState, Enum):
 
     @classmethod
     def from_pb(cls, state: pb.RunState):
-        match state:
-            case pb.RunState.NEW: return RunState.NEW
-            case pb.RunState.ERROR: return RunState.ERROR
-            case pb.RunState.DONE: return RunState.DONE
-            case pb.RunState.QUEUED: return RunState.QUEUED
-            case pb.RunState.TAKE_OFF: return RunState.TAKE_OFF
-            case pb.RunState.IC: return RunState.IC
-            case pb.RunState.OP: return RunState.OP
-            case pb.RunState.OP_END: return RunState.OP_END
-            case pb.RunState.TMP_HALT: return RunState.TMP_HALT
+        if state == pb.RunState.NEW:
+            return RunState.NEW
+        elif state == pb.RunState.ERROR:
+            return RunState.ERROR
+        elif state == pb.RunState.DONE:
+            return RunState.DONE
+        elif state == pb.RunState.QUEUED:
+            return RunState.QUEUED
+        elif state == pb.RunState.TAKE_OFF:
+            return RunState.TAKE_OFF
+        elif state == pb.RunState.IC:
+            return RunState.IC
+        elif state == pb.RunState.OP:
+            return RunState.OP
+        elif state == pb.RunState.OP_END:
+            return RunState.OP_END
+        elif state == pb.RunState.TMP_HALT:
+            return RunState.TMP_HALT
         return RunState.ERROR
 
 
