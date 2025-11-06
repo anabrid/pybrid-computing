@@ -78,6 +78,8 @@ class JSONConfigAdapter:
                     continue
 
                 carrier.adc_channels = carrier_config["adc_channels"]
+                carrier.acl_select = carrier_config["acl_select"] if "acl_select" \
+                    in carrier_config else 8 * ["internal"]
                 carrier.clusters[cluster_ix].set_constant(carrier_config[c_path]["/U"].get("constant", False))
 
                 for (idx, value) in enumerate(carrier_config[c_path]["/C"]['elements']):
@@ -95,5 +97,23 @@ class JSONConfigAdapter:
                 for (idx, elem) in enumerate(carrier_config[c_path]["/M0"]['elements']):
                     carrier.clusters[cluster_ix].m0block.elements[idx].ic = elem["ic"]
                     carrier.clusters[cluster_ix].m0block.elements[idx].k = elem["k"]
+
+            if "/FP" in carrier_config:
+                from pybrid.redac.entities import Path
+                from pybrid.lucidac.front_panel import FrontPanel, SignalGenerator
+
+                fp_config = carrier_config["/FP"]
+                computer.front_panel.leds=fp_config["leds"]
+                computer.front_panel.signal_generator=SignalGenerator(
+                    frequency=fp_config["frequency"],
+                    phase=fp_config["phase"],
+                    wave_form=fp_config["wave_form"],
+                    amplitude=fp_config["amplitude"],
+                    square_voltage_low=fp_config["square_voltage_low"],
+                    square_voltage_high=fp_config["square_voltage_high"],
+                    offset=fp_config["offset"],
+                    sleep=fp_config["sleep"],
+                    dac_outputs=fp_config["dac_outputs"]
+                )
 
         return computer.to_pb()

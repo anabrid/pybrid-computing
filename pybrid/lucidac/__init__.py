@@ -9,5 +9,5 @@ Provides:
 
 """
 
-from pybrid.lucidac.computer import LUCIDAC
+from pybrid.lucidac.lucipy.computer import LUCIDACWrapper as LUCIDAC
 from pybrid.lucidac.lucipy.circuits import Circuit, Route

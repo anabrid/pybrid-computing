@@ -1,61 +1,92 @@
-from pybrid.lucipy import Circuit, LUCIDAC, time_series
+# Copyright (c) 2022-2025 anabrid GmbH
+# Contact: https://www.anabrid.com/licensing/
+# SPDX-License-Identifier: MIT OR GPL-2.0-or-later
+"""
+Euler Spiral
+
+This example implements the Euler spiral on the LUCIDAC.
+
+Reference: Analog Paradigm Application Note 33
+https://analogparadigm.com/downloads/alpaca_33.pdf
+"""
+
+from pybrid.lucidac.lucipy import Circuit, LUCIDAC
 import matplotlib.pyplot as plt
 import numpy as np
 
-luci = LUCIDAC()
 
-e   = Circuit()                           # Create a circuit
+###
+# Create an Euler spiral circuit in lucipy-syntax
+###
 
-ramp  = e.int(ic = 1)                   # Integrator for a time linear ramp
-const = e.const()                       # Constant for the time linear ramp
+# Set to True to run the integrators "slower", i.e. setting k0=100
+use_slow = True
 
-scm0  = e.mul()                         # These two multipliers and two
-scm1  = e.mul()                         # integrators generate a sine/cosine
-sci0  = e.int(ic = 1)                   # with time varying frequency (see 
-sci1  = e.int()                         # below).
+e   = Circuit()                          # Create a circuit
 
-x     = e.int(ic = 0.65)                # Integrators for x and
-y     = e.int(ic = 0.65)                # y component of the spiral
+ramp  = e.int(ic = 1, slow=use_slow)     # Integrator for a time linear ramp
+const = e.const()                        # Constant for the time linear ramp
 
-e.connect(const, ramp, weight = -0.1)   # Integrate over a constant
+scm0  = e.mul()                          # These two multipliers and two
+scm1  = e.mul()                          # integrators generate a sine/cosine
+sci0  = e.int(ic = 1, slow=use_slow)     # with time varying frequency (see
+sci1  = e.int(slow=use_slow)             # below).
 
-e.connect(ramp, scm0.a)                 # Generate a sine/cosine pair
-e.connect(sci1, scm0.b)                 # with varying frequency
+x     = e.int(ic = -0.5, slow=use_slow)  # Integrators for x and
+y     = e.int(ic = -0.5, slow=use_slow)  # y component of the spiral
 
-e.connect(ramp, scm1.a)                 
+e.connect(const, ramp, weight = -0.1)    # Integrate over a constant
+
+e.connect(ramp, scm0.a)                  # Generate a sine/cosine pair
+e.connect(sci1, scm0.b)                  # with varying frequency
+
+e.connect(ramp, scm1.a)
 e.connect(sci0, scm1.b)
 
-e.connect(scm0, sci0, weight = +5.)
+e.connect(scm0, sci0, weight = +5.)      # Multiple connections to amplify
 e.connect(scm0, sci0, weight = +5.)
 
 e.connect(scm1, sci1, weight = -5.)
 e.connect(scm1, sci1, weight = -5.)
 
-e.connect(sci0, x, weight = 0.6)        # Compute the parameterized Euler
-e.connect(sci1, y, weight = 0.6)        # spiral.
+e.connect(sci0, x, weight = 0.2)         # Compute the parameterized Euler
+e.connect(sci1, y, weight = 0.2)         # spiral.
 
-e.measure(x, adc_channel=0)
-e.measure(y, adc_channel=1)
+e.measure(x, adc_channel=0)              # Connect integrators to ADC
+e.measure(y, adc_channel=1)              # to sample data
 
-luci.set_circuit(e)
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
 
+luci.set_circuit(e)                     # Assign circuit
 
+###
+# Settings for sampling and circuit execution
+###
+op_secs     = .2                       # Duration of OP cycle in seconds
+sample_rate = 100_000                  # Samples per second (max: 150_000 for each channel)
 
-op_secs     = .1                        # duration of OP cycle in seconds
-sample_rate = 100_000                   # samples per second
-
-luci.set_daq(num_channels=3, sample_rate=sample_rate)
+luci.set_daq(num_channels=2, sample_rate=sample_rate)
 luci.set_run(ic_time = 1_000, op_time=int(op_secs * 1_000_000_000))
 
+###
+# Run circuit and start sampling
+###
 run = luci.run()
 
+###
+# Receive sample data and plot
+###
+samples = list(run.data.values())
+
 ax = plt.figure().add_subplot()
-ax.plot(*np.array(list(run.data.values())), ls="", marker=".", markersize=1.5)
+ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 plt.show()
-
-"""
-plot looks weird
-scaling problems
-"""

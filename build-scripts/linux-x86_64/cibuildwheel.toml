@@ -1,0 +1,94 @@
+[tool.cibuildwheel]
+# Build configuration for binary wheels of pybrid-computing
+
+# ============================================================================
+# Platform Selection (Linux only for initial testing)
+# ============================================================================
+build = [
+    "cp311-manylinux_x86_64",
+    "cp312-manylinux_x86_64",
+    "cp313-manylinux_x86_64",
+    "cp314-manylinux_x86_64",
+]
+
+# Skip all other platforms and Python versions
+skip = [
+    "*-win*",           # Skip Windows
+    "*-macosx*",        # Skip macOS
+    "*-musllinux*",     # Skip musl-based Linux (Alpine)
+    "pp*",              # Skip PyPy
+    "cp36-*",           # Skip Python 3.6
+    "cp37-*",           # Skip Python 3.7
+    "cp38-*",           # Skip Python 3.8
+    "cp39-*",           # Skip Python 3.9
+    "cp310-*",          # Skip Python 3.10
+]
+
+# ============================================================================
+# Build Environment
+# ============================================================================
+
+# Use manylinux2014 for broad compatibility
+manylinux-x86_64-image = "manylinux2014"
+
+# Build dependencies installed before building
+before-build = [
+    "pip install --upgrade pip setuptools wheel",
+    "pip install -r {package}/build-scripts/requirements-build.txt",
+]
+
+# Environment variables for build
+[tool.cibuildwheel.environment]
+# Ensure Cython uses Python 3 syntax
+CYTHON_LANGUAGE_LEVEL = "3"
+# Number of parallel compilation jobs
+CYTHON_NTHREADS = "4"
+
+# ============================================================================
+# Build Process
+# ============================================================================
+
+# Run prepare-cython.py before building
+build-frontend = "build"
+
+# ============================================================================
+# Testing
+# ============================================================================
+
+# Test command to verify the wheel works
+test-command = [
+    "python -c 'import pybrid; print(\"Import successful\")'",
+    "pybrid --help",
+]
+
+# Test dependencies
+test-requires = []
+
+# ============================================================================
+# Wheel Configuration
+# ============================================================================
+
+# Don't repair wheels (we'll verify manually)
+repair-wheel-command = ""
+
+# ============================================================================
+# Linux-specific Configuration
+# ============================================================================
+[tool.cibuildwheel.linux]
+# Use manylinux2014 for maximum compatibility
+archs = ["x86_64"]
+
+# Additional yum packages needed for compilation
+before-all = [
+    "yum install -y gcc gcc-c++ make",
+]
+
+# ============================================================================
+# Output Configuration
+# ============================================================================
+
+# Output directory for wheels (relative to project root)
+output-dir = "dist"
+
+# Build verbosity
+build-verbosity = 1

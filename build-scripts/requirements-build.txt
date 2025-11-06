@@ -1,0 +1,23 @@
+# Build dependencies for binary distribution of pybrid-computing
+#
+# These dependencies are only needed for building binary wheels,
+# not for using the package.
+
+# Cython 3.1.6+ for full async/await support
+# Avoid 3.1.0 due to memory leak issues with async code
+Cython>=3.1.6,<4.0
+
+# For multi-platform wheel building
+cibuildwheel>=2.16.0
+
+# Jinja2 for setup.py template rendering
+Jinja2>=3.1.0
+
+# Build tools
+setuptools>=68.0.0
+wheel>=0.41.0
+build>=1.0.0
+
+# For metadata extraction from pyproject.toml
+# (tomllib is built-in for Python 3.11+, but include fallback)
+tomli>=2.0.0; python_version < "3.11"
