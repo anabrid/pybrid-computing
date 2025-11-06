@@ -720,17 +720,29 @@ class DataType(_message.Message):
     integer: IntegerType
     def __init__(self, float_: _Optional[_Union[FloatType, _Mapping]] = ..., integer: _Optional[_Union[IntegerType, _Mapping]] = ...) -> None: ...
 
-class DaqData(_message.Message):
-    __slots__ = ("data", "gain", "offset", "type")
-    DATA_FIELD_NUMBER: _ClassVar[int]
+class DaqScaling(_message.Message):
+    __slots__ = ("idx", "gain", "offset")
+    IDX_FIELD_NUMBER: _ClassVar[int]
     GAIN_FIELD_NUMBER: _ClassVar[int]
     OFFSET_FIELD_NUMBER: _ClassVar[int]
-    TYPE_FIELD_NUMBER: _ClassVar[int]
-    data: bytes
+    idx: int
     gain: float
     offset: float
+    def __init__(self, idx: _Optional[int] = ..., gain: _Optional[float] = ..., offset: _Optional[float] = ...) -> None: ...
+
+class DaqData(_message.Message):
+    __slots__ = ("data", "type", "scaling", "sample_count", "channel_count")
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    SCALING_FIELD_NUMBER: _ClassVar[int]
+    SAMPLE_COUNT_FIELD_NUMBER: _ClassVar[int]
+    CHANNEL_COUNT_FIELD_NUMBER: _ClassVar[int]
+    data: bytes
     type: DataType
-    def __init__(self, data: _Optional[bytes] = ..., gain: _Optional[float] = ..., offset: _Optional[float] = ..., type: _Optional[_Union[DataType, _Mapping]] = ...) -> None: ...
+    scaling: _containers.RepeatedCompositeFieldContainer[DaqScaling]
+    sample_count: int
+    channel_count: int
+    def __init__(self, data: _Optional[bytes] = ..., type: _Optional[_Union[DataType, _Mapping]] = ..., scaling: _Optional[_Iterable[_Union[DaqScaling, _Mapping]]] = ..., sample_count: _Optional[int] = ..., channel_count: _Optional[int] = ...) -> None: ...
 
 class Run(_message.Message):
     __slots__ = ("id", "chunk")

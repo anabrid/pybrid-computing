@@ -40,7 +40,16 @@ def decode_data(data_pb: pb.DaqData):
         return np.array([], dtype=dtype)
 
     data = np.frombuffer(data_pb.data, dtype=dtype)
-    return (data * data_pb.gain) + data_pb.offset
+    data = data.reshape(data_pb.channel_count, data_pb.sample_count, order='F')
+
+    indices = np.array([scaling.idx for scaling in data_pb.scaling])
+    gains = np.array([scaling.gain for scaling in data_pb.scaling])
+    offsets = np.array([scaling.offset for scaling in data_pb.scaling])
+
+    data = data[indices] * gains[:, np.newaxis] + offsets[:, np.newaxis]
+
+    #data = np.array([data[scaling.idx] * scaling.gain + scaling.offset for scaling in data_pb.scaling])
+    return data
 
 
 class DistributedRunState:
@@ -291,10 +300,7 @@ class Controller:
             pb_data = msg.data
 
             chunk = msg.run.chunk
-
             data = decode_data(pb_data)
-            data = data.reshape(msg.alignment, msg.sample_count, order='F')
-            data = data[0:msg.channel_count, :]
 
             path = Path(msg.entity.path.split('/'))
             for block_idx, values in enumerate(data):
