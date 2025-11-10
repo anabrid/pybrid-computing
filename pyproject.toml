@@ -36,7 +36,8 @@ dependencies = [
   "prompt-toolkit>=3.0.52",
   "pyserial-asyncio>=0.6",
   "torch (==2.7.1)",
-  "torchvision (==0.22.1)"
+  "torchvision (==0.22.1)",
+  "scipy (>=1.16.3,<2.0.0)"
 ]
 
 [dependency-groups]
