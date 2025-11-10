@@ -57,9 +57,9 @@ class Controller(REDACController):
         """
         await super().add_device(host, port, name=name)
 
-        assert(len(self.devices) == 1)
-        assert(len(self.protocols) == 1)
-        assert(len(self._raw_entity_dict) == 1)
+        if len(self.devices) != 1 or len(self.protocols) != 1 or len(self._raw_entity_dict) != 1:
+            raise Exception(f"Failed adding LUCIDAC {host}:{port}")
+
         self._lucidac_entity = list(self._raw_entity_dict.keys())[0][1:]
         logger.info("LUCIDAC entity MAC:" + self._lucidac_entity)
         
