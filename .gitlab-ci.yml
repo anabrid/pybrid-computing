@@ -1,6 +1,6 @@
 stages:
-  - test
-  - docs
+  # - test
+  # - docs
   - build
   - release
 
@@ -13,97 +13,108 @@ cache:
   paths:
     - .cache/pip
     
-.anabrid-poetry-job:
+.anabrid-uv-job:
   image:
-    name: $CI_REGISTRY/pybrid-computing/pybrid-computing-base/python-poetry
-  before_script:
-    # Store user/password info in ~/.netrc, which will be automatically used by poetry
-    - echo "machine ${ANABRID_PYTHON_INDEX_HOST:?CI variable missing}" > $HOME/.netrc
-    - echo "login ${ANABRID_PYTHON_INDEX_USER:?CI variable missing}" >> $HOME/.netrc
-    - echo "password ${ANABRID_PYTHON_INDEX_PASSWORD:?CI variable missing}" >> $HOME/.netrc
+    name: astral/uv:python3.11-bookworm-slim
+  # before_script:
+    # Store user/password info in ~/.netrc, which will be automatically used by uv
+    # - echo "machine ${ANABRID_PYTHON_INDEX_HOST:?CI variable missing}" > $HOME/.netrc
+    # - echo "login ${ANABRID_PYTHON_INDEX_USER:?CI variable missing}" >> $HOME/.netrc
+    # - echo "password ${ANABRID_PYTHON_INDEX_PASSWORD:?CI variable missing}" >> $HOME/.netrc
 
 .anabrid-if-release-job:
   rules:
     - if: $CI_COMMIT_TAG
 
+# test_job:
+#   extends: .anabrid-uv-job
+#   stage: test
+#   script:
+#     - uv sync --python 3.11 --group dev
+#     - uv run pytest
 
-test_job:
-  extends: .anabrid-poetry-job
-  stage: test
-  script:
-    - poetry --no-interaction install --sync --with dev
-    - poetry --no-interaction run pytest
+# currently not maintained
+# docs_build:
+#   extends: .anabrid-uv-job
+#   image:
+#     name: $CI_REGISTRY/pybrid-computing/pybrid-computing/sphinx-build
+#   stage: docs
+#   script:
+#     - uv sync --python 3.11 --group dev
+#     # Build documentation with warnings treated as errors (-W)
+#     # Care: -M html <src> <dest> must come first
+#     - uv run sphinx-build -M html docs/ docs/_build/html/ -W --keep-going
+#   artifacts:
+#     paths:
+#       - docs/_build/html
+#     expire_in: 1 month
 
+# docs_deploy:
+#     stage: release
+#     # TODO: Change to a specialized image
+#     image: svenk/latex
+#     needs:
+#         - job: docs_build
+#           artifacts: true
+#     script:
+#         - chmod 600 "$STAGING_HOST_SSH_PRIVATE_KEY" "$STAGING_HOST_SSH_HOST_IDENT"
+#         - echo -e "cd anabrid.dev/docs/pybrid/\nput -R docs/_build/html/*" | sftp -o "UserKnownHostsFile=$STAGING_HOST_SSH_HOST_IDENT" -i"$STAGING_HOST_SSH_PRIVATE_KEY" $STAGING_HOST_SSH
 
-docs_build:
-  extends: .anabrid-poetry-job
-  image:
-    name: $CI_REGISTRY/pybrid-computing/pybrid-computing/sphinx-build
-  stage: docs
-  script:
-    - poetry --no-interaction install --sync --with dev
-    # Build documentation with warnings treated as errors (-W)
-    # Care: -M html <src> <dest> must come first
-    - poetry run sphinx-build -M html docs/ docs/_build/html/ -W --keep-going
-  artifacts:
-    paths:
-      - docs/_build/html
-    expire_in: 1 month
-
-docs_deploy:
-    stage: release
-    # TODO: Change to a specialized image
-    image: svenk/latex
-    needs:
-        - job: docs_build
-          artifacts: true
-    script:
-        - chmod 600 "$STAGING_HOST_SSH_PRIVATE_KEY" "$STAGING_HOST_SSH_HOST_IDENT"
-        - echo -e "cd anabrid.dev/docs/pybrid/\nput -R docs/_build/html/*" | sftp -o "UserKnownHostsFile=$STAGING_HOST_SSH_HOST_IDENT" -i"$STAGING_HOST_SSH_PRIVATE_KEY" $STAGING_HOST_SSH
-
-build_job:
-  extends: [.anabrid-poetry-job, .anabrid-if-release-job]
+build_src_package_job:
+  extends: [.anabrid-uv-job]
   stage: build
   script:
-    - poetry --no-interaction build
+    - uv build
     - echo ANABRID_BUILD_JOB_ID=$CI_JOB_ID > .anabrid_build_result.env
-    - echo ANABRID_BUILD_VERSION=$(poetry version --short) >> .anabrid_build_result.env
+    - echo ANABRID_BUILD_VERSION=$(uv version --short) >> .anabrid_build_result.env
   artifacts:
     paths:
       - dist/
     # Save job id in artifacts for release job
     reports:
       dotenv: .anabrid_build_result.env
-    expire_in: 6 months
+    expire_in: 1 week
 
-
-release_python_job:
-  extends: [.anabrid-poetry-job, .anabrid-if-release-job]
-  stage: release
-  needs:
-    - job: build_job
-      artifacts: true
+build_bin_package_job:
+  stage: build
+  tags: 
+    - shell
   script:
-    - poetry --no-interaction publish --repository anabrid
+    - ./build-scripts/linux-x86_64/docker-build.sh --python-version 3.11,3.12,3.13,3.14
+  artifacts:
+    paths:
+      - dist/
+    # Save job id in artifacts for release job
+    reports:
+      dotenv: .anabrid_build_result.env
+    expire_in: 1 week
 
+# release_bin_job:
+#   extends: [.anabrid-uv-job, .anabrid-if-release-job]
+#   stage: release
+#   needs:
+#     - job: build_bin_package_job
+#       artifacts: true
+#   script:
+#     - uv --no-interaction publish --repository anabrid
 
-release_gitlab_job:
-  extends: .anabrid-if-release-job
-  stage: release
-  needs:
-    - job: build_job
-      artifacts: true
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  script:
-    - echo "Releasing package built in build_job ${ANABRID_BUILD_JOB_ID}."
-  release:
-    name: 'pybrid-computing v$ANABRID_BUILD_VERSION'
-    description: 'Release of pybrid-computing package version $ANABRID_BUILD_VERSION.'
-    # tag_name is a mandatory field and can not be an empty string
-    tag_name: '$ANABRID_BUILD_VERSION'
-    assets:
-      links:
-        - name: 'Package (wheel)'
-          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION-py3-none-any.whl'
-        - name: 'Package (.tar.gz)'
-          url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION.tar.gz'
+# release_gitlab_job:
+#   extends: .anabrid-if-release-job
+#   stage: release
+#   needs:
+#     - job: build_job
+#       artifacts: true
+#   image: registry.gitlab.com/gitlab-org/release-cli:latest
+#   script:
+#     - echo "Releasing package built in build_job ${ANABRID_BUILD_JOB_ID}."
+#   release:
+#     name: 'pybrid-computing v$ANABRID_BUILD_VERSION'
+#     description: 'Release of pybrid-computing package version $ANABRID_BUILD_VERSION.'
+#     # tag_name is a mandatory field and can not be an empty string
+#     tag_name: '$ANABRID_BUILD_VERSION'
+#     assets:
+#       links:
+#         - name: 'Package (wheel)'
+#           url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION-py3-none-any.whl'
+#         - name: 'Package (.tar.gz)'
+#           url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION.tar.gz'

@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os
 import urllib.parse
+import time
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.utils.json import JSONConfigAdapter
@@ -57,16 +58,17 @@ class LUCIDACWrapper:
 
     def set_circuit(self, circuit: Circuit):
         # Generates the carrier configuration that corrosponds to the circuit.
+        core_circuit = circuit.generate()["00-00-00-00-00-00"]
 
         if hasattr(self, "carrier_config"):
             self.carrier_configs = [self.carrier_config]
             delattr(self, "carrier_config")
-            self.carrier_configs.append(circuit.generate())
+            self.carrier_configs.append(core_circuit)
         else:
             if hasattr(self, "carrier_configs"):
-                self.carrier_configs.append(circuit.generate())
+                self.carrier_configs.append(core_circuit)
             else:
-                self.carrier_config = circuit.generate()
+                self.carrier_config = core_circuit
     
     def set_run(self, **kwargs):
         self.run_config = RunConfig(**kwargs)
@@ -89,8 +91,6 @@ class LUCIDACWrapper:
         self.controller = LUCIDACController(standalone=True)
         await self.controller.add_device(self.host, self.port)
 
-        logger.debug("Resetting controller and LUCIDAC to its initial configuration...")
-        await self.controller.reset()
 
         logger.debug("Creating executable run class...")
         run_class = self.controller.get_run_implementation()
@@ -109,31 +109,8 @@ class LUCIDACWrapper:
             logger.info("Run done...")
 
         elif hasattr(self, "carrier_configs"):
-            self.executable_runs = []
-                    
-            for i, carrier_config in enumerate(self.carrier_configs):
-                try:
-                    logger.info(f"Circuit {i:4.0f}")
-                    logger.debug("Setting controller configuration by circuit...")
-                    pb_config = JSONConfigAdapter.parse(
-                        {
-                            self.controller.lucidac_entity : carrier_config,
-                        },
-                        self.controller.computer)
-
-                    await self.controller.forward_set_config(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=pb_config)))
-                    
-                    logger.debug("Executing run...")
-                    self.executable_runs.append(
-                        await self.controller.start_and_await_run(
-                            run_class(config=self.run_config, daq=self.daq_config)
-                        )
-                    )
-                    logger.debug("Run done...")
-
-                except TimeoutError as exc:
-                    print(exc)
-            logger.info("All runs done.")
+            raise Exception("Ypu are trying to use a LUCIDAC controller with" \
+                "a REDAC device - please use the correct computer class.")
 
         else:
             logger.warning("No circuits set.")

@@ -27,7 +27,8 @@ class Carrier(Entity):
 
     adc_channels: list[Optional[int]] = field(default_factory=list)
 
-    # currently only implemented in the LUCIDAC, but planned for the REDAC Carrier
+    # currently only implemented in the LUCIDAC, but planned for the mREDAC
+    # carrier board as well
     acl_select: Optional[list[str]] = None
 
     #: List of clusters on the carrier board.

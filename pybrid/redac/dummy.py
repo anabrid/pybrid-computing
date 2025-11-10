@@ -13,7 +13,8 @@ from pybrid.redac import Run, RunState
 from pybrid.redac.computer import REDAC
 from pybrid.redac.controller import Controller
 from pybrid.redac.entities import Entity
-from pybrid.redac.protocol.serializer import to_pb, build_config
+from pybrid.redac.protocol.serializer import to_pb
+from pybrid.base.hybrid.serializer import build_config
 import pybrid.base.proto.main_pb2 as pb
 
 logger = logging.getLogger(__name__)

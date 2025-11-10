@@ -7,8 +7,10 @@ import typing
 from collections import defaultdict
 
 from pybrid.lucidac.computer import LUCIDAC
+from pybrid.lucidac.front_panel import FrontPanel
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.protocol.protocol import Protocol
+from pybrid.redac.entities import Path
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +57,15 @@ class Controller(REDACController):
         Overwrite REDAC's add_device function to check and store the real entity
         ID.
         """
+
+        # initialize as REDAC first (ignores the )
         await super().add_device(host, port, name=name)
 
         if len(self.devices) != 1 or len(self.protocols) != 1 or len(self._raw_entity_dict) != 1:
             raise Exception(f"Failed adding LUCIDAC {host}:{port}")
+
+        # initialize the front panel (which is assumed to be there)
+        self.computer.front_panel = FrontPanel(self.computer.carriers[0].path / "FP")
 
         self._lucidac_entity = list(self._raw_entity_dict.keys())[0][1:]
         logger.info("LUCIDAC entity MAC:" + self._lucidac_entity)

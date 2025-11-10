@@ -37,12 +37,7 @@ dependencies = [
   "pyserial-asyncio>=0.6"
 ]
 
-[tool.poetry]
-packages = [
-  { include = "pybrid" }
-]
-
-[project.dependency-groups]
+[dependency-groups]
 dev = [
   "pytest>=8.4.2",
   "black>=25.9.0",
@@ -58,8 +53,11 @@ dev = [
 pybrid = 'pybrid.cli.base:entrypoint'
 
 [build-system]
-requires = ["poetry_core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pybrid"]
 
 [tool.black]
 line-length = 120

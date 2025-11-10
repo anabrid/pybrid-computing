@@ -143,7 +143,9 @@ class REDAC(AnalogComputer):
             return json.dump(config, fs, **kwargs)
         
     def to_pb(self) -> typing.List[pb.Config]:
-        from pybrid.redac.protocol.serializer import build_config
+        # import required to register to_pb methods for entities
+        import pybrid.redac.protocol.serializer
+        from pybrid.base.hybrid.serializer import build_config
 
         configs = []
         for entity in self.entities:

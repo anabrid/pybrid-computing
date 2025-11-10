@@ -26,18 +26,18 @@ logger = logging.getLogger(__name__)
 def decode_data(data_pb: pb.DaqData):
     data_type = data_pb.type
     dtype = None
-    match data_type.WhichOneof("kind"):
-        case "integer":
-            bitwidth = data_type.integer.bitwidth
-            if data_type.integer.signess == pb.IntegerType.Signedness.Signed:
-                dtype = np.dtype(f'int{bitwidth}')
-            else:
-                dtype = np.dtype(f'uint{bitwidth}')
-        case "float_":
-            bitwidth = data_type.float_.bitwidth
-            dtype = np.dtype(f'float{bitwidth}')
-        case _:
-            return np.array([], dtype=dtype)
+    kind = data_type.WhichOneof("kind")
+    if kind == "integer":
+        bitwidth = data_type.integer.bitwidth
+        if data_type.integer.signess == pb.IntegerType.Signedness.Signed:
+            dtype = np.dtype(f'int{bitwidth}')
+        else:
+            dtype = np.dtype(f'uint{bitwidth}')
+    elif kind == "float_":
+        bitwidth = data_type.float_.bitwidth
+        dtype = np.dtype(f'float{bitwidth}')
+    else:
+        return np.array([], dtype=dtype)
 
     data = np.frombuffer(data_pb.data, dtype=dtype)
     return (data * data_pb.gain) + data_pb.offset
@@ -221,7 +221,7 @@ class Controller:
         # Parse entity to the internal python abstraction
         path = Path.parse(entity_id)
 
-        device = Device.create_from_entity_type_tree(path ,entity)
+        device = Device.create_from_entity_type_tree(path, entity)
         for carrier in device.carriers:
             self.computer.add_carrier(carrier)
             self.protocols[ctrl_protocol].add(carrier.path)

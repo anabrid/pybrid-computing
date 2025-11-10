@@ -20,10 +20,13 @@ and setup the circuit configuration low level.
 import functools
 import itertools
 import operator
+import math
 import pprint
 import random
+import warnings
 from collections import namedtuple
 from typing import get_args, List, Dict, Union, Optional
+from enum import Enum
 
 # like sum(lst, []) but accepts generators instead of lists
 flatten = lambda lst: functools.reduce(operator.iconcat, lst, [])
@@ -342,6 +345,125 @@ class Probes:
         if "adc_channels" in config:
             self.adc_channels = config["adc_channels"]
         return self
+    
+class FrontPanel:
+    """
+    Models the LUCIDAC front panel utils (LEDs, signal generator). Note that
+    the device and only output a sine and square OR a triangle (at the sine
+    output) at one time.
+    """
+    class WaveForm(int, Enum):
+        SINE = 0
+        SINE_AND_SQUARE = 1
+        TRIANGLE = 2
+
+    _sine_signal = namedtuple("SineGenerator", [
+        "amplitude", "offset"
+    ])
+    _rect_signal = namedtuple("RectGenerator", [
+        "square_voltage_low", "square_voltage_high"
+    ])
+    _aux_signal = namedtuple("AuxGenerator" ,[
+        "aux0", "aux1"
+    ])
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs) # forwards all unused arguments
+        self.leds = 0
+        self.frequency = 10
+        self.wave_form = FrontPanel.WaveForm.SINE_AND_SQUARE
+        self.sine_signal = None
+        self.rect_signal = None
+        self.sleep = True
+        self.aux_signal = None
+        self.phase = 0.0
+
+    def set_frequency(self, frequency: float):
+        self.frequency = frequency
+
+    def set_phase(self, phase: float):
+        if phase < 0 or phase > 2 * math.pi:
+            raise Exception("Phase must be in [0, 2 * pi]!")
+
+        self.phase = phase
+
+    def set_sleep(self, sleep: bool = False):
+        self.sleep = sleep
+
+    def set_sine(self, amplitude: float = 0.5, offset: float = 0.0):
+        if amplitude < 0 or amplitude > 1:
+            raise Exception("Amplitude must be in [0, 1.0]")
+        
+        if amplitude < 0.25 or amplitude > 0.75:
+            warnings.warn("Some older models of the LUCIDAC only support amplitudes in [0.25, 0.75]!")
+        
+        if offset < -0.5 or offset > 0.5:
+            raise Exception("Offset must be in [-0.5, 0.5]")
+        
+        self.sine_signal = FrontPanel._sine_signal(amplitude, offset)
+        self.wave_form = FrontPanel.WaveForm.SINE_AND_SQUARE
+        self.sleep = False
+
+    def set_rect(self, low = -1.0, high = 1.0):
+        if low > high or low < -1.0 or high > 1.0:
+            raise Exception("Invalid configuration for square signal generator;"
+                            " low must be smaller than high and both on [-1, 1]")
+        
+        self.rect_signal = FrontPanel._rect_signal(low, high)
+        self.wave_form = FrontPanel.WaveForm.SINE_AND_SQUARE
+        self.sleep = False
+        
+    def set_triangle(self, amplitude: float = 0.5, offset: float = 0.0):
+        if amplitude < 0 or amplitude > 1:
+            raise Exception("Amplitude must be in [0, 1]")
+        
+        if amplitude < 0.25 or amplitude > 0.75:
+            warnings.warn("Some older models of the LUCIDAC only support amplitudes in [0.25, 0.75]!")
+        
+        if offset < -0.5 or offset > 0.5:
+            raise Exception("Offset must be in [-0.5, 0.5]")
+        
+        self.sine_signal = FrontPanel._sine_signal(amplitude, offset)
+        self.wave_form = FrontPanel.WaveForm.TRIANGLE
+        self.sleep = False
+
+        warnings.warn("NOTE: Using the triangle signal disabled the Rect signal generator")
+
+    def set_aux(self, aux0 = 0.0, aux1 = 0.0):
+        if aux0 < -1 or aux0 > 1:
+            raise Exception("aux0 must be in [-1, 1]")
+        
+        if aux1 < -1 or aux1 > 1:
+            raise Exception("aux1 must be in [-1, 1]")
+        
+        self.aux_signal = FrontPanel._aux_signal(aux0, aux1)
+        self.sleep = False
+
+    def set_leds(self, leds: List[bool] = [False, False, False, False, False, False, False, False]):
+        """
+        Configures LEDs (on/off) from left to right, i.e. list element [0]
+        configures the first LED on the left.
+        """
+        if len(leds) != 8:
+            raise Exception("led array requires 8 members.")
+
+        self.leds = 0
+        for ix, val in enumerate(leds):
+            self.leds += ((int(val) << (7 - ix)))
+
+    def generate(self):
+        return {
+            "leds": self.leds,
+            "frequency" : int(self.frequency),
+            "phase": self.phase,
+            "wave_form": int(self.wave_form.value),
+            "amplitude": self.sine_signal.amplitude if self.sine_signal else 0,
+            "square_voltage_low": self.rect_signal.square_voltage_low if self.rect_signal else 0,
+            "square_voltage_high": self.rect_signal.square_voltage_high if self.rect_signal else 0,
+            "offset": self.sine_signal.offset if self.sine_signal else 0,
+            "sleep": self.sleep,
+            "dac_outputs": [self.aux_signal.aux0, self.aux_signal.aux1] if self.aux_signal else [0, 0],
+        }
 
 #: Just a tuple collecting U, C, I matrices without determining their actual representation.
 #: The representation could be lists, numpy arrays, etc. depending on the use.
@@ -466,7 +588,8 @@ class Routing(Probes):
         
         Instead of using this function, you can also add the route by yourself:
         """
-        target = self.front_panel(front_port) # None passes to default alloc None!
+        target = self.analog_io(front_port) # None passes to default alloc None!
+        self.acl_select[target.id] = "external"
         return self.add(Route(source, None, weight, target))
     
     def front_input(self, id, use_front=True):
@@ -1133,14 +1256,20 @@ class Circuit(MIntBlockState, Routing):
     One could expect in this example that ``circ.int()`` hands out the second integrator (``id=1``)
     but it does not. The registry only knows about how often it was called and does not know at
     all how the computing elements are used in the Routing.
+
+    Although not technically part of a circuit but of the same configure command
+    to the LUCIDAC, this class also configures the signal generator and LEDs.
     """
 
     reservoir: Dict[Element,List[bool]]
+    front_panel: FrontPanel
+
     
     def __init__(self, allocation=None, routes: List[Route] = [], accept_dirty=False, **kwargs):
         super().__init__(routes=routes, accept_dirty=accept_dirty, **kwargs)
         # an idea was to look that up as in luci.get_entities(), however now we keep it simple
         self.reservoir = DefaultLUCIDAC.reservoir() if not allocation else allocation
+        self.front_panel = FrontPanel()
 
     def alloc(self, element:Element, id=None):
         """
@@ -1209,7 +1338,7 @@ class Circuit(MIntBlockState, Routing):
         "Allocate count many identifiers"
         return [self.identity() for x in range(count)]
     
-    def front_panel(self, id=None):
+    def analog_io(self, id=None):
         "Allocates an ACL_IN/ACL_OUT Front panel input/output"
         # Do not do the following as we don't know if the output or input is requested!
         #if hasattr(self, "set_front_panel"):
@@ -1265,7 +1394,11 @@ class Circuit(MIntBlockState, Routing):
         if skip:
             carrier_config["/0"] = { k:v for k,v in carrier_config["/0"].items() if not skip in k }
 
-        return carrier_config
+        carrier_config["/FP"] = self.front_panel.generate()
+
+        return {
+            "00-00-00-00-00-00": carrier_config
+        }
         
     def to_ascii_art(self, full_Cblock=False):
         """

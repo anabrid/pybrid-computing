@@ -1,48 +1,14 @@
 # Copyright (c) 2022-2024 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-import queue
-import typing
 from functools import singledispatch
 
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.elements import ComputationElement
-from pybrid.redac.entities import Entity
 
-
-class ConfigCollector:
-    configs : typing.List[pb.Config]
-
-    def __init__(self, configs: typing.List[pb.Config]):
-        self.configs = configs
-
-    def new_config(self, entity: Entity) -> pb.Config:
-        config = pb.Config(entity=pb.EntityId(path=str(entity.path)))
-        self.configs.append(config)
-        return config
-
-    def pop_config(self) -> pb.Config:
-        return self.configs.pop()
-
-def build_config(entity: Entity) -> typing.List[pb.Config]:
-    entites = queue.Queue()
-    entites.put(entity)
-    configs = []
-    collector = ConfigCollector(configs)
-
-    while not entites.empty():
-        entity = entites.get()
-        for child in entity.children:
-            entites.put(child)
-        to_pb(entity, collector)
-
-    return configs
-
-@singledispatch
-def to_pb(entity: Entity, collector: ConfigCollector):
-    return None
+from pybrid.base.hybrid.serializer import ConfigCollector, to_pb
 
 @to_pb.register
 def _(entity: ComputationElement, collector: ConfigCollector):
@@ -88,7 +54,7 @@ def _(entity: MIntBlock, collector: ConfigCollector):
         pb_element = itor_config.elements.add()
         pb_element.idx = elem_idx
         pb_element.ic = element.ic
-        pb_element.k = element.k
+        pb_element.k = int(element.k)
 
     config = collector.new_config(entity)
     limiter_config = config.limiter_config
