@@ -4,6 +4,7 @@
 
 import asyncio
 import logging
+import os
 import warnings
 from asyncio import StreamReader, StreamWriter, Server
 from ipaddress import IPv4Address
@@ -141,6 +142,8 @@ class Proxy:
         protocol.register_callback(pb.MessageV1.EXTRACT_COMMAND_FIELD_NUMBER, self.handle_get_config, extra_args=[protocol])
         protocol.register_callback(pb.MessageV1.START_RUN_COMMAND_FIELD_NUMBER, self.handle_start_run, extra_args=[protocol])
         protocol.register_callback(pb.MessageV1.UDP_DATA_STREAMING_COMMAND_FIELD_NUMBER, self.handle_udp_data_streaming, extra_args=[protocol])
+        protocol.register_callback(pb.MessageV1.AUTH_REQUEST_FIELD_NUMBER, self.handle_auth, extra_args=[protocol])
+
         #protocol.register_callback(
         #    GetPartitionInformationRequest, self.handle_partition_information, extra_args=[protocol]
         #)
@@ -181,6 +184,14 @@ class Proxy:
     # ██   ██ ██   ██ ██   ████ ██████  ███████ ███████ ██   ██ ███████
 
     # Handlers handle incoming requests from the client side
+
+    async def handle_auth(self, msg: pb.AuthRequest, protocol: Protocol):
+        bearer = os.getenv("PYBRID_AUTHENTICATION", None)
+        if bearer == msg.bearer.token:
+            return pb.SuccessMessage()
+        else:
+            return pb.ErrorMessage()
+
 
     async def handle_get_entities(self, msg: pb.DescribeCommand, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.get_name())

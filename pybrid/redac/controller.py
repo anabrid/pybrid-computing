@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import asyncio
 import logging
+import os
 import typing
 from collections import defaultdict
 from dataclasses import replace
@@ -222,6 +223,10 @@ class Controller:
             ctrl_protocol = await type(self).get_protocol_implementation().create(ctrl_transport_.get_remote_ip(), ctrl_transport_)
             await ctrl_protocol.start()
 
+        bearer = os.getenv("PYBRID_AUTHENTICATION", None)
+        if bearer:
+            assert await ctrl_protocol.authenticate(bearer)
+
         # Get carrier the device controls. In the future, other device types may be added here.
         entity = await ctrl_protocol.get_entity()
         entity_id = entity.id
@@ -235,7 +240,6 @@ class Controller:
             self.computer.add_carrier(carrier)
             self.protocols[ctrl_protocol].add(carrier.path)
             self.devices[carrier.path] = DeviceEntry(carrier.path, ctrl_transport_.get_remote_ip(), ctrl_protocol)
-
 
         #cmd transport callbacks
         ctrl_protocol.register_callback(

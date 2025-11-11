@@ -117,15 +117,6 @@ class Protocol(BaseProtocol):
 
         # A response is only expected for requests
         self._expected_responses[UUID(msg.id)] = response_future
-
-        # TODO: remove this hack and find a better way to add authentication
-        #meta = None
-        #bearer = os.getenv("PYBRID_META_AUTHENTICATION", None)
-        #if bearer:
-        #    meta = {
-        #        "Authorization": f"Bearer {bearer}"
-        #    }
-
         await self.send_message(msg)
         # Return future to response
         return response_future
@@ -345,6 +336,11 @@ class Protocol(BaseProtocol):
         await self.reset_data_stream()
         self.data_transport = await UDPTransport.create(local_port=None, remote_host=str(self.remote_address), remote_port=port)
         return
+
+    async def authenticate(self, token: str):
+        auth = pb.BearerAuth(token=token)
+        response = await self.send_body_and_wait_response(pb.AuthRequest(bearer=auth))
+        return get_message_kind(response) != "error_message"
 
     async def register_external_entities(self, entities: typing.Mapping[int, pb.Address]):
         # TODO: For large systems, we might not be able to send all items at once (limited JSON buffer size in firmware).

@@ -641,6 +641,16 @@ message GenericMessage{
     }
 }
 
+message BearerAuth{
+    string token = 1;
+}
+
+message AuthRequest{
+    oneof kind{
+        BearerAuth bearer = 1;
+    }
+}
+
 message MessageV1 {
     optional string id = 1;
 
@@ -690,6 +700,8 @@ message MessageV1 {
         CalibrateOffsetCommand calibrate_offset_command = 402;
         CalibrateFinalizeCommand calibrate_finalize_command = 403;
         CalibrateDataCommand calibrate_data_command = 404;
+
+        AuthRequest auth_request = 501;
     }
 
     reserved 500;
