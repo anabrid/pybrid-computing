@@ -187,7 +187,7 @@ class Proxy:
 
     async def handle_auth(self, msg: pb.AuthRequest, protocol: Protocol):
         bearer = os.getenv("PYBRID_AUTHENTICATION", None)
-        if bearer == msg.bearer.token:
+        if bearer is None or bearer == msg.bearer.token:
             return pb.SuccessMessage()
         else:
             return pb.ErrorMessage()
@@ -290,7 +290,7 @@ class Proxy:
         return pb.ConfigResponse()
 
     async def monitor_run_state(self, run_state: DistributedRunState, protocol: Protocol):
-        zero_time = pb.Time(value=0, prefix=pb.Prefix.BASE)
+        zero_time = pb.Time(value=0, prefix=pb.Prefix.NONE)
         try:
             async with asyncio.timeout(3):
                 await run_state.wait_all(RunState.TAKE_OFF)
@@ -327,7 +327,7 @@ class Proxy:
             return time.value * 1_000
         if time.prefix == pb.Prefix.MILLI:
             return time.value * 1_000_000
-        if time.prefix == pb.Prefix.BASE:
+        if time.prefix == pb.Prefix.NONE:
             return time.value * 1_000_000_000
 
         return 0
