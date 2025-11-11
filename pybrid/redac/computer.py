@@ -116,6 +116,7 @@ class REDAC(AnalogComputer):
         return REDAC.create_from_entity_type_tree(entity_tree)
 
     def _get_dump_config(self, kwargs):
+        import pybrid.redac.protocol.serializer
         from pybrid.redac.protocol.serializer import build_config
 
         config = {entity.path.id_: build_config(entity) for entity in self.entities}
