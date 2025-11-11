@@ -25,6 +25,7 @@ from pybrid.base.transport.udp import UDPTransport
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.partitioning import PartitionConfig
 from pybrid.redac.protocol.receiver import Receiver
+import pybrid.redac.protocol.serializer
 from pybrid.base.hybrid.serializer import build_config
 from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
 from pybrid.redac.sync import SyncConfig
@@ -266,7 +267,7 @@ class Protocol(BaseProtocol):
         for entity in entities:
             configs.extend(build_config(entity))
 
-        await self.set_config_request(configs=configs)
+        return await self.set_config_request(configs=configs)
 
     async def start_run_request(
         self,

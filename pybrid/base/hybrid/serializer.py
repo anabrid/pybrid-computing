@@ -31,7 +31,7 @@ def build_config(entity: Entity) -> typing.List[pb.Config]:
     while not entities.empty():
         entity = entities.get()
         for child in entity.children:
-                entities.put(child)
+            entities.put(child)
         to_pb(entity, collector)
 
     return configs
