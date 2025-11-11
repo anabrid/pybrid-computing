@@ -243,7 +243,10 @@ class Protocol(BaseProtocol):
         return response.extract_response.bundle
 
     async def set_config_request(self, configs: typing.List[pb.Config]) -> bool:
-        return await self.send_body_and_wait_response(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=configs)))
+        return await self.set_config_bundle(bundle=pb.ConfigBundle(configs=configs))
+
+    async def set_config_bundle(self, bundle: pb.ConfigBundle) -> bool:
+        return await self.send_body_and_wait_response(pb.ConfigCommand(bundle=bundle))
 
     async def set_config(self, entity: Entity):
         return await self.set_config_request(configs=build_config(entity))

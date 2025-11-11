@@ -515,6 +515,8 @@ class Controller:
 
         return run_state
 
+
+
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=100) -> Run:
         """
         A convenience function which starts a run, blocks until it is completed and returns it.
@@ -540,6 +542,25 @@ class Controller:
     async def get_config(self, entity: Entity, *, recursive: bool = True):
         device = self.devices[entity.path.to_root()]
         return await device.protocol.get_config(entity.path, recursive=recursive)
+
+
+    async def set_config_bundle(self, bundle: pb.ConfigBundle):
+        start_run_requests = []
+        for protocol, managed_devices in self.protocols.items():
+            redac_bundle = pb.ConfigBundle()
+            for redac_config in bundle.configs:
+                #if Path.parse(redac_config.entity.path).to_root() in managed_devices:
+                redac_bundle.configs.append(redac_config)
+            if len(redac_bundle.configs) == 0:
+                continue
+
+            start_run_requests.append(
+                Protocol.set_config_bundle.__get__(protocol, protocol.__class__)(
+                    bundle=redac_bundle,
+                )
+            )
+        await asyncio.gather(*start_run_requests)
+
 
     async def set_config(self, entity: Entity):
         """
