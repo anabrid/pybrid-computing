@@ -48,8 +48,6 @@ def decode_data(data_pb: pb.DaqData):
     offsets = np.array([scaling.offset for scaling in data_pb.scaling])
 
     data = data[indices] * gains[:, np.newaxis] + offsets[:, np.newaxis]
-
-    #data = np.array([data[scaling.idx] * scaling.gain + scaling.offset for scaling in data_pb.scaling])
     return data
 
 
