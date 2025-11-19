@@ -6,6 +6,7 @@ import asyncio
 import inspect
 import json
 import logging
+import os
 import sys
 import typing
 from ipaddress import ip_network
@@ -90,6 +91,9 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
 
     Use :code:`pybrid redac --help` to list all available sub-commands.
     """
+    bearer = os.getenv("PYBRID_AUTHENTICATION", None)
+    if bearer is not None:
+        logger.info("Using authentication bearer!")
 
     # Some sub-commands may change default options
     # TODO: It would be cleaner to introduce a specialization of click.Group

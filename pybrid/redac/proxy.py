@@ -144,6 +144,7 @@ class Proxy:
         protocol.register_callback(pb.MessageV1.UDP_DATA_STREAMING_COMMAND_FIELD_NUMBER, self.handle_udp_data_streaming, extra_args=[protocol])
         protocol.register_callback(pb.MessageV1.AUTH_REQUEST_FIELD_NUMBER, self.handle_auth, extra_args=[protocol])
 
+        #currently not in use
         #protocol.register_callback(
         #    GetPartitionInformationRequest, self.handle_partition_information, extra_args=[protocol]
         #)
