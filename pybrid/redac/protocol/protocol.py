@@ -25,7 +25,7 @@ from pybrid.base.transport.udp import UDPTransport
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.partitioning import PartitionConfig
 from pybrid.redac.protocol.receiver import Receiver
-from pybrid.base.hybrid.serializer import build_config
+from pybrid.base.hybrid.serializer import entities_to_config
 from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
 from pybrid.redac.sync import SyncConfig
 
@@ -247,20 +247,6 @@ class Protocol(BaseProtocol):
 
     async def set_config_bundle(self, bundle: pb.ConfigBundle) -> bool:
         return await self.send_body_and_wait_response(pb.ConfigCommand(bundle=bundle))
-
-    async def set_config(self, entity: Entity):
-        return await self.set_config_request(configs=build_config(entity))
-
-    async def set_configs(self, entities: list[Entity]):
-        for entity in entities:
-            if not entity.path.depth == 1:
-                raise NotImplementedError("Not yet implemented.")
-
-        configs : typing.List[pb.Config] = []
-        for entity in entities:
-            configs.extend(build_config(entity))
-
-        await self.set_config_request(configs=configs)
 
     async def start_run_request(
         self,

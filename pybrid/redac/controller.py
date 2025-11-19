@@ -386,10 +386,10 @@ class Controller:
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
         """
-        Send the passed data as a 'hack' request, only used during development.
+        Sends the passed data as a 'hack' request, only used during development.
         It allows to pass and receive arbitrary data to and from the hybrid controller.
         """
-        return await self.protocol.hack_request(cmd, data)
+        raise NotImplementedError("hack() has not been implemented in the PB protocol.")
 
     async def get_status(self, entity, recursive):
         device = self.devices[entity.path.to_root()]
@@ -417,11 +417,16 @@ class Controller:
         """
         Change the configuration of all carrier boards and sub-entities on the REDAC.
 
+        Global data - as set by the computer - if added to the first available
+        config command.
+
         :param computer: The :class:`.REDAC` object containing the configuration to be set.
         :return: None
         """
 
-        # TODO: Add proper comparison/hash functions and use sets
+        # per-carrier data available over protocols
+        global_data_was_sent = False
+
         carriers_left = list(computer.carriers)
         for protocol, managed_paths in self.protocols.items():
             carriers_here = list()
@@ -431,7 +436,17 @@ class Controller:
             for carrier in carriers_here:
                 carriers_left.remove(carrier)
 
-            await protocol.set_configs(carriers_here)
+            global_data = computer.global_entities() if not \
+                global_data_was_sent else []
+
+            await protocol.set_config_request(
+                computer.build_config([
+                    *carriers_here,
+                    *global_data
+                ])
+            )
+
+            global_data_was_sent = True
 
     async def start_run(
         self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None
@@ -570,7 +585,7 @@ class Controller:
         :return: None
         """
         device = self.devices[entity.path.to_root()]
-        await device.protocol.set_config(entity)
+        await device.protocol.set_config_request(device.build_config(entity))
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         """

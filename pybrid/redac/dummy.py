@@ -14,7 +14,7 @@ from pybrid.redac.computer import REDAC
 from pybrid.redac.controller import Controller
 from pybrid.redac.entities import Entity
 from pybrid.redac.protocol.serializer import to_pb
-from pybrid.base.hybrid.serializer import build_config
+from pybrid.base.hybrid.serializer import entities_to_config
 import pybrid.base.proto.main_pb2 as pb
 
 logger = logging.getLogger(__name__)
@@ -212,7 +212,7 @@ class DummyController:
 
         configs : typing.List[pb.Config] = []
         for entity in self.computer.carriers:
-            configs.extend(build_config(entity))
+            configs.extend(entities_to_config(entity))
 
         logger.debug(MessageToJson(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=configs))))
 

@@ -4,8 +4,8 @@
 import typing
 
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.redac.entities import Entity, Path
 from pybrid.redac.computer import REDAC
-from pybrid.redac.carrier import Carrier
 from pybrid.lucidac.front_panel import FrontPanel
 
 class LUCIDAC(REDAC):
@@ -31,18 +31,33 @@ class LUCIDAC(REDAC):
     def name(self) -> str:
         return "LUCIDAC"
     
-    def to_pb(self) -> typing.List[pb.Config]:
-        # maintain "unused" imports which registers handlers to `to_pb` function
-        import pybrid.lucidac.protocol.serializer
-        from pybrid.base.hybrid.serializer import build_config
+    def build_config(self, entities: typing.List[Entity | None]):
+        """
+        Generates a PB-based list of config messages for the given
+        list of entities. Imports a serializer for `sim_config`.
+        """
 
-        assert(len(self.entities) == 1)
+        # import all required to_pb overrides
+        import pybrid.redac.protocol.serializer
+        import pybrid.lucidac.protocol.serializer        
+        from pybrid.base.hybrid.serializer import entities_to_config
 
-        # call REDAC-like method for the carrier board
-        configs = super().to_pb()
-
-        # add front panel config on top
-        if self.front_panel is not None:
-            configs += build_config(self.front_panel)
+        configs = []
+        for entity in entities:
+            if entity is not None:
+                configs += entities_to_config(entity)
 
         return configs
+    
+    def global_entities(self) -> typing.List[Entity | None]:
+        """
+        Returns global entities not represented in the device structure, i.e,
+        anchored at the (empty) root path - here the front panel.
+        """
+        return [self.front_panel]
+    
+    def to_pb(self) -> typing.List[pb.Config]:
+        return self.build_config([
+            *self.carriers,
+            self.front_panel
+        ])
