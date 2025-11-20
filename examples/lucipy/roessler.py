@@ -35,6 +35,7 @@ r.connect(c, m.b, weight = -0.3796)
 
 r.measure(x, adc_channel=0)             # Connect integrators to ADC
 r.measure(y, adc_channel=1)             # to sample data
+r.measure(z, adc_channel=2)
 
 ###
 # Auto-detect LUCIDAC-device (empty constructor) or:
@@ -53,7 +54,7 @@ luci.set_circuit(r)                     # Assign circuit
 op_secs     = .1                        # Duration of OP cycle in seconds
 sample_rate = 100_000                   # Samples per second (max: 150_000 for each channel)
 
-luci.set_daq(num_channels=2, sample_rate=sample_rate)
+luci.set_daq(num_channels=3, sample_rate=sample_rate)
 luci.set_run(ic_time = 1_000, op_time=int(op_secs * 1_000_000_000))
 
 ###
@@ -66,8 +67,9 @@ run = luci.run()
 ###
 samples = list(run.data.values())
 
-ax = plt.figure().add_subplot()
+ax = plt.figure().add_subplot(projection='3d')
 ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
+ax.set_ylabel("Z")
 plt.show()
