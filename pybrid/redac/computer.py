@@ -12,6 +12,7 @@ from pathlib import Path as FilePath
 from pydantic.json import pydantic_encoder
 
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.redac.entities import Entity, Path
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.redac.blocks import FunctionBlock
@@ -78,9 +79,10 @@ class REDAC(AnalogComputer):
         try:
             self.router.add_carrier(carrier)
         except Exception as exc:
-            import traceback
-            traceback.print_exc()
             logger.warning("Could not add carrier to router: %s", exc)
+
+    def global_entities(self) -> typing.List[Entity | None]:
+        return []
 
     # ██████  ███████        ██ ███████ ███████ ██████  ██  █████  ██      ██ ███████  █████  ████████ ██  ██████  ███    ██
     # ██   ██ ██            ██  ██      ██      ██   ██ ██ ██   ██ ██      ██    ███  ██   ██    ██    ██ ██    ██ ████   ██
@@ -114,42 +116,24 @@ class REDAC(AnalogComputer):
             with open(data) as fs:
                 entity_tree = json.load(fs)
         return REDAC.create_from_entity_type_tree(entity_tree)
-
-    def _get_dump_config(self, kwargs):
-        import pybrid.redac.protocol.serializer
-        from pybrid.redac.protocol.serializer import build_config
-
-        config = {entity.path.id_: build_config(entity) for entity in self.entities}
-        kwargs.setdefault("default", pydantic_encoder)
-        return config, kwargs
-
-    def dumps(self, **kwargs):
-        """
-        Dump computer configuration into a JSON string like json.dumps(...).
-        """
-        config, kwargs = self._get_dump_config(kwargs)
-        return json.dumps(config, **kwargs)
-
-    def dump(self, target, **kwargs):
-        """
-        Dump computer configuration into a JSON file like json.dump(...).
-        """
-        config, kwargs = self._get_dump_config(kwargs)
-        # If a file path is passed, open file
-        if isinstance(target, str | FilePath):
-            open_file = open(target, "w")
-        else:
-            open_file = nullcontext(target)
-        with open_file as fs:
-            return json.dump(config, fs, **kwargs)
         
-    def to_pb(self) -> typing.List[pb.Config]:
-        # import required to register to_pb methods for entities
+    def build_config(self, entities: typing.List[Entity | None]):
+        """
+        Generates a PB-based list of config messages for the given
+        list of entities. Uses only default serialixers.
+        """
+
+        # import all required to_pb overrides
         import pybrid.redac.protocol.serializer
-        from pybrid.base.hybrid.serializer import build_config
+        from pybrid.base.hybrid.serializer import entities_to_config
 
         configs = []
-        for entity in self.entities:
-            configs += build_config(entity)
+        for entity in entities:
+            if entity is not None:
+                configs += entities_to_config(entity)
+
         return configs
+        
+    def to_pb(self) -> typing.List[pb.Config]:
+        return self.build_config(self.entities)
 

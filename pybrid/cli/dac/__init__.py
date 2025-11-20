@@ -6,6 +6,7 @@ import asyncio
 import inspect
 import json
 import logging
+import os
 import sys
 import typing
 from ipaddress import ip_network
@@ -90,6 +91,9 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
 
     Use :code:`pybrid redac --help` to list all available sub-commands.
     """
+    bearer = os.getenv("PYBRID_AUTHENTICATION", None)
+    if bearer is not None:
+        logger.info("Using authentication bearer!")
 
     # Some sub-commands may change default options
     # TODO: It would be cleaner to introduce a specialization of click.Group
@@ -406,7 +410,7 @@ async def set_element_config(obj, sync, path, attribute, value):
         if path_.depth >= 4:
             # Element entities can not be configured directly, only via their parent
             entity = controller.computer.get_entity(path_.to_parent())
-        await controller.set_config(entity)
+        await controller.set_config_request(controller.computer.build_config([entity]))
 
 
 @click.command()
@@ -452,7 +456,7 @@ async def set_connection(obj, sync, force, path, connections):
 
     # Send configuration
     if sync:
-        await controller.set_config(entity)
+        await controller.set_config_request(controller.computer.build_config([entity]))
 
 
 @click.command()
@@ -489,7 +493,7 @@ async def route(obj, sync, path, m_out, u_out, c_factor, m_in):
 
     cluster.route(m_out, u_out, c_factor, m_in)
     if sync:
-        await controller.set_config(cluster)
+        await controller.set_config_request(controller.computer.build_config([cluster]))
 
 
 @click.command()
@@ -525,7 +529,7 @@ async def add_constant(obj, sync, path, u_out, c_factor, m_in, constant_value):
 
     cluster.add_constant(u_out, c_factor, m_in, constant_value=constant_value)
     if sync:
-        await controller.set_config(cluster)
+        await controller.set_config_request(controller.computer.build_config([cluster]))
 
 
 @click.command()
@@ -617,7 +621,7 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
         changed_entities.extend(controller.computer.daq.capture(entity))
 
     for changed_entity in changed_entities:
-        await controller.set_config(changed_entity)
+        await controller.set_config_request(controller.computer.build_config([changed_entity]))
 
 @click.command()
 @click.pass_obj

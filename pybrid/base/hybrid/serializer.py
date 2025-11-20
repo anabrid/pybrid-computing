@@ -22,7 +22,7 @@ class ConfigCollector:
     def pop_config(self) -> pb.Config:
         return self.configs.pop()
 
-def build_config(entity: Entity) -> typing.List[pb.Config]:
+def entities_to_config(entity: Entity) -> typing.List[pb.Config]:
     entities = queue.Queue()
     entities.put(entity)
     configs = []

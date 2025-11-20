@@ -5,7 +5,7 @@ from pybrid.base.hybrid.serializer import ConfigCollector, to_pb
 from pybrid.lucidac.front_panel import FrontPanel
 
 @to_pb.register
-def to_pb(entity: FrontPanel, collector: ConfigCollector):
+def _(entity: FrontPanel, collector: ConfigCollector):
     fp_config = collector.new_config(entity).front_panel_config
     fp_config.leds = entity.leds
 

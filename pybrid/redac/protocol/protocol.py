@@ -25,8 +25,7 @@ from pybrid.base.transport.udp import UDPTransport
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.partitioning import PartitionConfig
 from pybrid.redac.protocol.receiver import Receiver
-import pybrid.redac.protocol.serializer
-from pybrid.base.hybrid.serializer import build_config
+from pybrid.base.hybrid.serializer import entities_to_config
 from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
 from pybrid.redac.sync import SyncConfig
 
@@ -118,15 +117,6 @@ class Protocol(BaseProtocol):
 
         # A response is only expected for requests
         self._expected_responses[UUID(msg.id)] = response_future
-
-        # TODO: remove this hack and find a better way to add authentication
-        #meta = None
-        #bearer = os.getenv("PYBRID_META_AUTHENTICATION", None)
-        #if bearer:
-        #    meta = {
-        #        "Authorization": f"Bearer {bearer}"
-        #    }
-
         await self.send_message(msg)
         # Return future to response
         return response_future
@@ -253,21 +243,10 @@ class Protocol(BaseProtocol):
         return response.extract_response.bundle
 
     async def set_config_request(self, configs: typing.List[pb.Config]) -> bool:
-        return await self.send_body_and_wait_response(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=configs)))
+        return await self.set_config_bundle(bundle=pb.ConfigBundle(configs=configs))
 
-    async def set_config(self, entity: Entity):
-        return await self.set_config_request(configs=build_config(entity))
-
-    async def set_configs(self, entities: list[Entity]):
-        for entity in entities:
-            if not entity.path.depth == 1:
-                raise NotImplementedError("Not yet implemented.")
-
-        configs : typing.List[pb.Config] = []
-        for entity in entities:
-            configs.extend(build_config(entity))
-
-        return await self.set_config_request(configs=configs)
+    async def set_config_bundle(self, bundle: pb.ConfigBundle) -> bool:
+        return await self.send_body_and_wait_response(pb.ConfigCommand(bundle=bundle))
 
     async def start_run_request(
         self,
@@ -339,7 +318,6 @@ class Protocol(BaseProtocol):
 
         if get_message_kind(response) == "error_message":
             await self.reset_data_stream()
-            return False
 
         return response
 
@@ -347,6 +325,11 @@ class Protocol(BaseProtocol):
         await self.reset_data_stream()
         self.data_transport = await UDPTransport.create(local_port=None, remote_host=str(self.remote_address), remote_port=port)
         return
+
+    async def authenticate(self, token: str):
+        auth = pb.BearerAuth(token=token)
+        response = await self.send_body_and_wait_response(pb.AuthRequest(bearer=auth))
+        return get_message_kind(response) != "error_message"
 
     async def register_external_entities(self, entities: typing.Mapping[int, pb.Address]):
         # TODO: For large systems, we might not be able to send all items at once (limited JSON buffer size in firmware).

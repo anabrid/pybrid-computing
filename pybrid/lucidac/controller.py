@@ -6,6 +6,7 @@ import logging
 import typing
 from collections import defaultdict
 
+from pybrid.redac.computer import REDAC
 from pybrid.lucidac.computer import LUCIDAC
 from pybrid.lucidac.front_panel import FrontPanel
 from pybrid.redac.controller import Controller as REDACController
@@ -70,3 +71,16 @@ class Controller(REDACController):
         self._lucidac_entity = list(self._raw_entity_dict.keys())[0][1:]
         logger.info("LUCIDAC entity MAC:" + self._lucidac_entity)
         
+    async def set_computer(self, computer: REDAC):
+        """
+        Overrides REDAC method for setting configs in order to
+        send front panel config as well.
+        """
+
+        # send normal config
+        await super().set_computer(self.computer)
+
+        # send front panel config
+        if self.computer.front_panel is not None:
+            protocol = list(self.protocols.keys())[0]
+            await protocol.set_configs([self.computer.front_panel])

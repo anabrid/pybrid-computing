@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import asyncio
 import logging
+import os
 import typing
 from collections import defaultdict
 from dataclasses import replace
@@ -40,7 +41,14 @@ def decode_data(data_pb: pb.DaqData):
         return np.array([], dtype=dtype)
 
     data = np.frombuffer(data_pb.data, dtype=dtype)
-    return (data * data_pb.gain) + data_pb.offset
+    data = data.reshape(data_pb.channel_count, data_pb.sample_count, order='F')
+
+    indices = np.array([scaling.idx for scaling in data_pb.scaling])
+    gains = np.array([scaling.gain for scaling in data_pb.scaling])
+    offsets = np.array([scaling.offset for scaling in data_pb.scaling])
+
+    data = data[indices] * gains[:, np.newaxis] + offsets[:, np.newaxis]
+    return data
 
 
 class DistributedRunState:
@@ -213,6 +221,10 @@ class Controller:
             ctrl_protocol = await type(self).get_protocol_implementation().create(ctrl_transport_.get_remote_ip(), ctrl_transport_)
             await ctrl_protocol.start()
 
+        bearer = os.getenv("PYBRID_AUTHENTICATION", None)
+        if bearer:
+            assert await ctrl_protocol.authenticate(bearer)
+
         # Get carrier the device controls. In the future, other device types may be added here.
         entity = await ctrl_protocol.get_entity()
         entity_id = entity.id
@@ -226,7 +238,6 @@ class Controller:
             self.computer.add_carrier(carrier)
             self.protocols[ctrl_protocol].add(carrier.path)
             self.devices[carrier.path] = DeviceEntry(carrier.path, ctrl_transport_.get_remote_ip(), ctrl_protocol)
-
 
         #cmd transport callbacks
         ctrl_protocol.register_callback(
@@ -291,10 +302,7 @@ class Controller:
             pb_data = msg.data
 
             chunk = msg.run.chunk
-
             data = decode_data(pb_data)
-            data = data.reshape(msg.alignment, msg.sample_count, order='F')
-            data = data[0:msg.channel_count, :]
 
             path = Path(msg.entity.path.split('/'))
             for block_idx, values in enumerate(data):
@@ -376,10 +384,10 @@ class Controller:
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
         """
-        Send the passed data as a 'hack' request, only used during development.
+        Sends the passed data as a 'hack' request, only used during development.
         It allows to pass and receive arbitrary data to and from the hybrid controller.
         """
-        return await self.protocol.hack_request(cmd, data)
+        raise NotImplementedError("hack() has not been implemented in the PB protocol.")
 
     async def get_status(self, entity, recursive):
         device = self.devices[entity.path.to_root()]
@@ -407,11 +415,16 @@ class Controller:
         """
         Change the configuration of all carrier boards and sub-entities on the REDAC.
 
+        Global data - as set by the computer - if added to the first available
+        config command.
+
         :param computer: The :class:`.REDAC` object containing the configuration to be set.
         :return: None
         """
 
-        # TODO: Add proper comparison/hash functions and use sets
+        # per-carrier data available over protocols
+        global_data_was_sent = False
+
         carriers_left = list(computer.carriers)
         for protocol, managed_paths in self.protocols.items():
             carriers_here = list()
@@ -421,7 +434,17 @@ class Controller:
             for carrier in carriers_here:
                 carriers_left.remove(carrier)
 
-            await protocol.set_configs(carriers_here)
+            global_data = computer.global_entities() if not \
+                global_data_was_sent else []
+
+            await protocol.set_config_request(
+                computer.build_config([
+                    *carriers_here,
+                    *global_data
+                ])
+            )
+
+            global_data_was_sent = True
 
     async def start_run(
         self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None
@@ -505,6 +528,8 @@ class Controller:
 
         return run_state
 
+
+
     async def start_and_await_run(self, run: typing.Optional[Run] = None, timeout=100) -> Run:
         """
         A convenience function which starts a run, blocks until it is completed and returns it.
@@ -531,6 +556,25 @@ class Controller:
         device = self.devices[entity.path.to_root()]
         return await device.protocol.get_config(entity.path, recursive=recursive)
 
+
+    async def set_config_bundle(self, bundle: pb.ConfigBundle):
+        start_run_requests = []
+        for protocol, managed_devices in self.protocols.items():
+            redac_bundle = pb.ConfigBundle()
+            for redac_config in bundle.configs:
+                #if Path.parse(redac_config.entity.path).to_root() in managed_devices:
+                redac_bundle.configs.append(redac_config)
+            if len(redac_bundle.configs) == 0:
+                continue
+
+            start_run_requests.append(
+                Protocol.set_config_bundle.__get__(protocol, protocol.__class__)(
+                    bundle=redac_bundle,
+                )
+            )
+        await asyncio.gather(*start_run_requests)
+
+
     async def set_config(self, entity: Entity):
         """
         Change the configuration of a singe entity.
@@ -539,7 +583,7 @@ class Controller:
         :return: None
         """
         device = self.devices[entity.path.to_root()]
-        await device.protocol.set_config(entity)
+        await device.protocol.set_config_request(device.build_config(entity))
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         """

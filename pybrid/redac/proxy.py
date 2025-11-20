@@ -4,6 +4,7 @@
 
 import asyncio
 import logging
+import os
 import warnings
 from asyncio import StreamReader, StreamWriter, Server
 from ipaddress import IPv4Address
@@ -141,6 +142,9 @@ class Proxy:
         protocol.register_callback(pb.MessageV1.EXTRACT_COMMAND_FIELD_NUMBER, self.handle_get_config, extra_args=[protocol])
         protocol.register_callback(pb.MessageV1.START_RUN_COMMAND_FIELD_NUMBER, self.handle_start_run, extra_args=[protocol])
         protocol.register_callback(pb.MessageV1.UDP_DATA_STREAMING_COMMAND_FIELD_NUMBER, self.handle_udp_data_streaming, extra_args=[protocol])
+        protocol.register_callback(pb.MessageV1.AUTH_REQUEST_FIELD_NUMBER, self.handle_auth, extra_args=[protocol])
+
+        #currently not in use
         #protocol.register_callback(
         #    GetPartitionInformationRequest, self.handle_partition_information, extra_args=[protocol]
         #)
@@ -182,16 +186,32 @@ class Proxy:
 
     # Handlers handle incoming requests from the client side
 
+    async def handle_auth(self, msg: pb.AuthRequest, protocol: Protocol):
+        bearer = os.getenv("PYBRID_AUTHENTICATION", None)
+        if bearer is None or bearer == msg.bearer.token:
+            return pb.SuccessMessage()
+        else:
+            return pb.ErrorMessage()
+
+
     async def handle_get_entities(self, msg: pb.DescribeCommand, protocol: Protocol):
         logger.debug("Handling %s from %s", type(msg), protocol.ctrl_transport.get_name())
+
         carriers = []
         for carrier in self.controller._raw_entity_dict.values():
-            entity = pb.Entity()
-            entity.CopyFrom(carrier)  # deep copy carrier into new entity
-            entity.id = self.reverse_mac_mapping[carrier.id.strip("/")]  # override id
-            carriers.append(entity)
+            if carrier.class_ == pb.Entity.Class.DEVICE:
+                carriers.extend(carrier.children)
+            else:
+                carriers.append(carrier)
 
-        machine = pb.Entity(id="/", class_=pb.Entity.Class.DEVICE, children=carriers)
+        mapped_carriers = []
+        for carrier in carriers:
+            mapped_entity = pb.Entity()
+            mapped_entity.CopyFrom(carrier)  # deep copy carrier into new entity
+            mapped_entity.id = self.reverse_mac_mapping[carrier.id.strip("/")]  # override id
+            mapped_carriers.append(mapped_entity)
+
+        machine = pb.Entity(id="/", class_=pb.Entity.Class.DEVICE, children=mapped_carriers)
         return pb.DescribeResponse(entity=machine)
 
     async def handle_reset_config(self, msg: pb.ResetCommand, protocol: Protocol):
@@ -271,7 +291,7 @@ class Proxy:
         return pb.ConfigResponse()
 
     async def monitor_run_state(self, run_state: DistributedRunState, protocol: Protocol):
-        zero_time = pb.Time(value=0, prefix=pb.Prefix.BASE)
+        zero_time = pb.Time(value=0, prefix=pb.Prefix.NONE)
         try:
             async with asyncio.timeout(3):
                 await run_state.wait_all(RunState.TAKE_OFF)
@@ -308,7 +328,7 @@ class Proxy:
             return time.value * 1_000
         if time.prefix == pb.Prefix.MILLI:
             return time.value * 1_000_000
-        if time.prefix == pb.Prefix.BASE:
+        if time.prefix == pb.Prefix.NONE:
             return time.value * 1_000_000_000
 
         return 0
@@ -318,7 +338,7 @@ class Proxy:
             free_port = get_free_udp_port(6733)
             response = await protocol.udp_data_streaming(free_port)
             if response.WhichOneof("kind") != "success_message":
-                return response
+                return response.error_message
 
         await client_protocol.udp_data_receiving(port = msg.port)
         return pb.SuccessMessage()
