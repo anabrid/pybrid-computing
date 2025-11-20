@@ -21,7 +21,9 @@ for carrier in computer.carriers:
         # Configure which signals you want to capture
         computer.daq.capture(cluster.m0block.elements[0], cluster.m0block.elements[1])
 
-# Export JSON configuration for later use, either `pybrid redac run -c sinusoidal-circuit.json` or redaccess
-print(computer.dumps(sort_keys=True, indent=True))
+# Export PB configuration for later use, either `pybrid redac run -c sinusoidal-circuit.json` or redaccess
+config = computer.to_pb()
 target = FilePath(__file__).parent / "redac-0-configuration.json"
-computer.dump(target)
+with open(target, "w") as f:
+    for c in config:
+        f.write(str(c) + "\n")

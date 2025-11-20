@@ -116,31 +116,6 @@ class REDAC(AnalogComputer):
             with open(data) as fs:
                 entity_tree = json.load(fs)
         return REDAC.create_from_entity_type_tree(entity_tree)
-
-    def _get_dump_config(self, kwargs):
-        config = {entity.path.id_: self.build_config([entity]) for entity in self.entities}
-        kwargs.setdefault("default", pydantic_encoder)
-        return config, kwargs
-
-    def dumps(self, **kwargs):
-        """
-        Dump computer configuration into a JSON string like json.dumps(...).
-        """
-        config, kwargs = self._get_dump_config(kwargs)
-        return json.dumps(config, **kwargs)
-
-    def dump(self, target, **kwargs):
-        """
-        Dump computer configuration into a JSON file like json.dump(...).
-        """
-        config, kwargs = self._get_dump_config(kwargs)
-        # If a file path is passed, open file
-        if isinstance(target, str | FilePath):
-            open_file = open(target, "w")
-        else:
-            open_file = nullcontext(target)
-        with open_file as fs:
-            return json.dump(config, fs, **kwargs)
         
     def build_config(self, entities: typing.List[Entity | None]):
         """

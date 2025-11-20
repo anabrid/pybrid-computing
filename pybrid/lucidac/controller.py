@@ -62,12 +62,12 @@ class Controller(REDACController):
         # initialize as REDAC first (ignores the )
         await super().add_device(host, port, name=name)
 
+        if len(self.devices) != 1 or len(self.protocols) != 1 or len(self._raw_entity_dict) != 1:
+            raise Exception(f"Failed adding LUCIDAC {host}:{port}")
+
         # initialize the front panel (which is assumed to be there)
         self.computer.front_panel = FrontPanel(self.computer.carriers[0].path / "FP")
 
-        assert(len(self.devices) == 1)
-        assert(len(self.protocols) == 1)
-        assert(len(self._raw_entity_dict) == 1)
         self._lucidac_entity = list(self._raw_entity_dict.keys())[0][1:]
         logger.info("LUCIDAC entity MAC:" + self._lucidac_entity)
         

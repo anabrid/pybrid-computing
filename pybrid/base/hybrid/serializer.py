@@ -32,7 +32,6 @@ def entities_to_config(entity: Entity) -> typing.List[pb.Config]:
         entity = entities.get()
         for child in entity.children:
             entities.put(child)
-
         to_pb(entity, collector)
 
     return configs
