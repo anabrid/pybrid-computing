@@ -1,7 +1,7 @@
 [project]
 name = "pybrid-computing"
 requires-python = ">=3.11,<4.0"
-version = "0.11.2"
+version = "0.11.3"
 description = "Library to interact with analog computers and analog-digital hybrid computers, in particular the LUCIDAC and REDAC computers made by anabrid"
 authors = [
   {name = "Michael Steck", email = "pybrid-code@anabrid.com"}
