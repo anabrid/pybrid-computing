@@ -197,7 +197,7 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, 
         devices = []
         if not hosts:
             logger.warning(
-                "Falling back to 0.0.0.0/0 zeroconf. Pass an explicit host or network with -h to silence this warning."
+                "Falling back automatic LUCIDAC detection. Pass an explicit host or network with -h to silence this warning."
             )
             networks.append(ip_network("0.0.0.0/0"))
         for host in hosts:

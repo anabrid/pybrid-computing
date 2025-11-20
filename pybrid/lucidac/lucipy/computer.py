@@ -6,13 +6,15 @@ import asyncio
 import logging
 import os
 import urllib.parse
-import time
+import warnings
+from ipaddress import ip_network
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.utils.json import JSONConfigAdapter
 from pybrid.lucidac.controller import Controller as LUCIDACController
 from pybrid.lucidac.lucipy.circuits import *
 from pybrid.redac import DAQConfig, RunConfig, Run
+from pybrid.redac.detect import detect_in_network
 
 logging.basicConfig(level=40)
 formatter = logging.Formatter(fmt="{asctime} | {levelname} | {module} | {message}",
@@ -41,9 +43,20 @@ class LUCIDACWrapper:
             if self.ENDPOINT_ENV_NAME in os.environ:
                 endpoint = os.environ[self.ENDPOINT_ENV_NAME]
             else:
-                raise ValueError("No endpoint provided as argument or in ENV variable "
-                                    + self.ENDPOINT_ENV_NAME + 
-                                    " and did not discover an USB or network endpoint. No missing external libraries encountered.")
+                logger.warning(f"No endpoint specified using {self.ENDPOINT_ENV_NAME}, " \
+                    "selecting LUCIDAC through auto-detection...")
+                
+                devices = asyncio.run(detect_in_network(ip_network("0.0.0.0/0")))
+
+                if len(devices) == 0:
+                    raise Exception("No LUCIDAC found, please explicitly set one with -h, -p args.")
+                
+                host, port, name = devices[0]
+                if len(devices) > 1:
+                    logger.warning(f"Multiple LUCIDACs found, using the first one ({name}) - use options -h and -p to select a specific LUCIDAC.")
+
+                endpoint = f"tcp://{host}:{port}"
+
         self.url = urllib.parse.urlparse(endpoint)
 
         # Host or device name. Note that hostnames are transfered to lowercase while pathnames will not.
