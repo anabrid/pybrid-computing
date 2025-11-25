@@ -40,3 +40,7 @@ class IBlock(SwitchingBlock):
                         % (input_idxs, other_output_idx)
                     )
         self.outputs[output_idx] = self.outputs[output_idx].union(input_idxs)
+
+    def reset(self):
+        self.outputs = [set()] * 16
+        self.upscaling = [False] * 32

@@ -21,3 +21,7 @@ class CBlock(ElementBlock):
     #: :class:`pybrid.redac.computations.ScalarMultiplication`.
     elements: list[ComputationElement[ScalarMultiplication]]
     ELEMENTS = (ComputationElement[ScalarMultiplication],) * 32
+
+    def reset(self):
+        for element in self.elements:
+            element.reset()

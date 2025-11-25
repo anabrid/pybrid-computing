@@ -30,3 +30,9 @@ class TBlock(FunctionBlock):
             return Loc.new_wing(int(elems[0]), 1)
         else:
             raise NotImplementedError()
+
+    def reset(self):
+        self.muxes = [0, 1, 2, 3] * 24
+        self.sources = [None] * 24
+        self.uses = [0] * 96
+        self.targets_upscaled = [False] * 96

@@ -15,6 +15,14 @@ from pybrid.redac.entities import Entity, Path, EntityType, EntityClass
 logger = logging.getLogger(__name__)
 import pybrid.base.proto.main_pb2 as pb
 
+@dataclass(kw_only=True)
+class ADCChannel:
+    #: index of M-output lane that is converted by this ADC
+    index: int
+    #: ADC gain - pybrid internally multiplies the output of this ADC with the gain
+    gain: float = 1.0
+    #: ADC offset - pybrid internally adds this offset to this ADCs' output
+    offset: float = 0.0
 
 @dataclass(kw_only=True)
 class Carrier(Entity):
@@ -25,7 +33,7 @@ class Carrier(Entity):
     It contains several :class:`.cluster.Cluster` objects.
     """
 
-    adc_channels: list[Optional[int]] = field(default_factory=list)
+    adc_config: list[Optional[ADCChannel]] = field(default_factory=list)
 
     # currently only implemented in the LUCIDAC, but planned for the mREDAC
     # carrier board as well
@@ -96,3 +104,8 @@ class Carrier(Entity):
         m_slot = int(entity.path[2].strip("M"))
         element_idx = int(entity.path.id_)
         return cluster_idx * 16 + m_slot * 8 + element_idx
+
+    def reset(self):
+        Entity.reset(self)
+        self.adc_config = []
+        self.acl_select = None

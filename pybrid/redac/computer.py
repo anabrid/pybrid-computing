@@ -4,9 +4,8 @@
 
 import json
 import logging
-import typing
+from typing import List, TextIO
 import warnings
-from contextlib import nullcontext
 from pathlib import Path as FilePath
 
 from pydantic.json import pydantic_encoder
@@ -16,11 +15,12 @@ from pybrid.redac.entities import Entity, Path
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.redac.blocks import FunctionBlock
-from pybrid.redac.carrier import Carrier
+from pybrid.redac.carrier import Carrier, ADCChannel
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.elements import ComputationElement
 from pybrid.redac.entities import Path
 from pybrid.redac.router import Router
+from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
 
 logger = logging.getLogger(__name__)
 
@@ -31,18 +31,12 @@ class DAQ:
     def __init__(self, computer):
         self.computer = computer
 
-    def capture(self, *entities):
-        changed_carriers = []
+    def capture(self, *entities, gain=1.0, offset=0.0):
         for entity in entities:
             # TODO: entities should have a pybrid.redac.entities.path object with to_carrier() function
             carrier: Carrier = self.computer.get_entity(entity.path.to_root())
-            adc_channel = carrier.resolve_signal(entity)
-            if adc_channel not in carrier.adc_channels:
-                carrier.adc_channels.append(adc_channel)
-                changed_carriers.append(carrier)
-            else:
-                warnings.warn("Signal is already being captured, ignoring duplicate capture request.")
-        return changed_carriers
+            adc_channel = ADCChannel(index=carrier.resolve_signal(entity), gain=gain, offset=offset)
+            carrier.adc_config.append(adc_channel)
 
 
 class REDAC(AnalogComputer):
@@ -81,7 +75,7 @@ class REDAC(AnalogComputer):
         except Exception as exc:
             logger.warning("Could not add carrier to router: %s", exc)
 
-    def global_entities(self) -> typing.List[Entity | None]:
+    def global_entities(self) -> List[Entity | None]:
         return []
 
     # ██████  ███████        ██ ███████ ███████ ██████  ██  █████  ██      ██ ███████  █████  ████████ ██  ██████  ███    ██
@@ -110,30 +104,33 @@ class REDAC(AnalogComputer):
         """
         if isinstance(data, dict):
             entity_tree = data
-        elif isinstance(data, typing.TextIO):
+        elif isinstance(data, TextIO):
             entity_tree = json.load(data)
         elif isinstance(data, str | FilePath):
             with open(data) as fs:
                 entity_tree = json.load(fs)
         return REDAC.create_from_entity_type_tree(entity_tree)
-        
-    def build_config(self, entities: typing.List[Entity | None]):
+    
+    def get_config_entities(self) -> List[Entity]:
         """
-        Generates a PB-based list of config messages for the given
-        list of entities. Uses only default serialixers.
+        See :func:`AnalogComputer.get_config_entities`.
         """
+        return self.entities
+    
+    def global_entities(self) -> List[Entity]:
+        """
+        See :func:`AnalogComputer.global_entities`.
+        """
+        return []
 
-        # import all required to_pb overrides
-        import pybrid.redac.protocol.serializer
-        from pybrid.base.hybrid.serializer import entities_to_config
-
-        configs = []
-        for entity in entities:
-            if entity is not None:
-                configs += entities_to_config(entity)
-
-        return configs
-        
-    def to_pb(self) -> typing.List[pb.Config]:
-        return self.build_config(self.entities)
-
+    def get_serializer_implementation(self) -> type:
+        """
+        See :func:`AnalogComputer.get_serializer_implementation`.
+        """
+        return REDACSerializer
+    
+    def get_deserializer_implementation(self) -> type:
+        """
+        See :func:`AnalogComputer.get_deserializer_implementation`.
+        """
+        return REDACDeserializer

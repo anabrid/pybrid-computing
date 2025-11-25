@@ -8,6 +8,7 @@ from json import JSONEncoder as BuiltinJSONEncoder
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.redac.carrier import ADCChannel
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +77,9 @@ class JSONConfigAdapter:
 
                 if c_path not in carrier_config:
                     continue
-
-                carrier.adc_channels = carrier_config["adc_channels"]
+                    
+                carrier.adc_config = [ADCChannel(index=idx) for idx in \
+                    carrier_config["adc_channels"] if idx is not None]
                 carrier.acl_select = carrier_config["acl_select"] if "acl_select" \
                     in carrier_config else 8 * ["internal"]
                 carrier.clusters[cluster_ix].set_constant(carrier_config[c_path]["/U"].get("constant", False))
@@ -116,4 +118,6 @@ class JSONConfigAdapter:
                     dac_outputs=fp_config["dac_outputs"]
                 )
 
-        return computer.to_pb()
+        # serialize configuration
+        serializer = computer.get_serializer_implementation()()
+        return serializer.serialize(computer)

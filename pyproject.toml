@@ -1,7 +1,7 @@
 [project]
 name = "pybrid-computing"
 requires-python = ">=3.11,<4.0"
-version = "0.11.3"
+dynamic = ["version"]
 description = "Library to interact with analog computers and analog-digital hybrid computers, in particular the LUCIDAC and REDAC computers made by anabrid"
 authors = [
   {name = "Michael Steck", email = "pybrid-code@anabrid.com"}
@@ -53,7 +53,7 @@ dev = [
 pybrid = 'pybrid.cli.base:entrypoint'
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
@@ -64,3 +64,12 @@ line-length = 120
 
 [tool.isort]
 profile = "black"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+pattern = "^v(?P<base>\\d+\\.\\d+\\.\\d+)$"
+format-jinja = "{% if distance == 0 %}{{ base }}{% else %}{{ base }}+{{ commit }}{% endif %}"
+fallback-version = "0.11.3"
