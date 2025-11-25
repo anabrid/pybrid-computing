@@ -35,6 +35,8 @@ from pybrid.redac.monitor import Monitor
 from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
 
+from pybrid.base.utils.bundle import json_to_pbfile, is_pb_file
+
 # controls logging verbosity - use for debugging
 # logging.basicConfig(level=logging.INFO)
 
@@ -656,12 +658,23 @@ async def run(obj, op_time, sample_rate: int, ic_time, config_file: typing.TextI
     """
     controller: REDACController = obj["controller"]
     run_: Run = obj["run"]
-    use_virtual_macs : bool = obj["use_virtual_macs"]
 
-    # Read and send configuration (as protobuf file)
-    config = json.load(config_file)
-    pb_config = JSONConfigAdapter.parse(config, controller.computer, use_virtual_macs)
-    await controller.forward_set_config(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=pb_config)))
+    configs = []
+
+    config_json = json.load(config_file)
+    if is_bundle_file(config_json):
+        # Deserialize protobuf configuration
+        bundle = json_to_bundle(config_json)
+        configs = bundle.configs
+    else:
+        # old JSON format: Read and send configuration (as protobuf file)
+        logger.warning("Using deprecated non-protobuf JSON format, support for this will " \
+            "eventually be removed from pybrid!")
+
+        use_virtual_macs : bool = obj["use_virtual_macs"]
+        configs = JSONConfigAdapter.parse(config_json, controller.computer, use_virtual_macs)
+
+    await controller.forward_set_config(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=configs)))
 
     # If the run in the context object is already done, we need a new one
     if run_.state.is_done():
@@ -824,6 +837,42 @@ async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, partitioning_mod
         click.echo(f"Starting proxy on {proxy_.host}:{proxy_.port}... Press Ctrl+C to exit.")
         await server.serve_forever()
 
+@click.command()
+@click.pass_obj
+@click.argument("input_file", type=click.File("r"))
+@click.option("--output", "-o", type=click.File("w"), default="-", help="Output file for converted config.")
+async def convert(obj, input_file: typing.TextIO, output):
+    """
+    Convert a JSON-pb file from an old, nested JSON configuration.
+
+    Requires a device in order to parse and check the old config correctly.
+    """
+    controller: REDACController = obj["controller"]
+    config_json = json.load(input_file)
+
+    if is_bundle_file(config_json):
+        raise Exception("convert() expects old-style JSON files as input.")
+    else:
+        use_virtual_macs : bool = obj["use_virtual_macs"]
+        configs = JSONConfigAdapter.parse(config_json, controller.computer, use_virtual_macs)
+
+        # create bundle
+        bundle = Bundle(
+            version={
+                "minor": 1
+            },
+            configs=configs
+        )
+
+        # Get serializer and serialize
+        serializer_class = controller.computer.get_serializer_implementation()
+        serializer = serializer_class()
+        bundle.configs = serializer.serialize(controller.computer)
+        output_json = bundle_to_json(bundle)
+
+        output.write(json.dumps(output_json, indent=2))
+        output.write("\n")
+
 @cli.command()
 @click.pass_obj
 async def detect(obj):
@@ -846,7 +895,11 @@ for name, obj in inspect.getmembers(current_module):
         # Skip if it's a group (groups are also commands but we don't want them)
         if isinstance(obj, click.Group):
             continue
-        
+
+        # Skip top-level commands (already registered with cli group)
+        if name in ['detect']:
+            continue
+
         # Add the command to both groups
         redac.add_command(obj)
         lucidac.add_command(obj)

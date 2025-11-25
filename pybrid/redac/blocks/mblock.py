@@ -33,6 +33,10 @@ class MIntBlock(MBlock):
     Each integrator accepts configuration according to :class:`pybrid.redac.computations.Integration`.
     """
 
+    def reset(self):
+        self.limiters = [False] * 8
+        for element in self.elements:
+            element.reset()
 
 @EntityType.register(EntityClass.MBLOCK, 2)
 class MMulBlock(MBlock):

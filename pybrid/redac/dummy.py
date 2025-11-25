@@ -13,158 +13,201 @@ from pybrid.redac import Run, RunState
 from pybrid.redac.computer import REDAC
 from pybrid.redac.controller import Controller
 from pybrid.redac.entities import Entity
-from pybrid.redac.protocol.serializer import to_pb
-from pybrid.base.hybrid.serializer import entities_to_config
 import pybrid.base.proto.main_pb2 as pb
 
 logger = logging.getLogger(__name__)
 
 
-def get_dummy_computer():
-    return REDAC.create_from_entity_type_tree(
-        {
-            "/04-E9-E5-15-87-C0": {
-                "class": 1,
-                "type": 1,
-                "variant": 1,
-                "version": [1, 0, 0],
-                "eui": "00-00-00-00-00-00-00-00",
-                "/0": {
-                    "class": 2,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-00-00-00-00-00-00-00",
-                    "/M0": {
-                        "class": 3,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-92-1B",
-                    },
-                    "/M1": {
-                        "class": 3,
-                        "type": 2,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-7D-6D",
-                    },
-                    "/U": {
-                        "class": 4,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-15-76-7A",
-                    },
-                    "/C": {
-                        "class": 5,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "FF-FF-D8-47-8F-3F-8E-F5",
-                    },
-                    "/I": {
-                        "class": 6,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-15-3D-F5",
-                    },
-                    "/SH": {
-                        "class": 7,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-94-9F",
-                    },
-                },
-                "/CTRL": {
-                    "class": 9,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-04-A3-0B-00-16-7E-05",
-                },
-                "/FP": {
-                    "class": 8,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-04-A3-0B-00-14-87-29",
-                },
-            },
-            "/04-E9-E5-16-08-DE": {
-                "class": 1,
-                "type": 1,
-                "variant": 1,
-                "version": [1, 0, 0],
-                "eui": "00-00-00-00-00-00-00-00",
-                "/0": {
-                    "class": 2,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-00-00-00-00-00-00-00",
-                    "/M0": {
-                        "class": 3,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-92-1B",
-                    },
-                    "/M1": {
-                        "class": 3,
-                        "type": 2,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-7D-6D",
-                    },
-                    "/U": {
-                        "class": 4,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-15-76-7A",
-                    },
-                    "/C": {
-                        "class": 5,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "FF-FF-D8-47-8F-3F-8E-F5",
-                    },
-                    "/I": {
-                        "class": 6,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-15-3D-F5",
-                    },
-                    "/SH": {
-                        "class": 7,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-94-9F",
-                    },
-                },
-                "/CTRL": {
-                    "class": 9,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-04-A3-0B-00-16-7E-05",
-                },
-                "/FP": {
-                    "class": 8,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-04-A3-0B-00-14-87-29",
-                },
-            },
-        }
+def _dict_to_pb_entity(id_: str, data: dict) -> pb.Entity:
+    """Convert old-format dictionary to pb.Entity."""
+    version = pb.Version(
+        major=data["version"][0],
+        minor=data["version"][1],
+        patch=data["version"][2]
     )
+
+    entity = pb.Entity(
+        id=id_.lstrip('/'),
+        class_=data["class"],
+        type=data["type"],
+        variant=data["variant"],
+        version=version,
+        eui=data["eui"]
+    )
+
+    # Recursively add children
+    for key, value in data.items():
+        if key.startswith('/'):
+            child_entity = _dict_to_pb_entity(key, value)
+            entity.children.append(child_entity)
+
+    return entity
+
+
+def get_dummy_computer():
+    """Create a dummy REDAC computer with two carriers."""
+    # Define the entity tree in old dict format
+    tree_dict = {
+        "/00-00-00-00-00-00": {
+            "class": 1,
+            "type": 1,
+            "variant": 1,
+            "version": [1, 0, 0],
+            "eui": "00-00-00-00-00-00-00-00",
+            "/0": {
+                "class": 2,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-00-00-00-00-00-00-00",
+                "/M0": {
+                    "class": 3,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-16-92-1B",
+                },
+                "/M1": {
+                    "class": 3,
+                    "type": 2,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-16-7D-6D",
+                },
+                "/U": {
+                    "class": 4,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-15-76-7A",
+                },
+                "/C": {
+                    "class": 5,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "FF-FF-D8-47-8F-3F-8E-F5",
+                },
+                "/I": {
+                    "class": 6,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-15-3D-F5",
+                },
+                "/SH": {
+                    "class": 7,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-16-94-9F",
+                },
+            },
+            "/T": {
+                "class": 10,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-04-A3-0B-00-16-7E-10",
+            },
+            "/CTRL": {
+                "class": 9,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-04-A3-0B-00-16-7E-05",
+            },
+            "/FP": {
+                "class": 8,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-04-A3-0B-00-14-87-29",
+            },
+        },
+        "/00-00-00-00-00-01": {
+            "class": 1,
+            "type": 1,
+            "variant": 1,
+            "version": [1, 0, 0],
+            "eui": "00-00-00-00-00-00-00-00",
+            "/0": {
+                "class": 2,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-00-00-00-00-00-00-00",
+                "/M0": {
+                    "class": 3,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-16-92-1B",
+                },
+                "/M1": {
+                    "class": 3,
+                    "type": 2,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-16-7D-6D",
+                },
+                "/U": {
+                    "class": 4,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-15-76-7A",
+                },
+                "/C": {
+                    "class": 5,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "FF-FF-D8-47-8F-3F-8E-F5",
+                },
+                "/I": {
+                    "class": 6,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-15-3D-F5",
+                },
+                "/SH": {
+                    "class": 7,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-16-94-9F",
+                },
+            },
+            "/T": {
+                "class": 10,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-04-A3-0B-00-16-7E-11",
+            },
+            "/CTRL": {
+                "class": 9,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-04-A3-0B-00-16-7E-05",
+            },
+            "/FP": {
+                "class": 8,
+                "type": 1,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-04-A3-0B-00-14-87-29",
+            },
+        },
+    }
+
+    # Convert dict tree to pb.Entity tree
+    pb_tree = {path: _dict_to_pb_entity(path, data) for path, data in tree_dict.items()}
+
+    return REDAC.create_from_entity_type_tree(pb_tree)
 
 
 class DummyController:
@@ -209,10 +252,10 @@ class DummyController:
     async def set_computer(self, *args, **kwargs):
         self.log_action("set_computer", *args, **kwargs)
 
-
-        configs : typing.List[pb.Config] = []
-        for entity in self.computer.carriers:
-            configs.extend(entities_to_config(entity))
+        # Use the serializer to get configs
+        from pybrid.redac.protocol.serializer import REDACSerializer
+        serializer = REDACSerializer()
+        configs = serializer.serialize(self.computer)
 
         logger.debug(MessageToJson(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=configs))))
 
@@ -237,8 +280,10 @@ class DummyController:
         return run
 
     async def get_config(self, entity: Entity, *, recursive: bool = True):
-        entity = self.computer.get_entity(entity.path)
-        return to_pb(entity)
+        serializer_cls = self.computer.get_serializer_implementation()
+        serializer = serializer_cls()
+
+        return serializer.serialize_entities([entity])
 
     async def set_config(self, *args, **kwargs):
         self.log_action("set_config", *args, **kwargs)

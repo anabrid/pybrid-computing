@@ -22,6 +22,10 @@ class Integration(BaseIntegration):
     # Inherit __doc__
     __doc__ = BaseIntegration.__doc__
 
+    def reset(self):
+        self.ic = 0.0
+        self.k = 10_000
+
 
 @dataclass(kw_only=True)
 class ScalarMultiplication(BaseScalarMultiplication):
@@ -30,3 +34,6 @@ class ScalarMultiplication(BaseScalarMultiplication):
 
     # Inherit __doc__
     __doc__ = BaseScalarMultiplication.__doc__
+
+    def reset(self):
+        self.factor = 1.0

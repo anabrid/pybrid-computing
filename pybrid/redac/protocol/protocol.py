@@ -25,7 +25,6 @@ from pybrid.base.transport.udp import UDPTransport
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.partitioning import PartitionConfig
 from pybrid.redac.protocol.receiver import Receiver
-from pybrid.base.hybrid.serializer import entities_to_config
 from pybrid.redac.run import RunConfig, DAQConfig, CalibrationConfig
 from pybrid.redac.sync import SyncConfig
 

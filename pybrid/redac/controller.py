@@ -280,7 +280,6 @@ class Controller:
         await ctrl_protocol.udp_data_streaming(get_free_udp_port(6733))
 
 
-
     # ██   ██  █████  ███    ██ ██████  ██      ███████ ██████  ███████
     # ██   ██ ██   ██ ████   ██ ██   ██ ██      ██      ██   ██ ██
     # ███████ ███████ ██ ██  ██ ██   ██ ██      █████   ██████  ███████
@@ -423,8 +422,6 @@ class Controller:
         """
 
         # per-carrier data available over protocols
-        global_data_was_sent = False
-
         carriers_left = list(computer.carriers)
         for protocol, managed_paths in self.protocols.items():
             carriers_here = list()
@@ -433,18 +430,12 @@ class Controller:
                     carriers_here.append(carrier)
             for carrier in carriers_here:
                 carriers_left.remove(carrier)
+            
+            # serialize the config
+            serializer = computer.get_serializer_implementation()()
+            configs = serializer.serialize(computer)
 
-            global_data = computer.global_entities() if not \
-                global_data_was_sent else []
-
-            await protocol.set_config_request(
-                computer.build_config([
-                    *carriers_here,
-                    *global_data
-                ])
-            )
-
-            global_data_was_sent = True
+            await protocol.set_config_request(configs)
 
     async def start_run(
         self, run: typing.Optional[Run] = None, entities: typing.Optional[typing.Iterable[Path]] = None

@@ -1,1 +1,2158 @@
-{"00-00-00-00-00-00": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-15-00-E4", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-DC-76"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-C7-EA"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 0, 0], "eui": "FF-FF-D8-47-8F-3F-7E-0E"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-DB-FE"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-2F-73"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-DD-27"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-AC-17"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 0, 0], "eui": "FF-FF-D8-47-8F-3F-5F-34"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-E0-69"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-32-8A"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-D1-7A"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-C8-F9"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 0, 0], "eui": "FF-FF-D8-47-8F-3F-59-7C"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-E0-41"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-8A-BF"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-15-AE-0C"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-94-60"}, "/ST0": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-7F-E1"}, "/ST1": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-78-9A"}}, "00-00-00-00-00-02": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-15-0B-24", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-B5-D8"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-9E-7E"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-52-AE"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-B0-7A"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-A1-B3"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-B0-62"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-A1-1B"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-4F-CB"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-DC-5C"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-8F-B5"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-B6-6B"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-D1-3A"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-50-8B"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-B6-74"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-51-85"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-15-DF-26"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-93-59"}}, "00-00-01-00-00-02": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-14-FA-F3", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-DA-40"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-5A-CC"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-48-42"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-40-B0"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-74-D8"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-C5-16"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-6F-B9"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-52-2C"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-6D-15"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-A6-B2"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-B8-5E"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-41-DD"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-55-7A"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-68-40"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-71-C9"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-15-B0-37"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-9B-84"}}, "01-00-00-00-00-00": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-15-06-F6", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-9F-F5"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-7C-8E"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-51-79"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-60-00"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-99-43"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-BE-DF"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-62-38"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-4C-2B"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-6B-C0"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-6A-FB"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-BC-4B"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-47-34"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-57-47"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-39-52"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-91-0D"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-15-B0-70"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-A3-9D"}, "/ST0": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-9E-D7"}, "/ST1": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-74-49"}}, "00-00-01-00-00-00": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-15-1D-9A", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-D6-27"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-71-BB"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-4F-3E"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-A1-48"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-6B-C0"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-85-9B"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-30-4A"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-57-BC"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-B1-87"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-8D-5B"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-9E-47"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-66-07"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-48-FD"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-A6-64"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-92-49"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-16-60-BB"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-A4-E0"}}, "00-00-00-00-00-01": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-14-D3-B0", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-B3-8A"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-B0-E6"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-4A-4C"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-D9-00"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-72-E6"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-A0-4B"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-A2-FF"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-5A-A1"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-B4-A5"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-55-48"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-D8-CA"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-A2-BD"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-47-F9"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-D5-09"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-7C-47"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-15-B3-B7"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-76-18"}}, "01-00-00-00-00-01": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-15-0F-FC", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-AC-2E"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-53-61"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-5D-2F"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-DA-39"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-46-F0"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-B3-53"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-D7-D3"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-49-76"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-B8-02"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-27-61"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-AE-50"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-D2-6C"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-57-8D"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-D4-CC"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-27-C8"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-15-C1-1D"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-64-29"}}, "00-00-01-00-00-01": {"class": 1, "type": 2, "variant": 1, "version": [1, 0, 0], "eui": "00-04-A3-0B-00-14-F1-D3", "/0": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-D7-B4"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-4B-87"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-5D-F9"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-75-3E"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-97-67"}}, "/1": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-DA-0B"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-61-1B"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-5B-A8"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-73-5A"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-16-8D-F8"}}, "/2": {"class": 2, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-00-00-00-00-00-00-00", "/M0": {"class": 3, "type": 1, "variant": 1, "version": [1, 1, 1], "eui": "00-04-A3-0B-00-15-C1-27"}, "/M1": {"class": 3, "type": 2, "variant": 1, "version": [1, 1, 0], "eui": "00-00-00-00-00-00-00-00"}, "/U": {"class": 4, "type": 1, "variant": 1, "version": [1, 2, 1], "eui": "00-04-A3-0B-00-15-CE-DC"}, "/C": {"class": 5, "type": 1, "variant": 1, "version": [1, 1, 0], "eui": "00-04-A3-0B-00-16-4D-E7"}, "/I": {"class": 6, "type": 1, "variant": 1, "version": [1, 2, 0], "eui": "00-04-A3-0B-00-15-5C-4C"}, "/SH": {"class": 7, "type": 1, "variant": 1, "version": [0, 1, 0], "eui": "00-04-A3-0B-00-15-2F-89"}}, "/CTRL": {"class": 9, "type": 0, "variant": 1, "version": [0, 0, 0], "eui": "00-04-A3-0B-00-15-A5-A8"}, "/T": {"class": 10, "type": 1, "variant": 1, "version": [1, 0, 2], "eui": "00-04-A3-0B-00-16-7C-0F"}}}
+{
+  "00-00-00-00-00-00": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-15-00-E4",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-DC-76"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-C7-EA"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          0,
+          0
+        ],
+        "eui": "FF-FF-D8-47-8F-3F-7E-0E"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-DB-FE"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-2F-73"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-DD-27"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-AC-17"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          0,
+          0
+        ],
+        "eui": "FF-FF-D8-47-8F-3F-5F-34"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-E0-69"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-32-8A"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-D1-7A"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-C8-F9"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          0,
+          0
+        ],
+        "eui": "FF-FF-D8-47-8F-3F-59-7C"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-E0-41"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-8A-BF"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-15-AE-0C"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-94-60"
+    },
+    "/ST0": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-7F-E1"
+    },
+    "/ST1": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-78-9A"
+    }
+  },
+  "00-00-00-00-00-02": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-15-0B-24",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-B5-D8"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-9E-7E"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-52-AE"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-B0-7A"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-A1-B3"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-B0-62"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-A1-1B"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-4F-CB"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-DC-5C"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-8F-B5"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-B6-6B"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-D1-3A"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-50-8B"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-B6-74"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-51-85"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-15-DF-26"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-93-59"
+    }
+  },
+  "00-00-01-00-00-02": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-14-FA-F3",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-DA-40"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-5A-CC"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-48-42"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-40-B0"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-74-D8"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-C5-16"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-6F-B9"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-52-2C"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-6D-15"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-A6-B2"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-B8-5E"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-41-DD"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-55-7A"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-68-40"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-71-C9"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-15-B0-37"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-9B-84"
+    }
+  },
+  "01-00-00-00-00-00": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-15-06-F6",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-9F-F5"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-7C-8E"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-51-79"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-60-00"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-99-43"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-BE-DF"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-62-38"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-4C-2B"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-6B-C0"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-6A-FB"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-BC-4B"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-47-34"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-57-47"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-39-52"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-91-0D"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-15-B0-70"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-A3-9D"
+    },
+    "/ST0": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-9E-D7"
+    },
+    "/ST1": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-74-49"
+    }
+  },
+  "00-00-01-00-00-00": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-15-1D-9A",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-D6-27"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-71-BB"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-4F-3E"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-A1-48"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-6B-C0"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-85-9B"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-30-4A"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-57-BC"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-B1-87"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-8D-5B"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-9E-47"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-66-07"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-48-FD"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-A6-64"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-92-49"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-16-60-BB"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-A4-E0"
+    }
+  },
+  "00-00-00-00-00-01": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-14-D3-B0",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-B3-8A"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-B0-E6"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-4A-4C"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-D9-00"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-72-E6"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-A0-4B"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-A2-FF"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-5A-A1"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-B4-A5"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-55-48"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-D8-CA"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-A2-BD"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-47-F9"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-D5-09"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-7C-47"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-15-B3-B7"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-76-18"
+    }
+  },
+  "01-00-00-00-00-01": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-15-0F-FC",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-AC-2E"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-53-61"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-5D-2F"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-DA-39"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-46-F0"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-B3-53"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-D7-D3"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-49-76"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-B8-02"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-27-61"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-AE-50"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-D2-6C"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-57-8D"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-D4-CC"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-27-C8"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-15-C1-1D"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-64-29"
+    }
+  },
+  "00-00-01-00-00-01": {
+    "class": 1,
+    "type": 2,
+    "variant": 1,
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "eui": "00-04-A3-0B-00-14-F1-D3",
+    "/0": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-D7-B4"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-4B-87"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-5D-F9"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-75-3E"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-97-67"
+      }
+    },
+    "/1": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-DA-0B"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-61-1B"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-5B-A8"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-73-5A"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-8D-F8"
+      }
+    },
+    "/2": {
+      "class": 2,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-00-00-00-00-00-00-00",
+      "/M0": {
+        "class": 3,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-C1-27"
+      },
+      "/M1": {
+        "class": 3,
+        "type": 2,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-00-00-00-00-00-00-00"
+      },
+      "/U": {
+        "class": 4,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          1
+        ],
+        "eui": "00-04-A3-0B-00-15-CE-DC"
+      },
+      "/C": {
+        "class": 5,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-16-4D-E7"
+      },
+      "/I": {
+        "class": 6,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          1,
+          2,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-5C-4C"
+      },
+      "/SH": {
+        "class": 7,
+        "type": 1,
+        "variant": 1,
+        "version": [
+          0,
+          1,
+          0
+        ],
+        "eui": "00-04-A3-0B-00-15-2F-89"
+      }
+    },
+    "/CTRL": {
+      "class": 9,
+      "type": 0,
+      "variant": 1,
+      "version": [
+        0,
+        0,
+        0
+      ],
+      "eui": "00-04-A3-0B-00-15-A5-A8"
+    },
+    "/T": {
+      "class": 10,
+      "type": 1,
+      "variant": 1,
+      "version": [
+        1,
+        0,
+        2
+      ],
+      "eui": "00-04-A3-0B-00-16-7C-0F"
+    }
+  }
+}

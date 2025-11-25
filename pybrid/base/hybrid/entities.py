@@ -140,3 +140,7 @@ class Entity:
 
     def __eq__(self, other):
         return self.path == other.path
+
+    def reset(self):
+        for child in self.children:
+            child.reset()

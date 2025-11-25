@@ -1,5 +1,6 @@
 import typing
 from dataclasses import dataclass, field
+from pybrid.redac.entities import Entity, EntityType, EntityClass
 
 @dataclass(kw_only=True)
 class ACLPlugin:
@@ -54,3 +55,11 @@ class SimConfig:
     only_module_sinks: bool = False
     #: Sets plugin connections for simulated ACLs.
     acl_config: typing.Optional[ACLConfig] = None
+
+@EntityType.register(EntityClass.OTHER)
+@dataclass(kw_only=True)
+class SimConfigEntity(Entity, SimConfig):
+    """
+    Anchors sim config in the "global" entity, with empty path.
+    """
+    pass

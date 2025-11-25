@@ -52,3 +52,7 @@ class UBlock(SwitchingBlock):
         # Actually connect
         for out in chain([output], outputs):
             self.outputs[out] = input
+
+    def reset(self):
+        self.outputs = [None] * 32
+        self.constant = False

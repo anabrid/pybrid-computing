@@ -1,12 +1,13 @@
 # Copyright (c) 2025 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-import typing
+from typing import List
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.entities import Entity, Path
 from pybrid.redac.computer import REDAC
 from pybrid.lucidac.front_panel import FrontPanel
+from pybrid.lucidac.protocol.serializer import LUCIDACSerializer, LUCIDACDeserializer
 
 class LUCIDAC(REDAC):
     """
@@ -22,7 +23,7 @@ class LUCIDAC(REDAC):
     """
 
     #: models the (crrently) LUCIDAC-exclusive front panel with signal generators and LEDs
-    front_panel: typing.Optional[FrontPanel] = None
+    front_panel: FrontPanel = FrontPanel(Path("FP"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -31,33 +32,28 @@ class LUCIDAC(REDAC):
     def name(self) -> str:
         return "LUCIDAC"
     
-    def build_config(self, entities: typing.List[Entity | None]):
+    def get_config_entities(self) -> List[Entity]:
         """
-        Generates a PB-based list of config messages for the given
-        list of entities. Imports a serializer for `sim_config`.
+        See :func:`AnalogComputer.get_config_entities`.
         """
-
-        # import all required to_pb overrides
-        import pybrid.redac.protocol.serializer
-        import pybrid.lucidac.protocol.serializer        
-        from pybrid.base.hybrid.serializer import entities_to_config
-
-        configs = []
-        for entity in entities:
-            if entity is not None:
-                configs += entities_to_config(entity)
-
-        return configs
+        return [*self.entities, self.front_panel]
     
-    def global_entities(self) -> typing.List[Entity | None]:
+    def global_entities(self) -> List[Entity]:
         """
-        Returns global entities not represented in the device structure, i.e,
-        anchored at the (empty) root path - here the front panel.
+        See :func:`AnalogComputer.global_entities`.
         """
         return [self.front_panel]
+
+    def get_serializer_implementation(self) -> type:
+        """
+        See :func:`AnalogComputer.get_serializer_implementation`.
+        """
+        return LUCIDACSerializer
     
-    def to_pb(self) -> typing.List[pb.Config]:
-        return self.build_config([
-            *self.carriers,
-            self.front_panel
-        ])
+    def get_deserializer_implementation(self) -> type:
+        """
+        See :func:`AnalogComputer.get_deserializer_implementation`.
+        """
+        return LUCIDACDeserializer
+    
+    
