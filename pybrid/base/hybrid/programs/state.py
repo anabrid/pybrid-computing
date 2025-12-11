@@ -24,5 +24,5 @@ class StateInheritingRuns(MultipleRuns):
             else:
                 if hasattr(entity, "ic"):
                     # TODO: Adapt once sign convention is correctly defined
-                    entity.ic = -value
+                    entity.ic = -value[0]
         return super()._next_configuration(run, computer, previous_runs)

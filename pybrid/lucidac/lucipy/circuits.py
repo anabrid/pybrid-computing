@@ -28,6 +28,10 @@ from collections import namedtuple
 from typing import get_args, List, Dict, Union, Optional
 from enum import Enum
 
+# for protobuf export
+from pybrid.base.proto import main_pb2 as pb
+from pybrid.base.proto.io import ProtoIO
+
 # like sum(lst, []) but accepts generators instead of lists
 flatten = lambda lst: functools.reduce(operator.iconcat, lst, [])
 find = lambda crit, default, lst: next((x for x in lst if crit(x)), default)
@@ -65,7 +69,6 @@ Constant =      namedtuple("Constant", ["id", "out" ])          #: Constant give
 Front =         namedtuple("Front", ["id", "lane"])            #: Front panel input/output (ACL_IN/ACL_OUT) on lane "lane"
 Element = Union[Integrator,Multiplier,Constant,Identity,Front]                  #: type of any kind of element defined so far
 isElement = lambda thing: isinstance(thing, get_args(Element))
-
 
 
 class DefaultLUCIDAC:
@@ -1038,195 +1041,6 @@ class Routing(Probes):
             for ii in i:
                 self.add(Route(u,lane,c,ii))
         return self
-    
-    def to_pybrid_cli(self):
-        """
-        Generate the Pybrid-CLI commands as string out of this Route representation.
-        """
-        self.sanity_check()
-        return "\n".join(f"route -- carrier/0 {r.uin:2d} {r.lane:2d} {r.coeff: 7.3f} {r.iout:2d}" for r in self.routes)
-    
-    def to_dense_matrix(self, sanity_check=True):
-        """
-        Generates a dense numpy matrix for the UCI block, i.e. a real-valued 16x16 matrix with
-        bounded values [-20,20] where at most 32 entries are non-zero.
-        """
-        if sanity_check:
-            self.sanity_check()
-        import numpy as np
-        UCI = np.zeros((16,16))
-        for (uin, _lane, coeff, iout) in self.routes:
-            if iout != Route.do_not_connect:
-                UCI[iout,uin] += coeff
-        return UCI
-    
-    def to_dense_matrices(self, sanity_check=True) -> UCI:
-        """
-        Generates the three matrices U, C, I as dense numpy matrices.
-        C and I are properly scaled as in the real system (upscaling happens in I).
-        
-        :returns: 3-Tuple of numpy matrices for U, C, I, in this order.
-        
-        Note that one way to reproduce :meth:`to_dense_matrix` is just by
-        computing ``I.dot(C.dot(U))`` on the output of this function.
-        
-        >>> import numpy as np
-        >>> c = Circuit().randomize()
-        >>> U, C, I = c.to_dense_matrices(sanity_check=False) # skipping for doctesting
-        >>> assert np.all(I.dot(C.dot(U)) == c.to_dense_matrix(sanity_check=False)) == True
-        
-        Limitations: This omits all information about ``acl_select`` and the constant
-        giver scheme.
-        """
-        if sanity_check:
-            self.sanity_check()
-        import numpy as np
-        U = np.zeros((32,16))
-        C = np.zeros((32,32))
-        I = np.zeros((16,32))
-        
-        for (uin, lane, coeff, iout) in self.routes:
-            assert not None in (uin, lane, iout), "Nones behave badly in numpy array subscription. Sanatize your routes."
-            U[lane, uin]  = 1
-            I[iout, lane] = 1 if abs(coeff) < 10 else 10
-            C[lane, lane] = coeff / I[iout, lane]
-            if iout == Route.do_not_connect:
-                I[iout, lane] = 0
-        
-        return UCI(U,C,I)
-
-    def to_sympy(self, int_names=None, subst_mul=False, no_func_t=False):
-        """
-        Creates an ODE system in sympy based on the circuit.
-        
-        :arg int_names: Allows to overwrite the names of the integators. By default they
-           are called i_0, i_1, ... i_7. By providing a list such as ["x", "y", "z"], these
-           names will be taken. If the list is shorter then length 8, it will be filled up
-           with the default names.
-        :arg subst_mul: Substitute multiplications, getting rid of explicit Eq(m_0, ...)
-           statements. Useful for using the equation set within an ODE solver because the
-           state vector is exactly the same length of the entries.
-        :arg no_func_t: Write f instead of f(t) on the RHS, allowing for denser notations,
-           helps also in some solver contexts.
-        
-        .. warning ::
-        
-           This method is part of the Routing class and therefore knows nothing about
-           the MIntBlock settings, in particular not the k0. You have to apply different
-           k0 values by yourself if neccessary! This can be as easy as to multiply the
-           equations rhs with the appropriate k0 factor.
-        
-        Further limitations:
-        
-        * Will just ignore ACL_IN (Front panel in/out)
-        
-        Example for making use of the output within a scipy solver:
-        
-        ::
-        
-            from sympy import latex, lambdify, symbols
-            from scipy.integrate import solve_ivp
-            xyz = list("xyz")
-            eqs = lucidac_circuit.to_sympy(xyz, subst_mul=True, no_func_t=True)
-            print(eqs)
-            print(latex(eqs))
-            rhs = [ e.rhs for e in eqs ]
-            x,y,z = symbols(xyz)
-            f = lambdify((x,y,z), rhs)
-            f(1,2,3) # works
-            sol = solve_ivp(f, (0, 10), [1,2,3])
-        
-        Limitations: This omits all information about ``acl_select`` and the constant
-        giver scheme.
-        """
-        self.sanity_check()
-        from sympy import symbols, Symbol, Function, Derivative, Eq
-        
-        t = symbols("t")
-        
-        int_default_names = [ f"i_{d}" for d in range(8) ]
-        if int_names:
-            for i,n in enumerate(int_names):
-                int_default_names[i] = n
-        
-        ints = [Function(n)(t) for n in int_default_names]
-        muls = [Function(f"m_{d}")(t) for d in range(4)]
-        sympy_reservoir = { Integrator: ints, Multiplier: muls, Constant: [1.0]*4 }
-        di = [ Derivative(i, t) for i in ints ]
-        
-        sympy_uin = [ DefaultLUCIDAC.resolve_mout(route.uin, sympy_reservoir) for route in self.routes ]
-        #summands = [ coeff * DefaultLUCIDAC.resolve_mout(uin, sympy_reservoir) for (uin, _lane, coeff, iout) in self.routes ]
-        min_sums = [ sum(route.coeff*uin_symbol for uin_symbol, route in zip(sympy_uin, self.routes) if route.iout == min) for min in range(16) ]
-        
-        min_inputs = itertools.batched(range(0,8), 2) # [(0, 1), (2, 3), (4, 5), (6, 7)]
-        
-        # these will contain still-to-filter entries like Eq(m_3(t),0)
-        mul_eqs = [ Eq(mi, -(min_sums[input_indices[0]] * min_sums[input_indices[1]])) for mi, input_indices in zip(muls, min_inputs) ]
-        int_eqs = [ Eq(di[idx], min_sums[idx+DefaultLUCIDAC.MIntOffset]) for idx in range(0,8) ]
-        
-        if subst_mul:
-            mappings = { eq.lhs: eq.rhs for eq in mul_eqs }
-            # replace recursive calls such as in m0=x*x, my=x*m0
-            mappings = { eq.lhs: eq.rhs.subs(mappings) for eq in mul_eqs }
-            # then apply on int definitions
-            eqs = [ eq.subs(mappings) for eq in int_eqs ] 
-        else:
-            eqs = mul_eqs + int_eqs
-            
-        if no_func_t:
-            mappings = { Function(n)(t): Symbol(n) for n in int_default_names }
-            eqs = [ eq.subs(mappings) for eq in eqs]
-            
-        return [ eq for eq in eqs if eq.rhs != 0 ]
-
-
-    def reverse(self):
-        """
-        Trivially "reverse engineer" a circuit based on routes. Tries to output valid
-        python code as string.
-        
-        Limitations: This omits all information about ``acl_select`` and the constant
-        giver scheme.
-        """
-        self.sanity_check()
-        
-        # TODO: Code is ugly, refactor to proper Int/Mul types which can do most of this
-        
-        def assert_one(candidates, r):
-            candidates = list(candidates)
-            if len(candidates) == 0:
-                raise ValueError(f"Route {r} not assignable, no candidates")
-            if len(candidates) == 1:
-                return candidates[0]
-            if len(candidates) == 2:
-                raise ValueError(f"Route {r} overassignable, candidates are {candidates}")
-        
-        populated = DefaultLUCIDAC.populated()
-        
-        def within(itm, fields, idx):
-            for n in fields:
-                if hasattr(itm, n) and getattr(itm, n) == idx:
-                    return n
-            return None
-
-        def route2connection(r):
-            # TODO Warning, the target Mul.a|b is most likely still wrong. Has to be tested,
-            #      see for instance roessler or neuron as an errnous example.
-            
-            #print("source ", r)
-            source = assert_one(filter(lambda itm: itm.out == r.uin, populated), r)
-            #print("target ", r)
-            target = assert_one(filter(lambda itm: bool(within(itm, ["a", "b"], r.iout)), populated), r)
-            target_port = assert_one(filter(bool, [ within(itm, ["a", "b"], r.uin) for itm in populated ]), r)
-            has_two_ports = hasattr(target, "b") # i.e. if it is Mul or Not
-            weight = r.coeff
-            source_shortname = type(source).__name__ + str(source.id)
-            target_shortname = type(target).__name__ + str(target.id) + ("."+target_port if has_two_ports else "")
-            return f"Connection(" + source_shortname + ", " + target_shortname + (f", {weight=}" if r.coeff != 1 else "") + ")"
-                         
-        return ",\n".join(map(route2connection, self.routes))
-        
-
 
 class Circuit(MIntBlockState, Routing):
     """
@@ -1297,8 +1111,6 @@ class Circuit(MIntBlockState, Routing):
         except IndexError:
             raise ValueError(f"Have only {len(self.reservoir[element])} Computing Elements of Type {element} available, inexistent id {id} requested.")
 
-    # TODO: Rename to "integrator" in order to make sure
-    #       it is not misunderstood as "integration"
     def int(self, *, id=None, ic:float=0, slow=False):
         """
         Allocate an Integrator and set it's initial conditions and k0 factor at the same time.
@@ -1309,8 +1121,6 @@ class Circuit(MIntBlockState, Routing):
         self.set_k0(el, MIntBlockState.slow if slow else MIntBlockState.fast)
         return el
     
-    # TODO: Rename to "multiplier" in order to make sur
-    #       it is not misunderstood as "multiplication"
     def mul(self, id=None):
         "Allocate a Multiplier. If you pass an id, allocate that particular multiplier."
         return self.alloc(Multiplier, id)
@@ -1340,15 +1150,14 @@ class Circuit(MIntBlockState, Routing):
     
     def analog_io(self, id=None):
         "Allocates an ACL_IN/ACL_OUT Front panel input/output"
-        # Do not do the following as we don't know if the output or input is requested!
-        #if hasattr(self, "set_front_panel"):
-        #    self.set_front_panel(id, as_input=True) # method in Routing and Circuit classes
         return self.alloc(Front, id)
 
     def load(self, config_message):
         """
         Loads the configuration which :meth:`generate` spills out. The full circle.
         """
+        warnings.warn("JSON config generation is deprecated, please switch to PB using to_config()...")
+
         config_carrier = config_message["config"] if "config" in config_message else config_message
         config_cluster = config_carrier["/0"] if "/0" in config_carrier else config_carrier
         
@@ -1357,23 +1166,7 @@ class Circuit(MIntBlockState, Routing):
         Routing.load(self, config_carrier)
 
         return self
-    
-    def randomize(self, num_lanes=32, max_coeff=+10, seed=None):
-        """
-        Add random configurations. This function is basically only for
-        testing. See :meth:`Routing.randomize` for the paramters.
-    
-        :arg num_lanes: How many lanes to fill up. By default fills up all lanes.
-        :arg max_coeff: Maximal coefficient magnitudes. ``+1`` or ``+10`` are
-             useful values for LUCIDAC.
-        :arg seed: For reproducability (as in unit tests), this calls ``random.seed``.
-             A large integer may be a suitable argument.
-        :returns: The instance, i.e. is chainable.
-        """
-        MIntBlockState.randomize(self)
-        Routing.randomize(self, num_lanes, max_coeff, seed)
-        return self
-    
+
     def generate(self, skip=None, sanity_check=True):
         """
         Returns the data structure required by the LUCIDAC set_config call *for a given carrier*,
@@ -1387,6 +1180,9 @@ class Circuit(MIntBlockState, Routing):
         :arg skip: An entity (within LUCIDAC, at Cluster level) to skip, for instance "/M1"
         :arg sanity_check: Whether to carry out a sanity check (results in printouts)
         """
+
+        warnings.warn("JSON config generation is deprecated, please switch to PB using to_config()...")
+
         carrier_config = Routing.generate(self, sanity_check=sanity_check)
         carrier_config["/0"]["/M0"] = MIntBlockState.generate(self)
         carrier_config["/0"]["/M1"] = {} # MMulBlock
@@ -1399,6 +1195,114 @@ class Circuit(MIntBlockState, Routing):
         return {
             "00-00-00-00-00-00": carrier_config
         }
+    
+    def to_config(self, use_virtual_macs=True) -> tuple[dict, pb.File]:
+        """
+        Convert the circuit to protobuf format suitable for sending to LUCIDAC.
+
+        This method generates the circuit configuration in JSON format, then converts it
+        to protobuf format (pb.File) which can be serialized to APB binary or JSON format.
+
+        :arg use_virtual_macs: Whether to use virtual MAC addresses (default: True for standalone use)
+        :returns: Tuple of (config_json_dict, pb.File) where config_json_dict is the protobuf
+                  represented as JSON dict and pb.File is the protobuf object
+
+        Example usage:
+            >>> circuit = Circuit()
+            >>> # ... configure circuit ...
+            >>> config_json, pb_file = circuit.to_config()
+            >>> # Get APB binary string
+            >>> apb_bytes = pb_file.SerializeToString()
+            >>> # Or use config_json directly
+        """
+        from pybrid.lucidac.computer import LUCIDAC
+        from pybrid.base.utils.json import LegacyConfigJSONParser
+        from pybrid.redac.dummy import _dict_to_pb_entity
+
+        # Generate the JSON config using the existing generate() method
+        config_json = self.generate()
+
+        # Create a minimal LUCIDAC hardware structure for a single carrier with one cluster
+        # This represents the REV1 LUCIDAC with M0 (MIntBlock) and M1 (MMulBlock)
+        minimal_lucidac_structure = {
+            "/00-00-00-00-00-00": {
+                "class": 1,  # Carrier
+                "type": 2,
+                "variant": 1,
+                "version": [1, 0, 0],
+                "eui": "00-00-00-00-00-00-00-00",
+                "/0": {  # Cluster 0
+                    "class": 2,
+                    "type": 0,
+                    "variant": 1,
+                    "version": [0, 0, 0],
+                    "eui": "00-00-00-00-00-00-00-00",
+                    "/M0": {  # MIntBlock
+                        "class": 3,
+                        "type": 1,
+                        "variant": 1,
+                        "version": [1, 1, 1],
+                        "eui": "00-00-00-00-00-00-00-00"
+                    },
+                    "/M1": {  # MMulBlock
+                        "class": 3,
+                        "type": 2,
+                        "variant": 1,
+                        "version": [1, 1, 0],
+                        "eui": "00-00-00-00-00-00-00-00"
+                    },
+                    "/U": {  # UBlock
+                        "class": 4,
+                        "type": 1,
+                        "variant": 1,
+                        "version": [1, 2, 1],
+                        "eui": "00-00-00-00-00-00-00-00"
+                    },
+                    "/C": {  # CBlock
+                        "class": 5,
+                        "type": 1,
+                        "variant": 1,
+                        "version": [1, 0, 0],
+                        "eui": "00-00-00-00-00-00-00-00"
+                    },
+                    "/I": {  # IBlock
+                        "class": 6,
+                        "type": 1,
+                        "variant": 1,
+                        "version": [1, 2, 0],
+                        "eui": "00-00-00-00-00-00-00-00"
+                    },
+                    "/SH": {  # Sample & Hold
+                        "class": 7,
+                        "type": 1,
+                        "variant": 1,
+                        "version": [0, 1, 0],
+                        "eui": "00-00-00-00-00-00-00-00"
+                    }
+                },
+                "/FP": {  # Front Panel
+                    "class": 8,
+                    "type": 0,
+                    "variant": 1,
+                    "version": [0, 0, 0],
+                    "eui": "00-00-00-00-00-00-00-00"
+                }
+            }
+        }
+
+        # Create a LUCIDAC computer from the minimal structure
+        pb_tree = {path: _dict_to_pb_entity(path, data) for path, data in minimal_lucidac_structure.items()}
+        _computer = LUCIDAC.create_from(pb_tree)
+        computer = LUCIDAC()
+        computer.entities = _computer.entities
+
+        # Parse the config JSON and apply it to the computer
+        pb_file = LegacyConfigJSONParser.parse(config_json, computer, use_virtual_macs)
+
+        # Convert to JSON format
+        config_json_output = ProtoIO.pbfile_to_json(pb_file)
+
+        return config_json_output, pb_file
         
     def to_ascii_art(self, full_Cblock=False):
         """
@@ -1410,7 +1314,6 @@ class Circuit(MIntBlockState, Routing):
         
         - ACL IN/OUT
         - Constant givers
-      
         """
         
         # The implementation/code for this method stems from the C libsim and thus may look
@@ -1512,15 +1415,3 @@ class Circuit(MIntBlockState, Routing):
         dump += "+------------------------+     +----------------------------------+\n"
 
         return dump
-    
-        
-    def to_pybrid_cli(self):
-        "Pybrid code generation including both the MIntBlock and Routing."
-        nl = "\n"
-        ret = "set-alias * carrier" + nl*2
-        ret += MIntBlockState.to_pybrid_cli(self) + nl
-        
-        ret += Routing.to_pybrid_cli(self) + nl
-        
-        ret += "# run --op-time 500000" + nl
-        return ret

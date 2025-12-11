@@ -281,6 +281,13 @@ class Path(BasePath):
         Raises IndexError if path is not of sufficient depth.
         """
         return Path(self[:4])
+    
+    def to_mac(self):
+        """
+        Converts a set mac address back into the standard addressing format,
+        all caps and using "-" instead of ":".
+        """
+        return self[0].replace(":", "-").upper()
 
 
 @dataclass

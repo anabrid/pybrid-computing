@@ -285,8 +285,16 @@ class FrontPanelConfig(_message.Message):
     leds: int
     def __init__(self, leds: _Optional[int] = ...) -> None: ...
 
+class ACLPinSignal(_message.Message):
+    __slots__ = ("signal", "pin")
+    SIGNAL_FIELD_NUMBER: _ClassVar[int]
+    PIN_FIELD_NUMBER: _ClassVar[int]
+    signal: str
+    pin: int
+    def __init__(self, signal: _Optional[str] = ..., pin: _Optional[int] = ...) -> None: ...
+
 class PortConfig(_message.Message):
-    __slots__ = ("states",)
+    __slots__ = ("states", "inputs", "outputs")
     class AclState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         INTERNAL: _ClassVar[PortConfig.AclState]
@@ -294,8 +302,12 @@ class PortConfig(_message.Message):
     INTERNAL: PortConfig.AclState
     EXTERNAL: PortConfig.AclState
     STATES_FIELD_NUMBER: _ClassVar[int]
+    INPUTS_FIELD_NUMBER: _ClassVar[int]
+    OUTPUTS_FIELD_NUMBER: _ClassVar[int]
     states: _containers.RepeatedScalarFieldContainer[PortConfig.AclState]
-    def __init__(self, states: _Optional[_Iterable[_Union[PortConfig.AclState, str]]] = ...) -> None: ...
+    inputs: _containers.RepeatedCompositeFieldContainer[ACLPinSignal]
+    outputs: _containers.RepeatedCompositeFieldContainer[ACLPinSignal]
+    def __init__(self, states: _Optional[_Iterable[_Union[PortConfig.AclState, str]]] = ..., inputs: _Optional[_Iterable[_Union[ACLPinSignal, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[ACLPinSignal, _Mapping]]] = ...) -> None: ...
 
 class BackpanelConfig(_message.Message):
     __slots__ = ("backpanel_id", "backpanel_slot", "is_valid", "is_isolated")
@@ -430,16 +442,6 @@ class ACLPlug(_message.Message):
     entity_id: EntityId
     kind: ACLPlug.Kind
     def __init__(self, entity_id: _Optional[_Union[EntityId, _Mapping]] = ..., kind: _Optional[_Union[ACLPlug.Kind, str]] = ...) -> None: ...
-
-class ACLBind(_message.Message):
-    __slots__ = ("acl", "plugin", "pin")
-    ACL_FIELD_NUMBER: _ClassVar[int]
-    PLUGIN_FIELD_NUMBER: _ClassVar[int]
-    PIN_FIELD_NUMBER: _ClassVar[int]
-    acl: int
-    plugin: str
-    pin: int
-    def __init__(self, acl: _Optional[int] = ..., plugin: _Optional[str] = ..., pin: _Optional[int] = ...) -> None: ...
 
 class ACLConfig(_message.Message):
     __slots__ = ("plugins", "wires")

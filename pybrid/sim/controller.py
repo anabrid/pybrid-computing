@@ -15,3 +15,6 @@ class Controller(REDACController):
     def __init__(self, standalone: bool = False):
         super().__init__(standalone)
         self.computer = Simulator()
+
+    async def enable_udp(self, ctrl_protocol):
+        logger.info("Simulator does not support streaming via UDP, staying with TCP...")
