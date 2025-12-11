@@ -1,7 +1,7 @@
 # Copyright (c) 2025 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-from typing import List
+from typing import List, Optional
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.entities import Entity, Path
@@ -23,7 +23,7 @@ class LUCIDAC(REDAC):
     """
 
     #: models the (crrently) LUCIDAC-exclusive front panel with signal generators and LEDs
-    front_panel: FrontPanel = FrontPanel(Path("FP"))
+    front_panel: FrontPanel = FrontPanel(Path(("00-00-00-00-00-00", "FP")))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

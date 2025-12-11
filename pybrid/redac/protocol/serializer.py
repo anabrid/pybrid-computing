@@ -2,6 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import queue
+import logging
 
 from functools import singledispatch
 from typing import List, Any, Dict
@@ -16,6 +17,8 @@ from pybrid.redac.entities import Path
 
 from pybrid.base.hybrid.serializer import Serializer, Deserializer
 
+logger = logging.getLogger(__name__)
+
 _CONFIG_TYPE = Dict[str, Any] | List[pb.Config]
 
 class REDACSerializer(Serializer):
@@ -23,18 +26,28 @@ class REDACSerializer(Serializer):
     def __init__(self):
         super().__init__()
 
+        self.computer = None
+
     def config_type(self) -> type:
         return List[pb.Config]
     
     def serialize(self, computer: AnalogComputer) -> _CONFIG_TYPE:
-        return self.serialize_entities(computer.get_config_entities())
+        self.computer = computer
+
+        cc = Serializer.ConfigCollector([])
+        self.serialize_entities(computer.get_config_entities(), cc=cc)
+        self.serialize_additional()
+
+        return cc.configs
     
-    def serialize_entities(self, entities: List[Entity]) -> _CONFIG_TYPE:
+    def serialize_entities(self, entities: List[Entity], cc: Serializer.ConfigCollector = None) -> _CONFIG_TYPE:
         """
         Serializes the configuration of a single entity.
         """
-        configs = []
-        self.cc = Serializer.ConfigCollector(configs)
+        if cc:
+            self.cc = cc
+        else:
+            self.cc = Serializer.ConfigCollector([])
 
         # recursively traverse over all top-level entities
         for entity in entities:
@@ -46,7 +59,7 @@ class REDACSerializer(Serializer):
                     traversal.put(child)
                 self._serialize(entity)
 
-        return configs
+        return self.cc.configs
 
     @Serializer._serialize.register
     def _(self, entity: ComputationElement):
@@ -67,13 +80,13 @@ class REDACSerializer(Serializer):
         if len(adc_config.channels) == 0:
             self.cc.pop_config()
 
-        if entity.acl_select:
-            acl_config = self.cc.new_config(entity).port_config
-            acl_select = acl_config.states
+        # TODO: once the new firmware  - which ignores ACL_SELECT if not on the Carrier -
+        # is deployed, you can pull the acl_select part back up from the
+        # child classes
 
-            for interface in entity.acl_select:
-                acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
-                    interface == "external" else pb.PortConfig.AclState.INTERNAL)
+        # need to send "global" ACL_SELECT value to first carrier
+        if entity.acl_select:
+            logger.warning("Trying to set ACL_SELECT for REDAC, which is currently not supported, skipping...")
 
     @Serializer._serialize.register
     def _(self, entity: CBlock):
@@ -156,6 +169,10 @@ class REDACSerializer(Serializer):
         if len(use_config.uses) == 0:
             self.cc.pop_config()
 
+    def serialize_additional(self):
+        # has no element soutside of entity hierachy
+        pass
+
 class REDACDeserializer(Deserializer):
 
     def __init__(self, computer: "REDAC"):
@@ -192,20 +209,6 @@ class REDACDeserializer(Deserializer):
                 offset=channel.offset
             ))
         entity.adc_config = adc_channels
-
-    @Deserializer._deserialize.register
-    def _(self, config: pb.PortConfig):
-        """Deserialize port configuration and apply to Carrier."""
-        entity_path = Path.parse(self._current_full_config.entity.path)
-        entity = self.computer.get_entity(entity_path)
-
-        acl_select = []
-        for state in config.states:
-            if state == pb.PortConfig.AclState.EXTERNAL:
-                acl_select.append("external")
-            else:
-                acl_select.append("internal")
-        entity.acl_select = acl_select
 
     @Deserializer._deserialize.register
     def _(self, config: pb.CoefConfig):
@@ -307,5 +310,19 @@ class REDACDeserializer(Deserializer):
         entity.sources = sources
         entity.uses = uses
         entity.targets_upscaled = targets_upscaled
+
+    @Deserializer._deserialize.register
+    def _(self, config: pb.PortConfig):
+        """Deserialize port configuration and apply to Carrier."""
+        entity_path = Path.parse(self._current_full_config.entity.path)
+        entity = self.computer.get_entity(entity_path)
+
+        acl_select = []
+        for state in config.states:
+            if state == pb.PortConfig.AclState.EXTERNAL:
+                acl_select.append("external")
+            else:
+                acl_select.append("internal")
+        entity.acl_select = acl_select
 
     

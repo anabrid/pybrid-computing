@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import logging
+import warnings
 import typing
 from collections import defaultdict
 
@@ -42,12 +43,6 @@ class Controller(REDACController):
         self.standalone = standalone
         self._callbacks: dict[int, tuple[typing.Callable, list, dict]] = dict()
 
-        self._lucidac_entity: str = None
-
-    @property
-    def lucidac_entity(self) -> str:
-        return self._lucidac_entity
-    
     @classmethod
     def get_protocol_implementation(cls):
         """Returns the specific :class:`.Protocol` implementation by this device"""
@@ -68,8 +63,8 @@ class Controller(REDACController):
         # initialize the front panel (which is assumed to be there)
         self.computer.front_panel = FrontPanel(self.computer.carriers[0].path / "FP")
 
-        self._lucidac_entity = list(self._raw_entity_dict.keys())[0][1:]
-        logger.info("LUCIDAC entity MAC:" + self._lucidac_entity)
+        lucidac_mac = list(self._raw_entity_dict.keys())[0][1:]
+        logger.info("LUCIDAC entity MAC:" + lucidac_mac)
         
     async def set_computer(self, computer: REDAC):
         """
@@ -84,3 +79,10 @@ class Controller(REDACController):
         if self.computer.front_panel is not None:
             protocol = list(self.protocols.keys())[0]
             await protocol.set_configs([self.computer.front_panel])
+
+    async def stop(self):
+        for protocol in self.protocols.keys():
+            await protocol.stop()
+
+    async def enable_udp(self, ctrl_protocol):
+        warnings.warn("LUCIDAC's UDP streaming is currently disabled until we add the LUCIDAC supercontroller...")

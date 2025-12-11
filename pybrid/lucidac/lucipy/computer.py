@@ -10,7 +10,7 @@ import warnings
 from ipaddress import ip_network
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.base.utils.json import JSONConfigAdapter
+from pybrid.base.utils.addressing import Addressing
 from pybrid.lucidac.controller import Controller as LUCIDACController
 from pybrid.lucidac.lucipy.circuits import *
 from pybrid.redac import DAQConfig, RunConfig, Run
@@ -36,6 +36,7 @@ class LUCIDACWrapper:
     default_port = 5732
     
     def __init__(self, endpoint: str | None = None):
+        self.circuit = None
         self.daq_config = DAQConfig()
         self.run_config = RunConfig()
 
@@ -70,18 +71,7 @@ class LUCIDACWrapper:
         logger.setLevel(level)
 
     def set_circuit(self, circuit: Circuit):
-        # Generates the carrier configuration that corrosponds to the circuit.
-        core_circuit = circuit.generate()["00-00-00-00-00-00"]
-
-        if hasattr(self, "carrier_config"):
-            self.carrier_configs = [self.carrier_config]
-            delattr(self, "carrier_config")
-            self.carrier_configs.append(core_circuit)
-        else:
-            if hasattr(self, "carrier_configs"):
-                self.carrier_configs.append(core_circuit)
-            else:
-                self.carrier_config = core_circuit
+        _, self.circuit = circuit.to_config()
     
     def set_run(self, **kwargs):
         self.run_config = RunConfig(**kwargs)
@@ -101,30 +91,28 @@ class LUCIDACWrapper:
         # This is the first method to actually communicate with the Lucidac through the socket.
 
         logger.info(f"Start LUCIDAC at {self.host}:{self.port}.")
-        self.controller = LUCIDACController(standalone=True)
-        await self.controller.add_device(self.host, self.port)
+        controller = LUCIDACController(standalone=True)
+        await controller.add_device(self.host, self.port)
 
+        try:
+            await controller.reset()
 
-        logger.debug("Creating executable run class...")
-        run_class = self.controller.get_run_implementation()
+            logger.debug("Creating executable run class...")
+            run_class = controller.get_run_implementation()
 
-        if hasattr(self, "carrier_config"):
-            logger.debug("Setting controller configuration by circuit...")
-            pb_config = JSONConfigAdapter.parse(
-                {
-                    self.controller.lucidac_entity : self.carrier_config,
-                },
-                self.controller.computer)
-            await self.controller.forward_set_config(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=pb_config)))
+            if self.circuit is None:
+                raise Exception("No circuit set for execution!")
             
+            # LUCIDAC uses physical MACs, need to map virtual (portable)
+            # addresses here to physical device
+            circuit = Addressing.virtual_to_physical(controller.computer, self.circuit)
+
+            logger.info("Setting controller configuration by circuit...")
+            await controller.forward_set_config(pb.ConfigCommand(bundle=circuit.bundle))
+
             logger.info("Executing run...")
-            self.executable_run = await self.controller.start_and_await_run(run_class(config=self.run_config, daq=self.daq_config))
+            self.executable_run = await controller.start_and_await_run(
+                run_class(config=self.run_config, daq=self.daq_config))
             logger.info("Run done...")
-
-        elif hasattr(self, "carrier_configs"):
-            raise Exception("Ypu are trying to use a LUCIDAC controller with" \
-                "a REDAC device - please use the correct computer class.")
-
-        else:
-            logger.warning("No circuits set.")
-            pass
+        finally:
+            await controller.stop()

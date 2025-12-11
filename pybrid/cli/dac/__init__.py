@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid import EntityDoesNotExist
-from pybrid.base.utils.json import JSONConfigAdapter
+from pybrid.base.utils.json import LegacyConfigJSONParser
 from pybrid.cli.base import cli
 from pybrid.cli.base.commands import user_program
 from pybrid.cli.base.shell import Shell
@@ -34,8 +34,9 @@ from pybrid.redac.entities import Path, Entity
 from pybrid.redac.monitor import Monitor
 from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
-
-from pybrid.base.utils.bundle import json_to_pbfile, is_pb_file
+from pybrid.sim.controller import Controller as SimController
+from pybrid.base.proto.io import ProtoIO
+from pybrid.base.utils.addressing import Addressing
 
 # controls logging verbosity - use for debugging
 # logging.basicConfig(level=logging.INFO)
@@ -137,6 +138,54 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
     if reset:
         await controller.reset()
     await asyncio.sleep(1)
+
+    # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
+    run_class = controller.get_run_implementation()
+    ctx.obj["run"] = run_class()
+    ctx.obj["previous_run"] = None
+    ctx.obj["use_virtual_macs"] = True
+
+@cli.group()
+@click.pass_context
+@click.option(
+    "--host",
+    "-h",
+    type=str,
+    default="localhost",
+    required=False,
+    help="Network name or address of the REDAC. Or address range to use for auto-detection.",
+)
+@click.option(
+    "--port",
+    "-p",
+    type=int,
+    default=5732,
+    required=False,
+    help="Network port of the REDAC.",
+)
+async def sim(ctx: click.Context, host: str, port: int):
+    """
+    Entrypoint for all commands interacting with the simulator.
+
+    Use :code:`pybrid redac --help` to list all available sub-commands.
+    """
+    bearer = os.getenv("PYBRID_AUTHENTICATION", None)
+    if bearer is not None:
+        logger.info("Using authentication bearer!")
+
+    # Some sub-commands may change default options
+    # TODO: It would be cleaner to introduce a specialization of click.Group
+    if subcommand := redac.commands.get(ctx.invoked_subcommand, None):
+        if subcommand is monitor:
+            reset = False
+
+    # Generate a controller and add devices
+    controller = SimController(standalone=True)
+    await controller.add_device(host, port, name=name)
+
+    # Put controller in context and make sure that we clean up after ourselves
+    ctx.obj["controller"] = controller
+    await ctx.with_async_resource(controller)
 
     # Create a run which is potentially modified by other commands (e.g. set-readout-elements)
     run_class = controller.get_run_implementation()
@@ -632,7 +681,7 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
 @click.option("--sample-rate", type=int, default=None, help="Sample rate in Hz.")
 @click.option("--ic-time", type=int, default=None, help="IC time in nanoseconds.")
 # Configuration options
-@click.option("--config-file", "-c", type=click.File("r"), help="A config.json file to apply before starting the run.")
+@click.option("--config-file", "-c", type=str, help="Path to a config (.apb) file to set up the device and start the run.")
 # Output options
 @click.option("--output", "-o", type=click.File("wt"), default="-", help="File to write data to.")
 @click.option(
@@ -652,29 +701,29 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
     default=False,
     show_default=True,
     help="Use matplotlib to draw a simple plot of the returned data")
-async def run(obj, op_time, sample_rate: int, ic_time, config_file: typing.TextIO, output, output_format, plot):
+async def run(obj, op_time, sample_rate: int, ic_time, config_file: str, output, output_format, plot):
     """
-    Start a run (computation) and wait until it is complete.
+    Start a run (computation) and wait until it is complete. Wires the configuration
+    to the device in RAW form, i.e. the user is responsible for its correctness.
     """
+    use_virtual_macs : bool = obj["use_virtual_macs"]
     controller: REDACController = obj["controller"]
     run_: Run = obj["run"]
 
-    configs = []
+    # load config and update to most recent version
+    pb_file = ProtoIO.open_pb_file(config_file)
 
-    config_json = json.load(config_file)
-    if is_bundle_file(config_json):
-        # Deserialize protobuf configuration
-        bundle = json_to_bundle(config_json)
-        configs = bundle.configs
-    else:
-        # old JSON format: Read and send configuration (as protobuf file)
-        logger.warning("Using deprecated non-protobuf JSON format, support for this will " \
-            "eventually be removed from pybrid!")
+    # depending on the type of the device we're targeting, different address
+    # schemes are used:
+    # - REDAC (via supercontroller): use virtual addresses
+    # - LUCIDAC (direct): use hardware MAC address
+    # Any loaded  at this point MUST use virtual addresses for portability.
+    # For LUCIDACs, we therefore need to map the virtual address to the
+    # (single) hardware carrier 
+    if not use_virtual_macs and not Addressing.has_physical_addresses(pb_file):
+        pb_file = Addressing.virtual_to_physical(controller.computer, pb_file)
 
-        use_virtual_macs : bool = obj["use_virtual_macs"]
-        configs = JSONConfigAdapter.parse(config_json, controller.computer, use_virtual_macs)
-
-    await controller.forward_set_config(pb.ConfigCommand(bundle=pb.ConfigBundle(configs=configs)))
+    await controller.forward_set_config(pb.ConfigCommand(bundle=pb_file.bundle))
 
     # If the run in the context object is already done, we need a new one
     if run_.state.is_done():
@@ -711,8 +760,6 @@ async def run(obj, op_time, sample_rate: int, ic_time, config_file: typing.TextI
             plt.show()
         else:
             click.echo("No data available to plot.")
-redac.add_command(run)
-lucidac.add_command(run)
 
 
 @click.command()
@@ -840,38 +887,40 @@ async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, partitioning_mod
 @click.command()
 @click.pass_obj
 @click.argument("input_file", type=click.File("r"))
-@click.option("--output", "-o", type=click.File("w"), default="-", help="Output file for converted config.")
-async def convert(obj, input_file: typing.TextIO, output):
+@click.option("--output", "-o", type=str, multiple=True, required=True, help="Output file(s) for converted config. Can be specified multiple times.")
+async def convert(obj, input_file: typing.TextIO, output: tuple[str]):
     """
-    Convert a JSON-pb file from an old, nested JSON configuration.
+    Convert a JSON-pb file from an old, nested JSON configuration
 
     Requires a device in order to parse and check the old config correctly.
     """
+
     controller: REDACController = obj["controller"]
     config_json = json.load(input_file)
 
-    if is_bundle_file(config_json):
-        raise Exception("convert() expects old-style JSON files as input.")
+    if ProtoIO.json_is_pb_file(config_json):
+        raise Exception("convert() expects legacy-style JSON config files as input.")
     else:
         use_virtual_macs : bool = obj["use_virtual_macs"]
-        configs = JSONConfigAdapter.parse(config_json, controller.computer, use_virtual_macs)
+        pb_file = LegacyConfigJSONParser.parse(config_json, controller.computer, use_virtual_macs)
 
-        # create bundle
-        bundle = Bundle(
-            version={
-                "minor": 1
-            },
-            configs=configs
-        )
+        # Write to each output file based on extension
+        for output_path in output:
+            if output_path.endswith(".json"):
+                # Write as JSON
+                output_json = ProtoIO.pbfile_to_json(pb_file)
+                with open(output_path, "w") as f:
+                    f.write(json.dumps(output_json, indent=2))
+                    f.write("\n")
+                click.echo(f"Converted config written to {output_path} (JSON format)")
 
-        # Get serializer and serialize
-        serializer_class = controller.computer.get_serializer_implementation()
-        serializer = serializer_class()
-        bundle.configs = serializer.serialize(controller.computer)
-        output_json = bundle_to_json(bundle)
-
-        output.write(json.dumps(output_json, indent=2))
-        output.write("\n")
+            elif output_path.endswith(".apb"):
+                # Write as binary protobuf
+                with open(output_path, "wb") as f:
+                    f.write(pb_file.SerializeToString())
+                click.echo(f"Converted config written to {output_path} (APB format)")
+            else:
+                raise Exception(f"Unknown file extension for output '{output_path}'. Only .json and .apb are supported.")
 
 @cli.command()
 @click.pass_obj
@@ -903,7 +952,9 @@ for name, obj in inspect.getmembers(current_module):
         # Add the command to both groups
         redac.add_command(obj)
         lucidac.add_command(obj)
+        sim.add_command(obj)
 
 # add imported commands
 redac.add_command(user_program)
 lucidac.add_command(user_program)
+sim.add_command(user_program)

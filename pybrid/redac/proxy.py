@@ -261,6 +261,12 @@ class Proxy:
         mapped_config = dict()
         for config in msg.bundle.configs:
             entity_path = Path.parse(config.entity.path)
+
+            if len(entity_path) == 0:
+                # global configs, such as sim configs, are dropped here since
+                # they have no target device
+                continue
+
             carrier_mac = entity_path[0]
             mac = self.mac_mapping[carrier_mac]
             new_entity_path = Path() / mac / entity_path[1:]
@@ -337,7 +343,7 @@ class Proxy:
         for protocol in self.controller.protocols:
             free_port = get_free_udp_port(6733)
             response = await protocol.udp_data_streaming(free_port)
-            if response.WhichOneof("kind") != "success_message":
+            if response.WhichOneof("kind") == "error_message":
                 return response.error_message
 
         await client_protocol.udp_data_receiving(port = msg.port)

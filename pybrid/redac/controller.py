@@ -18,9 +18,10 @@ from pybrid.redac.computer import REDAC
 from pybrid.redac.device import Device
 from pybrid.redac.entities import Entity, Path, UnknownEntityTypeError
 from pybrid.redac.port import get_free_udp_port
-from pybrid.redac.protocol.protocol import Protocol
+from pybrid.redac.protocol.protocol import Protocol, get_message_kind
 from pybrid.redac.run import Run, RunState, RunError
 from pybrid.redac.sync import Sync
+from pybrid.base.hybrid.listeners import SampleListener
 
 logger = logging.getLogger(__name__)
 
@@ -165,6 +166,11 @@ class Controller:
     _raw_entity_dict: dict
     _ongoing_runs: dict[UUID, DistributedRunState]
 
+    #: Listeners that forward received UDP data directly to the user
+    sample_listeners: typing.List[SampleListener] = []
+
+    #: Allows 
+
     sync: typing.Optional[Sync]
     standalone: bool
 
@@ -277,7 +283,13 @@ class Controller:
         for device in self.devices.values():
             await device.protocol.register_external_entities(device_ip_mapping)
 
-        await ctrl_protocol.udp_data_streaming(get_free_udp_port(6733))
+        await self.enable_udp(ctrl_protocol)
+
+    async def enable_udp(self, ctrl_protocol):
+        udp_result = await ctrl_protocol.udp_data_streaming(get_free_udp_port(6733))
+
+        if get_message_kind(udp_result) == "error_message":
+            logger.error(f"Failed to start UDP streaming: {udp_result.error_message.description}")
 
 
     # ██   ██  █████  ███    ██ ██████  ██      ███████ ██████  ███████
@@ -298,15 +310,23 @@ class Controller:
     async def handle_run_data(self, msg: pb.RunDataMessage):
         """A handler for incoming :class:`.RunDataMessage` messages."""
         if run := self.runs.get(UUID(msg.run.id), None):
-            pb_data = msg.data
+            has_listeners = (len(self.sample_listeners) > 0)
+            listener_samples = {}
 
-            chunk = msg.run.chunk
-            data = decode_data(pb_data)
-
+            # store data indexed by ADC channels
+            data = decode_data(msg.data)
             path = Path(msg.entity.path.split('/'))
             for block_idx, values in enumerate(data):
                 channel = path.join(f"ADC{block_idx}")
                 run.data[channel].extend(values.tolist())
+
+                if has_listeners:
+                    listener_samples[channel] = values.tolist()
+
+            if has_listeners:
+                for listener in self.sample_listeners:
+                    await listener.receive(listener_samples)
+
         else:
             logger.warning("Received run data with unknown id %s.", msg.id)
 
@@ -352,6 +372,13 @@ class Controller:
         while len(empty_message.bundle.configs) > 0:
             empty_message.bundle.configs.pop()
 
+        # extract global configs
+        global_items = []
+        for config in message.bundle.configs:
+            if config.entity.path == "":
+                global_items.append(config)
+                message.bundle.configs.remove(config)
+
         forwards = set()
         for protocol, managed_paths in self.protocols.items():
             partial_request = pb.ConfigCommand()
@@ -369,11 +396,15 @@ class Controller:
                     message.bundle.configs.remove(config)
 
             if len(partial_request.bundle.configs) > 0:
+                if len(global_items) > 0:
+                    for item in global_items:
+                        partial_request.bundle.configs.append(item)
+                    global_items = []
+
                 forwards.add(
                     protocol.send_body_and_wait_response(partial_request)
                 )
 
-        # Check if there are remaining configurations
         if message.bundle.configs:
             keys = [c.entity.path for c in message.bundle.configs]
             raise UnknownEntityTypeError(
@@ -499,7 +530,6 @@ class Controller:
 
             run.sync = replace(run.sync, enabled=True, master=path_for_sync_mredac)
 
-
         # Send StartRunRequests to all mREDAC, possibly adapting run.sync_config
         # We always tell the first device it should lead the calibration process
         start_run_requests = []
@@ -531,7 +561,8 @@ class Controller:
         """
         # Queue the run on the computer and wait until all involved entities are ready for take-off.
         try:
-            run_state = await asyncio.wait_for(self.start_run(run), timeout=timeout)
+            run_state = await asyncio.wait_for(self.start_run(run), 
+                timeout=timeout)
         except asyncio.TimeoutError as exc:
             if exc.args:
                 raise

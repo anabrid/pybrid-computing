@@ -31,12 +31,15 @@ class Carrier(Entity):
 
     This is the smallest independent hardware unit inside a REDAC.
     It contains several :class:`.cluster.Cluster` objects.
+
+    Note that to avoid sending configs that are dropped by the firmware, thr
+    acl_select was moved to the LUCIDAC.
     """
 
+    #: ADCs for DAQ.
     adc_config: list[Optional[ADCChannel]] = field(default_factory=list)
 
-    # currently only implemented in the LUCIDAC, but planned for the mREDAC
-    # carrier board as well
+    #: ACL Select for analog I/O - note that while not supported in HW, the firmware ignores this.
     acl_select: Optional[list[str]] = None
 
     #: List of clusters on the carrier board.

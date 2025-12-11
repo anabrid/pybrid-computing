@@ -10,8 +10,6 @@ from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.base.hybrid.entities import Entity
 
-_CONFIG_TYPE = Dict[str, Any] | List[pb.Config]
-
 class Serializer(ABC):
     """
     Given an entity, serializes its configuration into Protobuf format.
@@ -32,21 +30,22 @@ class Serializer(ABC):
             return self.configs.pop()
         
     @abstractmethod
-    def config_type(self) -> type:
-        pass
-        
-    @abstractmethod
-    def serialize(self, computer: AnalogComputer) -> _CONFIG_TYPE:
+    def serialize(self, computer: AnalogComputer) -> List[pb.Config]:
         """
         Serializes the computer's configuration into the config fomat
         """
         pass
 
     @abstractmethod
-    def serialize_entities(self, entities: List[Entity]) -> _CONFIG_TYPE:
+    def serialize_entities(self, entities: List[Entity]) -> List[pb.Config]:
         """
         Serializes the configuration of a single entity.
         """
+        pass
+
+    @abstractmethod
+    def serialize_additional(self):
+        """Hook to serialize objects outside of the entities hierachy."""
         pass
 
     @singledispatchmethod
@@ -69,7 +68,7 @@ class Deserializer(ABC):
         pass
 
     @abstractmethod
-    def deserialize(self, config: _CONFIG_TYPE):
+    def deserialize(self, config: List[pb.Config]):
         """
         Deserializes a config and applies it to the analog computer.
         """
