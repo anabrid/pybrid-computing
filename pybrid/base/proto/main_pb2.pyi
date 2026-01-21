@@ -2,7 +2,8 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -113,12 +114,14 @@ class ShiftHoldConfig(_message.Message):
 class CoefConfig(_message.Message):
     __slots__ = ("elements",)
     class Element(_message.Message):
-        __slots__ = ("idx", "factor")
+        __slots__ = ("idx", "factor", "gain_correction")
         IDX_FIELD_NUMBER: _ClassVar[int]
         FACTOR_FIELD_NUMBER: _ClassVar[int]
+        GAIN_CORRECTION_FIELD_NUMBER: _ClassVar[int]
         idx: int
         factor: float
-        def __init__(self, idx: _Optional[int] = ..., factor: _Optional[float] = ...) -> None: ...
+        gain_correction: float
+        def __init__(self, idx: _Optional[int] = ..., factor: _Optional[float] = ..., gain_correction: _Optional[float] = ...) -> None: ...
     ELEMENTS_FIELD_NUMBER: _ClassVar[int]
     elements: _containers.RepeatedCompositeFieldContainer[CoefConfig.Element]
     def __init__(self, elements: _Optional[_Iterable[_Union[CoefConfig.Element, _Mapping]]] = ...) -> None: ...
@@ -146,7 +149,7 @@ class LimiterConfig(_message.Message):
         ENABLE_FIELD_NUMBER: _ClassVar[int]
         idx: int
         enable: bool
-        def __init__(self, idx: _Optional[int] = ..., enable: bool = ...) -> None: ...
+        def __init__(self, idx: _Optional[int] = ..., enable: _Optional[bool] = ...) -> None: ...
     ELEMENTS_FIELD_NUMBER: _ClassVar[int]
     elements: _containers.RepeatedCompositeFieldContainer[LimiterConfig.Element]
     def __init__(self, elements: _Optional[_Iterable[_Union[LimiterConfig.Element, _Mapping]]] = ...) -> None: ...
@@ -205,7 +208,7 @@ class UpscaleConfig(_message.Message):
     ENABLED_FIELD_NUMBER: _ClassVar[int]
     lane: int
     enabled: bool
-    def __init__(self, lane: _Optional[int] = ..., enabled: bool = ...) -> None: ...
+    def __init__(self, lane: _Optional[int] = ..., enabled: _Optional[bool] = ...) -> None: ...
 
 class Address(_message.Message):
     __slots__ = ("data",)
@@ -235,7 +238,7 @@ class Use(_message.Message):
     source: int
     count: int
     upscaled: bool
-    def __init__(self, idx: _Optional[int] = ..., source: _Optional[int] = ..., count: _Optional[int] = ..., upscaled: bool = ...) -> None: ...
+    def __init__(self, idx: _Optional[int] = ..., source: _Optional[int] = ..., count: _Optional[int] = ..., upscaled: _Optional[bool] = ...) -> None: ...
 
 class UseConfig(_message.Message):
     __slots__ = ("uses",)
@@ -248,6 +251,10 @@ class BPLSwitchConfig(_message.Message):
     MUXES_FIELD_NUMBER: _ClassVar[int]
     muxes: _containers.RepeatedCompositeFieldContainer[Mux]
     def __init__(self, muxes: _Optional[_Iterable[_Union[Mux, _Mapping]]] = ...) -> None: ...
+
+class CmpConfig(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
 
 class SignalGeneratorConfig(_message.Message):
     __slots__ = ("frequency", "phase", "wave_form", "amplitude", "square_voltage_low", "square_voltage_high", "offset", "sleep", "dac_outputs")
@@ -277,7 +284,7 @@ class SignalGeneratorConfig(_message.Message):
     offset: float
     sleep: bool
     dac_outputs: _containers.RepeatedScalarFieldContainer[float]
-    def __init__(self, frequency: _Optional[float] = ..., phase: _Optional[float] = ..., wave_form: _Optional[_Union[SignalGeneratorConfig.WaveForm, str]] = ..., amplitude: _Optional[float] = ..., square_voltage_low: _Optional[float] = ..., square_voltage_high: _Optional[float] = ..., offset: _Optional[float] = ..., sleep: bool = ..., dac_outputs: _Optional[_Iterable[float]] = ...) -> None: ...
+    def __init__(self, frequency: _Optional[float] = ..., phase: _Optional[float] = ..., wave_form: _Optional[_Union[SignalGeneratorConfig.WaveForm, str]] = ..., amplitude: _Optional[float] = ..., square_voltage_low: _Optional[float] = ..., square_voltage_high: _Optional[float] = ..., offset: _Optional[float] = ..., sleep: _Optional[bool] = ..., dac_outputs: _Optional[_Iterable[float]] = ...) -> None: ...
 
 class FrontPanelConfig(_message.Message):
     __slots__ = ("leds",)
@@ -319,10 +326,10 @@ class BackpanelConfig(_message.Message):
     backpanel_slot: int
     is_valid: bool
     is_isolated: bool
-    def __init__(self, backpanel_id: _Optional[int] = ..., backpanel_slot: _Optional[int] = ..., is_valid: bool = ..., is_isolated: bool = ...) -> None: ...
+    def __init__(self, backpanel_id: _Optional[int] = ..., backpanel_slot: _Optional[int] = ..., is_valid: _Optional[bool] = ..., is_isolated: _Optional[bool] = ...) -> None: ...
 
 class Config(_message.Message):
-    __slots__ = ("entity", "adc_config", "cluster_config", "mul_config", "shift_hold_config", "coef_config", "itor_config", "select_config", "sum_config", "switch_config", "device_config", "limiter_config", "front_panel_config", "signal_generator_config", "port_config", "use_config", "backpanel_config", "bpl_switch_config", "sim_config")
+    __slots__ = ("entity", "adc_config", "cluster_config", "mul_config", "shift_hold_config", "coef_config", "itor_config", "select_config", "sum_config", "switch_config", "device_config", "limiter_config", "front_panel_config", "signal_generator_config", "port_config", "use_config", "backpanel_config", "bpl_switch_config", "cmp_config", "sim_config")
     ENTITY_FIELD_NUMBER: _ClassVar[int]
     ADC_CONFIG_FIELD_NUMBER: _ClassVar[int]
     CLUSTER_CONFIG_FIELD_NUMBER: _ClassVar[int]
@@ -341,6 +348,7 @@ class Config(_message.Message):
     USE_CONFIG_FIELD_NUMBER: _ClassVar[int]
     BACKPANEL_CONFIG_FIELD_NUMBER: _ClassVar[int]
     BPL_SWITCH_CONFIG_FIELD_NUMBER: _ClassVar[int]
+    CMP_CONFIG_FIELD_NUMBER: _ClassVar[int]
     SIM_CONFIG_FIELD_NUMBER: _ClassVar[int]
     entity: EntityId
     adc_config: AdcConfig
@@ -360,8 +368,9 @@ class Config(_message.Message):
     use_config: UseConfig
     backpanel_config: BackpanelConfig
     bpl_switch_config: BPLSwitchConfig
+    cmp_config: CmpConfig
     sim_config: SimConfig
-    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., adc_config: _Optional[_Union[AdcConfig, _Mapping]] = ..., cluster_config: _Optional[_Union[ClusterConfig, _Mapping]] = ..., mul_config: _Optional[_Union[MulConfig, _Mapping]] = ..., shift_hold_config: _Optional[_Union[ShiftHoldConfig, _Mapping]] = ..., coef_config: _Optional[_Union[CoefConfig, _Mapping]] = ..., itor_config: _Optional[_Union[ItorConfig, _Mapping]] = ..., select_config: _Optional[_Union[SelectConfig, _Mapping]] = ..., sum_config: _Optional[_Union[SumConfig, _Mapping]] = ..., switch_config: _Optional[_Union[SwitchConfig, _Mapping]] = ..., device_config: _Optional[_Union[DeviceConfig, _Mapping]] = ..., limiter_config: _Optional[_Union[LimiterConfig, _Mapping]] = ..., front_panel_config: _Optional[_Union[FrontPanelConfig, _Mapping]] = ..., signal_generator_config: _Optional[_Union[SignalGeneratorConfig, _Mapping]] = ..., port_config: _Optional[_Union[PortConfig, _Mapping]] = ..., use_config: _Optional[_Union[UseConfig, _Mapping]] = ..., backpanel_config: _Optional[_Union[BackpanelConfig, _Mapping]] = ..., bpl_switch_config: _Optional[_Union[BPLSwitchConfig, _Mapping]] = ..., sim_config: _Optional[_Union[SimConfig, _Mapping]] = ...) -> None: ...
+    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., adc_config: _Optional[_Union[AdcConfig, _Mapping]] = ..., cluster_config: _Optional[_Union[ClusterConfig, _Mapping]] = ..., mul_config: _Optional[_Union[MulConfig, _Mapping]] = ..., shift_hold_config: _Optional[_Union[ShiftHoldConfig, _Mapping]] = ..., coef_config: _Optional[_Union[CoefConfig, _Mapping]] = ..., itor_config: _Optional[_Union[ItorConfig, _Mapping]] = ..., select_config: _Optional[_Union[SelectConfig, _Mapping]] = ..., sum_config: _Optional[_Union[SumConfig, _Mapping]] = ..., switch_config: _Optional[_Union[SwitchConfig, _Mapping]] = ..., device_config: _Optional[_Union[DeviceConfig, _Mapping]] = ..., limiter_config: _Optional[_Union[LimiterConfig, _Mapping]] = ..., front_panel_config: _Optional[_Union[FrontPanelConfig, _Mapping]] = ..., signal_generator_config: _Optional[_Union[SignalGeneratorConfig, _Mapping]] = ..., port_config: _Optional[_Union[PortConfig, _Mapping]] = ..., use_config: _Optional[_Union[UseConfig, _Mapping]] = ..., backpanel_config: _Optional[_Union[BackpanelConfig, _Mapping]] = ..., bpl_switch_config: _Optional[_Union[BPLSwitchConfig, _Mapping]] = ..., cmp_config: _Optional[_Union[CmpConfig, _Mapping]] = ..., sim_config: _Optional[_Union[SimConfig, _Mapping]] = ...) -> None: ...
 
 class EntityId(_message.Message):
     __slots__ = ("path",)
@@ -385,7 +394,7 @@ class ResetCommand(_message.Message):
     overload_reset: bool
     circuit_reset: bool
     sync: bool
-    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., keep_calibration: bool = ..., overload_reset: bool = ..., circuit_reset: bool = ..., sync: bool = ...) -> None: ...
+    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., keep_calibration: _Optional[bool] = ..., overload_reset: _Optional[bool] = ..., circuit_reset: _Optional[bool] = ..., sync: _Optional[bool] = ...) -> None: ...
 
 class ExtractCommand(_message.Message):
     __slots__ = ("entity", "recursive")
@@ -393,7 +402,7 @@ class ExtractCommand(_message.Message):
     RECURSIVE_FIELD_NUMBER: _ClassVar[int]
     entity: EntityId
     recursive: bool
-    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., recursive: bool = ...) -> None: ...
+    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., recursive: _Optional[bool] = ...) -> None: ...
 
 class ConfigCommand(_message.Message):
     __slots__ = ("bundle", "reset_before", "sh_kludge", "calibrate_mblock", "calibrate_offset", "calibrate_routes")
@@ -409,7 +418,7 @@ class ConfigCommand(_message.Message):
     calibrate_mblock: bool
     calibrate_offset: bool
     calibrate_routes: bool
-    def __init__(self, bundle: _Optional[_Union[ConfigBundle, _Mapping]] = ..., reset_before: bool = ..., sh_kludge: bool = ..., calibrate_mblock: bool = ..., calibrate_offset: bool = ..., calibrate_routes: bool = ...) -> None: ...
+    def __init__(self, bundle: _Optional[_Union[ConfigBundle, _Mapping]] = ..., reset_before: _Optional[bool] = ..., sh_kludge: _Optional[bool] = ..., calibrate_mblock: _Optional[bool] = ..., calibrate_offset: _Optional[bool] = ..., calibrate_routes: _Optional[bool] = ...) -> None: ...
 
 class ACLPlugin(_message.Message):
     __slots__ = ("plugin", "label", "parameters")
@@ -461,7 +470,7 @@ class SimConfig(_message.Message):
     with_limits: bool
     only_module_sinks: bool
     acl_config: ACLConfig
-    def __init__(self, k0: _Optional[int] = ..., with_limits: bool = ..., only_module_sinks: bool = ..., acl_config: _Optional[_Union[ACLConfig, _Mapping]] = ...) -> None: ...
+    def __init__(self, k0: _Optional[int] = ..., with_limits: _Optional[bool] = ..., only_module_sinks: _Optional[bool] = ..., acl_config: _Optional[_Union[ACLConfig, _Mapping]] = ...) -> None: ...
 
 class ConfigBundle(_message.Message):
     __slots__ = ("configs",)
@@ -509,7 +518,7 @@ class RunConfig(_message.Message):
     streaming: bool
     repetitive: bool
     write_run_state_changes: bool
-    def __init__(self, ic_time: _Optional[_Union[Time, _Mapping]] = ..., op_time: _Optional[_Union[Time, _Mapping]] = ..., halt_on_overload: bool = ..., streaming: bool = ..., repetitive: bool = ..., write_run_state_changes: bool = ...) -> None: ...
+    def __init__(self, ic_time: _Optional[_Union[Time, _Mapping]] = ..., op_time: _Optional[_Union[Time, _Mapping]] = ..., halt_on_overload: _Optional[bool] = ..., streaming: _Optional[bool] = ..., repetitive: _Optional[bool] = ..., write_run_state_changes: _Optional[bool] = ...) -> None: ...
 
 class DaqConfig(_message.Message):
     __slots__ = ("num_channels", "sample_rate", "sample_op", "sample_op_end")
@@ -521,7 +530,7 @@ class DaqConfig(_message.Message):
     sample_rate: int
     sample_op: bool
     sample_op_end: bool
-    def __init__(self, num_channels: _Optional[int] = ..., sample_rate: _Optional[int] = ..., sample_op: bool = ..., sample_op_end: bool = ...) -> None: ...
+    def __init__(self, num_channels: _Optional[int] = ..., sample_rate: _Optional[int] = ..., sample_op: _Optional[bool] = ..., sample_op_end: _Optional[bool] = ...) -> None: ...
 
 class SyncConfig(_message.Message):
     __slots__ = ("enabled", "master", "group")
@@ -531,7 +540,7 @@ class SyncConfig(_message.Message):
     enabled: bool
     master: EntityId
     group: int
-    def __init__(self, enabled: bool = ..., master: _Optional[_Union[EntityId, _Mapping]] = ..., group: _Optional[int] = ...) -> None: ...
+    def __init__(self, enabled: _Optional[bool] = ..., master: _Optional[_Union[EntityId, _Mapping]] = ..., group: _Optional[int] = ...) -> None: ...
 
 class CalibrationConfig(_message.Message):
     __slots__ = ("enabled", "leader")
@@ -539,13 +548,19 @@ class CalibrationConfig(_message.Message):
     LEADER_FIELD_NUMBER: _ClassVar[int]
     enabled: bool
     leader: EntityId
-    def __init__(self, enabled: bool = ..., leader: _Optional[_Union[EntityId, _Mapping]] = ...) -> None: ...
+    def __init__(self, enabled: _Optional[bool] = ..., leader: _Optional[_Union[EntityId, _Mapping]] = ...) -> None: ...
 
 class UdpDataStreamingCommand(_message.Message):
     __slots__ = ("port",)
     PORT_FIELD_NUMBER: _ClassVar[int]
     port: int
     def __init__(self, port: _Optional[int] = ...) -> None: ...
+
+class UdpDataStreamingRefusedResponse(_message.Message):
+    __slots__ = ("reason",)
+    REASON_FIELD_NUMBER: _ClassVar[int]
+    reason: str
+    def __init__(self, reason: _Optional[str] = ...) -> None: ...
 
 class StartRunCommand(_message.Message):
     __slots__ = ("run", "run_config", "daq_config", "sync_config", "calibration_config", "end_repetitive", "clear_queue")
@@ -563,7 +578,7 @@ class StartRunCommand(_message.Message):
     calibration_config: CalibrationConfig
     end_repetitive: bool
     clear_queue: bool
-    def __init__(self, run: _Optional[_Union[Run, _Mapping]] = ..., run_config: _Optional[_Union[RunConfig, _Mapping]] = ..., daq_config: _Optional[_Union[DaqConfig, _Mapping]] = ..., sync_config: _Optional[_Union[SyncConfig, _Mapping]] = ..., calibration_config: _Optional[_Union[CalibrationConfig, _Mapping]] = ..., end_repetitive: bool = ..., clear_queue: bool = ...) -> None: ...
+    def __init__(self, run: _Optional[_Union[Run, _Mapping]] = ..., run_config: _Optional[_Union[RunConfig, _Mapping]] = ..., daq_config: _Optional[_Union[DaqConfig, _Mapping]] = ..., sync_config: _Optional[_Union[SyncConfig, _Mapping]] = ..., calibration_config: _Optional[_Union[CalibrationConfig, _Mapping]] = ..., end_repetitive: _Optional[bool] = ..., clear_queue: _Optional[bool] = ...) -> None: ...
 
 class StopRunCommand(_message.Message):
     __slots__ = ()
@@ -575,7 +590,7 @@ class StandByCommand(_message.Message):
     HACK_PWM_RAMP_FIELD_NUMBER: _ClassVar[int]
     standby: bool
     hack_pwm_ramp: bool
-    def __init__(self, standby: bool = ..., hack_pwm_ramp: bool = ...) -> None: ...
+    def __init__(self, standby: _Optional[bool] = ..., hack_pwm_ramp: _Optional[bool] = ...) -> None: ...
 
 class ManualControlCommand(_message.Message):
     __slots__ = ("to",)
@@ -843,7 +858,7 @@ class SyslogResponse(_message.Message):
     is_active: bool
     max_size: int
     entries: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, is_active: bool = ..., max_size: _Optional[int] = ..., entries: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, is_active: _Optional[bool] = ..., max_size: _Optional[int] = ..., entries: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class PerformanceCounters(_message.Message):
     __slots__ = ("total_ic_time_us", "total_op_time_us", "total_halt_time_us", "total_number_of_runs")
@@ -867,7 +882,7 @@ class ReadSystemIdentCommand(_message.Message):
     __slots__ = ("read_from_eeprom",)
     READ_FROM_EEPROM_FIELD_NUMBER: _ClassVar[int]
     read_from_eeprom: bool
-    def __init__(self, read_from_eeprom: bool = ...) -> None: ...
+    def __init__(self, read_from_eeprom: _Optional[bool] = ...) -> None: ...
 
 class ReadSystemIdentResponse(_message.Message):
     __slots__ = ()
@@ -877,7 +892,7 @@ class ResetSystemIdentCommand(_message.Message):
     __slots__ = ("write_to_hardware",)
     WRITE_TO_HARDWARE_FIELD_NUMBER: _ClassVar[int]
     write_to_hardware: bool
-    def __init__(self, write_to_hardware: bool = ...) -> None: ...
+    def __init__(self, write_to_hardware: _Optional[bool] = ...) -> None: ...
 
 class ResetSystemIdentResponse(_message.Message):
     __slots__ = ()
@@ -905,7 +920,7 @@ class WriteSystemIdentResponse(_message.Message):
     __slots__ = ("valid",)
     VALID_FIELD_NUMBER: _ClassVar[int]
     valid: bool
-    def __init__(self, valid: bool = ...) -> None: ...
+    def __init__(self, valid: _Optional[bool] = ...) -> None: ...
 
 class GetSystemIdentCommand(_message.Message):
     __slots__ = ()
@@ -981,12 +996,12 @@ class OverloadStatus(_message.Message):
         entity: EntityId
         idx: int
         overload: bool
-        def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., idx: _Optional[int] = ..., overload: bool = ...) -> None: ...
+        def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., idx: _Optional[int] = ..., overload: _Optional[bool] = ...) -> None: ...
     GLOBAL_OVERLOAD_FIELD_NUMBER: _ClassVar[int]
     ELEMENTS_FIELD_NUMBER: _ClassVar[int]
     global_overload: bool
     elements: _containers.RepeatedCompositeFieldContainer[OverloadStatus.Element]
-    def __init__(self, global_overload: bool = ..., elements: _Optional[_Iterable[_Union[OverloadStatus.Element, _Mapping]]] = ...) -> None: ...
+    def __init__(self, global_overload: _Optional[bool] = ..., elements: _Optional[_Iterable[_Union[OverloadStatus.Element, _Mapping]]] = ...) -> None: ...
 
 class GetOverloadStatusResponse(_message.Message):
     __slots__ = ("status",)
@@ -1039,7 +1054,7 @@ class AuthRequest(_message.Message):
     def __init__(self, bearer: _Optional[_Union[BearerAuth, _Mapping]] = ...) -> None: ...
 
 class MessageV1(_message.Message):
-    __slots__ = ("id", "success_message", "error_message", "stand_by_command", "describe_command", "reset_command", "extract_command", "config_command", "start_run_command", "stop_run_command", "manual_control_command", "register_external_entities_command", "get_system_ident_command", "syslog_command", "system_stats_command", "read_system_ident_command", "reset_system_ident_command", "write_system_ident_command", "udp_data_streaming_command", "read_temperature_command", "get_overload_status_command", "describe_response", "extract_response", "config_response", "reset_response", "start_run_response", "run_state_change_message", "run_data_message", "run_data_end_message", "get_system_ident_response", "syslog_response", "system_stats_response", "read_system_ident_response", "reset_system_ident_response", "write_system_ident_response", "read_temperature_response", "get_overload_status_response", "calibrate_init_command", "calibrate_lane_command", "calibrate_offset_command", "calibrate_finalize_command", "calibrate_data_command", "auth_request")
+    __slots__ = ("id", "success_message", "error_message", "stand_by_command", "describe_command", "reset_command", "extract_command", "config_command", "start_run_command", "stop_run_command", "manual_control_command", "register_external_entities_command", "get_system_ident_command", "syslog_command", "system_stats_command", "read_system_ident_command", "reset_system_ident_command", "write_system_ident_command", "udp_data_streaming_command", "read_temperature_command", "get_overload_status_command", "describe_response", "extract_response", "config_response", "reset_response", "start_run_response", "run_state_change_message", "run_data_message", "run_data_end_message", "get_system_ident_response", "syslog_response", "system_stats_response", "read_system_ident_response", "reset_system_ident_response", "write_system_ident_response", "read_temperature_response", "get_overload_status_response", "udp_data_streaming_refused_response", "calibrate_init_command", "calibrate_lane_command", "calibrate_offset_command", "calibrate_finalize_command", "calibrate_data_command", "auth_request")
     ID_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_MESSAGE_FIELD_NUMBER: _ClassVar[int]
     ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
@@ -1077,6 +1092,7 @@ class MessageV1(_message.Message):
     WRITE_SYSTEM_IDENT_RESPONSE_FIELD_NUMBER: _ClassVar[int]
     READ_TEMPERATURE_RESPONSE_FIELD_NUMBER: _ClassVar[int]
     GET_OVERLOAD_STATUS_RESPONSE_FIELD_NUMBER: _ClassVar[int]
+    UDP_DATA_STREAMING_REFUSED_RESPONSE_FIELD_NUMBER: _ClassVar[int]
     CALIBRATE_INIT_COMMAND_FIELD_NUMBER: _ClassVar[int]
     CALIBRATE_LANE_COMMAND_FIELD_NUMBER: _ClassVar[int]
     CALIBRATE_OFFSET_COMMAND_FIELD_NUMBER: _ClassVar[int]
@@ -1120,22 +1136,25 @@ class MessageV1(_message.Message):
     write_system_ident_response: WriteSystemIdentResponse
     read_temperature_response: ReadTemperatureResponse
     get_overload_status_response: GetOverloadStatusResponse
+    udp_data_streaming_refused_response: UdpDataStreamingRefusedResponse
     calibrate_init_command: CalibrateInitCommand
     calibrate_lane_command: CalibrateLaneCommand
     calibrate_offset_command: CalibrateOffsetCommand
     calibrate_finalize_command: CalibrateFinalizeCommand
     calibrate_data_command: CalibrateDataCommand
     auth_request: AuthRequest
-    def __init__(self, id: _Optional[str] = ..., success_message: _Optional[_Union[SuccessMessage, _Mapping]] = ..., error_message: _Optional[_Union[ErrorMessage, _Mapping]] = ..., stand_by_command: _Optional[_Union[StandByCommand, _Mapping]] = ..., describe_command: _Optional[_Union[DescribeCommand, _Mapping]] = ..., reset_command: _Optional[_Union[ResetCommand, _Mapping]] = ..., extract_command: _Optional[_Union[ExtractCommand, _Mapping]] = ..., config_command: _Optional[_Union[ConfigCommand, _Mapping]] = ..., start_run_command: _Optional[_Union[StartRunCommand, _Mapping]] = ..., stop_run_command: _Optional[_Union[StopRunCommand, _Mapping]] = ..., manual_control_command: _Optional[_Union[ManualControlCommand, _Mapping]] = ..., register_external_entities_command: _Optional[_Union[RegisterExternalEntitiesCommand, _Mapping]] = ..., get_system_ident_command: _Optional[_Union[GetSystemIdentCommand, _Mapping]] = ..., syslog_command: _Optional[_Union[SyslogCommand, _Mapping]] = ..., system_stats_command: _Optional[_Union[SystemStatsCommand, _Mapping]] = ..., read_system_ident_command: _Optional[_Union[ReadSystemIdentCommand, _Mapping]] = ..., reset_system_ident_command: _Optional[_Union[ResetSystemIdentCommand, _Mapping]] = ..., write_system_ident_command: _Optional[_Union[WriteSystemIdentCommand, _Mapping]] = ..., udp_data_streaming_command: _Optional[_Union[UdpDataStreamingCommand, _Mapping]] = ..., read_temperature_command: _Optional[_Union[ReadTemperatureCommand, _Mapping]] = ..., get_overload_status_command: _Optional[_Union[GetOverloadStatusCommand, _Mapping]] = ..., describe_response: _Optional[_Union[DescribeResponse, _Mapping]] = ..., extract_response: _Optional[_Union[ExtractResponse, _Mapping]] = ..., config_response: _Optional[_Union[ConfigResponse, _Mapping]] = ..., reset_response: _Optional[_Union[ResetResponse, _Mapping]] = ..., start_run_response: _Optional[_Union[StartRunResponse, _Mapping]] = ..., run_state_change_message: _Optional[_Union[RunStateChangeMessage, _Mapping]] = ..., run_data_message: _Optional[_Union[RunDataMessage, _Mapping]] = ..., run_data_end_message: _Optional[_Union[RunDataEndMessage, _Mapping]] = ..., get_system_ident_response: _Optional[_Union[GetSystemIdentResponse, _Mapping]] = ..., syslog_response: _Optional[_Union[SyslogResponse, _Mapping]] = ..., system_stats_response: _Optional[_Union[SystemStatsResponse, _Mapping]] = ..., read_system_ident_response: _Optional[_Union[ReadSystemIdentResponse, _Mapping]] = ..., reset_system_ident_response: _Optional[_Union[ResetSystemIdentResponse, _Mapping]] = ..., write_system_ident_response: _Optional[_Union[WriteSystemIdentResponse, _Mapping]] = ..., read_temperature_response: _Optional[_Union[ReadTemperatureResponse, _Mapping]] = ..., get_overload_status_response: _Optional[_Union[GetOverloadStatusResponse, _Mapping]] = ..., calibrate_init_command: _Optional[_Union[CalibrateInitCommand, _Mapping]] = ..., calibrate_lane_command: _Optional[_Union[CalibrateLaneCommand, _Mapping]] = ..., calibrate_offset_command: _Optional[_Union[CalibrateOffsetCommand, _Mapping]] = ..., calibrate_finalize_command: _Optional[_Union[CalibrateFinalizeCommand, _Mapping]] = ..., calibrate_data_command: _Optional[_Union[CalibrateDataCommand, _Mapping]] = ..., auth_request: _Optional[_Union[AuthRequest, _Mapping]] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., success_message: _Optional[_Union[SuccessMessage, _Mapping]] = ..., error_message: _Optional[_Union[ErrorMessage, _Mapping]] = ..., stand_by_command: _Optional[_Union[StandByCommand, _Mapping]] = ..., describe_command: _Optional[_Union[DescribeCommand, _Mapping]] = ..., reset_command: _Optional[_Union[ResetCommand, _Mapping]] = ..., extract_command: _Optional[_Union[ExtractCommand, _Mapping]] = ..., config_command: _Optional[_Union[ConfigCommand, _Mapping]] = ..., start_run_command: _Optional[_Union[StartRunCommand, _Mapping]] = ..., stop_run_command: _Optional[_Union[StopRunCommand, _Mapping]] = ..., manual_control_command: _Optional[_Union[ManualControlCommand, _Mapping]] = ..., register_external_entities_command: _Optional[_Union[RegisterExternalEntitiesCommand, _Mapping]] = ..., get_system_ident_command: _Optional[_Union[GetSystemIdentCommand, _Mapping]] = ..., syslog_command: _Optional[_Union[SyslogCommand, _Mapping]] = ..., system_stats_command: _Optional[_Union[SystemStatsCommand, _Mapping]] = ..., read_system_ident_command: _Optional[_Union[ReadSystemIdentCommand, _Mapping]] = ..., reset_system_ident_command: _Optional[_Union[ResetSystemIdentCommand, _Mapping]] = ..., write_system_ident_command: _Optional[_Union[WriteSystemIdentCommand, _Mapping]] = ..., udp_data_streaming_command: _Optional[_Union[UdpDataStreamingCommand, _Mapping]] = ..., read_temperature_command: _Optional[_Union[ReadTemperatureCommand, _Mapping]] = ..., get_overload_status_command: _Optional[_Union[GetOverloadStatusCommand, _Mapping]] = ..., describe_response: _Optional[_Union[DescribeResponse, _Mapping]] = ..., extract_response: _Optional[_Union[ExtractResponse, _Mapping]] = ..., config_response: _Optional[_Union[ConfigResponse, _Mapping]] = ..., reset_response: _Optional[_Union[ResetResponse, _Mapping]] = ..., start_run_response: _Optional[_Union[StartRunResponse, _Mapping]] = ..., run_state_change_message: _Optional[_Union[RunStateChangeMessage, _Mapping]] = ..., run_data_message: _Optional[_Union[RunDataMessage, _Mapping]] = ..., run_data_end_message: _Optional[_Union[RunDataEndMessage, _Mapping]] = ..., get_system_ident_response: _Optional[_Union[GetSystemIdentResponse, _Mapping]] = ..., syslog_response: _Optional[_Union[SyslogResponse, _Mapping]] = ..., system_stats_response: _Optional[_Union[SystemStatsResponse, _Mapping]] = ..., read_system_ident_response: _Optional[_Union[ReadSystemIdentResponse, _Mapping]] = ..., reset_system_ident_response: _Optional[_Union[ResetSystemIdentResponse, _Mapping]] = ..., write_system_ident_response: _Optional[_Union[WriteSystemIdentResponse, _Mapping]] = ..., read_temperature_response: _Optional[_Union[ReadTemperatureResponse, _Mapping]] = ..., get_overload_status_response: _Optional[_Union[GetOverloadStatusResponse, _Mapping]] = ..., udp_data_streaming_refused_response: _Optional[_Union[UdpDataStreamingRefusedResponse, _Mapping]] = ..., calibrate_init_command: _Optional[_Union[CalibrateInitCommand, _Mapping]] = ..., calibrate_lane_command: _Optional[_Union[CalibrateLaneCommand, _Mapping]] = ..., calibrate_offset_command: _Optional[_Union[CalibrateOffsetCommand, _Mapping]] = ..., calibrate_finalize_command: _Optional[_Union[CalibrateFinalizeCommand, _Mapping]] = ..., calibrate_data_command: _Optional[_Union[CalibrateDataCommand, _Mapping]] = ..., auth_request: _Optional[_Union[AuthRequest, _Mapping]] = ...) -> None: ...
 
 class MessageV2(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
 class File(_message.Message):
-    __slots__ = ("version", "bundle")
+    __slots__ = ("version", "bundle", "entity")
     VERSION_FIELD_NUMBER: _ClassVar[int]
     BUNDLE_FIELD_NUMBER: _ClassVar[int]
+    ENTITY_FIELD_NUMBER: _ClassVar[int]
     version: Version
     bundle: ConfigBundle
-    def __init__(self, version: _Optional[_Union[Version, _Mapping]] = ..., bundle: _Optional[_Union[ConfigBundle, _Mapping]] = ...) -> None: ...
+    entity: Entity
+    def __init__(self, version: _Optional[_Union[Version, _Mapping]] = ..., bundle: _Optional[_Union[ConfigBundle, _Mapping]] = ..., entity: _Optional[_Union[Entity, _Mapping]] = ...) -> None: ...

@@ -189,11 +189,13 @@ class DistributedRunState:
 
 class DeviceEntry:
     address: IPv4Address
+    unique_id: int
     protocol: Protocol
     path: Path
 
-    def __init__(self, path: Path, address: IPv4Address, protocol: Protocol):
+    def __init__(self, path: Path, unique_id: int, address: IPv4Address, protocol: Protocol):
         self.path = path
+        self.unique_id = unique_id
         self.address = address
         self.protocol = protocol
 
@@ -231,7 +233,7 @@ class Controller:
     #: Listeners that forward received UDP data directly to the user
     sample_listeners: typing.List[SampleListener] = []
 
-    #: Allows 
+    #: Allows
 
     sync: typing.Optional[Sync]
     standalone: bool
@@ -306,7 +308,7 @@ class Controller:
         for carrier in device.carriers:
             self.computer.add_carrier(carrier)
             self.protocols[ctrl_protocol].add(carrier.path)
-            self.devices[carrier.path] = DeviceEntry(carrier.path, ctrl_transport_.get_remote_ip(), ctrl_protocol)
+            self.devices[carrier.path] = DeviceEntry(carrier.path, carrier.unique_id, ctrl_transport_.get_remote_ip(), ctrl_protocol)
             # Store number of clusters for M-block indexing in run data
             self._clusters_per_carrier[carrier.path] = len(carrier.clusters)
 
@@ -342,8 +344,8 @@ class Controller:
         #self.protocols[ctrl_protocol].add(path)
 
         device_ip_mapping: dict[int, pb.Address] = {}
-        for idx, device in enumerate(self.devices.values()):
-            device_ip_mapping[idx] = pb.Address(data = device.get_remote_ip().packed)
+        for device in self.devices.values():
+            device_ip_mapping[device.unique_id] = pb.Address(data = device.get_remote_ip().packed)
 
         for device in self.devices.values():
             await device.protocol.register_external_entities(device_ip_mapping)
@@ -554,7 +556,7 @@ class Controller:
                     carriers_here.append(carrier)
             for carrier in carriers_here:
                 carriers_left.remove(carrier)
-            
+
             # serialize the config
             serializer = computer.get_serializer_implementation()()
             configs = serializer.serialize(computer)
@@ -655,7 +657,7 @@ class Controller:
         """
         # Queue the run on the computer and wait until all involved entities are ready for take-off.
         try:
-            run_state = await asyncio.wait_for(self.start_run(run), 
+            run_state = await asyncio.wait_for(self.start_run(run),
                 timeout=timeout)
         except asyncio.TimeoutError as exc:
             if exc.args:

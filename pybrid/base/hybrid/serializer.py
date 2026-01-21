@@ -21,9 +21,12 @@ class Serializer(ABC):
         def __init__(self, configs: List[pb.Config]):
             self.configs = configs
 
+        def add_config(self, config: pb.Config):
+            self.configs.append(config)
+
         def new_config(self, entity: Entity) -> pb.Config:
             config = pb.Config(entity=pb.EntityId(path=str(entity.path)))
-            self.configs.append(config)
+            self.add_config(config)
             return config
 
         def pop_config(self) -> pb.Config:

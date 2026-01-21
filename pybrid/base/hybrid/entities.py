@@ -4,6 +4,7 @@
 import typing
 from dataclasses import dataclass
 from typing import Iterable
+import uuid
 
 
 class EntityDoesNotExist(Exception):
@@ -117,13 +118,21 @@ class Path(tuple):
         return "/".join(map(str, self))
 
 
+next_unique_id = 0
+
 @dataclass(kw_only=True)
 class Entity:
     path: Path
+    _unique_id: int = None
 
     def __post_init__(self):
-        if not isinstance(self.path, Path):
-            self.path = Path.parse(self.path)
+        global next_unique_id
+        self._unique_id = next_unique_id
+        next_unique_id += 1
+
+    @property
+    def unique_id(self):
+        return self._unique_id
 
     @property
     def id_(self):

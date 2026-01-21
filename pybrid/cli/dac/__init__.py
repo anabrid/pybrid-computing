@@ -695,7 +695,7 @@ async def set_daq(obj, sample_rate: int, num_channels: int, paths: list[str]):
     default="dat",
     help="Format to write data in.",
 )
-@click.option("--plot", 
+@click.option("--plot",
     is_flag=True,
     default=False,
     show_default=True,

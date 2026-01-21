@@ -53,6 +53,8 @@ class EntityClass(Enum):
     FRONTPANEL = 8
     CTRLBLOCK = 9
     TBLOCK = 10
+    BACK_PANEL = 11
+    T_BLOCK_BPL = 12
     DEVICE = 30
     OTHER = 31
 
@@ -168,60 +170,46 @@ class Loc:
         return Loc(self.path[:1])
 
     @staticmethod
-    def new_wing(stack: int, id: int):
+    def new_carrier(stack: int, id: int):
         return Loc([stack, id])
 
-    def wing_id(self) -> int:
+    def carrier_id(self) -> int:
         return self.path[1]
 
-    def is_wing(self) -> bool:
+    def is_carrier(self) -> bool:
         return len(self.path) == 2
 
-    def wing(self) -> 'Loc':
+    def carrier(self) -> 'Loc':
         assert len(self.path) >= 2
         return Loc(self.path[:2])
 
     @staticmethod
-    def new_carrier(stack: int, wing: int, id: int):
-        return Loc([stack, wing, id])
+    def new_cluster(stack: int, carrier: int, id: int):
+        return Loc([stack, carrier, id])
 
-    def carrier_id(self) -> int:
+    def cluster_id(self) -> int:
         return self.path[2]
 
-    def is_carrier(self) -> bool:
+    def is_cluster(self) -> bool:
         return len(self.path) == 3
 
-    def carrier(self) -> 'Loc':
+    def cluster(self) -> 'Loc':
         assert len(self.path) >= 3
         return Loc(self.path[:3])
 
     @staticmethod
-    def new_cluster(stack: int, wing: int, carrier: int, id: int):
-        return Loc([stack, wing, carrier, id])
-
-    def cluster_id(self) -> int:
-        return self.path[3]
-
-    def is_cluster(self) -> bool:
-        return len(self.path) == 4
-
-    def cluster(self) -> 'Loc':
-        assert len(self.path) >= 4
-        return Loc(self.path[:4])
-
-    @staticmethod
-    def new_lane(stack: int, wing: int, carrier: int, cluster: int, id: int):
-        return Loc([stack, wing, carrier, cluster, id])
+    def new_lane(stack: int, carrier: int, cluster: int, id: int):
+        return Loc([stack, carrier, cluster, id])
 
     def lane_id(self) -> int:
-        return self.path[4]
+        return self.path[3]
 
     def is_lane(self) -> bool:
-        return len(self.path) == 5
+        return len(self.path) == 4
 
     def lane(self) -> 'Loc':
-        assert len(self.path) >= 5
-        return Loc(self.path[:5])
+        assert len(self.path) >= 4
+        return Loc(self.path[:4])
 
     def __hash__(self):
         return hash(tuple(self.path))

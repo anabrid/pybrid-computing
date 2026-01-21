@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.elements import ComputationElement
-from pybrid.redac.entities import Entity, EntityType
+from pybrid.redac.entities import Entity, EntityType, EntityClass
 
 
 class FunctionBlock(Entity):

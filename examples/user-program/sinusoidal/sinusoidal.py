@@ -9,8 +9,8 @@ from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
 
 class UserProgram(SingleRun):
     # Shortcut to configure run
-    RUN_CONFIG = RunConfig(op_time=8_000_560_000)
-    DAQ_CONFIG = DAQConfig(num_channels=2, sample_rate=400_000)
+    RUN_CONFIG = RunConfig(op_time=8_560_000)
+    DAQ_CONFIG = DAQConfig(num_channels=2, sample_rate=200_000)
 
     def set_configuration(self, run: Run, computer: REDAC):
         # Reference to first cluster on first carrier board

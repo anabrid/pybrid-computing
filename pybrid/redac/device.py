@@ -7,6 +7,7 @@ import typing
 from dataclasses import dataclass
 
 from pybrid.redac.carrier import Carrier
+from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.entities import Entity, Path
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ class Device(Entity):
     Can act like the proxy or a actual hardware device.
     """
 
+    backplane: typing.Optional[BackplaneTBlock] = None
     carriers: typing.List[Carrier]
 
     @property
@@ -31,6 +33,7 @@ class Device(Entity):
     @classmethod
     def create_from_entity_type_tree(cls, path, entity: pb.Entity) -> "Device":
         carriers = []
+        backplane = None
 
         if entity.class_ == pb.Entity.CARRIER:
             carriers.append(Carrier.create_from_entity_type_tree(path, entity))
@@ -40,5 +43,5 @@ class Device(Entity):
                 carrier = Carrier.create_from_entity_type_tree(carrier_path, child)
                 carriers.append(carrier)
 
-        return cls(carriers=carriers, path=path)
+        return cls(backplane=backplane, carriers=carriers, path=path)
 
