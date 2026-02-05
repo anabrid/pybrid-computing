@@ -22,11 +22,19 @@ class LUCIDAC(REDAC):
     the LUCIDAC is its own proxy
     """
 
-    #: models the (crrently) LUCIDAC-exclusive front panel with signal generators and LEDs
-    front_panel: FrontPanel = FrontPanel(Path(("00-00-00-00-00-00", "FP")))
+    #: models the (currently) LUCIDAC-exclusive front panel with signal generators and LEDs
+    front_panel: FrontPanel
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Create front panel with path based on first carrier, or use default virtual MAC
+        if self.entities:
+            fp_path = self.entities[0].path / "FP"
+        else:
+            fp_path = Path(("00-00-00-00-00-00", "FP"))
+        self.front_panel = FrontPanel(fp_path)
+        # Register front panel in entity lookup
+        self._entities_by_path[self.front_panel.path] = self.front_panel
 
     @property
     def name(self) -> str:

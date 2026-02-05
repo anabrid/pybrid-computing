@@ -22,8 +22,26 @@ from pybrid.redac.protocol.protocol import Protocol, get_message_kind
 from pybrid.redac.run import Run, RunState, RunError
 from pybrid.redac.sync import Sync
 from pybrid.base.hybrid.listeners import SampleListener
+from pybrid.base.hybrid.protocol import ProtocolError
 
 logger = logging.getLogger(__name__)
+
+
+def _check_gathered_responses(responses: list, operation: str = "operation") -> None:
+    """
+    Check gathered responses for error messages.
+
+    Raises ProtocolError if any response contains an error_message.
+
+    :param responses: List of protobuf MessageV1 responses from asyncio.gather.
+    :param operation: Name of the operation for error reporting.
+    :raises ProtocolError: If any response is an error_message.
+    """
+    for response in responses:
+        if get_message_kind(response) == "error_message":
+            raise ProtocolError(
+                f"Device returned error during {operation}: {response.error_message.description}"
+            )
 
 def decode_data(data_pb: pb.DaqData):
     data_type = data_pb.type
@@ -54,7 +72,7 @@ def decode_data(data_pb: pb.DaqData):
 
 class DistributedRunState:
     #: A dictionary tracking each possible RunState for each involved carrier
-    _states: dict[Path, dict[RunState, asyncio.Semaphore]]
+    _states: dict[Path, dict[RunState, asyncio.Event]]
     #: The run which state we are tracking
     run: Run
     #: The run once it's done
@@ -76,14 +94,56 @@ class DistributedRunState:
         if state == RunState.ERROR and not self._any_error_future.done():
             self._any_error_future.set_exception(RunError(f"Error on entity {path}: {reason or 'Unknown Error'}"))
 
+        # Update run.state based on device states
+        self._update_run_state()
+
+    def _update_run_state(self):
+        """
+        Update run.state based on the state of all involved devices.
+
+        Rules:
+        - If ANY device is in ERROR state, set run.state to ERROR
+        - Otherwise, only update run.state if ALL devices agree on the same state
+        """
+        if not self._states:
+            return
+
+        # Check if any device is in ERROR state
+        for path_states in self._states.values():
+            if path_states[RunState.ERROR].is_set():
+                self.run.state = RunState.ERROR
+                return
+
+        # Find the highest state that ALL devices have reached
+        # States are ordered: NEW -> QUEUED -> TAKE_OFF -> IC -> OP -> OP_END -> DONE
+        state_order = [
+            RunState.NEW,
+            RunState.QUEUED,
+            RunState.TAKE_OFF,
+            RunState.IC,
+            RunState.OP,
+            RunState.OP_END,
+            RunState.DONE,
+        ]
+
+        # Find the highest state all devices have reached
+        for state in reversed(state_order):
+            all_reached = all(
+                path_states[state].is_set()
+                for path_states in self._states.values()
+            )
+            if all_reached:
+                self.run.state = state
+                return
+
     def status(self, state: RunState):
         reached = []
         notreached = []
         for entity in self._states.values():
-            if entity[state].locked():
-                notreached.append(entity)
-            else:
+            if entity[state].is_set():
                 reached.append(entity)
+            else:
+                notreached.append(entity)
         return reached, notreached
 
     async def wait_all(self, state: RunState):
@@ -165,6 +225,8 @@ class Controller:
     runs: dict[UUID, Run]
     _raw_entity_dict: dict
     _ongoing_runs: dict[UUID, DistributedRunState]
+    #: Number of clusters per carrier (used for M-block indexing in run data)
+    _clusters_per_carrier: dict[Path, int]
 
     #: Listeners that forward received UDP data directly to the user
     sample_listeners: typing.List[SampleListener] = []
@@ -181,6 +243,7 @@ class Controller:
         self.runs = dict()
         self._raw_entity_dict = dict()
         self._ongoing_runs = dict()
+        self._clusters_per_carrier = dict()
 
         self.sync = None
         self.standalone = standalone
@@ -244,6 +307,8 @@ class Controller:
             self.computer.add_carrier(carrier)
             self.protocols[ctrl_protocol].add(carrier.path)
             self.devices[carrier.path] = DeviceEntry(carrier.path, ctrl_transport_.get_remote_ip(), ctrl_protocol)
+            # Store number of clusters for M-block indexing in run data
+            self._clusters_per_carrier[carrier.path] = len(carrier.clusters)
 
         #cmd transport callbacks
         ctrl_protocol.register_callback(
@@ -313,8 +378,13 @@ class Controller:
             has_listeners = (len(self.sample_listeners) > 0)
             listener_samples = {}
 
+            if msg.data.channel_count == 0:
+                # skip empty sample packages, e.g. fron non-participating carriers
+                return
+
             # store data indexed by ADC channels
             data = decode_data(msg.data)
+
             path = Path(msg.entity.path.split('/'))
             for block_idx, values in enumerate(data):
                 channel = path.join(f"ADC{block_idx}")
@@ -337,14 +407,23 @@ class Controller:
         """A handler for incoming :class:`.RunDataEndMessage` messages."""
         if run := self.runs.get(UUID(msg.run.id), None):
 
+            if msg.data.channel_count == 0:
+                # skip empty sample packages, e.g. from non-participating carriers
+                return
+
             data = decode_data(msg.data)
             if data is None:
                 return
             path = Path(msg.entity.path.split("/"))
 
+            # Get the number of clusters for this carrier (2 M-blocks per cluster)
+            carrier_path = path.to_root()
+            num_clusters = self._clusters_per_carrier.get(carrier_path, 3)  # default to 3 for backwards compat
+            num_mblocks = num_clusters * 2
+
             # For RunState.OP_END, all math block output signals are sampled and sent
-            for block_idx in range(0, 6):
-                block_path = path.join(f"{block_idx//2}").join(f"M{block_idx%2}")
+            for block_idx in range(num_mblocks):
+                block_path = path.join(f"{block_idx // 2}").join(f"M{block_idx % 2}")
                 for output_idx in range(0, 8):
                     run.final_values[block_path.join(str(output_idx))] = data[block_idx * 8 + output_idx]
         else:
@@ -357,11 +436,23 @@ class Controller:
     #  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
 
     @staticmethod
-    def _forward_to(targets, fn, *args, **kwargs):
-        forwards = (fn.__get__(target, target.__class__)(*args, **kwargs) for target in targets)
-        return asyncio.gather(*forwards)
+    async def _forward_to(targets, fn, *args, **kwargs):
+        """
+        Forward a method call to multiple targets and check responses for errors.
 
-    def forward_set_config(self, message: pb.ConfigCommand):
+        :param targets: Iterable of target objects to forward the call to.
+        :param fn: The method to call on each target.
+        :param args: Positional arguments for the method.
+        :param kwargs: Keyword arguments for the method.
+        :return: List of responses from all targets.
+        :raises ProtocolError: If any target returns an error_message.
+        """
+        forwards = (fn.__get__(target, target.__class__)(*args, **kwargs) for target in targets)
+        responses = await asyncio.gather(*forwards)
+        _check_gathered_responses(responses, fn.__name__)
+        return responses
+
+    async def forward_set_config(self, message: pb.ConfigCommand):
         # TODO: Think about whether this is actually the correct approach.
         #       Possibly, one should introduce a new MultiProtocol and move the forwarding there.
         # TODO: This should not be here at least, but live in the Proxy
@@ -410,7 +501,9 @@ class Controller:
             raise UnknownEntityTypeError(
                 "Could not forward configuration to unknown entities %s.", keys
             )
-        return asyncio.gather(*forwards)
+        responses = await asyncio.gather(*forwards)
+        _check_gathered_responses(responses, "forward_set_config")
+        return responses
 
     async def hack(self, cmd: str, data: typing.Any) -> typing.Any:
         """
@@ -545,7 +638,8 @@ class Controller:
                     partition_config=run.partition,
                 )
             )
-        await asyncio.gather(*start_run_requests)
+        responses = await asyncio.gather(*start_run_requests)
+        _check_gathered_responses(responses, "start_run")
 
         return run_state
 
@@ -580,7 +674,7 @@ class Controller:
 
 
     async def set_config_bundle(self, bundle: pb.ConfigBundle):
-        start_run_requests = []
+        config_requests = []
         for protocol, managed_devices in self.protocols.items():
             redac_bundle = pb.ConfigBundle()
             for redac_config in bundle.configs:
@@ -589,13 +683,13 @@ class Controller:
             if len(redac_bundle.configs) == 0:
                 continue
 
-            start_run_requests.append(
+            config_requests.append(
                 Protocol.set_config_bundle.__get__(protocol, protocol.__class__)(
                     bundle=redac_bundle,
                 )
             )
-        await asyncio.gather(*start_run_requests)
-
+        responses = await asyncio.gather(*config_requests)
+        _check_gathered_responses(responses, "set_config_bundle")
 
     async def set_config(self, entity: Entity):
         """

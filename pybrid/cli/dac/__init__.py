@@ -30,6 +30,7 @@ from pybrid.redac.data import DatExporter
 from pybrid.redac.detect import detect_in_network
 from pybrid.redac.display import TreeDisplay
 from pybrid.redac.dummy import DummyController
+from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.entities import Path, Entity
 from pybrid.redac.monitor import Monitor
 from pybrid.redac.proxy import Proxy
@@ -710,20 +711,23 @@ async def run(obj, op_time, sample_rate: int, ic_time, config_file: str, output,
     controller: REDACController = obj["controller"]
     run_: Run = obj["run"]
 
-    # load config and update to most recent version
-    pb_file = ProtoIO.open_pb_file(config_file)
+    # load config and update to most recent version (if provided)
+    if config_file is not None:
+        pb_file = ProtoIO.open_pb_file(config_file)
 
-    # depending on the type of the device we're targeting, different address
-    # schemes are used:
-    # - REDAC (via supercontroller): use virtual addresses
-    # - LUCIDAC (direct): use hardware MAC address
-    # Any loaded  at this point MUST use virtual addresses for portability.
-    # For LUCIDACs, we therefore need to map the virtual address to the
-    # (single) hardware carrier 
-    if not use_virtual_macs and not Addressing.has_physical_addresses(pb_file):
-        pb_file = Addressing.virtual_to_physical(controller.computer, pb_file)
+        # depending on the type of the device we're targeting, different address
+        # schemes are used:
+        # - REDAC (via supercontroller): use virtual addresses
+        # - LUCIDAC (direct): use hardware MAC address
+        # Any loaded  at this point MUST use virtual addresses for portability.
+        # For LUCIDACs, we therefore need to map the virtual address to the
+        # (single) hardware carrier
+        if not use_virtual_macs and not Addressing.has_physical_addresses(pb_file):
+            pb_file = Addressing.virtual_to_physical(controller.computer, pb_file)
 
-    await controller.forward_set_config(pb.ConfigCommand(bundle=pb_file.bundle))
+        await controller.forward_set_config(pb.ConfigCommand(bundle=pb_file.bundle))
+    else:
+        logger.warning("NO config file provided, device will replay the last configuration...")
 
     # If the run in the context object is already done, we need a new one
     if run_.state.is_done():
@@ -932,6 +936,59 @@ async def detect(obj):
     for (host, port, name) in await detect_in_network(ip_network("0.0.0.0/0")):
         print(f"{host:15}:{port:4} {name}")
 
+
+@cli.command()
+@click.option(
+    "--host",
+    "-h",
+    type=str,
+    default="0.0.0.0",
+    show_default=True,
+    help="Host address to bind the DummyDAC server to.",
+)
+@click.option(
+    "--port",
+    "-p",
+    type=int,
+    default=5732,
+    show_default=True,
+    help="Port to bind the DummyDAC server to.",
+)
+@click.option(
+    "--virtual/--physical",
+    default=True,
+    show_default=True,
+    help="Use virtual MACs (00-00-00-00-00-XX) or random physical MACs.",
+)
+async def dummy(host: str, port: int, virtual: bool):
+    """
+    Start a DummyDAC mock server for testing purposes.
+
+    The DummyDAC simulates REDAC hardware and can be used for testing
+    without physical hardware. It responds to the same protocol as
+    real hardware.
+
+    Example usage:
+
+        pybrid dummy -h 0.0.0.0 -p 5732
+        pybrid dummy --physical  # Use random MAC addresses
+    """
+    mac_mode = DummyDACMacMode.VIRTUAL if virtual else DummyDACMacMode.PHYSICAL
+    config = DummyDACConfig(mac_mode=mac_mode)
+
+    addr_method = "virtual" if virtual else "physical"
+    click.echo(f"Starting DummyDAC server on {host}:{port} using {addr_method} addressing...")
+    click.echo("Press Ctrl+C to stop.")
+
+    async with DummyDAC(host, port, config) as server:
+        # Keep the server running until interrupted
+        try:
+            while True:
+                await asyncio.sleep(1)
+        except (KeyboardInterrupt, asyncio.CancelledError):
+            click.echo("\nShutting down DummyDAC server...")
+
+
 ###
 # add all commands in this file to both groups (LUCIDAC, REDAC)
 ###
@@ -946,7 +1003,7 @@ for name, obj in inspect.getmembers(current_module):
             continue
 
         # Skip top-level commands (already registered with cli group)
-        if name in ['detect']:
+        if name in ['detect', 'dummy']:
             continue
 
         # Add the command to both groups

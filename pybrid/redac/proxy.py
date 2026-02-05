@@ -16,6 +16,7 @@ import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.base.transport import PassthroughTransport
 from pybrid.redac import Controller, Path, Protocol, RunState, Run, RunConfig, DAQConfig
+from pybrid.redac.protocol.protocol import get_message_kind
 from pybrid.redac.controller import DistributedRunState
 from pybrid.redac.partitioning import PartitionConfig
 from pybrid.redac.port import get_free_udp_port
@@ -239,9 +240,20 @@ class Proxy:
             response_setup.configs.extend(bundle.configs)
         return pb.ExtractResponse(bundle=response_setup)
 
-    def _foreach_protocol(self, fn):
+    async def _foreach_protocol(self, fn):
+        """
+        Execute a function on all protocols and check responses for errors.
+
+        :param fn: Function to call on each protocol.
+        :return: List of responses from all protocols.
+        :raises: Returns first error_message if any protocol returns an error.
+        """
         forwards = (fn(target) for target in self.controller.protocols.keys())
-        return asyncio.gather(*forwards)
+        results = await asyncio.gather(*forwards)
+        for result in results:
+            if get_message_kind(result) == "error_message":
+                return result.error_message
+        return results
 
     async def handle_set_config(self, msg: pb.ConfigCommand, protocol: Protocol):
         logger.debug("Handling %s", type(msg))
@@ -294,6 +306,9 @@ class Proxy:
 
         forwards = (Protocol.send_body_and_wait_response.__get__(protocol, protocol.__class__)(cmd=protocol2cmd[protocol]) for protocol in self.controller.protocols)
         results = await asyncio.gather(*forwards)
+        for result in results:
+            if get_message_kind(result) == "error_message":
+                return result.error_message
         return pb.ConfigResponse()
 
     async def monitor_run_state(self, run_state: DistributedRunState, protocol: Protocol):

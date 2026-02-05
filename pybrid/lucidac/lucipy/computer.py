@@ -16,16 +16,7 @@ from pybrid.lucidac.lucipy.circuits import *
 from pybrid.redac import DAQConfig, RunConfig, Run
 from pybrid.redac.detect import detect_in_network
 
-logging.basicConfig(level=40)
-formatter = logging.Formatter(fmt="{asctime} | {levelname} | {module} | {message}",
-                              style="{",
-                              datefmt="%Y-%m-%d %H:%M:%S")
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
-logger.parent.handlers = []
-logger.addHandler(console_handler)
-logger.setLevel(level=20)
 
 class LUCIDACWrapper:
     """

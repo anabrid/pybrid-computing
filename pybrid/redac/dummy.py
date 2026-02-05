@@ -5,6 +5,7 @@
 import logging
 import math
 import typing
+import warnings
 from uuid import UUID
 
 from google.protobuf.json_format import MessageToJson
@@ -211,10 +212,24 @@ def get_dummy_computer():
 
 
 class DummyController:
+    """
+    Deprecated controller for testing purposes.
+
+    .. deprecated::
+        Use :class:`pybrid.mock.DummyDAC` instead for more comprehensive
+        testing capabilities including error injection and run simulation.
+    """
+
     computer: REDAC
     runs: dict[UUID, Run]
 
     def __init__(self):
+        """Initialize the DummyController with a deprecation warning."""
+        warnings.warn(
+            "DummyController is deprecated. Use pybrid.mock.DummyDAC instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         self.computer = get_dummy_computer()
         self.runs = dict()
 
