@@ -38,6 +38,7 @@ class Controller(REDACController):
         self.runs = dict()
         self._raw_entity_dict = dict()
         self._ongoing_runs = dict()
+        self._clusters_per_carrier = dict()
 
         self.sync = None
         self.standalone = standalone

@@ -283,7 +283,7 @@ class REDACDeserializer(Deserializer):
         """Deserialize switch configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity = self.computer.get_entity(entity_path)
-
+        
         muxes = []
         for mux in config.muxes:
             if mux.HasField('state'):

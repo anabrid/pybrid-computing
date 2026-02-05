@@ -35,9 +35,12 @@ def find_first(lst, condition):
 
 def get_message_kind(msg: pb.MessageV1) -> str | None :
     try:
-        return msg.WhichOneof("kind")
-    except:
-        logger.warning("No message type present.")
+        kind = msg.WhichOneof("kind")
+        if kind is None:
+            logger.warning("No message type present in MessageV1: id=%s", msg.id)
+        return kind
+    except Exception as e:
+        logger.warning("Error getting message kind: %s (message: %s)", e, msg)
         return None
 
 class Protocol(BaseProtocol):
@@ -55,6 +58,7 @@ class Protocol(BaseProtocol):
         self.ctrl_receiver = Receiver(ctrl_transport, lambda msg: self.process(msg))
         self._expected_responses: dict[UUID, asyncio.futures.Future] = dict()
         self._callbacks: dict[int, tuple[Callable, list, dict]] = dict()
+        self._warned_unknown_message_types: set[str] = set()
 
     def get_remote_address(self):
         return self.remote_address
@@ -201,7 +205,9 @@ class Protocol(BaseProtocol):
 
 
         if field.number not in self._callbacks:
-            logger.warning("No callback registered for incoming message of type %s.", kind)
+            if kind not in self._warned_unknown_message_types:
+                self._warned_unknown_message_types.add(kind)
+                logger.warning("No callback registered for incoming message of type %s.", kind)
             return None
 
         callback, extra_args, extra_kwargs = self._callbacks[field.number]

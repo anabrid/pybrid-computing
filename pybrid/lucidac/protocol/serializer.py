@@ -67,8 +67,10 @@ class LUCIDACDeserializer(REDACDeserializer):
         super().__init__(computer)
 
     @REDACDeserializer._deserialize.register
-    def _(self, entity, config: pb.FrontPanelConfig):
+    def _(self, config: pb.FrontPanelConfig):
         """Deserialize front panel LED configuration and apply to FrontPanel."""
+        entity_path = Path.parse(self._current_full_config.entity.path)
+        entity = self.computer.get_entity(entity_path)
         entity.leds = config.leds
 
     @REDACDeserializer._deserialize.register
