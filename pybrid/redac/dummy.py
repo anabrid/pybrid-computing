@@ -54,13 +54,13 @@ def get_dummy_computer():
             "type": 1,
             "variant": 1,
             "version": [1, 0, 0],
-            "eui": "00-00-00-00-00-00-00-00",
+            "eui": "00-00-00-00-00-00-00",
             "/0": {
                 "class": 2,
                 "type": 1,
                 "variant": 1,
                 "version": [1, 0, 0],
-                "eui": "00-00-00-00-00-00-00-00",
+                "eui": "00-00-00-00-00-00-00",
                 "/M0": {
                     "class": 3,
                     "type": 1,
@@ -131,13 +131,13 @@ def get_dummy_computer():
             "type": 1,
             "variant": 1,
             "version": [1, 0, 0],
-            "eui": "00-00-00-00-00-00-00-00",
+            "eui": "00-00-00-00-00-00-00",
             "/0": {
                 "class": 2,
                 "type": 1,
                 "variant": 1,
                 "version": [1, 0, 0],
-                "eui": "00-00-00-00-00-00-00-00",
+                "eui": "00-00-00-00-00-00-00",
                 "/M0": {
                     "class": 3,
                     "type": 1,
@@ -261,7 +261,7 @@ class DummyController:
         self.log_action("hack", *args, **kwargs)
 
     async def get_computer(self, *args, **kwargs) -> REDAC:
-        self.log_action("hack", *args, **kwargs)
+        self.log_action("get_computer", *args, **kwargs)
         return self.computer
 
     async def set_computer(self, *args, **kwargs):

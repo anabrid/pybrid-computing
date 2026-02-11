@@ -8,7 +8,7 @@ from json import JSONEncoder as BuiltinJSONEncoder
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.computer import REDAC
-from pybrid.base.utils.addressing import Addressing
+from pybrid.base.utils.addressing import Addressing, AddressingMap
 from pybrid.base.proto.io import ProtoVersioning
 
 from pybrid.redac.carrier import ADCChannel, Carrier
@@ -60,7 +60,7 @@ class LegacyConfigJSONParser:
         # check if source config and computer use virtual mappings
         source_uses_virtual = True
         for carrier_id, carrier_config in config.items():
-            source_uses_virtual = source_uses_virtual and (carrier_id in Addressing.VIRTUAL_ADRESSES)
+            source_uses_virtual = source_uses_virtual and (not Addressing.is_physical_mac(carrier_id))
 
         if not source_uses_virtual:
             raise Exception("Unable to map legacy JSON using physical addresses!")
@@ -68,7 +68,7 @@ class LegacyConfigJSONParser:
         computer_uses_virtual = True
         for carrier in computer.entities:
             mac = carrier.path.to_mac()
-            computer_uses_virtual = computer_uses_virtual and (mac in Addressing.VIRTUAL_ADRESSES)
+            computer_uses_virtual = computer_uses_virtual and (not Addressing.is_physical_mac(mac))
 
         if not computer_uses_virtual:
             logger.warning("Computer uses physical addresses; virtual addresses from config are mapped heuristically (LUCIDAC users can ignore this warning)")
@@ -85,7 +85,7 @@ class LegacyConfigJSONParser:
                 # heuristic mapping: use index into the address array and enumerate
                 # the carriers
                 try:
-                    carrier_ix = Addressing.VIRTUAL_ADRESSES.index(carrier_id)
+                    carrier_ix = AddressingMap.index_of_redac(carrier_id)
                     carrier_mapping[carrier_id] = computer.entities[carrier_ix]
                 except:
                     raise Exception(f"Unable to map {carrier_id} heuristically to computer...")
@@ -127,11 +127,11 @@ class LegacyConfigJSONParser:
 
             if "/FP" in carrier_config:
                 from pybrid.redac.entities import Path
-                from pybrid.lucidac.front_panel import FrontPanel, SignalGenerator
+                from pybrid.lucidac.front_plane import FrontPlane, SignalGenerator
 
                 fp_config = carrier_config["/FP"]
-                computer.front_panel.leds=fp_config["leds"]
-                computer.front_panel.signal_generator=SignalGenerator(
+                carrier.front_plane.leds=fp_config["leds"]
+                carrier.front_plane.signal_generator=SignalGenerator(
                     frequency=fp_config["frequency"],
                     phase=fp_config["phase"],
                     wave_form=fp_config["wave_form"],

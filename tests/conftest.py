@@ -330,11 +330,11 @@ def make_test_redac(num_carriers: int = 2):
     from pybrid.redac.cluster import Cluster
     from pybrid.redac.blocks import UBlock, CBlock, IBlock
     from pybrid.redac.entities import Path
-    from pybrid.base.utils.addressing import Addressing
+    from pybrid.base.utils.addressing import AddressingMap
 
     carriers = []
     for i in range(num_carriers):
-        mac = Addressing.VIRTUAL_ADRESSES[i]
+        mac = AddressingMap.map_redac(i)
         carrier_path = Path.parse(mac)
 
         # Create minimal cluster with required blocks
@@ -387,21 +387,6 @@ async def dummy_dac_virtual():
     config = DummyDACConfig(mac_mode=DummyDACMacMode.VIRTUAL)
     async with DummyDAC("127.0.0.1", get_test_port(), config) as dac:
         yield dac
-
-
-@pytest.fixture
-async def controller_with_dummy(dummy_dac_virtual):
-    """
-    Controller connected to DummyDAC.
-
-    Provides a Controller instance that is already connected to a DummyDAC
-    for integration testing without real hardware.
-    """
-    from pybrid.redac.controller import Controller
-
-    async with Controller() as ctrl:
-        await ctrl.add_device("127.0.0.1", dummy_dac_virtual.port)
-        yield ctrl
 
 
 @pytest.fixture

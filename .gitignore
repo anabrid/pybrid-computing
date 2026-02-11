@@ -375,7 +375,7 @@ fabric.properties
 
 # AI Stuff
 CLAUDE.md
-.agent/
+.agent
 .claude
 
 # CI/CD

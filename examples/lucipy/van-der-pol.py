@@ -1,7 +1,7 @@
 # Copyright (c) 2022-2025 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-from pybrid.lucidac.lucipy import Circuit, LUCIDAC, time_series
+from pybrid.lucipy import Circuit, LUCIDAC, time_series
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -15,8 +15,8 @@ eta = 4                                 # Nonlinearity parameter
 
 mdy = vdp.int()                         # Integrators
 y   = vdp.int(ic = 0.1)
-y2  = vdp.mul(1)                        # Multipliers for nonlinear terms
-fb  = vdp.mul(2)
+y2  = vdp.mul()                         # Multipliers for nonlinear terms
+fb  = vdp.mul()
 c   = vdp.const()                       # Constant source
 
 vdp.connect(fb, mdy, weight = -eta)
@@ -65,10 +65,10 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-for adc_key, values in run.data.items():
-    x = time_series(sample_rate, len(values))
-    plt.plot(x, values, label=adc_key[-1])
-plt.xlabel("time / s")
-plt.legend()
-plt.grid()
+samples = list(run.data.values())
+
+ax = plt.figure().add_subplot()
+ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
 plt.show()

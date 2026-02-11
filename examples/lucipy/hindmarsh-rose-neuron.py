@@ -10,7 +10,7 @@ Reference: Analog Paradigm Application Note 28
 https://analogparadigm.com/downloads/alpaca_28.pdf
 """
 
-from pybrid.lucidac.lucipy import Circuit, LUCIDAC, time_series
+from pybrid.lucipy import Circuit, LUCIDAC, time_series
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -24,8 +24,8 @@ hr      = Circuit()                     # Create a circuit
 x   = hr.int(ic = +1.)                  # Integrators with initial conditions
 y   = hr.int(ic = -1.)
 z   = hr.int(ic = +1, slow = True)      # Slow dynamics for adaptation
-x2  = hr.mul(1)                         # Multipliers for nonlinear terms
-x3  = hr.mul(2)
+x2  = hr.mul()                         # Multipliers for nonlinear terms
+x3  = hr.mul()
 c   = hr.const()                        # Constant source
 
 hr.connect( x, x2.a)                    # Compute x^2

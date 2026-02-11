@@ -101,13 +101,24 @@ class DummyDAC:
         In VIRTUAL mode, returns fixed MAC addresses for deterministic testing.
         In PHYSICAL mode, returns fixed but realistic-looking MAC addresses.
 
-        :return: List of two MAC addresses in XX-XX-XX-XX-XX-XX format.
+        In LUCIDAC mode, returns only one MAC address (single carrier).
+        In REDAC mode (default), returns two MAC addresses (two carriers).
+
+        :return: List of MAC addresses in XX-XX-XX-XX-XX-XX format.
         """
-        if self.config.mac_mode == DummyDACMacMode.VIRTUAL:
-            return ["00-00-00-00-00-00", "00-00-00-00-00-01"]
+        if self.config.lucidac_mode:
+            # LUCIDAC has only one carrier
+            if self.config.mac_mode == DummyDACMacMode.VIRTUAL:
+                return ["00-00-00-00-00-00"]
+            else:
+                return ["AB-CD-EF-12-34-56"]
         else:
-            # Fixed MAC addresses for deterministic behavior
-            return ["AB-CD-EF-12-34-56", "AB-CD-EF-12-34-57"]
+            # REDAC has two carriers
+            if self.config.mac_mode == DummyDACMacMode.VIRTUAL:
+                return ["00-00-00-00-00-00", "00-00-00-00-00-01"]
+            else:
+                # Fixed MAC addresses for deterministic behavior
+                return ["AB-CD-EF-12-34-56", "AB-CD-EF-12-34-57"]
 
     def _dict_to_pb_entity(self, id_: str, data: dict) -> pb.Entity:
         """
@@ -146,11 +157,19 @@ class DummyDAC:
 
         Creates a root entity containing carrier entities for each MAC address
         in self._carrier_macs. Each carrier has a cluster with M0, M1, U, C, I, SH
-        blocks, plus T and CTRL entities. FP is intentionally excluded.
+        blocks, plus T and CTRL entities.
+
+        In LUCIDAC mode, also includes a FrontPanel entity (id="FP", class_=UNKNOWN).
+        In REDAC mode (default), FP is intentionally excluded.
 
         :return: A protobuf Entity representing the root with all carriers.
         """
-        root = pb.Entity(id="", class_=pb.Entity.DEVICE)
+        # Use the first carrier MAC as root entity ID so that each
+        # DummyDAC instance has a unique entity ID when multiple
+        # instances are connected to the same controller.  This
+        # mirrors real hardware where the entity ID is the device MAC.
+        root_id = f"/{self._carrier_macs[0]}" if self._carrier_macs else ""
+        root = pb.Entity(id=root_id, class_=pb.Entity.DEVICE)
 
         for mac in self._carrier_macs:
             carrier_dict = {
@@ -158,13 +177,13 @@ class DummyDAC:
                 "type": 1,
                 "variant": 1,
                 "version": [1, 0, 0],
-                "eui": "00-00-00-00-00-00-00-00",
+                "eui": "00-00-00-00-00-00-00",
                 "/0": {
                     "class": 2,  # CLUSTER
                     "type": 1,
                     "variant": 1,
                     "version": [1, 0, 0],
-                    "eui": "00-00-00-00-00-00-00-00",
+                    "eui": "00-00-00-00-00-00-00",
                     "/M0": {
                         "class": 3,
                         "type": 1,
@@ -208,13 +227,6 @@ class DummyDAC:
                         "eui": "00-04-A3-0B-00-16-94-9F",
                     },
                 },
-                "/T": {
-                    "class": 10,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-04-A3-0B-00-16-7E-10",
-                },
                 "/CTRL": {
                     "class": 9,
                     "type": 1,
@@ -222,8 +234,28 @@ class DummyDAC:
                     "version": [1, 0, 0],
                     "eui": "00-04-A3-0B-00-16-7E-05",
                 },
-                # FP is intentionally excluded
             }
+
+            # Add T-block only in REDAC mode (LUCIDAC doesn't have T-block)
+            if not self.config.lucidac_mode:
+                carrier_dict["/T"] = {
+                    "class": 10,
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-04-A3-0B-00-16-7E-10",
+                }
+
+            # Add FrontPanel entity in LUCIDAC mode
+            if self.config.lucidac_mode:
+                carrier_dict["/FP"] = {
+                    "class": 0,  # UNKNOWN (as per firmware behavior)
+                    "type": 1,
+                    "variant": 1,
+                    "version": [1, 0, 0],
+                    "eui": "00-00-00-00-00-00-00",
+                }
+
             carrier_entity = self._dict_to_pb_entity(f"/{mac}", carrier_dict)
             root.children.append(carrier_entity)
 

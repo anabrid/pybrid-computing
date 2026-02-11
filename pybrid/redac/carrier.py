@@ -2,15 +2,20 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+from __future__ import annotations
+
 import logging
 import string
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.redac.blocks import TBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.entities import Entity, Path, EntityType, EntityClass
+
+if TYPE_CHECKING:
+    from pybrid.lucidac.front_plane import FrontPlane
 
 logger = logging.getLogger(__name__)
 import pybrid.base.proto.main_pb2 as pb
@@ -44,9 +49,14 @@ class Carrier(Entity):
 
     #: List of clusters on the carrier board.
     clusters: list[Cluster]
-    tblock: TBlock
+
+    #: T-block for REDAC carriers. Optional because LUCIDAC doesn't have T-block.
+    tblock: Optional[TBlock] = None
     st0block: Optional[TBlock] = None
     st1block: Optional[TBlock] = None
+
+    #: Optional front plane, currently only available on LUCIDAC carriers.
+    front_plane: Optional[FrontPlane] = None
 
     @property
     def children(self):
@@ -58,6 +68,8 @@ class Carrier(Entity):
             yield self.st0block
         if self.st1block:
             yield self.st1block
+        if self.front_plane:
+            yield self.front_plane
 
     @classmethod
     def create_from_entity_type_tree(cls, path, tree: pb.Entity):
@@ -71,6 +83,9 @@ class Carrier(Entity):
         tblock = None
         st0block = None
         st1block = None
+        front_plane = None
+        acl_select = None
+
         for child in tree.children:
             #sub_path, sub_tree
             path_: Path = path / Path.parse(child.id)
@@ -87,12 +102,20 @@ class Carrier(Entity):
             if path_.id_ == "ST1":
                 st1block = TBlock.create_from_entity_type_tree(path_, child)
                 continue
+            if path_.id_ == "FP":
+                # Firmware reports FP with class_=UNKNOWN(0), so detect by name.
+                from pybrid.lucidac.front_plane import FrontPlane as FP
+                front_plane = FP(path_)
+
+                acl_select = 8 * ["INTERNAL"]
+                continue
             if path_.id_ in string.digits:
                 cluster = Cluster.create_from_entity_type_tree(path_, child)
                 clusters.append(cluster)
                 continue
 
-        return cls(path=path, clusters=clusters, tblock=tblock, st0block=st0block, st1block=st1block)
+        return cls(path=path, clusters=clusters, tblock=tblock, st0block=st0block,
+            st1block=st1block, front_plane=front_plane, acl_select=acl_select)
 
     def resolve_signal(self, entity: "Entity"):
         # TODO: This should be extended to a general approach to defining inputs and outputs of elements
@@ -108,7 +131,19 @@ class Carrier(Entity):
         element_idx = int(entity.path.id_)
         return cluster_idx * 16 + m_slot * 8 + element_idx
 
+    @property
+    def front_panel(self):
+        """Deprecated: use front_plane instead."""
+        import warnings
+        warnings.warn(
+            "Carrier.front_panel is deprecated, use Carrier.front_plane",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.front_plane
+
     def reset(self):
+        """Reset the carrier to its initial configuration."""
         Entity.reset(self)
         self.adc_config = []
         self.acl_select = None

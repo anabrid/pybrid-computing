@@ -10,7 +10,7 @@ Reference: Analog Paradigm Application Note 33
 https://analogparadigm.com/downloads/alpaca_33.pdf
 """
 
-from pybrid.lucidac.lucipy import Circuit, LUCIDAC
+from pybrid.lucipy import Circuit, LUCIDAC
 import matplotlib.pyplot as plt
 import numpy as np
 

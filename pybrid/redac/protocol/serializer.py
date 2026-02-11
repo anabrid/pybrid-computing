@@ -80,13 +80,14 @@ class REDACSerializer(Serializer):
         if len(adc_config.channels) == 0:
             self.cc.pop_config()
 
-        # TODO: once the new firmware  - which ignores ACL_SELECT if not on the Carrier -
-        # is deployed, you can pull the acl_select part back up from the
-        # child classes
-
         # need to send "global" ACL_SELECT value to first carrier
         if entity.acl_select:
-            logger.warning("Trying to set ACL_SELECT for REDAC, which is currently not supported, skipping...")
+            acl_config = self.cc.new_config(entity).port_config
+            acl_select = acl_config.states
+
+            for interface in entity.acl_select:
+                acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
+                    interface.lower() == "external" else pb.PortConfig.AclState.INTERNAL)
 
     @Serializer._serialize.register
     def _(self, entity: CBlock):

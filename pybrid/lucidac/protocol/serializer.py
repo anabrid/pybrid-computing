@@ -2,11 +2,9 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from pybrid.base.hybrid.serializer import Serializer
 from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
-from pybrid.lucidac.front_panel import FrontPanel, SignalGenerator
-from pybrid.redac.entities import Entity, Path
-from pybrid.redac.carrier import Carrier
+from pybrid.lucidac.front_plane import FrontPlane, SignalGenerator
+from pybrid.redac.entities import Path
 from pybrid.base.proto import main_pb2 as pb
 
 class LUCIDACSerializer(REDACSerializer):
@@ -14,33 +12,8 @@ class LUCIDACSerializer(REDACSerializer):
     def __init__(self):
         super().__init__()
 
-    @Serializer._serialize.register
-    def _(self, entity: Carrier):
-        # handle here until REDAC is ready
-        adc_config = self.cc.new_config(entity).adc_config
-        adc_channels = adc_config.channels
-
-        for adc_channel in entity.adc_config:
-            if adc_channel is not None:
-                pb_adc_channel = adc_channels.add()
-                pb_adc_channel.idx = adc_channel.index
-                pb_adc_channel.gain = adc_channel.gain
-                pb_adc_channel.offset = adc_channel.offset
-
-        if len(adc_config.channels) == 0:
-            self.cc.pop_config()
-
-        # need to send "global" ACL_SELECT value to first carrier
-        if entity.acl_select:
-            acl_config = self.cc.new_config(entity).port_config
-            acl_select = acl_config.states
-
-            for interface in entity.acl_select:
-                acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
-                    interface == "external" else pb.PortConfig.AclState.INTERNAL)
-
     @REDACSerializer._serialize.register
-    def _(self, entity: FrontPanel):
+    def _(self, entity: FrontPlane):
         fp_config = self.cc.new_config(entity).front_panel_config
         fp_config.leds = entity.leds
 

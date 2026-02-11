@@ -34,6 +34,9 @@ def find_first(lst, condition):
     return next(filter(condition, lst), None)
 
 def get_message_kind(msg: pb.MessageV1) -> str | None :
+    if msg is None:
+        return None
+    
     try:
         kind = msg.WhichOneof("kind")
         if kind is None:

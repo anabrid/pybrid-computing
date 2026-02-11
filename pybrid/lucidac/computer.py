@@ -1,67 +1,57 @@
 # Copyright (c) 2025 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-from typing import List, Optional
 
-import pybrid.base.proto.main_pb2 as pb
-from pybrid.redac.entities import Entity, Path
+"""
+LUCIStack device model.
+
+A ``LUCIStack`` is a stack of one or more LUCIDAC carrier boards.
+It extends the REDAC base class with LUCIDAC-specific serialization.
+
+The convenience property ``front_panel`` has been removed; access the
+front plane via ``lucistack.entities[0].front_plane`` instead.
+
+Backward-compatible alias: ``LUCIDAC = LUCIStack``.
+"""
+
+from __future__ import annotations
+
+from typing import List
+
+from pybrid.redac.entities import Entity
 from pybrid.redac.computer import REDAC
-from pybrid.lucidac.front_panel import FrontPanel
 from pybrid.lucidac.protocol.serializer import LUCIDACSerializer, LUCIDACDeserializer
 
-class LUCIDAC(REDAC):
+
+class LUCIStack(REDAC):
     """
-    This is the LUCIDAC class that carries the Hybrid Controller as well as the configurations for the Lucidac.
-    The :method: run() is used to initiate connection to the device and start a run with the configured circuit.
+    Device model for a LUCIDAC stack (one or more LUCIDAC carriers).
 
-    Mostly, the difference between a REDAC and a LUCIDAC is that the LUCIDAC is not virtualized to
-    use virtual entity IDs such as '00-00-00-00-00-00' but physical MACs such as '04-E9-E5-15-87-A0' - and of
-    course that there is just one carrier and one cluster on that carrier.
+    The difference between a REDAC and a LUCIStack is that the LUCIStack
+    uses physical MACs rather than virtual entity IDs, and typically
+    contains a single carrier with a single cluster plus a front plane.
 
-    Consequently, the REDAC protocol can be simplified dramatically by removing, e.g., SYNCs. In its essence,
-    the LUCIDAC is its own proxy
+    The REDAC protocol can be simplified by removing SYNCs when there
+    is only one carrier.
     """
-
-    #: models the (currently) LUCIDAC-exclusive front panel with signal generators and LEDs
-    front_panel: FrontPanel
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Create front panel with path based on first carrier, or use default virtual MAC
-        if self.entities:
-            fp_path = self.entities[0].path / "FP"
-        else:
-            fp_path = Path(("00-00-00-00-00-00", "FP"))
-        self.front_panel = FrontPanel(fp_path)
-        # Register front panel in entity lookup
-        self._entities_by_path[self.front_panel.path] = self.front_panel
 
     @property
     def name(self) -> str:
-        return "LUCIDAC"
-    
+        """Return the human-readable device model name."""
+        return "LUCIStack"
+
     def get_config_entities(self) -> List[Entity]:
-        """
-        See :func:`AnalogComputer.get_config_entities`.
-        """
-        return [*self.entities, self.front_panel]
-    
-    def global_entities(self) -> List[Entity]:
-        """
-        See :func:`AnalogComputer.global_entities`.
-        """
-        return [self.front_panel]
+        """Return the list of top-level entities to serialize."""
+        return list(self.entities)
 
     def get_serializer_implementation(self) -> type:
-        """
-        See :func:`AnalogComputer.get_serializer_implementation`.
-        """
+        """Return the LUCIDAC-specific serializer class."""
         return LUCIDACSerializer
-    
+
     def get_deserializer_implementation(self) -> type:
-        """
-        See :func:`AnalogComputer.get_deserializer_implementation`.
-        """
+        """Return the LUCIDAC-specific deserializer class."""
         return LUCIDACDeserializer
-    
-    
+
+
+# Backward-compatible alias
+LUCIDAC = LUCIStack
