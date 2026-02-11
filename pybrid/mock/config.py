@@ -62,3 +62,6 @@ class DummyDACConfig:
     error_stage: DummyDACErrorStage = DummyDACErrorStage.NONE
     #: Custom error message to return when error is injected.
     error_message: typing.Optional[str] = None
+    #: When True, emulate a LUCIDAC with single carrier and FrontPanel.
+    #: When False (default), emulate a REDAC with two carriers and no FrontPanel.
+    lucidac_mode: bool = False

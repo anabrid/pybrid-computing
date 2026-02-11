@@ -1,7 +1,7 @@
 # Copyright (c) 2022-2025 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-from pybrid.lucidac.lucipy import Circuit, LUCIDAC, time_series
+from pybrid.lucipy import Circuit, LUCIDAC, time_series
 import matplotlib.pyplot as plt
 import numpy as np
 

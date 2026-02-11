@@ -12,7 +12,7 @@ error handling for various edge cases.
 import pytest
 
 from pybrid.base.utils.json import LegacyConfigJSONParser
-from pybrid.base.utils.addressing import Addressing
+from pybrid.base.utils.addressing import AddressingMap
 from pybrid.redac.computer import REDAC
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.cluster import Cluster
@@ -40,7 +40,7 @@ def make_test_redac_with_mblock(num_carriers: int = 1):
     """
     carriers = []
     for i in range(num_carriers):
-        mac = Addressing.VIRTUAL_ADRESSES[i]
+        mac = AddressingMap.map_redac(i)
         carrier_path = Path.parse(mac)
 
         cluster_path = carrier_path / "0"
@@ -79,7 +79,7 @@ class TestExtractCarrier:
         extract_carrier can locate it correctly.
         """
         computer = make_test_redac_with_mblock(num_carriers=2)
-        carrier_id = Addressing.VIRTUAL_ADRESSES[0]
+        carrier_id = AddressingMap.map_redac(0)
 
         result = LegacyConfigJSONParser.extract_carrier(computer, carrier_id)
 
@@ -191,7 +191,7 @@ class TestParseAddressing:
         computer = make_test_redac_with_mblock(num_carriers=1)
 
         # Verify the computer uses virtual addresses
-        assert computer.carriers[0].path.to_mac() == Addressing.VIRTUAL_ADRESSES[0]
+        assert computer.carriers[0].path.to_mac() == AddressingMap.map_redac(0)
 
         # Parsing should succeed without errors
         result = LegacyConfigJSONParser.parse(harmonic_config, computer)

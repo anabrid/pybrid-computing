@@ -10,7 +10,7 @@ import os
 import sys
 import typing
 from ipaddress import ip_network
-from typing import TextIO
+from typing import TextIO, Callable
 
 import asyncclick as click
 from asyncclick import Choice
@@ -37,7 +37,7 @@ from pybrid.redac.proxy import Proxy
 from pybrid.redac.run import Run, RunState, RunError
 from pybrid.sim.controller import Controller as SimController
 from pybrid.base.proto.io import ProtoIO
-from pybrid.base.utils.addressing import Addressing
+from pybrid.base.utils.addressing import Addressing, AddressingMap
 
 # controls logging verbosity - use for debugging
 # logging.basicConfig(level=logging.INFO)
@@ -144,7 +144,7 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fa
     run_class = controller.get_run_implementation()
     ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
-    ctx.obj["use_virtual_macs"] = True
+    ctx.obj["virtual_address_map"] = AddressingMap.map_redac
 
 @cli.group()
 @click.pass_context
@@ -192,7 +192,7 @@ async def sim(ctx: click.Context, host: str, port: int):
     run_class = controller.get_run_implementation()
     ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
-    ctx.obj["use_virtual_macs"] = True
+    ctx.obj["virtual_address_map"] = AddressingMap.map_redac
 
 ###
 # LUCIDAC initialization
@@ -231,7 +231,7 @@ async def sim(ctx: click.Context, host: str, port: int):
     show_default=True,
     help="Whether to fake any communication, allowing you to run without any computer present.",
 )
-async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool, standalone: bool = True):
+async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, fake: bool):
     """
     Entrypoint for all LUCIDAC commands.
 
@@ -264,13 +264,10 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, 
             logger.info("Found network devices at %s.", devices)
 
         # Generate a controller and add devices
-        controller = LUCIDACController(standalone=standalone)
+        controller = LUCIDACController(standalone=True)
 
-        if len(devices) > 1:
-            logger.warning("Multiple LUCIDACs found, using the first one - use options -h and -p to select a specific LUCIDAC.")
-
-        host, port, name = devices[0]
-        await controller.add_device(host, port, name=name)
+        for host, port, device in devices:
+            await controller.add_device(host, port, name=device)
 
         if reset:
             await controller.reset()
@@ -289,7 +286,7 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool, 
     run_class = controller.get_run_implementation()
     ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
-    ctx.obj["use_virtual_macs"] = False
+    ctx.obj["virtual_address_map"] = AddressingMap.map_lucistack
 
 @click.command()
 @click.pass_obj
@@ -707,7 +704,7 @@ async def run(obj, op_time, sample_rate: int, ic_time, config_file: str, output,
     Start a run (computation) and wait until it is complete. Wires the configuration
     to the device in RAW form, i.e. the user is responsible for its correctness.
     """
-    use_virtual_macs : bool = obj["use_virtual_macs"]
+    address_map : Callable = obj["virtual_address_map"]
     controller: REDACController = obj["controller"]
     run_: Run = obj["run"]
 
@@ -715,15 +712,23 @@ async def run(obj, op_time, sample_rate: int, ic_time, config_file: str, output,
     if config_file is not None:
         pb_file = ProtoIO.open_pb_file(config_file)
 
-        # depending on the type of the device we're targeting, different address
-        # schemes are used:
-        # - REDAC (via supercontroller): use virtual addresses
-        # - LUCIDAC (direct): use hardware MAC address
-        # Any loaded  at this point MUST use virtual addresses for portability.
-        # For LUCIDACs, we therefore need to map the virtual address to the
-        # (single) hardware carrier
-        if not use_virtual_macs and not Addressing.has_physical_addresses(pb_file):
-            pb_file = Addressing.virtual_to_physical(controller.computer, pb_file)
+        # we assume that every loaded file (most likely from the compiler) has
+        # only virtual addresses
+        if Addressing.has_physical_addresses(pb_file):
+            raise Exception("Unable to run with physical addresses - config files should be portabley generated via redacc!")
+
+        # no check if the controller has any physical addresses - if it has,
+        # we should map virtual to physical addresses, e.g. in the case of directly
+        # interacting with LUCIDACs
+        device_has_physical_macs = [Addressing.is_physical_mac(c.path.to_carrier().to_mac()) \
+            for c in controller.computer.carriers]
+        
+        if any(device_has_physical_macs) and not all(device_has_physical_macs):
+            raise Exception("Mixing proxied and direct connections to LUCIDAC - pleae select only one mode.")
+
+        if all(device_has_physical_macs):
+            pb_file = Addressing.virtual_to_physical(controller.computer, pb_file, address_map)
+            was_mapped = True
 
         await controller.forward_set_config(pb.ConfigCommand(bundle=pb_file.bundle))
     else:
@@ -905,8 +910,7 @@ async def convert(obj, input_file: typing.TextIO, output: tuple[str]):
     if ProtoIO.json_is_pb_file(config_json):
         raise Exception("convert() expects legacy-style JSON config files as input.")
     else:
-        use_virtual_macs : bool = obj["use_virtual_macs"]
-        pb_file = LegacyConfigJSONParser.parse(config_json, controller.computer, use_virtual_macs)
+        pb_file = LegacyConfigJSONParser.parse(config_json, controller.computer, True)
 
         # Write to each output file based on extension
         for output_path in output:

@@ -16,7 +16,7 @@ from pybrid.redac.carrier import Carrier, ADCChannel
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
 from pybrid.redac.entities import Path
-from pybrid.base.utils.addressing import Addressing
+from pybrid.base.utils.addressing import AddressingMap
 
 
 # =============================================================================
@@ -36,7 +36,7 @@ def make_test_redac_with_mblock(num_carriers: int = 1):
     """
     carriers = []
     for i in range(num_carriers):
-        mac = Addressing.VIRTUAL_ADRESSES[i]
+        mac = AddressingMap.map_redac(i)
         carrier_path = Path.parse(mac)
 
         cluster_path = carrier_path / "0"
@@ -68,7 +68,7 @@ def make_test_lucidac():
     """
     from pybrid.lucidac.computer import LUCIDAC
 
-    mac = Addressing.VIRTUAL_ADRESSES[0]
+    mac = AddressingMap.map_redac(0)
     carrier_path = Path.parse(mac)
 
     cluster_path = carrier_path / "0"
@@ -99,7 +99,7 @@ def make_test_simulator():
     """
     from pybrid.sim.computer import Simulator
 
-    mac = Addressing.VIRTUAL_ADRESSES[0]
+    mac = AddressingMap.map_redac(0)
     carrier_path = Path.parse(mac)
 
     cluster_path = carrier_path / "0"
@@ -145,7 +145,7 @@ def serialize_roundtrip(computer):
     # Create a fresh computer with the same structure
     if computer.name == "REDAC":
         fresh_computer = make_test_redac_with_mblock(len(computer.carriers))
-    elif computer.name == "LUCIDAC":
+    elif computer.name in ("LUCIDAC", "LUCIStack"):
         fresh_computer = make_test_lucidac()
     elif computer.name == "Simulator":
         fresh_computer = make_test_simulator()
@@ -242,7 +242,7 @@ class TestEmptyConfigRoundtrip:
 
     @pytest.mark.parametrize("computer_factory,computer_name", [
         (make_test_redac_with_mblock, "REDAC"),
-        (make_test_lucidac, "LUCIDAC"),
+        (make_test_lucidac, "LUCIStack"),
         (make_test_simulator, "Simulator"),
     ])
     def test_empty_config_roundtrip(self, computer_factory, computer_name):
