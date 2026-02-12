@@ -7,7 +7,7 @@ Lorenz96 with N=4 on a single LUCIDAC device.
 Implements the generalized Lorenz-96 model (cf. Application Note 61,
 https://analogparadigm.com/downloads/alpaca_61.pdf):
 
-    dx_i/dt = A (x_{i+1} - x_{i+2}) x_{i-1} + B x_i + F
+    dx_i/dt = A (x_{i+1} - x_{i-2}) x_{i-1} + B x_i + F
 
 with cyclic indices (mod N) and parameters A, B, F below.
 """
@@ -28,11 +28,11 @@ c0 = l0.const()
 x = [l0.int(slow=slow) for _ in range(N)]
 m = [l0.mul() for _ in range(N)]
 
-# Wire Lorenz-96: dx_i/dt = A*(x_{i+1} - x_{i+2})*x_{i-1} + B*x_i + F
+# Wire Lorenz-96: dx_i/dt = A*(x_{i+1} - x_{i-2})*x_{i-1} + B*x_i + F
 # Integrator outputs are inverted (-x_i), so weight=-1 recovers +x_i.
 for i in range(N):
     l0.connect(x[(i+1) % N], m[i].a, weight=-1.0)  # +x_{i+1}
-    l0.connect(x[(i+2) % N], m[i].a)                # -x_{i+2}
+    l0.connect(x[(i-2) % N], m[i].a)                # -x_{i-2}
     l0.connect(x[(i-1) % N], m[i].b, weight=-1.0)   # +x_{i-1}
     l0.connect(m[i], x[i], weight=A)
     l0.connect(x[i], x[i], weight=B)
