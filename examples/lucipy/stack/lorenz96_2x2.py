@@ -7,7 +7,7 @@ Lorenz96 with N=4 on two analog-coupled LUCIDACs (2 variables each).
 Implements the generalized Lorenz-96 model (cf. Application Note 61,
 https://analogparadigm.com/downloads/alpaca_61.pdf):
 
-    dx_i/dt = A (x_{i+1} - x_{i+2}) x_{i-1} + B x_i + F
+    dx_i/dt = A (x_{i+1} - x_{i-2}) x_{i-1} + B x_i + F
 
 Each LUCIDAC computes two variables (l0: x0, x1; l1: x2, x3) and
 exchanges signals via ACL (analog coupling links). A dedicated identity
@@ -64,7 +64,7 @@ for ix in range(2):
 ###
 # Lorenz-96 equations for all 4 variables
 #
-# dx_i/dt = A (x_{i+1} - x_{i+2}) x_{i-1} + B x_i + F
+# dx_i/dt = A (x_{i+1} - x_{i-2}) x_{i-1} + B x_i + F
 #
 # Local integrator outputs are inverted (-x_i), so weights are negated.
 # ID-path signals carry +x_i (already compensated), so weights match
@@ -72,7 +72,7 @@ for ix in range(2):
 ###
 for i in range(4):
     d = i // 2  # device index
-    ip1, ip2, im1 = (i + 1) % 4, (i + 2) % 4, (i - 1) % 4
+    ip1, im2, im1 = (i + 1) % 4, (i - 2) % 4, (i - 1) % 4
 
     # Signal reference: local uses x[j], remote uses identity path
     def sig(j, d=d):
@@ -83,9 +83,9 @@ for i in range(4):
     def w(j, coeff, d=d):
         return -coeff if j // 2 == d else coeff
 
-    # Multiplier: (x_{i+1} - x_{i+2}) * x_{i-1}
+    # Multiplier: (x_{i+1} - x_{i-2}) * x_{i-1}
     l[d].connect(sig(ip1), m[i].a, weight=w(ip1, 1.0))
-    l[d].connect(sig(ip2), m[i].a, weight=w(ip2, -1.0))
+    l[d].connect(sig(im2), m[i].a, weight=w(im2, -1.0))
     l[d].connect(sig(im1), m[i].b, weight=w(im1, 1.0))
 
     # Integration: dx_i/dt = A * mul_result + B * x_i + F

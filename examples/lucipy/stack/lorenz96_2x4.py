@@ -7,7 +7,7 @@ Lorenz96 with N=8 on two analog-coupled LUCIDACs (4 variables each).
 Implements the generalized Lorenz-96 model (cf. Application Note 61,
 https://analogparadigm.com/downloads/alpaca_61.pdf):
 
-    dx_i/dt = A (x_{i+1} - x_{i+2}) x_{i-1} + B x_i + F
+    dx_i/dt = A (x_{i+1} - x_{i-2}) x_{i-1} + B x_i + F
 
 Each LUCIDAC computes four variables (l0: x0-x3; l1: x4-x7). Cross-device
 signals are exchanged via ACL (analog coupling links). Some outputs are
@@ -24,9 +24,9 @@ import numpy as np
 import random
 
 slow = True
-F = 0.15
-A = 4
-B = 0.45
+F = 0.2
+A = 5
+B = 1
 
 N = 8   # number of Lorenz-96 variables
 K = 4   # variables per device
@@ -40,10 +40,10 @@ for d in range(2):
     m += [l[d].mul() for _ in range(K)]
 
 # ACL port layout per device d (4 ports each):
-#   Port 0: x[K*d]   raw            → sends -x[K*d]
-#   Port 1: x[K*d]   pre-inverted   → sends +x[K*d]
-#   Port 2: x[K*d+1] raw            → sends -x[K*d+1]
-#   Port 3: x[K*d+3] pre-inverted   → sends +x[K*d+3]
+#   Port 0: x[K*d]   pre-inverted   → sends +x[K*d]
+#   Port 1: x[K*d+2] raw            → sends -x[K*d+2]
+#   Port 2: x[K*d+3] pre-inverted   → sends +x[K*d+3]
+#   Port 3: x[K*d+3] raw            → sends -x[K*d+3]
 #
 # Pre-inverted outputs (weight=-1) deliver +x_i to the receiver:
 #   (-1) * (-x_i) = +x_i  (compensates integrator inversion)
@@ -53,26 +53,26 @@ outx = [[l[d].output(port=p) for p in range(K)] for d in range(2)]
 inx = [[l[d].input(port=p) for p in range(K)] for d in range(2)]
 
 for d in range(2):
-    l[d].connect(x[K * d], outx[d][0])                   # raw -x[K*d]
-    l[d].connect(x[K * d], outx[d][1], weight=-1.0)      # pre-inverted +x[K*d]
-    l[d].connect(x[K * d + 1], outx[d][2])               # raw -x[K*d+1]
-    l[d].connect(x[K * d + 3], outx[d][3], weight=-1.0)  # pre-inverted +x[K*d+3]
+    l[d].connect(x[K * d], outx[d][0], weight=-1.0)      # pre-inverted +x[K*d]
+    l[d].connect(x[K * d + 2], outx[d][1])               # raw -x[K*d+2]
+    l[d].connect(x[K * d + 3], outx[d][2], weight=-1.0)  # pre-inverted +x[K*d+3]
+    l[d].connect(x[K * d + 3], outx[d][3])               # raw -x[K*d+3]
 
 # ACL input lookup: maps (signal_index, desired_sign) to input element on
 # device d. The sign indicates what the physical ACL input carries:
-# -1 for raw -x, +1 for pre-inverted +x.
+# +1 for pre-inverted +x, -1 for raw -x.
 acl = [{} for _ in range(2)]
 for d in range(2):
     od = 1 - d
-    acl[d][(K * od, -1)]     = inx[d][0]  # port 0 receives -x[K*od]
-    acl[d][(K * od, +1)]     = inx[d][1]  # port 1 receives +x[K*od]
-    acl[d][(K * od + 1, -1)] = inx[d][2]  # port 2 receives -x[K*od+1]
-    acl[d][(K * od + 3, +1)] = inx[d][3]  # port 3 receives +x[K*od+3]
+    acl[d][(K * od, +1)]     = inx[d][0]  # port 0 receives +x[K*od]
+    acl[d][(K * od + 2, -1)] = inx[d][1]  # port 1 receives -x[K*od+2]
+    acl[d][(K * od + 3, +1)] = inx[d][2]  # port 2 receives +x[K*od+3]
+    acl[d][(K * od + 3, -1)] = inx[d][3]  # port 3 receives -x[K*od+3]
 
 ###
 # Lorenz-96 equations for all 8 variables
 #
-# dx_i/dt = A (x_{i+1} - x_{i+2}) x_{i-1} + B x_i + F
+# dx_i/dt = A (x_{i+1} - x_{i-2}) x_{i-1} + B x_i + F
 #
 # Local integrator outputs are inverted (-x_i), so weights are negated.
 # Pre-compensated ACL inputs carry +x_i, raw ACL inputs carry -x_i;
@@ -81,7 +81,7 @@ for d in range(2):
 ###
 for i in range(N):
     d = i // K  # device index
-    ip1, ip2, im1 = (i + 1) % N, (i + 2) % N, (i - 1) % N
+    ip1, im2, im1 = (i + 1) % N, (i - 2) % N, (i - 1) % N
 
     def sig(j, coeff, d=d):
         """Return (element, weight) for signal j with equation coefficient coeff."""
@@ -92,10 +92,10 @@ for i in range(N):
             # Remote: ACL input already carries the correctly-signed signal
             return acl[d][(j, coeff)], 1.0
 
-    # Multiplier: (x_{i+1} - x_{i+2}) * x_{i-1}
+    # Multiplier: (x_{i+1} - x_{i-2}) * x_{i-1}
     src, wt = sig(ip1, 1.0)
     l[d].connect(src, m[i].a, weight=wt)
-    src, wt = sig(ip2, -1.0)
+    src, wt = sig(im2, -1.0)
     l[d].connect(src, m[i].a, weight=wt)
     src, wt = sig(im1, 1.0)
     l[d].connect(src, m[i].b, weight=wt)
