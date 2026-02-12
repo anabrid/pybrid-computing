@@ -7,6 +7,7 @@ import inspect
 import json
 import logging
 import os
+import subprocess
 import sys
 import typing
 from ipaddress import ip_network
@@ -876,10 +877,32 @@ async def power_up(obj: dict, path: typing.Optional[str] = None):
     required=True,
     help="JSON file containing the definition of the machine partitioning.",
 )
+@click.option(
+    "--reboot",
+    "-b",
+    "reboot",
+    type=bool,
+    is_flag=True,
+    default=True,
+    show_default=True
+)
 @click.option("--partitioning-mode", type=str, default="device")
 @click.argument("host", type=str, default="localhost")
 @click.argument("port", type=int, default=5732)
-async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, partitioning_mode: str, host: str, port: int):
+async def proxy(obj: dict, map_: TextIO, partitioning_: TextIO, partitioning_mode: str, host: str, port: int, reboot: bool = False):
+    
+    # reboot Teensys when the proxy starts
+    if reboot:
+        click.echo("Rebooting hybrid controllers and wait...")
+        ret = subprocess.run(
+            "/bin/bash -c \"tycmd list --output json | jq '.[].tag' | xargs -P 0 -t -I % -- tycmd reset --board %\"",
+            shell=True,
+            capture_output=True)
+        if ret.returncode != 0:
+            raise Exception(f"Unable to reboot Teensys with error: {ret.stderr}")
+        await asyncio.sleep(3)
+        click.echo("Hybrid controllers rebooted!")
+
     proxy = Proxy(
         controller=obj["controller"],
         host=host,
