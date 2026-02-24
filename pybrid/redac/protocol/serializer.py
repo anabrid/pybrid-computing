@@ -3,17 +3,20 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import queue
 import logging
+import typing
 
 from functools import singledispatch
 from typing import List, Any, Dict
 
-from ...base.hybrid.computer import AnalogComputer
+from pybrid.redac.router import Tracer
+from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.hybrid.entities import Entity
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock
 from pybrid.redac.carrier import Carrier, ADCChannel
+from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.elements import ComputationElement
-from pybrid.redac.entities import Path
+from pybrid.redac.entities import Path, Loc
 
 from pybrid.base.hybrid.serializer import Serializer, Deserializer
 
@@ -30,7 +33,7 @@ class REDACSerializer(Serializer):
 
     def config_type(self) -> type:
         return List[pb.Config]
-    
+
     def serialize(self, computer: AnalogComputer) -> _CONFIG_TYPE:
         self.computer = computer
 
@@ -39,7 +42,7 @@ class REDACSerializer(Serializer):
         self.serialize_additional()
 
         return cc.configs
-    
+
     def serialize_entities(self, entities: List[Entity], cc: Serializer.ConfigCollector = None) -> _CONFIG_TYPE:
         """
         Serializes the configuration of a single entity.
@@ -161,18 +164,78 @@ class REDACSerializer(Serializer):
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
 
-        use_config = self.cc.new_config(entity).use_config
-        for idx, (uses, source, target_upscaled) in enumerate(zip(entity.uses, entity.sources, entity.targets_upscaled)):
-            if source is None:
+    @Serializer._serialize.register
+    def _(self, entity: BackplaneTBlock):
+        switch_config = self.cc.new_config(entity).bpl_switch_config
+        for idx, state in enumerate(entity.muxes):
+            if idx is None:
                 continue
-            use_config.uses.extend([pb.Use(idx=idx, count=uses, source=source, upscaled=target_upscaled) ])
+            switch_config.muxes.append(pb.Mux(state=state))
 
-        if len(use_config.uses) == 0:
+        if len(switch_config.muxes) == 0:
             self.cc.pop_config()
 
+    def serialize_use_configs(self):
+        from pybrid.redac import REDAC
+        if self.computer is not REDAC:
+            return
+        tracer = Tracer()
+        carriers : typing.Dict[Loc, Carrier] = dict()
+        use_configs: typing.Dict[Loc, pb.Config] = dict()
+        uses: typing.Dict[Loc, pb.Use] = dict()
+        for carrier in self.computer.carriers:
+            tracer.add_carrier(carrier)
+            carriers[carrier.loc()] = carrier
+            config = pb.Config(entity=pb.EntityId(path=str(carrier.tblock.path)))
+            use_configs[carrier.loc()] = config
+
+        def find_use(lane_loc: Loc) -> pb.Use:
+            assert lane_loc.lane_id() >= 8
+            if lane_loc in uses:
+                return uses[lane_loc]
+
+            carrier_loc = lane_loc.carrier()
+            assert carrier_loc in use_configs
+            #if carrier_loc not in use_configs:
+            #    use_configs[carrier_loc] = pb.UseConfig()
+            mux_id = TBlock.index(lane_loc.cluster_id() + 1, lane_loc.lane_id() - 8)
+            use_config = use_configs[carrier_loc].use_config
+            for use in use_config.uses:
+                assert use.idx != mux_id
+            use = use_config.uses.add()
+            use.idx = mux_id
+            uses[lane_loc] = use
+            return use
+
+        for carrier in self.computer.carriers:
+            for cluster_idx in range(0, 3):
+                cluster = carrier.clusters[cluster_idx]
+                for lane_idx in range(8, 32):
+                    target_loc = carrier.loc() / cluster_idx / lane_idx
+                    source_loc = tracer.find_coef(target_loc)
+
+                    if source_loc is None:
+                        continue
+                    if source_loc.carrier() == target_loc.carrier():
+                        continue
+
+                    source_carrier = carriers[source_loc.carrier()]
+
+                    target_use_config = find_use(target_loc)
+                    if target_use_config is not None:
+                        target_use_config.source = source_carrier.unique_id
+
+                    source_use_config = find_use(source_loc)
+                    if source_use_config is not None:
+                        source_use_config.count += 1
+                        source_use_config.upscaled = cluster.iblock.upscaling[lane_idx]
+
+            for use_config in use_configs.values():
+                if len(use_config.use_config.uses) != 0:
+                    self.cc.configs.append(use_config)
+
     def serialize_additional(self):
-        # has no element soutside of entity hierachy
-        pass
+        self.serialize_use_configs()
 
 class REDACDeserializer(Deserializer):
 
@@ -325,5 +388,3 @@ class REDACDeserializer(Deserializer):
             else:
                 acl_select.append("internal")
         entity.acl_select = acl_select
-
-    

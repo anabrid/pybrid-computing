@@ -12,27 +12,32 @@ from pybrid.redac.entities import EntityClass, EntityType, Loc
 @dataclass
 class TBlock(FunctionBlock):
     muxes: list[int] = field(default_factory=lambda: [0, 1, 2, 3] * 24)
-    sources: list[int | None] = field(default_factory=lambda: [None] * 96)
-    uses: list[int] = field(default_factory=lambda: [0] * 96)
-    targets_upscaled: list[bool] = field(default_factory=lambda: [False] * 96)
+
+    @staticmethod
+    def index(dst_sector: int, sector_lane: int):
+        return sector_lane * 4 + dst_sector
 
     def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
-        dst_lane = sector_lane * 4 + dst_sector
-        self.muxes[dst_lane] = src_sector
+        if not (0 <= src_sector < 4):
+            raise Exception("Connections between cluster only allowed between 0 to 3! (0: backplane, 1-3: cluster)")
+
+        if not (0 <= dst_sector < 4):
+            raise Exception("Connections between cluster only allowed between 0 to 3! (0: backplane, 1-3: cluster)")
+
+        if not (0 <= sector_lane < 24):
+            raise Exception("Connections between cluster only allowed between 0 to 23 lane indices!")
+
+        self.muxes[TBlock.index(dst_sector, sector_lane)] = src_sector
+
+    def source(self, dst_sector: int, sector_lane: int):
+        return self.muxes[TBlock.index(dst_sector, sector_lane)]
 
     def loc(self) -> "Loc":
         elems = self.path.root.split("-")
         if self.path[-1] == "T":
-            return Loc.new_carrier(int(elems[0], base=16), int(elems[2], base=16), int(elems[5], base=16))
-        elif self.path[-1] == "ST0":
-            return Loc.new_wing(int(elems[0]), 0)
-        elif self.path[-1] == "ST1":
-            return Loc.new_wing(int(elems[0]), 1)
+            return Loc.new_carrier(int(elems[0], base=16), int(elems[5], base=16))
         else:
             raise NotImplementedError()
 
     def reset(self):
         self.muxes = [0, 1, 2, 3] * 24
-        self.sources = [None] * 24
-        self.uses = [0] * 96
-        self.targets_upscaled = [False] * 96

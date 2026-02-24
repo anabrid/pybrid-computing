@@ -34,7 +34,12 @@ dependencies = [
   "pyi>=0.1.0",
   "zeroconf>=0.147.2",
   "prompt-toolkit>=3.0.52",
-  "pyserial-asyncio>=0.6"
+  "pyserial-asyncio>=0.6",
+  "torch (==2.7.1)",
+  "torchvision (==0.22.1)",
+  "scipy (>=1.16.3,<2.0.0)",
+  "perun (>=0.9.0,<0.10.0)",
+  "qiskit (>=2.2.3,<3.0.0)"
 ]
 
 [dependency-groups]

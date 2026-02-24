@@ -11,7 +11,7 @@ from docutils import examples
 from pybrid.base.hybrid import RunEvaluateReconfigureLoop
 from pybrid.base.hybrid.programs import SingleRun
 from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
-from pybrid.redac.carrier import Carrier
+from pybrid.redac.carrier import Carrier, ADCChannel
 
 ROOT_DIR = "examples/user-program/plot"
 EXAMPLES = [
@@ -73,7 +73,7 @@ class UserProgram(RunEvaluateReconfigureLoop):
                 if value is not None:
                     carrier.tblock.muxes[idx] = value
 
-            carrier.adc_channels = carrier_config["adc_channels"]
+            carrier.adc_channels = list(map(lambda idx: ADCChannel(index=idx), carrier_config["adc_channels"]))
 
             for idx in range(3):
                 cluster_key = f"/{idx}"

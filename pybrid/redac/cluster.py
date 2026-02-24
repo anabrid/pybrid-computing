@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import FunctionBlock, MBlock, UBlock, CBlock, IBlock
-from pybrid.redac.entities import Entity, Path, EntityType, EntityClass
+from pybrid.redac.entities import Entity, Path, EntityType, EntityClass, Loc
 
 
 @dataclass(kw_only=True)
@@ -33,6 +33,10 @@ class Cluster(Entity):
     iblock: IBlock
     #: The SHBlock in this cluster.
     shblock: object
+
+    def loc(self) -> "Loc":
+        elems = self.path.root.split("-")
+        return Loc.new_carrier(int(elems[0], base=16), int(elems[5], base=16)) / int(self.path[1])
 
     @property
     def children(self):

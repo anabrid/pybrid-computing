@@ -11,8 +11,9 @@ from typing import Optional, TYPE_CHECKING
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.redac.blocks import TBlock
+from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.cluster import Cluster
-from pybrid.redac.entities import Entity, Path, EntityType, EntityClass
+from pybrid.redac.entities import Entity, Path, EntityType, EntityClass, Loc
 
 if TYPE_CHECKING:
     from pybrid.lucidac.front_plane import FrontPlane
@@ -52,11 +53,16 @@ class Carrier(Entity):
 
     #: T-block for REDAC carriers. Optional because LUCIDAC doesn't have T-block.
     tblock: Optional[TBlock] = None
-    st0block: Optional[TBlock] = None
-    st1block: Optional[TBlock] = None
+    st0block: Optional[BackplaneTBlock] = None
+    st1block: Optional[BackplaneTBlock] = None
+    st2block: Optional[BackplaneTBlock] = None
 
     #: Optional front plane, currently only available on LUCIDAC carriers.
     front_plane: Optional[FrontPlane] = None
+
+    def loc(self) -> "Loc":
+        elems = self.path.root.split("-")
+        return Loc.new_carrier(int(elems[0], base=16), int(elems[5], base=16))
 
     @property
     def children(self):
@@ -68,6 +74,8 @@ class Carrier(Entity):
             yield self.st0block
         if self.st1block:
             yield self.st1block
+        if self.st2block:
+            yield self.st2block
         if self.front_plane:
             yield self.front_plane
 
@@ -83,6 +91,7 @@ class Carrier(Entity):
         tblock = None
         st0block = None
         st1block = None
+        st2block = None
         front_plane = None
         acl_select = None
 
@@ -97,16 +106,19 @@ class Carrier(Entity):
                 tblock = TBlock.create_from_entity_type_tree(path_, child)
                 continue
             if path_.id_ == "ST0":
-                st0block = TBlock.create_from_entity_type_tree(path_, child)
+                st0block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
                 continue
             if path_.id_ == "ST1":
+                st1block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
+                continue
+            if path_.id_ == "ST2":
+                st2block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
                 st1block = TBlock.create_from_entity_type_tree(path_, child)
                 continue
             if path_.id_ == "FP":
                 # Firmware reports FP with class_=UNKNOWN(0), so detect by name.
                 from pybrid.lucidac.front_plane import FrontPlane as FP
                 front_plane = FP(path_)
-
                 acl_select = 8 * ["INTERNAL"]
                 continue
             if path_.id_ in string.digits:
@@ -114,8 +126,16 @@ class Carrier(Entity):
                 clusters.append(cluster)
                 continue
 
-        return cls(path=path, clusters=clusters, tblock=tblock, st0block=st0block,
-            st1block=st1block, front_plane=front_plane, acl_select=acl_select)
+        return cls(
+            path=path,
+            clusters=clusters,
+            tblock=tblock,
+            st0block=st0block,
+            st1block=st1block,
+            st2block=st2block,
+            front_plane=front_plane,
+            acl_select=acl_select
+        )
 
     def resolve_signal(self, entity: "Entity"):
         # TODO: This should be extended to a general approach to defining inputs and outputs of elements
