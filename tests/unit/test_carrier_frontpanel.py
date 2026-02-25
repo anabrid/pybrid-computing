@@ -14,7 +14,7 @@ These tests verify that:
 - Serialization via BFS traversal of Carrier children includes the
   FrontPlane configuration at the correct entity path.
 
-Updated for Sprint 1: FrontPanel -> FrontPlane rename, LUCIDAC -> LUCIStack.
+Updated for FrontPanel -> FrontPlane rename, LUCIDAC -> LUCIStack.
 """
 
 import pytest
@@ -37,10 +37,6 @@ try:
 except ImportError:
     from pybrid.lucidac.front_panel import FrontPanel as FrontPlane
 
-
-# ---------------------------------------------------------------------------
-# Helpers for building protobuf Entity trees
-# ---------------------------------------------------------------------------
 
 def _make_version(major: int = 1, minor: int = 0, patch: int = 0) -> pb.Version:
     """Create a protobuf Version message."""
@@ -184,20 +180,9 @@ def _make_minimal_carrier(mac: str, with_fp: bool = False) -> Carrier:
         )
 
 
-# ---------------------------------------------------------------------------
-# Test cases
-# ---------------------------------------------------------------------------
-
-
 class TestCarrierParseFrontPlane:
-    """Tests for Carrier.create_from_entity_type_tree with FrontPlane."""
 
     def test_carrier_parses_fp_from_entity_tree(self):
-        """
-        Build a protobuf Entity tree mimicking LUCIDAC hardware: carrier with
-        /FP child where class_=UNKNOWN(0). Call Carrier.create_from_entity_type_tree().
-        Assert carrier.front_plane is not None and path ends with /FP.
-        """
         mac = AddressingMap.map_redac(0)
         carrier_pb = _make_carrier_entity(mac, include_fp=True)
         carrier_path = Path.parse(mac)
@@ -216,10 +201,6 @@ class TestCarrierParseFrontPlane:
         )
 
     def test_carrier_without_fp(self):
-        """
-        Build entity tree mimicking REDAC simulator (no /FP child).
-        Assert carrier.front_plane is None.
-        """
         mac = AddressingMap.map_redac(0)
         carrier_pb = _make_carrier_entity(mac, include_fp=False)
         carrier_path = Path.parse(mac)
@@ -233,13 +214,8 @@ class TestCarrierParseFrontPlane:
 
 
 class TestCarrierChildren:
-    """Tests for Carrier.children property yielding FrontPlane."""
 
     def test_carrier_children_includes_fp(self):
-        """
-        Create Carrier with FrontPlane set.
-        Assert list(carrier.children) includes the FrontPlane instance.
-        """
         mac = AddressingMap.map_redac(0)
         carrier = _make_minimal_carrier(mac, with_fp=True)
 
@@ -259,10 +235,6 @@ class TestCarrierChildren:
         )
 
     def test_carrier_children_without_fp(self):
-        """
-        Create Carrier without FrontPlane.
-        Assert FrontPlane not in children.
-        """
         mac = AddressingMap.map_redac(0)
         carrier = _make_minimal_carrier(mac, with_fp=False)
 
@@ -275,20 +247,9 @@ class TestCarrierChildren:
 
 
 class TestLUCIStackFrontPlaneAccess:
-    """Tests for accessing FrontPlane through LUCIStack.entities[0].front_plane.
-
-    Post-refactoring: the convenience property LUCIDAC.front_panel is removed.
-    Instead, users access FrontPlane via lucistack.entities[0].front_plane.
-    """
+    """FrontPlane is accessed via lucistack.entities[0].front_plane; no top-level convenience property exists on LUCIStack."""
 
     def test_lucistack_carrier_front_plane(self):
-        """
-        Create LUCIStack with one carrier that has FP.
-        Assert lucistack.entities[0].front_plane returns it.
-
-        Create LUCIStack with carrier without FP.
-        Assert lucistack.entities[0].front_plane is None.
-        """
         mac = AddressingMap.map_redac(0)
 
         # Case 1: Carrier with FrontPlane
@@ -314,17 +275,9 @@ class TestLUCIStackFrontPlaneAccess:
 
 
 class TestLUCIStackSerializationWithFP:
-    """Tests for FrontPlane serialization via Carrier BFS traversal."""
 
     def test_lucistack_serializer_fp_via_carrier_bfs(self):
-        """
-        Create LUCIStack with FrontPlane on carrier. Serialize.
-        Assert FrontPlane config appears in the output at the correct entity path.
-
-        The serializer performs BFS over get_config_entities() and each entity's
-        children. When FrontPlane is a child of Carrier, the serializer should
-        visit it and produce configs with entity path pointing to the FP.
-        """
+        """Serializing a LUCIStack with a configured FrontPlane produces config entries at the FP entity path."""
         mac = AddressingMap.map_redac(0)
         carrier = _make_minimal_carrier(mac, with_fp=True)
         lucistack = LUCIStack(entities=[carrier])

@@ -380,3 +380,15 @@ CLAUDE.md
 
 # CI/CD
 .anabrid_build_result.env
+
+# Native build artifacts
+extern/
+_skbuild/
+
+# Claude pollution from sandbox
+.*
+config
+HEAD
+hooks
+objects
+refs

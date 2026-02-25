@@ -3,15 +3,12 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 """
-Integration tests for LucipyWrapper single-device workflow (Sprint 2).
+Integration tests for LucipyWrapper single-device workflow.
 
-These tests verify the NEW wrapper class (``LucipyWrapper``) which replaces
-the old ``LUCIStack`` pool-based approach with a single-controller design.
-The key architectural difference: instead of a connection pool with N
-controllers, LucipyWrapper creates ONE controller and adds all devices to it,
-leveraging the REDAC controller's distributed run machinery.
+These tests verify ``LucipyWrapper``, which uses a single-controller design:
+one controller is created and all devices are added to it, leveraging the
+REDAC controller's distributed run machinery.
 
-Written as TDD tests -- they will FAIL until Sprint 2 implementation lands.
 Uses DummyDAC in LUCIDAC mode for testing.
 """
 
@@ -42,13 +39,7 @@ class TestLucipyWrapperSingleDevice:
 
     @pytest.mark.asyncio
     async def test_single_device_init_and_run(self):
-        """
-        Create LucipyWrapper with one DummyDAC in LUCIDAC mode.
-
-        After ``_ensure_controller()``:
-        - ``wrapper._controller`` is not None
-        - ``wrapper._controller.computer.carriers`` has exactly 1 entry
-        """
+        """_ensure_controller() initializes the controller and discovers exactly 1 carrier."""
         config = DummyDACConfig(lucidac_mode=True)
         port = get_test_port(_PORT_BASE)
 
@@ -77,12 +68,7 @@ class TestLucipyWrapperSingleDevice:
 
     @pytest.mark.asyncio
     async def test_lucidac_alias_works(self):
-        """
-        ``from pybrid.lucipy import LUCIDAC`` should create a LucipyWrapper.
-
-        This verifies backward compatibility: the LUCIDAC alias points to
-        the new LucipyWrapper class.
-        """
+        """LUCIDAC alias resolves to LucipyWrapper for backward compatibility."""
         config = DummyDACConfig(lucidac_mode=True)
         port = get_test_port(_PORT_BASE + 1)
 
@@ -91,9 +77,7 @@ class TestLucipyWrapperSingleDevice:
 
             luci = LUCIDAC(f"tcp://127.0.0.1:{dac_port}")
 
-            # The LUCIDAC alias should resolve to LucipyWrapper (or its
-            # old equivalent LUCIStack until Sprint 2 implementation).
-            # After Sprint 2, this must be a LucipyWrapper.
+            # The LUCIDAC alias must resolve to LucipyWrapper.
             try:
                 from pybrid.lucipy.computer import LucipyWrapper as _NewWrapper
                 assert isinstance(luci, _NewWrapper), (
@@ -107,10 +91,7 @@ class TestLucipyWrapperSingleDevice:
 
     @pytest.mark.asyncio
     async def test_env_var_fallback(self):
-        """
-        With ``LUCIDAC_ENDPOINT`` set and no explicit args, LucipyWrapper()
-        should use the environment variable to resolve the endpoint.
-        """
+        """LucipyWrapper() with no args uses LUCIDAC_ENDPOINT env var to resolve the endpoint."""
         config = DummyDACConfig(lucidac_mode=True)
         port = get_test_port(_PORT_BASE + 2)
 
@@ -149,11 +130,7 @@ class TestLucipyWrapperSingleDevice:
 
     @pytest.mark.asyncio
     async def test_controller_cleanup(self):
-        """
-        After ``await wrapper.close()``, ``wrapper._controller`` should be None.
-
-        Verifies that lifecycle cleanup releases the controller reference.
-        """
+        """After close(), _controller is None."""
         config = DummyDACConfig(lucidac_mode=True)
         port = get_test_port(_PORT_BASE + 3)
 

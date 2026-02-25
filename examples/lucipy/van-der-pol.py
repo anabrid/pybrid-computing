@@ -9,7 +9,16 @@ import numpy as np
 # Create a Van der Pol oscillator circuit in lucipy-syntax
 ###
 
-vdp = Circuit()                         # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
+
+vdp = luci.create_circuit()             # Create a circuit
 
 eta = 4                                 # Nonlinearity parameter
 
@@ -36,17 +45,6 @@ vdp.probe(y,   front_port=1)
 
 vdp.measure(mdy)                        # Connect to ADC to sample data
 vdp.measure(y)
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(vdp)                   # Assign circuit
 
 ###
 # Settings for sampling and circuit execution

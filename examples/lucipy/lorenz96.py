@@ -14,7 +14,16 @@ from pybrid.lucipy import Circuit, LUCIDAC
 import matplotlib.pyplot as plt
 import numpy as np
 
-l   = Circuit()                         # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC("192.168.150.57")
+
+l   = luci.create_circuit()             # Create a circuit
 
 N   = 4
 
@@ -35,17 +44,6 @@ for i in range(N):
     l.connect(m[i], x[i], weight=-.666*3+0.1)
     l.connect(F, x[i], weight=-.10)
     l.probe(x[i], adc_channel=i)
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC("192.168.150.57")
-
-luci.set_circuit(l)                     # assign circuit
 
 ###
 # Settings for smapling and cirucit execution

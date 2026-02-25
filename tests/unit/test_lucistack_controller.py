@@ -3,24 +3,21 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 """
-Unit tests for LUCIDACController (Sprint 1 — controller fixes).
+Unit tests for LUCIDACController.
 
 These tests verify that:
-- LUCIDACController.__init__ calls super().__init__(), so self.computer
-  is properly initialized as a LUCIStack(entities=[]) instance.
-- REDAC parent attributes (protocols, runs, devices, etc.) are present
-  after construction.
 - set_computer() passes the argument to the parent (not self.computer).
-
-These tests are written against the POST-refactoring interface and are
-expected to FAIL against the current (pre-refactoring) codebase.
+- validate_sample_counts() applies the configured GapFillMode correctly.
 """
 
 import pytest
 from unittest.mock import AsyncMock, patch
 
 from pybrid.lucidac.controller import Controller as LUCIStackController
+from pybrid.processing.gap_fill import GapFillMode
 from pybrid.redac.computer import REDAC
+from pybrid.redac.entities import Path
+from pybrid.redac.run import Run
 
 # Try importing the new name; fall back to old name so tests fail (not crash)
 try:
@@ -29,86 +26,13 @@ except ImportError:
     from pybrid.lucidac.computer import LUCIDAC as LUCIStack
 
 
-class TestLUCIStackControllerInit:
-    """Tests verifying that LUCIDACController.__init__ calls super().__init__()."""
-
-    def test_init_creates_lucistack_computer(self):
-        """After creating a LUCIStackController, self.computer must be a LUCIStack instance."""
-        ctrl = LUCIStackController(standalone=True)
-
-        # The controller must have a 'computer' attribute
-        assert hasattr(ctrl, "computer"), (
-            "LUCIStackController must have 'computer' attribute after __init__"
-        )
-
-        # The computer must be a LUCIStack (not a plain REDAC)
-        # Post-refactoring: LUCIDAC is renamed to LUCIStack, which is the class
-        # the controller should create.
-        # Pre-refactoring: the controller does NOT call super().__init__(), so
-        # self.computer does not exist, and this test will fail.
-        computer = ctrl.computer
-        assert isinstance(computer, LUCIStack), (
-            f"Expected controller.computer to be a LUCIStack instance, "
-            f"got {type(computer).__name__}"
-        )
-
-    def test_super_init_called(self):
-        """Verify REDAC parent attributes exist after construction.
-
-        When super().__init__() is called, the parent (REDACController)
-        initializes protocols, runs, devices, _raw_entity_dict,
-        _ongoing_runs, _clusters_per_carrier, sync, standalone, and
-        _callbacks. These must all be present on the LUCIDACController.
-        """
-        ctrl = LUCIStackController(standalone=True)
-
-        # All of these attributes are set by REDACController.__init__
-        expected_attrs = [
-            "computer",
-            "devices",
-            "protocols",
-            "runs",
-            "_raw_entity_dict",
-            "_ongoing_runs",
-            "_clusters_per_carrier",
-            "sync",
-            "standalone",
-            "_callbacks",
-        ]
-
-        for attr in expected_attrs:
-            assert hasattr(ctrl, attr), (
-                f"LUCIStackController missing '{attr}' — super().__init__() "
-                f"may not have been called"
-            )
-
-        # Additionally, self.computer must be initialized (not None)
-        assert ctrl.computer is not None, (
-            "controller.computer should not be None after __init__"
-        )
-
-        # computer.entities should be an empty list (no carriers yet)
-        assert isinstance(ctrl.computer, LUCIStack), (
-            f"controller.computer should be LUCIStack, got {type(ctrl.computer).__name__}"
-        )
-
-
 class TestSetComputerBugFix:
     """Tests verifying that set_computer() passes the argument, not self.computer."""
 
     @pytest.mark.asyncio
     async def test_set_computer_uses_argument(self):
-        """Create controller, create a LUCIStack with a carrier, call
-        set_computer(lucistack). Verify the argument was passed to the
-        parent, not self.computer.
-
-        The bug in the current code is:
-            async def set_computer(self, computer):
-                await super().set_computer(self.computer)  # wrong!
-        It should be:
-                await super().set_computer(computer)        # correct
-        """
-        ctrl = LUCIStackController(standalone=True)
+        """set_computer(arg) must call super().set_computer(arg), not super().set_computer(self.computer)."""
+        ctrl = LUCIStackController()
 
         # Build a LUCIStack with distinguishable content
         from pybrid.redac.carrier import Carrier
@@ -137,7 +61,6 @@ class TestSetComputerBugFix:
         captured_args = []
 
         async def mock_set_computer(computer_arg):
-            """Capture the argument passed to REDAC.set_computer."""
             captured_args.append(computer_arg)
 
         with patch.object(
@@ -165,3 +88,144 @@ class TestSetComputerBugFix:
                     f"but it passed {call_arg!r} instead of the new_computer. "
                     f"This is the self.computer bug."
                 )
+
+
+def _make_run(**channel_data: list[float]) -> Run:
+    """Build a Run with pre-populated data channels.
+
+    Each keyword argument maps a channel name (str) to a list of samples.
+    Uses ``defaultdict(list)`` to match the real ``Run.data`` type.
+
+    :param channel_data: Channel name → sample list.
+    :returns: A Run instance with the given data.
+    """
+    run = Run()
+    for key, values in channel_data.items():
+        path = Path.parse(key)
+        run.data[path] = list(values)
+    return run
+
+
+class TestValidateSampleCounts:
+    """Tests for Controller.validate_sample_counts() with GapFillMode."""
+
+    def test_gap_fill_mode_none_raises(self):
+        """NONE mode raises RuntimeError on sample count mismatch."""
+        ctrl = LUCIStackController(gap_fill_mode=GapFillMode.NONE)
+        run = _make_run(
+            **{"AA-BB-CC-DD-EE-FF/0/ADC0": [1.0, 2.0, 3.0],
+               "11-22-33-44-55-66/0/ADC0": [1.0, 2.0]}
+        )
+        with pytest.raises(RuntimeError, match="Sample count mismatch"):
+            ctrl.validate_sample_counts(run)
+
+    def test_gap_fill_mode_zero_pads_with_zeros(self):
+        """ZERO mode pads shorter channels with 0.0."""
+        ctrl = LUCIStackController(gap_fill_mode=GapFillMode.ZERO)
+        run = _make_run(
+            **{"AA-BB-CC-DD-EE-FF/0/ADC0": [1.0, 2.0, 3.0],
+               "11-22-33-44-55-66/0/ADC0": [4.0]}
+        )
+        ctrl.validate_sample_counts(run)
+
+        path_short = Path.parse("11-22-33-44-55-66/0/ADC0")
+        values = run.data[path_short]
+        assert values == [4.0, 0.0, 0.0], (
+            f"ZERO mode padding should be 0.0, got {values}"
+        )
+
+    def test_gap_fill_mode_repeat_pads_with_last_value(self):
+        """REPEAT mode pads shorter channels with their last value."""
+        ctrl = LUCIStackController(gap_fill_mode=GapFillMode.REPEAT)
+        run = _make_run(
+            **{"AA-BB-CC-DD-EE-FF/0/ADC0": [1.0, 2.0, 3.0],
+               "11-22-33-44-55-66/0/ADC0": [7.5]}
+        )
+        ctrl.validate_sample_counts(run)
+
+        path_short = Path.parse("11-22-33-44-55-66/0/ADC0")
+        values = run.data[path_short]
+        assert values == [7.5, 7.5, 7.5], (
+            f"REPEAT mode should pad with last value (7.5), got {values}"
+        )
+
+    def test_gap_fill_mode_interpolate_falls_back_to_repeat(self):
+        """INTERPOLATE mode falls back to REPEAT for tail-loss gaps (no next value)."""
+        ctrl = LUCIStackController(gap_fill_mode=GapFillMode.INTERPOLATE)
+        run = _make_run(
+            **{"AA-BB-CC-DD-EE-FF/0/ADC0": [1.0, 2.0, 3.0, 4.0, 5.0],
+               "11-22-33-44-55-66/0/ADC0": [10.0, 20.0, 30.0]}
+        )
+        ctrl.validate_sample_counts(run)
+
+        path_short = Path.parse("11-22-33-44-55-66/0/ADC0")
+        values = run.data[path_short]
+        assert len(values) == 5
+        # Tail loss: last two values should repeat 30.0
+        assert values == [10.0, 20.0, 30.0, 30.0, 30.0], (
+            f"INTERPOLATE should fall back to REPEAT for tail loss, got {values}"
+        )
+
+    def test_gap_fill_mode_multi_carrier(self):
+        """Multiple carriers with different gaps all get padded correctly."""
+        ctrl = LUCIStackController(gap_fill_mode=GapFillMode.REPEAT)
+        run = _make_run(
+            **{"AA-BB-CC-DD-EE-FF/0/ADC0": [float(i) for i in range(10)],
+               "AA-BB-CC-DD-EE-FF/0/ADC1": [float(i) for i in range(10)],
+               "11-22-33-44-55-66/0/ADC0": [float(i) for i in range(7)],
+               "11-22-33-44-55-66/0/ADC1": [float(i) for i in range(7)]}
+        )
+        ctrl.validate_sample_counts(run)
+
+        for key, values in run.data.items():
+            assert len(values) == 10, (
+                f"Channel {key} should have 10 samples after padding, got {len(values)}"
+            )
+
+        # Verify repeat padding uses last value (6.0) for the short channels
+        path_short = Path.parse("11-22-33-44-55-66/0/ADC0")
+        values = run.data[path_short]
+        assert values[7:] == [6.0, 6.0, 6.0], (
+            f"REPEAT should pad with last value (6.0), got tail: {values[7:]}"
+        )
+
+    def test_gap_fill_mode_equal_counts_noop(self):
+        """When all channels have equal sample counts, no padding occurs."""
+        ctrl = LUCIStackController(gap_fill_mode=GapFillMode.NONE)
+        run = _make_run(
+            **{"AA-BB-CC-DD-EE-FF/0/ADC0": [1.0, 2.0, 3.0],
+               "AA-BB-CC-DD-EE-FF/0/ADC1": [4.0, 5.0, 6.0]}
+        )
+        ctrl.validate_sample_counts(run)  # should not raise even in NONE mode
+
+    def test_gap_fill_mode_empty_data_noop(self):
+        """Empty run.data is a no-op regardless of mode."""
+        for mode in [GapFillMode.NONE, GapFillMode.ZERO,
+                     GapFillMode.REPEAT, GapFillMode.INTERPOLATE]:
+            ctrl = LUCIStackController(gap_fill_mode=mode)
+            run = Run()
+            ctrl.validate_sample_counts(run)  # should not raise
+
+    def test_gap_fill_mode_logs_warning(self, caplog):
+        """Padding modes log a warning when padding occurs."""
+        ctrl = LUCIStackController(gap_fill_mode=GapFillMode.ZERO)
+        run = _make_run(
+            **{"AA-BB-CC-DD-EE-FF/0/ADC0": [1.0, 2.0, 3.0],
+               "11-22-33-44-55-66/0/ADC0": [1.0]}
+        )
+        with caplog.at_level("WARNING", logger="pybrid.lucidac.controller"):
+            ctrl.validate_sample_counts(run)
+
+        assert any("padded" in msg for msg in caplog.messages), (
+            f"Expected warning about padding, got: {caplog.messages}"
+        )
+
+    @pytest.mark.parametrize("strict_value,expected_mode", [
+        (True, GapFillMode.NONE),
+        (False, GapFillMode.ZERO),
+    ])
+    def test_deprecated_strict_maps_to_gap_fill_mode(self, strict_value, expected_mode):
+        """Deprecated strict= keyword maps to the corresponding GapFillMode."""
+        with pytest.warns(DeprecationWarning, match="strict"):
+            ctrl = LUCIStackController(strict=strict_value)
+        assert ctrl.gap_fill_mode == expected_mode

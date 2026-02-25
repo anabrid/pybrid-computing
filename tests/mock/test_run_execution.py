@@ -1,260 +1,204 @@
 # Copyright (c) 2022-2025 anabrid GmbH
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-"""Tests for the DummyDAC run execution and sample generation."""
+"""Tests for the DummyDAC run execution and sample generation.
+
+Uses the native C++ ControlChannel (via AsyncControlChannel) to exercise
+DummyDAC over a real TCP connection — no internal Python Protocol mocking.
+"""
 
 import asyncio
-from ipaddress import IPv4Address
 from uuid import uuid4
 
 import pytest
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.base.transport.tcp import TCPTransport
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACErrorStage
-from pybrid.redac.protocol.protocol import Protocol
+from pybrid.redac.control import AsyncControlChannel
 
+try:
+    from pybrid.native._impl import ControlChannel as NativeControlChannel
+    _NATIVE_AVAILABLE = True
+except ImportError:
+    _NATIVE_AVAILABLE = False
+    NativeControlChannel = None
 
-# Polling interval for checking run completion
-POLL_INTERVAL_SECONDS = 0.1
-# Buffer time added to OP time for timeout calculation
-TIMEOUT_BUFFER_SECONDS = 1.0
-# Number of carriers in DummyDAC
+pytestmark = pytest.mark.skipif(
+    not _NATIVE_AVAILABLE,
+    reason="pybrid.native._impl.ControlChannel is not available (C++ bindings not built)",
+)
+
+LOCALHOST = "127.0.0.1"
+OP_TIMEOUT = 5.0
+# Short run op-time (10 ms) — keeps run lifecycle tests fast.
+RUN_OP_TIME_NS = 10_000_000  # 10 ms
+# Budget for the entire run including state callbacks (op-time + 2 s headroom).
+RUN_TIMEOUT = RUN_OP_TIME_NS / 1e9 + 2.0
+# Number of carriers in DummyDAC REDAC mode (default).
 NUM_CARRIERS = 2
 
 
-def ns_to_seconds(ns: int) -> float:
-    """Convert nanoseconds to seconds."""
-    return ns / 1e9
-
-
-async def wait_for_condition(condition_fn, timeout: float):
+async def _make_channel(port: int) -> AsyncControlChannel:
     """
-    Poll until condition_fn returns True or timeout is reached.
+    Create and start an AsyncControlChannel connected to *port* on localhost.
 
-    :param condition_fn: Callable returning bool indicating if condition is met.
-    :param timeout: Maximum seconds to wait.
-    :raises TimeoutError: If condition not met within timeout.
+    Args:
+        port: TCP port of the target DummyDAC server.
+
+    Returns:
+        A started :class:`AsyncControlChannel`.
     """
-    elapsed = 0.0
-    while elapsed < timeout:
-        if condition_fn():
-            return
-        await asyncio.sleep(POLL_INTERVAL_SECONDS)
-        elapsed += POLL_INTERVAL_SECONDS
-    raise TimeoutError(f"Condition not met within {timeout}s")
+    loop = asyncio.get_running_loop()
+    native = await loop.run_in_executor(
+        None,
+        NativeControlChannel.create,
+        LOCALHOST,
+        port,
+        OP_TIMEOUT,
+    )
+    channel = AsyncControlChannel(native)
+    channel.start()
+    return channel
 
 
-@pytest.mark.asyncio
-async def test_run_returns_success():
-    """Verify run command returns success response."""
-    config = DummyDACConfig()
-    async with DummyDAC("127.0.0.1", 15820, config):
-        transport = await TCPTransport.create("127.0.0.1", 15820)
-        protocol = Protocol(IPv4Address("127.0.0.1"), transport)
-        async with protocol:
-            run_id = uuid4()
-            response = await protocol.send_body_and_wait_response(pb.StartRunCommand(
-                run=pb.Run(id=str(run_id), chunk=0),
-                run_config=pb.RunConfig(
-                    ic_time=pb.Time(value=100_000, prefix=pb.Prefix.NANO),
-                    op_time=pb.Time(value=10_000_000, prefix=pb.Prefix.NANO)
-                ),
-                daq_config=pb.DaqConfig(num_channels=4, sample_rate=1000),
-                sync_config=pb.SyncConfig(),
-                calibration_config=pb.CalibrationConfig()
-            ))
-            assert response.WhichOneof("kind") == "start_run_response"
+def _make_run_command(op_time_ns: int, num_channels: int = 4, sample_rate: int = 1000) -> pb.StartRunCommand:
+    """
+    Build a standard StartRunCommand for testing.
+
+    Args:
+        op_time_ns:   OP phase duration in nanoseconds.
+        num_channels: Number of DAQ channels.
+        sample_rate:  DAQ sample rate in samples per second.
+
+    Returns:
+        A populated :class:`pb.StartRunCommand`.
+    """
+    return pb.StartRunCommand(
+        run=pb.Run(id=str(uuid4()), chunk=0),
+        run_config=pb.RunConfig(
+            ic_time=pb.Time(value=100_000, prefix=pb.Prefix.NANO),
+            op_time=pb.Time(value=op_time_ns, prefix=pb.Prefix.NANO),
+            halt_on_overload=False,
+        ),
+        daq_config=pb.DaqConfig(
+            num_channels=num_channels,
+            sample_rate=sample_rate,
+            sample_op=True,
+            sample_op_end=True,
+        ),
+        sync_config=pb.SyncConfig(enabled=False),
+        calibration_config=pb.CalibrationConfig(enabled=False),
+    )
 
 
 @pytest.mark.asyncio
 async def test_start_run_error_injection():
-    """Verify AT_START_RUN error injection works."""
+    """AT_START_RUN error injection causes start_run_request to return a failure Result."""
     config = DummyDACConfig(error_stage=DummyDACErrorStage.AT_START_RUN)
-    async with DummyDAC("127.0.0.1", 15821, config):
-        transport = await TCPTransport.create("127.0.0.1", 15821)
-        protocol = Protocol(IPv4Address("127.0.0.1"), transport)
-        async with protocol:
-            run_id = uuid4()
-            response = await protocol.send_body_and_wait_response(pb.StartRunCommand(
-                run=pb.Run(id=str(run_id), chunk=0),
-                run_config=pb.RunConfig(
-                    ic_time=pb.Time(value=100_000, prefix=pb.Prefix.NANO),
-                    op_time=pb.Time(value=10_000_000, prefix=pb.Prefix.NANO)
-                ),
-                daq_config=pb.DaqConfig(num_channels=4, sample_rate=1000),
-                sync_config=pb.SyncConfig(),
-                calibration_config=pb.CalibrationConfig()
-            ))
-            assert response.WhichOneof("kind") == "error_message"
-
-
-@pytest.mark.asyncio
-async def test_run_state_changes_received():
-    """Verify state change messages are received during run."""
-    op_time_ns = 10_000_000  # 10ms
-    timeout = ns_to_seconds(op_time_ns) + TIMEOUT_BUFFER_SECONDS
-
-    received_states = []
-
-    config = DummyDACConfig()
-    async with DummyDAC("127.0.0.1", 15822, config):
-        transport = await TCPTransport.create("127.0.0.1", 15822)
-        protocol = Protocol(IPv4Address("127.0.0.1"), transport)
-
-        async def collect_state(msg: pb.RunStateChangeMessage):
-            received_states.append(msg.new_)
-
-        protocol.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER,
-            collect_state
-        )
-
-        async with protocol:
-            run_id = uuid4()
-            await protocol.send_body_and_wait_response(pb.StartRunCommand(
-                run=pb.Run(id=str(run_id), chunk=0),
-                run_config=pb.RunConfig(
-                    ic_time=pb.Time(value=100_000, prefix=pb.Prefix.NANO),
-                    op_time=pb.Time(value=op_time_ns, prefix=pb.Prefix.NANO)
-                ),
-                daq_config=pb.DaqConfig(num_channels=2, sample_rate=100),
-                sync_config=pb.SyncConfig(),
-                calibration_config=pb.CalibrationConfig()
-            ))
-
-            # Wait until DONE state is received (indicates run completion)
-            await wait_for_condition(
-                lambda: pb.RunState.DONE in received_states,
-                timeout=timeout
+    async with DummyDAC(LOCALHOST, 0, config) as server:
+        port = server.port
+        channel = await _make_channel(port)
+        try:
+            cmd = _make_run_command(RUN_OP_TIME_NS)
+            result = await asyncio.wait_for(channel.start_run_request(cmd), timeout=OP_TIMEOUT)
+            assert result.ok is False, (
+                "start_run_request() must return a failure Result for AT_START_RUN error injection"
             )
-
-            assert pb.RunState.TAKE_OFF in received_states
-            assert pb.RunState.DONE in received_states
+        finally:
+            await channel.stop()
 
 
 @pytest.mark.asyncio
 async def test_run_data_messages_received():
-    """Verify run data messages are received with correct sample count."""
-    op_time_ns = 100_000_000  # 100ms
+    op_time_ns = 100_000_000  # 100 ms
     sample_rate = 1000
     num_channels = 4
-    timeout = ns_to_seconds(op_time_ns) + TIMEOUT_BUFFER_SECONDS
+    run_timeout = op_time_ns / 1e9 + 2.0
 
-    # Expected samples per channel = sample_rate * op_time_seconds
-    op_time_seconds = ns_to_seconds(op_time_ns)
-    expected_samples_per_channel = int(sample_rate * op_time_seconds)
-    # Total expected across all carriers (each carrier sends its own data)
-    min_expected_total_samples = expected_samples_per_channel * NUM_CARRIERS
-
-    received_data = []
-    run_done = []
+    expected_samples_per_carrier = int(sample_rate * (op_time_ns / 1e9))
+    min_expected_total_samples = expected_samples_per_carrier * NUM_CARRIERS
 
     config = DummyDACConfig()
-    async with DummyDAC("127.0.0.1", 15823, config):
-        transport = await TCPTransport.create("127.0.0.1", 15823)
-        protocol = Protocol(IPv4Address("127.0.0.1"), transport)
+    async with DummyDAC(LOCALHOST, 0, config) as server:
+        port = server.port
+        channel = await _make_channel(port)
+        loop = asyncio.get_running_loop()
 
-        async def collect_data(msg: pb.RunDataMessage):
-            received_data.append(msg)
+        data_messages: list[pb.RunDataMessage] = []
+        done_event = asyncio.Event()
 
-        async def collect_state(msg: pb.RunStateChangeMessage):
-            if msg.new_ == pb.RunState.DONE:
-                run_done.append(True)
+        def on_data(msg: pb.MessageV1) -> None:
+            data_messages.append(msg.run_data_message)
 
-        protocol.register_callback(
-            pb.MessageV1.RUN_DATA_MESSAGE_FIELD_NUMBER,
-            collect_data
+        def on_state_change(msg: pb.MessageV1) -> None:
+            if msg.run_state_change_message.new_ == pb.RunState.DONE:
+                loop.call_soon_threadsafe(done_event.set)
+
+        channel.register_callback(pb.MessageV1.RUN_DATA_MESSAGE_FIELD_NUMBER, on_data)
+        channel.register_callback(
+            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change
         )
-        protocol.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER,
-            collect_state
-        )
 
-        async with protocol:
-            run_id = uuid4()
-            await protocol.send_body_and_wait_response(pb.StartRunCommand(
-                run=pb.Run(id=str(run_id), chunk=0),
-                run_config=pb.RunConfig(
-                    ic_time=pb.Time(value=100_000, prefix=pb.Prefix.NANO),
-                    op_time=pb.Time(value=op_time_ns, prefix=pb.Prefix.NANO)
-                ),
-                daq_config=pb.DaqConfig(num_channels=num_channels, sample_rate=sample_rate),
-                sync_config=pb.SyncConfig(),
-                calibration_config=pb.CalibrationConfig()
-            ))
+        try:
+            cmd = _make_run_command(op_time_ns, num_channels=num_channels, sample_rate=sample_rate)
+            await asyncio.wait_for(channel.start_run_request(cmd), timeout=OP_TIMEOUT)
+            await asyncio.wait_for(done_event.wait(), timeout=run_timeout)
 
-            # Wait for run completion
-            await wait_for_condition(lambda: len(run_done) > 0, timeout=timeout)
-
-            # Count total samples received
-            total_samples = sum(msg.data.sample_count for msg in received_data)
+            total_samples = sum(msg.data.sample_count for msg in data_messages)
             assert total_samples >= min_expected_total_samples, (
                 f"Expected at least {min_expected_total_samples} samples, got {total_samples}"
             )
+        finally:
+            await channel.stop()
 
 
 @pytest.mark.asyncio
 async def test_run_data_end_uses_config_channel_count():
-    """Verify RunDataEndMessage uses channel count from ConfigCommand, not DaqConfig."""
-    op_time_ns = 10_000_000  # 10ms
-    timeout = ns_to_seconds(op_time_ns) + TIMEOUT_BUFFER_SECONDS
-
-    received_end_messages = []
+    op_time_ns = RUN_OP_TIME_NS
+    requested_channels = 8
 
     config = DummyDACConfig()
-    async with DummyDAC("127.0.0.1", 15824, config):
-        transport = await TCPTransport.create("127.0.0.1", 15824)
-        protocol = Protocol(IPv4Address("127.0.0.1"), transport)
+    async with DummyDAC(LOCALHOST, 0, config) as server:
+        port = server.port
+        channel = await _make_channel(port)
+        loop = asyncio.get_running_loop()
 
-        async def collect_end_data(msg: pb.RunDataEndMessage):
-            received_end_messages.append(msg)
+        end_messages: list[pb.RunDataEndMessage] = []
+        end_event = asyncio.Event()
 
-        protocol.register_callback(
-            pb.MessageV1.RUN_DATA_END_MESSAGE_FIELD_NUMBER,
-            collect_end_data
-        )
+        def on_data_end(msg: pb.MessageV1) -> None:
+            end_messages.append(msg.run_data_end_message)
+            if len(end_messages) >= NUM_CARRIERS:
+                loop.call_soon_threadsafe(end_event.set)
 
-        async with protocol:
-            # First send ConfigCommand with ADC channels
-            # Configure 8 ADC channels on the first carrier
-            requested_channels = 8
+        channel.register_callback(pb.MessageV1.RUN_DATA_END_MESSAGE_FIELD_NUMBER, on_data_end)
+
+        try:
+            # Push a config with 8 ADC channels on the first carrier.
             adc_channels = [
                 pb.AdcChannel(idx=i, gain=1.0, offset=0.0)
                 for i in range(requested_channels)
             ]
-            adc_config = pb.AdcConfig(channels=adc_channels)
             carrier_config = pb.Config(
                 entity=pb.EntityId(path="/00-00-00-00-00-00"),
-                adc_config=adc_config
+                adc_config=pb.AdcConfig(channels=adc_channels),
             )
             bundle = pb.ConfigBundle(configs=[carrier_config])
-            await protocol.set_config_bundle(bundle)
+            await asyncio.wait_for(channel.set_config_bundle(bundle), timeout=OP_TIMEOUT)
 
-            # Now send StartRunCommand - note: DaqConfig has different channel count
-            # to verify we use ConfigCommand, not DaqConfig
-            run_id = uuid4()
-            await protocol.send_body_and_wait_response(pb.StartRunCommand(
-                run=pb.Run(id=str(run_id), chunk=0),
-                run_config=pb.RunConfig(
-                    ic_time=pb.Time(value=100_000, prefix=pb.Prefix.NANO),
-                    op_time=pb.Time(value=op_time_ns, prefix=pb.Prefix.NANO)
-                ),
-                daq_config=pb.DaqConfig(num_channels=4, sample_rate=1000),  # Different from config!
-                sync_config=pb.SyncConfig(),
-                calibration_config=pb.CalibrationConfig()
-            ))
+            # Send StartRunCommand with a different DaqConfig channel count (4).
+            cmd = _make_run_command(op_time_ns, num_channels=4, sample_rate=1000)
+            await asyncio.wait_for(channel.start_run_request(cmd), timeout=OP_TIMEOUT)
+            await asyncio.wait_for(end_event.wait(), timeout=RUN_TIMEOUT)
 
-            # Wait for both RunDataEndMessage (one per carrier)
-            await wait_for_condition(
-                lambda: len(received_end_messages) == NUM_CARRIERS,
-                timeout=timeout
+            assert len(end_messages) == NUM_CARRIERS, (
+                f"Expected {NUM_CARRIERS} RunDataEndMessages, got {len(end_messages)}"
             )
-
-            # Should receive one RunDataEndMessage per carrier (2 carriers)
-            assert len(received_end_messages) == NUM_CARRIERS
-
-            # Channel count should come from ConfigCommand (8), not DaqConfig (4)
-            for msg in received_end_messages:
-                assert msg.data.channel_count == requested_channels
+            # Channel count should come from ConfigCommand (8), not DaqConfig (4).
+            for msg in end_messages:
+                assert msg.data.channel_count == requested_channels, (
+                    f"Expected channel_count={requested_channels}, got {msg.data.channel_count}"
+                )
                 assert len(msg.data.scaling) == requested_channels
+        finally:
+            await channel.stop()

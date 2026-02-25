@@ -159,11 +159,78 @@ Apply the changes with:
 sudo sysctl -p
 ```
 
+## Repository structure
+
+This repository is a **uv workspace monorepo** containing two packages that share
+the `pybrid` namespace via [PEP 420](https://peps.python.org/pep-0420/) implicit
+namespace packages:
+
+```
+pybrid-computing/                       (repo root — workspace)
+├── pyproject.toml                      (uv workspace root, not a publishable package)
+├── packages/
+│   ├── pybrid-computing/               (pure-Python library)
+│   │   ├── pyproject.toml              (hatchling + uv-dynamic-versioning)
+│   │   └── src/
+│   │       └── pybrid/                 (NO __init__.py — namespace root)
+│   │           ├── base/               (protocol, models, serialisation)
+│   │           ├── cli/                (click-based CLI)
+│   │           ├── lucidac/            (LUCIDAC device layer)
+│   │           ├── lucipy/             (high-level Circuit API + LUCIStack)
+│   │           ├── mock/               (DummyDAC mock server)
+│   │           ├── redac/              (REDAC device layer)
+│   │           └── sim/                (simulator device layer)
+│   └── pybrid-computing-native/        (C++ extension via pybind11)
+│       ├── pyproject.toml              (scikit-build-core)
+│       ├── native/                     (C++ sources: transport, channels, protobuf)
+│       │   ├── CMakeLists.txt
+│       │   └── bindings.cpp
+│       ├── tests/                      (C++ GoogleTest tests)
+│       └── src/
+│           └── pybrid/                 (NO __init__.py — namespace root)
+│               └── native/             (Python wrapper importing _impl)
+├── extern/
+│   └── pybind11/                       (vendored, not committed — see below)
+├── tests/                              (pytest test suite, at repo root)
+├── proto/                              (protobuf definitions)
+├── docs/                               (Sphinx documentation)
+└── examples/                           (usage examples)
+```
+
+### Package overview
+
+| Package | Import path | Description |
+|---------|-------------|-------------|
+| **pybrid-computing** | `pybrid.base`, `pybrid.cli`, `pybrid.lucidac`, `pybrid.lucipy`, `pybrid.mock`, `pybrid.redac`, `pybrid.sim` | Pure-Python library: protocol, models, device layers, CLI, mock server |
+| **pybrid-computing-native** | `pybrid.native` | C++ extension providing high-performance UDP/TCP transports and data channels via pybind11 |
+
+Both packages contribute subpackages under the shared `pybrid` namespace. Neither
+package has an `__init__.py` at `src/pybrid/` — this is intentional (PEP 420
+implicit namespace packages) and required for the namespace to work correctly.
+
+The native extension is an optional accelerator. When it cannot be built or is not
+installed, the Python library continues to work — `pybrid.native.NATIVE_AVAILABLE`
+will be `False` in that case.
+
 ## Getting started as developer
 
 This project is managed via [uv](https://docs.astral.sh/uv/), a fast Python package
-manager and project tool. While the `pyproject.toml` is compatible with
-[poetry](https://python-poetry.org/), we recommend `uv` for its superior performance.
+manager and project tool.
+
+### Prerequisites
+
+Building the native extension requires a C++17 compiler and CMake:
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install build-essential cmake
+
+# Fedora
+sudo dnf install gcc-c++ cmake
+
+# macOS (Xcode command-line tools include both)
+xcode-select --install
+```
 
 ### Setup with uv
 
@@ -175,8 +242,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone <repository-url>
 cd pybrid-computing
 
-# Create virtual environment and install all dependencies (including dev)
-uv sync
+# Vendor pybind11 (not committed — needed for native build)
+mkdir -p extern
+curl -sL https://github.com/pybind/pybind11/archive/refs/tags/v2.13.6.tar.gz \
+  | tar xz -C extern && mv extern/pybind11-2.13.6 extern/pybind11
+
+# Create virtual environment and install all workspace packages + dev tools
+uv sync --group dev
 
 # Activate the virtual environment
 source .venv/bin/activate
@@ -184,15 +256,8 @@ source .venv/bin/activate
 
 ### Editable installation
 
-For developers, an _editable_ installation applies source code changes instantly
-without requiring a package rebuild.
-
-```bash
-uv venv
-uv pip install -e .
-```
-
-Modified code is applied once you restart pybrid or re-run your script.
+`uv sync` installs both workspace packages in editable mode by default. Source
+code changes are applied once you restart pybrid or re-run your script.
 
 ### Running the tests
 

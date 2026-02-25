@@ -20,11 +20,6 @@ from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
 from pybrid.redac.entities import Path
 
 
-# =============================================================================
-# Helper Functions
-# =============================================================================
-
-
 def make_test_redac_with_mblock(num_carriers: int = 1):
     """
     Create a REDAC computer with MIntBlock for testing legacy parser.
@@ -63,21 +58,10 @@ def make_test_redac_with_mblock(num_carriers: int = 1):
     return REDAC(entities=carriers)
 
 
-# =============================================================================
-# Test Classes
-# =============================================================================
-
-
 class TestExtractCarrier:
     """Tests for LegacyConfigJSONParser.extract_carrier method."""
 
     def test_valid_carrier_found(self):
-        """
-        Test that extract_carrier returns the correct carrier when the ID matches.
-
-        Creates a REDAC with a known virtual MAC address and verifies that
-        extract_carrier can locate it correctly.
-        """
         computer = make_test_redac_with_mblock(num_carriers=2)
         carrier_id = AddressingMap.map_redac(0)
 
@@ -87,12 +71,6 @@ class TestExtractCarrier:
         assert result.path.to_mac() == carrier_id
 
     def test_missing_carrier_raises(self):
-        """
-        Test that extract_carrier raises an exception for non-existent carrier ID.
-
-        Uses a carrier ID that does not exist in the computer to verify
-        proper error handling.
-        """
         computer = make_test_redac_with_mblock(num_carriers=1)
         nonexistent_id = "FF-FF-FF-FF-FF-FF"
 
@@ -107,12 +85,6 @@ class TestParseGoldenFile:
     """Tests for parsing the harmonic_legacy.json golden test configuration."""
 
     def test_harmonic_json_parses(self, harmonic_config):
-        """
-        Test that the harmonic_legacy.json configuration parses without errors.
-
-        Uses the harmonic_config fixture to load the golden test file and
-        verifies that parsing completes successfully.
-        """
         computer = make_test_redac_with_mblock(num_carriers=1)
 
         result = LegacyConfigJSONParser.parse(harmonic_config, computer)
@@ -122,16 +94,7 @@ class TestParseGoldenFile:
         assert len(result.bundle.configs) > 0
 
     def test_harmonic_cblock_values(self, harmonic_config):
-        """
-        Test that CBlock values from harmonic_legacy.json are correctly parsed.
-
-        The harmonic_legacy.json file contains specific coefficient values:
-        - elements[0] = -1.0
-        - elements[8] = 1.0
-        - all others = 0.0
-
-        Verifies these values are applied to the computer model.
-        """
+        """CBlock values from harmonic_legacy.json: elements[0]=-1.0, elements[8]=1.0, others=0.0."""
         computer = make_test_redac_with_mblock(num_carriers=1)
         cluster = computer.carriers[0].clusters[0]
 
@@ -147,16 +110,7 @@ class TestParseGoldenFile:
                 f"Expected element {i} to be 0.0, got {cluster.cblock.elements[i].factor}"
 
     def test_harmonic_m0block_values(self, harmonic_config):
-        """
-        Test that M0Block values from harmonic_legacy.json are correctly parsed.
-
-        The harmonic_legacy.json file contains specific integrator configurations:
-        - element[0]: ic=0.0, k=10000
-        - element[1]: ic=-0.42, k=10000
-        - elements[2-7]: ic=0.0, k=10000
-
-        Verifies these values are applied to the computer model.
-        """
+        """M0Block values from harmonic_legacy.json: element[0] ic=0.0/k=10000, element[1] ic=-0.42/k=10000."""
         computer = make_test_redac_with_mblock(num_carriers=1)
         cluster = computer.carriers[0].clusters[0]
 
@@ -181,19 +135,12 @@ class TestParseAddressing:
     """Tests for addressing modes during parsing."""
 
     def test_virtual_to_virtual_succeeds(self, harmonic_config):
-        """
-        Test that parsing succeeds when both config and computer use virtual addresses.
-
-        The harmonic_legacy.json uses virtual address "00-00-00-00-00-00" and the
-        test computer is created with virtual addresses. This should parse
-        without requiring any heuristic mapping.
-        """
+        """Parsing succeeds when both config and computer use virtual addresses."""
         computer = make_test_redac_with_mblock(num_carriers=1)
 
         # Verify the computer uses virtual addresses
         assert computer.carriers[0].path.to_mac() == AddressingMap.map_redac(0)
 
-        # Parsing should succeed without errors
         result = LegacyConfigJSONParser.parse(harmonic_config, computer)
 
         assert result is not None
@@ -204,13 +151,7 @@ class TestParseErrorHandling:
     """Tests for error handling during parsing."""
 
     def test_missing_cluster_skipped(self):
-        """
-        Test that missing cluster configurations are gracefully skipped.
-
-        Creates a config that references a cluster path that doesn't exist
-        in the carrier config. The parser should skip missing clusters
-        rather than raising an error.
-        """
+        """Missing cluster configurations are gracefully skipped rather than raising."""
         computer = make_test_redac_with_mblock(num_carriers=1)
 
         # Config with carrier but no cluster data (no "/0" key)
@@ -226,17 +167,11 @@ class TestParseErrorHandling:
         assert result is not None
 
     def test_empty_config_produces_empty_result(self):
-        """
-        Test that an empty configuration produces a valid but empty result.
-
-        An empty dictionary should still produce a valid protobuf File
-        object, just without any meaningful configuration data.
-        """
+        """Empty config dict produces a valid protobuf File with an empty bundle."""
         computer = make_test_redac_with_mblock(num_carriers=1)
         config = {}
 
         result = LegacyConfigJSONParser.parse(config, computer)
 
-        # Should return a valid File with an empty or default bundle
         assert result is not None
         assert result.bundle is not None

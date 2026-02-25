@@ -30,19 +30,11 @@ if TYPE_CHECKING:
     from pybrid.redac.controller import Controller
 
 
-# =============================================================================
-# Timeout Constants
-# =============================================================================
-
 TIMEOUT_SHORT = 5.0
 TIMEOUT_MEDIUM = 15.0
 TIMEOUT_LONG = 30.0
 TIMEOUT_EXTENDED = 60.0
 
-
-# =============================================================================
-# Run Execution Helpers
-# =============================================================================
 
 async def execute_run(
     ctrl: "Controller",

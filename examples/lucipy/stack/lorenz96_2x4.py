@@ -17,7 +17,7 @@ inversion, delivering the true mathematical value to the receiving device.
 Requires connecting analog inputs/outputs 0-3 pairwise (e.g. output 0 from LUCIDAC
 0 connected to input 0 of LUCIDAC 1, ...).
 """
-from pybrid.lucipy import Circuit, LUCIDAC, time_series
+from pybrid.lucipy import LUCIDAC, time_series
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,12 +26,16 @@ import random
 slow = True
 F = 0.2
 A = 5
-B = 1
+B = 0.1666
 
 N = 8   # number of Lorenz-96 variables
 K = 4   # variables per device
 
-l = [Circuit(), Circuit()]
+# Generate stack of two LUCIDACs - enter IP addresses here or leave empty
+# to use auto-discover.
+stack = LUCIDAC("192.168.150.15", "192.168.150.57")
+
+l = [stack.create_circuit(d) for d in range(2)]
 c = [l[0].const(), l[1].const()]
 
 x, m = [], []
@@ -108,12 +112,6 @@ for i in range(N):
 # Measurements
 for i in range(N):
     l[i // K].probe(x[i], adc_channel=i % K)
-
-# Generate stack of two LUCIDACs - enter IP addresses here or leave empty
-# to use auto-discover.
-stack = LUCIDAC("192.168.150.15", "192.168.150.57")
-for d in range(2):
-    stack[d].set_circuit(l[d])
 
 sample_rate = 100_000
 stack.set_daq(sample_rate=sample_rate)

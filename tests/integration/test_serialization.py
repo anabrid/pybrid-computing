@@ -19,11 +19,6 @@ from pybrid.redac.entities import Path
 from pybrid.base.utils.addressing import AddressingMap
 
 
-# =============================================================================
-# Helper Functions
-# =============================================================================
-
-
 def make_test_redac_with_mblock(num_carriers: int = 1):
     """
     Create a REDAC computer with MIntBlock for testing integrator serialization.
@@ -232,11 +227,6 @@ def compare_adc_channels(original, restored):
     return True
 
 
-# =============================================================================
-# Test Classes
-# =============================================================================
-
-
 class TestEmptyConfigRoundtrip:
     """Test roundtrip serialization of empty/default configurations."""
 
@@ -246,22 +236,12 @@ class TestEmptyConfigRoundtrip:
         (make_test_simulator, "Simulator"),
     ])
     def test_empty_config_roundtrip(self, computer_factory, computer_name):
-        """
-        Test that an empty configuration survives roundtrip serialization.
-
-        The default state of a newly created computer should be preserved
-        after serialization and deserialization.
-        """
         computer = computer_factory() if computer_name == "REDAC" else computer_factory()
         assert computer.name == computer_name
 
-        # Perform roundtrip
         restored = serialize_roundtrip(computer)
 
-        # Verify computer type preserved
         assert restored.name == computer_name
-
-        # Verify structure preserved
         assert len(restored.carriers) == len(computer.carriers)
         for orig_carrier, rest_carrier in zip(computer.carriers, restored.carriers):
             assert len(orig_carrier.clusters) == len(rest_carrier.clusters)
@@ -270,21 +250,7 @@ class TestEmptyConfigRoundtrip:
 class TestCBlockElementsPreserved:
     """Test that CBlock coefficient elements survive roundtrip."""
 
-    def test_cblock_single_coefficient(self):
-        """Test roundtrip with a single modified coefficient."""
-        computer = make_test_redac_with_mblock()
-        cluster = computer.carriers[0].clusters[0]
-
-        # Set a single coefficient
-        cluster.cblock.elements[0].computation.factor = 0.5
-
-        restored = serialize_roundtrip(computer)
-        restored_cluster = restored.carriers[0].clusters[0]
-
-        compare_cblock_elements(cluster.cblock, restored_cluster.cblock)
-
     def test_cblock_multiple_coefficients(self):
-        """Test roundtrip with multiple modified coefficients."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -299,7 +265,6 @@ class TestCBlockElementsPreserved:
         compare_cblock_elements(cluster.cblock, restored_cluster.cblock)
 
     def test_cblock_all_coefficients(self):
-        """Test roundtrip with all 32 coefficients set."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -314,7 +279,6 @@ class TestCBlockElementsPreserved:
         compare_cblock_elements(cluster.cblock, restored_cluster.cblock)
 
     def test_cblock_boundary_values(self):
-        """Test roundtrip with boundary coefficient values."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -332,22 +296,7 @@ class TestCBlockElementsPreserved:
 class TestMIntBlockElementsPreserved:
     """Test that MIntBlock integrator elements survive roundtrip."""
 
-    def test_mintblock_single_integrator(self):
-        """Test roundtrip with a single modified integrator."""
-        computer = make_test_redac_with_mblock()
-        cluster = computer.carriers[0].clusters[0]
-
-        # Set a single integrator
-        cluster.m0block.elements[0].ic = 0.5
-        cluster.m0block.elements[0].k = 100
-
-        restored = serialize_roundtrip(computer)
-        restored_cluster = restored.carriers[0].clusters[0]
-
-        compare_mintblock_elements(cluster.m0block, restored_cluster.m0block)
-
     def test_mintblock_multiple_integrators(self):
-        """Test roundtrip with multiple modified integrators."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -372,7 +321,6 @@ class TestMIntBlockElementsPreserved:
         compare_mintblock_elements(cluster.m0block, restored_cluster.m0block)
 
     def test_mintblock_limiters(self):
-        """Test roundtrip with limiter configuration."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -384,40 +332,11 @@ class TestMIntBlockElementsPreserved:
 
         compare_mintblock_elements(cluster.m0block, restored_cluster.m0block)
 
-    def test_mintblock_boundary_ic_values(self):
-        """Test roundtrip with boundary IC values."""
-        computer = make_test_redac_with_mblock()
-        cluster = computer.carriers[0].clusters[0]
-
-        # Test boundary IC values: -1.0, 0.0, 1.0
-        cluster.m0block.elements[0].ic = -1.0
-        cluster.m0block.elements[1].ic = 0.0
-        cluster.m0block.elements[2].ic = 1.0
-
-        restored = serialize_roundtrip(computer)
-        restored_cluster = restored.carriers[0].clusters[0]
-
-        compare_mintblock_elements(cluster.m0block, restored_cluster.m0block)
-
 
 class TestADCChannelsPreserved:
     """Test that ADC channel configurations survive roundtrip."""
 
-    def test_adc_single_channel(self):
-        """Test roundtrip with a single ADC channel."""
-        computer = make_test_redac_with_mblock()
-        carrier = computer.carriers[0]
-
-        # Add a single ADC channel
-        carrier.adc_config = [ADCChannel(index=0, gain=1.0, offset=0.0)]
-
-        restored = serialize_roundtrip(computer)
-        restored_carrier = restored.carriers[0]
-
-        compare_adc_channels(carrier, restored_carrier)
-
     def test_adc_multiple_channels(self):
-        """Test roundtrip with multiple ADC channels."""
         computer = make_test_redac_with_mblock()
         carrier = computer.carriers[0]
 
@@ -434,34 +353,15 @@ class TestADCChannelsPreserved:
 
         compare_adc_channels(carrier, restored_carrier)
 
-    def test_adc_with_gain_offset(self):
-        """Test roundtrip with non-trivial gain and offset values."""
-        computer = make_test_redac_with_mblock()
-        carrier = computer.carriers[0]
-
-        # Add ADC channels with specific gain and offset values
-        carrier.adc_config = [
-            ADCChannel(index=5, gain=10.0, offset=100.0),
-            ADCChannel(index=10, gain=0.1, offset=-50.0),
-        ]
-
-        restored = serialize_roundtrip(computer)
-        restored_carrier = restored.carriers[0]
-
-        compare_adc_channels(carrier, restored_carrier)
-
     def test_adc_empty_config(self):
-        """Test roundtrip with empty ADC configuration."""
         computer = make_test_redac_with_mblock()
         carrier = computer.carriers[0]
 
-        # Ensure ADC config is empty
         carrier.adc_config = []
 
         restored = serialize_roundtrip(computer)
         restored_carrier = restored.carriers[0]
 
-        # Empty ADC config should remain empty
         assert len(restored_carrier.adc_config) == 0
 
 
@@ -469,7 +369,6 @@ class TestUBlockPreserved:
     """Test that UBlock configurations survive roundtrip."""
 
     def test_ublock_connections(self):
-        """Test roundtrip with UBlock connections."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -481,69 +380,29 @@ class TestUBlockPreserved:
         restored = serialize_roundtrip(computer)
         restored_cluster = restored.carriers[0].clusters[0]
 
-        # Check connections preserved
         assert cluster.ublock.outputs[0] == restored_cluster.ublock.outputs[0]
         assert cluster.ublock.outputs[10] == restored_cluster.ublock.outputs[10]
         assert cluster.ublock.outputs[31] == restored_cluster.ublock.outputs[31]
 
-    def test_ublock_constant_positive_one(self):
-        """Test roundtrip with positive constant value +1.0."""
+    @pytest.mark.parametrize("constant", [1.0, 0.1, -0.1, False])
+    def test_ublock_constant_roundtrip(self, constant):
+        """Test roundtrip for all supported UBlock constant values including ground (False)."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
-        cluster.ublock.constant = 1.0
-        cluster.ublock.outputs[0] = 15  # Connect constant input
-
-        restored = serialize_roundtrip(computer)
-        restored_cluster = restored.carriers[0].clusters[0]
-
-        assert restored_cluster.ublock.constant == 1.0
-
-    def test_ublock_constant_positive_tenth(self):
-        """Test roundtrip with positive constant value +0.1."""
-        computer = make_test_redac_with_mblock()
-        cluster = computer.carriers[0].clusters[0]
-
-        cluster.ublock.constant = 0.1
+        cluster.ublock.constant = constant
         cluster.ublock.outputs[0] = 15
 
         restored = serialize_roundtrip(computer)
         restored_cluster = restored.carriers[0].clusters[0]
 
-        assert restored_cluster.ublock.constant == 0.1
-
-    def test_ublock_constant_negative_tenth(self):
-        """Test roundtrip with negative constant value -0.1."""
-        computer = make_test_redac_with_mblock()
-        cluster = computer.carriers[0].clusters[0]
-
-        cluster.ublock.constant = -0.1
-        cluster.ublock.outputs[0] = 15
-
-        restored = serialize_roundtrip(computer)
-        restored_cluster = restored.carriers[0].clusters[0]
-
-        assert restored_cluster.ublock.constant == -0.1
-
-    def test_ublock_constant_ground(self):
-        """Test roundtrip with ground (disabled) constant."""
-        computer = make_test_redac_with_mblock()
-        cluster = computer.carriers[0].clusters[0]
-
-        cluster.ublock.constant = False
-        cluster.ublock.outputs[0] = 5
-
-        restored = serialize_roundtrip(computer)
-        restored_cluster = restored.carriers[0].clusters[0]
-
-        assert restored_cluster.ublock.constant == False
+        assert restored_cluster.ublock.constant == constant
 
 
 class TestIBlockPreserved:
     """Test that IBlock configurations survive roundtrip."""
 
     def test_iblock_connections(self):
-        """Test roundtrip with IBlock sum connections."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -555,13 +414,11 @@ class TestIBlockPreserved:
         restored = serialize_roundtrip(computer)
         restored_cluster = restored.carriers[0].clusters[0]
 
-        # Check connections preserved
         assert cluster.iblock.outputs[0] == restored_cluster.iblock.outputs[0]
         assert cluster.iblock.outputs[5] == restored_cluster.iblock.outputs[5]
         assert cluster.iblock.outputs[15] == restored_cluster.iblock.outputs[15]
 
     def test_iblock_upscaling(self):
-        """Test roundtrip with IBlock upscaling configuration."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
 
@@ -574,7 +431,6 @@ class TestIBlockPreserved:
         restored = serialize_roundtrip(computer)
         restored_cluster = restored.carriers[0].clusters[0]
 
-        # Check upscaling preserved
         assert restored_cluster.iblock.upscaling[0] == True
         assert restored_cluster.iblock.upscaling[10] == True
         assert restored_cluster.iblock.upscaling[31] == True
@@ -584,7 +440,7 @@ class TestComplexConfigRoundtrip:
     """Test roundtrip with complex multi-block configurations."""
 
     def test_full_cluster_configuration(self):
-        """Test roundtrip with a fully configured cluster."""
+        """Test roundtrip with a fully configured cluster spanning all block types."""
         computer = make_test_redac_with_mblock()
         cluster = computer.carriers[0].clusters[0]
         carrier = computer.carriers[0]

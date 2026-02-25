@@ -30,11 +30,6 @@ from pybrid.redac.controller import Controller
 from pybrid.redac.run import Run, RunConfig, DAQConfig, RunState
 
 
-# =============================================================================
-# Fixtures
-# =============================================================================
-
-
 @pytest.fixture
 def harmonic_pb_config():
     """
@@ -50,11 +45,6 @@ def harmonic_pb_config():
     return ProtoIO.json_to_pbfile(json_config)
 
 
-# =============================================================================
-# Tests
-# =============================================================================
-
-
 @pytest.mark.device
 class TestHarmonicOscillatorOnDevice:
     """
@@ -67,18 +57,7 @@ class TestHarmonicOscillatorOnDevice:
     """
 
     async def test_harmonic_amplitude(self, any_device_endpoint, harmonic_pb_config):
-        """
-        Test that harmonic oscillator maintains amplitude. Note that actual devices
-        have increasing amplitude over time, so we keep the integration short and check
-        for a wide margin.
-
-        The harmonic oscillator dx/dt = v, dv/dt = -x with
-        x(0) = 0, v(0) = A should oscillate with constant amplitude A.
-
-        Verifies:
-        - Oscillation amplitude is preserved within tolerance
-        - No significant energy loss over computation time
-        """
+        """Amplitude tolerance is wide to accommodate the energy increase real devices exhibit."""
         host, port, device_type = any_device_endpoint
 
         async with Controller(standalone=True) as ctrl:
@@ -152,15 +131,7 @@ class TestHarmonicOscillatorOnDevice:
                     break
 
     async def test_harmonic_frequency(self, any_device_endpoint, harmonic_pb_config):
-        """
-        Test that harmonic oscillator has correct frequency.
-
-        For dx/dt = v, dv/dt = -omega^2 * x, the oscillation frequency
-        should be omega / (2*pi).
-
-        Verifies:
-        - Oscillation frequencu is preserved within tolerance
-        """
+        """Expected frequency is k/(2*pi) ~ 1592 Hz with 5% tolerance for analog variation."""
         host, port, device_type = any_device_endpoint
 
         async with Controller(standalone=True) as ctrl:
@@ -243,15 +214,6 @@ class TestHarmonicOscillatorOnDevice:
     async def test_data_collection_infrastructure(
         self, any_device_endpoint, harmonic_pb_config
     ):
-        """
-        Test that data collection pipeline works correctly.
-
-        Sends a circuit (harmonic oscillator) and verifies:
-        - DAQ configuration is accepted
-        - Data is received during OP phase
-        - Number of samples roughly matches expected (op_time × sample_rate)
-        - Number of channels matches requested DAQConfig
-        """
         host, port, device_type = any_device_endpoint
 
         # DAQ configuration parameters

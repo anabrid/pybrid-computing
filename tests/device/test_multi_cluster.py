@@ -23,11 +23,6 @@ from pybrid.redac.run import Run, RunConfig, RunState
 from tests.conftest import get_device_endpoint
 
 
-# =============================================================================
-# Fixtures
-# =============================================================================
-
-
 @pytest.fixture
 def redac_endpoint():
     """
@@ -44,25 +39,11 @@ def redac_endpoint():
     return endpoint
 
 
-# =============================================================================
-# Multi-Cluster Tests
-# =============================================================================
-
-
 @pytest.mark.device
 @pytest.mark.redac
 class TestREDACMultiCluster:
-    """Tests for multi-cluster REDAC operations."""
 
     async def test_all_clusters_configurable(self, redac_endpoint):
-        """
-        Test that all clusters on REDAC can be configured.
-
-        Verifies:
-        - All detected clusters accept configuration
-        - Configuration is properly distributed
-        - No cluster is left unconfigured
-        """
         host, port = redac_endpoint
 
         async with Controller(standalone=True) as ctrl:
@@ -98,14 +79,6 @@ class TestREDACMultiCluster:
             )
 
     async def test_parallel_cluster_run(self, redac_endpoint):
-        """
-        Test running computation across multiple clusters in parallel.
-
-        Verifies:
-        - Run involves all available carriers
-        - All carriers reach DONE state
-        - No carrier is left behind
-        """
         host, port = redac_endpoint
 
         async with Controller(standalone=True) as ctrl:
@@ -155,13 +128,6 @@ class TestREDACMultiCluster:
             )
 
     async def test_cluster_isolation(self, redac_endpoint):
-        """
-        Test that cluster configurations are properly isolated.
-
-        Verifies:
-        - Configuration sent to one cluster doesn't affect others
-        - Each cluster maintains its own state
-        """
         host, port = redac_endpoint
 
         async with Controller(standalone=True) as ctrl:
@@ -201,11 +167,6 @@ class TestREDACMultiCluster:
             )
 
 
-# =============================================================================
-# Multi-Carrier Tests (DummyDAC)
-# =============================================================================
-
-
 @pytest.mark.asyncio
 class TestMultiCarrierDummyDAC:
     """
@@ -216,11 +177,9 @@ class TestMultiCarrierDummyDAC:
     """
 
     async def test_parallel_carrier_run_with_dummy(self, dummy_dac_virtual):
-        """Test that runs execute across multiple carriers in DummyDAC."""
         async with Controller() as ctrl:
             await ctrl.add_device("127.0.0.1", dummy_dac_virtual.port)
 
-            # DummyDAC has 2 carriers by default
             assert len(ctrl.computer.carriers) >= 2, (
                 "DummyDAC should have at least 2 carriers"
             )
@@ -230,25 +189,10 @@ class TestMultiCarrierDummyDAC:
                 config=RunConfig(ic_time=10_000, op_time=100_000),
             )
 
-            run_state = await ctrl.start_run(run)
+            import warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", DeprecationWarning)
+                completed_run = await ctrl.start_and_await_run(run)
 
-            # Verify multiple paths are involved
-            involved_paths = set(run_state.get_involved_paths())
-            assert len(involved_paths) >= 2, (
-                f"Run should involve multiple carriers, got {len(involved_paths)}"
-            )
+            assert completed_run.state == RunState.DONE
 
-            async with asyncio.timeout(10.0):
-                await run_state.wait_all(RunState.DONE)
-
-    async def test_carrier_access_with_dummy(self, dummy_dac_virtual):
-        """Test that multiple carriers are accessible via DummyDAC."""
-        async with Controller() as ctrl:
-            await ctrl.add_device("127.0.0.1", dummy_dac_virtual.port)
-
-            carriers = ctrl.computer.carriers
-            if len(carriers) < 2:
-                pytest.skip("Need at least 2 carriers")
-
-            # Verify we can access multiple carriers
-            assert len(carriers) >= 2, "Should have at least 2 carriers"

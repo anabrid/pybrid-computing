@@ -19,7 +19,16 @@ import numpy as np
 # Create a Hindmarsh-Rose neuron model circuit in lucipy-syntax
 ###
 
-hr      = Circuit()                     # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
+
+hr      = luci.create_circuit()         # Create a circuit
 
 x   = hr.int(ic = +1.)                  # Integrators with initial conditions
 y   = hr.int(ic = -1.)
@@ -51,17 +60,6 @@ hr.connect( z, z, weight = +0.1)
 hr.measure(x, adc_channel=0)            # Connect integrators to ADC
 hr.measure(y, adc_channel=1)            # to sample data
 hr.measure(z, adc_channel=2)
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(hr)                    # Assign circuit
 
 ###
 # Settings for sampling and circuit execution

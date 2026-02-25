@@ -11,7 +11,7 @@ https://analogparadigm.com/downloads/alpaca_61.pdf):
 
 with cyclic indices (mod N) and parameters A, B, F below.
 """
-from pybrid.lucipy import Circuit, LUCIDAC, time_series
+from pybrid.lucipy import LUCIDAC, time_series
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +23,11 @@ A = 5
 B = 0.1666
 
 N = 4
-l0 = Circuit()
+
+# Run
+stack = LUCIDAC("192.168.150.15")
+
+l0 = stack.create_circuit(0)
 c0 = l0.const()
 x = [l0.int(slow=slow) for _ in range(N)]
 m = [l0.mul() for _ in range(N)]
@@ -40,10 +44,6 @@ for i in range(N):
 
 for i in range(N):
     l0.probe(x[i], adc_channel=i)
-
-# Run
-stack = LUCIDAC("192.168.150.15")
-stack[0].set_circuit(l0)
 
 sample_rate = 100_000
 stack.set_daq(sample_rate=sample_rate)

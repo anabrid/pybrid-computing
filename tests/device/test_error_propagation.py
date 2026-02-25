@@ -95,24 +95,10 @@ def _disable_run_error_suppression(loop, old_handler):
     loop.set_exception_handler(old_handler)
 
 
-# =============================================================================
-# Error Propagation Tests
-# =============================================================================
-
-
 @pytest.mark.device
 class TestErrorPropagation:
-    """Tests for proper error propagation from hardware."""
 
     async def test_invalid_sample_rate_error(self, any_device_endpoint):
-        """
-        Test that invalid sample rate is rejected with appropriate error.
-
-        Verifies:
-        - Excessively high sample rate is rejected
-        - Error message is descriptive
-        - System remains stable after error
-        """
         host, port, _ = any_device_endpoint
 
         # Suppress RunError logging from unhandled futures
@@ -170,14 +156,6 @@ class TestErrorPropagation:
             _disable_run_error_suppression(loop, old_handler)
 
     async def test_invalid_op_time_error(self, any_device_endpoint):
-        """
-        Test that invalid op_time is rejected with appropriate error.
-
-        Verifies:
-        - Zero or negative op_time is handled
-        - Excessively long op_time is handled
-        - Error propagation is clean
-        """
         host, port, device_type = any_device_endpoint
 
         # Simulator does not validate OP time
@@ -229,13 +207,6 @@ class TestErrorPropagation:
             _disable_run_error_suppression(loop, old_handler)
 
     async def test_connection_recovery(self, any_device_endpoint, harmonic_pb_config):
-        """
-        Test that controller can recover from transient errors.
-
-        Verifies:
-        - After an error, normal operations can continue
-        - No state corruption from previous error
-        """
         host, port, device_type = any_device_endpoint
 
         # Simulator does not validate OP time, so the "bad run" won't fail
@@ -288,13 +259,6 @@ class TestErrorPropagation:
             _disable_run_error_suppression(loop, old_handler)
 
     async def test_error_message_content(self, any_device_endpoint):
-        """
-        Test that error messages contain useful diagnostic information.
-
-        Verifies:
-        - Error messages are not empty
-        - Error messages contain relevant context
-        """
         host, port, _ = any_device_endpoint
 
         # Suppress RunError logging from unhandled futures
@@ -340,11 +304,6 @@ class TestErrorPropagation:
             await _cleanup_pending_futures()
         finally:
             _disable_run_error_suppression(loop, old_handler)
-
-
-# =============================================================================
-# Unavailable Hardware Config Tests
-# =============================================================================
 
 
 @pytest.fixture
@@ -451,19 +410,7 @@ class TestUnavailableHardwareErrorPropagation:
     async def test_redac_portconfig_for_unavailable_hardware_error_propagation(
         self, harmonic_pb_config_with_portconfig
     ):
-        """
-        Test that config with PortConfig for unavailable hardware is rejected by REDAC.
-
-        Sends a configuration containing a PortConfig for entity "00-00-00-00-00-00"
-        to a REDAC device. Since the device doesn't have Port hardware, it should
-        reject the config and propagate an error.
-
-        Verifies:
-        - Config referencing unavailable hardware is rejected
-        - Error is propagated (not silently ignored)
-        - Error message indicates the issue
-        - Controller remains stable after error
-        """
+        """Sends PortConfig for "00-00-00-00-00-00" to REDAC which lacks Port hardware."""
         # Only run on REDAC - Simulator handles this differently
         endpoint = get_device_endpoint("TEST_REDAC_ENDPOINT")
         if endpoint is None:
@@ -506,19 +453,7 @@ class TestUnavailableHardwareErrorPropagation:
     async def test_lucidac_switchconfig_for_unavailable_hardware_error_propagation(
         self, harmonic_pb_config_with_switchconfig
     ):
-        """
-        Test that config with SwitchConfig for unavailable hardware is rejected by LUCIDAC.
-
-        Sends a configuration containing a SwitchConfig for entity "00-00-00-00-00-00/T"
-        to a LUCIDAC device. Since LUCIDAC doesn't have switch/routing hardware at
-        T-block, it should reject the config and propagate an error.
-
-        Verifies:
-        - Config referencing unavailable hardware is rejected
-        - Error is propagated (not silently ignored)
-        - Error message indicates the issue
-        - Controller remains stable after error
-        """
+        """Sends SwitchConfig for "00-00-00-00-00-00/T" to LUCIDAC which lacks T-block switch hardware."""
         # Only run on LUCIDAC
         endpoint = get_device_endpoint("TEST_LUCIDAC_ENDPOINT")
         if endpoint is None:

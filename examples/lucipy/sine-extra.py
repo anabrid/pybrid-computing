@@ -10,7 +10,16 @@ import numpy as np
 # additional goodies (LEDs, signal generator) showing the use of the pront panel
 ###
 
-c   = Circuit()                         # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
+
+c   = luci.create_circuit()             # Create a circuit
 
 ic_sin  = -1                            # Initial value for the sine
 omega   = .01 * (2.*np.pi)              # Oscillation frequency
@@ -38,17 +47,6 @@ c.front_panel.set_triangle(offset=0.2)
 c.front_panel.set_aux(0.3, -0.8)
 
 c.front_panel.set_leds([True, True, False, True, False, True, True, True])
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(c)                     # Assign circuit
 
 ###
 # Settings for sampling and circuit execution

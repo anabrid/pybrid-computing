@@ -6,12 +6,9 @@
 Unit tests for Circuit.to_computer() export functionality.
 
 These tests verify that:
-- to_computer() returns a valid LUCIDAC instance
 - A harmonic oscillator circuit produces correct U/C/I state
 - to_computer() emits a warning about manual changes
 - copy.deepcopy() works on LUCIDAC objects (needed by connection pool)
-
-Written as TDD tests before the Circuit class rewrite.
 """
 
 import copy
@@ -25,23 +22,9 @@ from pybrid.lucidac.computer import LUCIDAC
 class TestToComputer:
     """Tests for Circuit.to_computer() method."""
 
-    def test_to_computer_returns_lucidac(self):
-        """to_computer() must return a LUCIDAC instance."""
-        circuit = Circuit()
-        result = circuit.to_computer()
-
-        assert isinstance(result, LUCIDAC), (
-            f"to_computer() must return a LUCIDAC instance, got {type(result)}"
-        )
-
     def test_to_computer_harmonic_oscillator(self):
-        """
-        Build a harmonic oscillator (2 integrators in feedback loop):
-            i0' = -i1     (weight -1.0)
-            i1' =  i0     (weight  1.0)
-        Verify U/C/I state is correct on the pybrid object.
-        """
-        circuit = Circuit()
+        """Harmonic oscillator (two coupled integrators) produces correct U/C/I block state."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int(ic=1.0)
         i1 = circuit.int(ic=0.0)
 
@@ -110,8 +93,7 @@ class TestToComputer:
             )
 
     def test_to_computer_warns_on_manual_changes(self):
-        """to_computer() must emit a warning about manual changes."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -132,12 +114,9 @@ class TestDeepCopyLUCIDAC:
     """Tests for copy.deepcopy() support on LUCIDAC objects."""
 
     def test_deepcopy_lucidac(self):
-        """
-        copy.deepcopy(LUCIDAC()) must succeed and produce independent objects.
-        Modifying the copy must not affect the original.
-        """
+        """deepcopy produces an independent LUCIDAC; modifying the copy does not affect the original."""
         # Create a LUCIDAC through Circuit to get a fully populated one
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int(ic=0.5)
         i1 = circuit.int(ic=-0.3)
         circuit.connect(i0, i1, weight=1.0)

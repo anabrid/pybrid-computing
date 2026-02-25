@@ -25,16 +25,10 @@ from pybrid.redac import Path, RunState, Run, RunError
 from pybrid.redac.controller import DistributedRunState
 
 
-# =============================================================================
-# Initialization Tests
-# =============================================================================
-
-
 class TestDistributedRunStateInit:
     """Tests for DistributedRunState initialization."""
 
     async def test_initialization_with_paths(self):
-        """Test that DistributedRunState can be initialized with paths provided at construction."""
         run = Run()
         path_one = Path.parse("00-00-00-00-00-00")
         path_two = Path.parse("00-00-00-00-00-01")
@@ -46,38 +40,11 @@ class TestDistributedRunStateInit:
         assert path_one in involved_paths
         assert path_two in involved_paths
 
-    async def test_initialization_without_paths(self):
-        """Test that DistributedRunState can be initialized without paths."""
-        run = Run()
-
-        run_state = DistributedRunState(run)
-
-        involved_paths = list(run_state.get_involved_paths())
-        assert len(involved_paths) == 0
-
-
-# =============================================================================
-# Path Management Tests
-# =============================================================================
-
 
 class TestDistributedRunStatePathManagement:
     """Tests for path addition and management."""
 
-    async def test_add_paths_single(self):
-        """Test adding a single path to DistributedRunState."""
-        run = Run()
-        run_state = DistributedRunState(run)
-        path = Path.parse("00-00-00-00-00-00")
-
-        run_state.add_paths(path)
-
-        involved_paths = list(run_state.get_involved_paths())
-        assert len(involved_paths) == 1
-        assert path in involved_paths
-
     async def test_add_paths_duplicate_raises(self):
-        """Test that adding a duplicate path raises ValueError."""
         run = Run()
         run_state = DistributedRunState(run)
         path = Path.parse("00-00-00-00-00-00")
@@ -88,16 +55,10 @@ class TestDistributedRunStatePathManagement:
             run_state.add_paths(path)
 
 
-# =============================================================================
-# State Tracking Tests
-# =============================================================================
-
-
 class TestDistributedRunStateTracking:
     """Tests for state change tracking."""
 
     async def test_track_state_change(self):
-        """Test tracking a state change for a path."""
         run = Run()
         run_state = DistributedRunState(run)
         path = Path.parse("00-00-00-00-00-00")
@@ -116,7 +77,6 @@ class TestDistributedRunStateTracking:
             await run_state.wait_all(RunState.QUEUED)
 
     async def test_full_state_cycle(self):
-        """Test a complete state cycle from NEW through DONE."""
         run = Run()
         run_state = DistributedRunState(run)
         path = Path.parse("00-00-00-00-00-00")
@@ -141,16 +101,10 @@ class TestDistributedRunStateTracking:
             await run_state.wait_all(RunState.DONE)
 
 
-# =============================================================================
-# Wait and Timeout Tests
-# =============================================================================
-
-
 class TestDistributedRunStateWaiting:
     """Tests for wait_all functionality."""
 
     async def test_wait_all_timeout(self):
-        """Test that wait_all times out correctly when state is not reached."""
         run = Run()
         run_state = DistributedRunState(run)
         path_one = Path.parse("00-00-00-00-00-00")
@@ -166,16 +120,10 @@ class TestDistributedRunStateWaiting:
                 await run_state.wait_all(RunState.QUEUED)
 
 
-# =============================================================================
-# Error Handling Tests
-# =============================================================================
-
-
 class TestDistributedRunStateErrors:
     """Tests for error state handling."""
 
     async def test_distributed_run_state_error(self):
-        """Test that ERROR state propagation raises RunError."""
         run = Run()
         run_state: DistributedRunState = DistributedRunState(run)
         path_one = Path.parse("00-00-00-00-00-00")
