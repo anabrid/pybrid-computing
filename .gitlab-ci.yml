@@ -1,120 +1,45 @@
 stages:
   - test
-  # - docs
-  # - build
-  # - release
+  - build
 
-# Change pip's cache directory to be inside the project directory since we can only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
-# https://pip.pypa.io/en/stable/topics/caching/
 cache:
   paths:
     - .cache/pip
-    
+
 .anabrid-uv-job:
   image:
     name: astral/uv:python3.13-bookworm-slim
-  # before_script:
-    # Store user/password info in ~/.netrc, which will be automatically used by uv
-    # - echo "machine ${ANABRID_PYTHON_INDEX_HOST:?CI variable missing}" > $HOME/.netrc
-    # - echo "login ${ANABRID_PYTHON_INDEX_USER:?CI variable missing}" >> $HOME/.netrc
-    # - echo "password ${ANABRID_PYTHON_INDEX_PASSWORD:?CI variable missing}" >> $HOME/.netrc
 
 .anabrid-if-release-job:
   rules:
     - if: $CI_COMMIT_TAG
 
-test_job:
+test:
   extends: .anabrid-uv-job
   stage: test
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq build-essential cmake git > /dev/null
   script:
+    - apt-get update -qq && apt-get install -y -qq build-essential cmake > /dev/null
     - uv sync --python 3.13 --group dev
-    - uv run pytest tests/
+    - PYBRID_TEST_PORT=16732 uv run pytest --ignore=tests/device --ignore=tests/e2e
+  artifacts:
+    expire_in: 3 days
+    reports:
+      junit: report.xml
 
-# currently not maintained
-# docs_build:
-#   extends: .anabrid-uv-job
-#   image:
-#     name: $CI_REGISTRY/pybrid-computing/pybrid-computing/sphinx-build
-#   stage: docs
-#   script:
-#     - uv sync --python 3.13 --group dev
-#     # Build documentation with warnings treated as errors (-W)
-#     # Care: -M html <src> <dest> must come first
-#     - uv run sphinx-build -M html docs/ docs/_build/html/ -W --keep-going
-#   artifacts:
-#     paths:
-#       - docs/_build/html
-#     expire_in: 1 month
-
-# docs_deploy:
-#     stage: release
-#     # TODO: Change to a specialized image
-#     image: svenk/latex
-#     needs:
-#         - job: docs_build
-#           artifacts: true
-#     script:
-#         - chmod 600 "$STAGING_HOST_SSH_PRIVATE_KEY" "$STAGING_HOST_SSH_HOST_IDENT"
-#         - echo -e "cd anabrid.dev/docs/pybrid/\nput -R docs/_build/html/*" | sftp -o "UserKnownHostsFile=$STAGING_HOST_SSH_HOST_IDENT" -i"$STAGING_HOST_SSH_PRIVATE_KEY" $STAGING_HOST_SSH
-
-# build_src_package_job:
-#   extends: [.anabrid-uv-job]
-#   stage: build
-#   script:
-#     - uv build
-#     - echo ANABRID_BUILD_JOB_ID=$CI_JOB_ID > .anabrid_build_result.env
-#     - echo ANABRID_BUILD_VERSION=$(uv version --short) >> .anabrid_build_result.env
-#   artifacts:
-#     paths:
-#       - dist/
-#     # Save job id in artifacts for release job
-#     reports:
-#       dotenv: .anabrid_build_result.env
-#     expire_in: 1 week
-
-# build_bin_package_job:
-#   stage: build
-#   tags: 
-#     - shell
-#   script:
-#     - ./build-scripts/linux-x86_64/docker-build.sh --python-version 3.11,3.12,3.13,3.14
-#   artifacts:
-#     paths:
-#       - dist/
-#     # Save job id in artifacts for release job
-#     reports:
-#       dotenv: .anabrid_build_result.env
-#     expire_in: 1 week
-
-# release_bin_job:
-#   extends: [.anabrid-uv-job, .anabrid-if-release-job]
-#   stage: release
-#   needs:
-#     - job: build_bin_package_job
-#       artifacts: true
-#   script:
-#     - uv --no-interaction publish --repository anabrid
-
-# release_gitlab_job:
-#   extends: .anabrid-if-release-job
-#   stage: release
-#   needs:
-#     - job: build_job
-#       artifacts: true
-#   image: registry.gitlab.com/gitlab-org/release-cli:latest
-#   script:
-#     - echo "Releasing package built in build_job ${ANABRID_BUILD_JOB_ID}."
-#   release:
-#     name: 'pybrid-computing v$ANABRID_BUILD_VERSION'
-#     description: 'Release of pybrid-computing package version $ANABRID_BUILD_VERSION.'
-#     # tag_name is a mandatory field and can not be an empty string
-#     tag_name: '$ANABRID_BUILD_VERSION'
-#     assets:
-#       links:
-#         - name: 'Package (wheel)'
-#           url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION-py3-none-any.whl'
-#         - name: 'Package (.tar.gz)'
-#           url: '$CI_PROJECT_URL/-/jobs/${ANABRID_BUILD_JOB_ID}/artifacts/raw/dist/pybrid_computing-$ANABRID_BUILD_VERSION.tar.gz'
+build:
+  extends: [.anabrid-uv-job, .anabrid-if-release-job]
+  stage: build
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq build-essential cmake git > /dev/null
+  script:
+    - uv build --package pybrid-computing-native
+    - uv build --package pybrid-computing
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 3 days

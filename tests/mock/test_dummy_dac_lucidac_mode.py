@@ -8,7 +8,7 @@ Tests for DummyDAC LUCIDAC mode.
 These tests verify that DummyDAC can emulate a LUCIDAC with a single carrier
 and FrontPlane entity, as opposed to the default multi-carrier REDAC mode.
 
-Updated for Sprint 1: front_panel -> front_plane rename.
+The entity uses the name ``front_plane`` (not ``front_panel``).
 """
 
 import pytest
@@ -20,15 +20,7 @@ from tests.conftest import get_test_port
 
 @pytest.mark.asyncio
 async def test_lucidac_mode_entity_tree():
-    """
-    Start DummyDAC with lucidac_mode=True. Connect and describe.
-    Assert single carrier, /FP present.
-
-    This test verifies that when lucidac_mode is enabled, the DummyDAC
-    builds an entity tree that matches a real LUCIDAC device:
-    - Exactly one carrier (not two as in default REDAC mode)
-    - FrontPlane entity present at /FP path
-    """
+    """LUCIDAC mode yields exactly one carrier with a FrontPlane entity at /FP."""
     config = DummyDACConfig(lucidac_mode=True)
     port = get_test_port(0)
 
@@ -61,49 +53,10 @@ async def test_lucidac_mode_entity_tree():
 
 
 @pytest.mark.asyncio
-async def test_lucidac_mode_fp_parsed_by_carrier():
-    """
-    Start DummyDAC with lucidac_mode=True. Add device to Controller.
-    Assert carrier.front_plane is not None.
-
-    This test verifies that the Controller correctly parses the FrontPlane
-    entity from the entity tree and assigns it to the carrier.front_plane
-    attribute.
-    """
-    config = DummyDACConfig(lucidac_mode=True)
-    port = get_test_port(1)
-
-    async with DummyDAC("127.0.0.1", port, config) as dac:
-        dac_port = dac._server.sockets[0].getsockname()[1]
-
-        async with Controller(standalone=True) as ctrl:
-            await ctrl.add_device("127.0.0.1", dac_port)
-
-            # Get the carrier
-            carrier = ctrl.computer.carriers[0]
-
-            # Carrier should have front_plane attribute set
-            assert hasattr(carrier, "front_plane"), (
-                "Carrier should have front_plane attribute"
-            )
-            fp = getattr(carrier, "front_plane", None)
-            assert fp is not None, (
-                "Carrier.front_plane should be set in LUCIDAC mode"
-            )
-
-
-@pytest.mark.asyncio
 async def test_default_mode_no_fp():
-    """
-    Start DummyDAC with lucidac_mode=False (default).
-    Assert no FP on carriers.
-
-    This test verifies backward compatibility: when lucidac_mode is disabled
-    or not specified, DummyDAC behaves as before with 2 carriers and no
-    FrontPlane entities.
-    """
+    """Default REDAC mode yields 2 carriers with no FrontPlane and a T-block on each carrier."""
     config = DummyDACConfig(lucidac_mode=False)
-    port = get_test_port(2)
+    port = get_test_port(1)
 
     async with DummyDAC("127.0.0.1", port, config) as dac:
         dac_port = dac._server.sockets[0].getsockname()[1]

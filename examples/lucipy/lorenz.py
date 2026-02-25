@@ -19,7 +19,16 @@ import numpy as np
 # Create a simple circuit in lucipy-syntax
 ###
 
-l   = Circuit()                         # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
+
+l   = luci.create_circuit()             # Create a circuit
 
 a   = 1.0
 b   = 2.8
@@ -49,7 +58,7 @@ l.connect(mz, mz, weight = c)
 
 l.measure(mx, adc_channel = 0)          # Connect multiplier/integrator to ADC
                                         # to sample data
-l.measure(my, adc_channel = 1)              
+l.measure(my, adc_channel = 1)
 l.measure(mz, adc_channel = 2)
 
 # Analog output: uncomment to output the x, y, z signals on Analog Outputs
@@ -57,17 +66,6 @@ l.measure(mz, adc_channel = 2)
 # l.probe(mx, front_port=0)
 # l.probe(my, front_port=1)
 # l.probe(mz, front_port=2)
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(l)                     # assign circuit
 
 ###
 # Settings for smapling and cirucit execution

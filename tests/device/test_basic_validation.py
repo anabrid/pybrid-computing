@@ -26,11 +26,6 @@ from pybrid.sim.controller import Controller as SimController
 from tests.conftest import get_device_endpoint, simulator_endpoint
 
 
-# =============================================================================
-# Fixtures
-# =============================================================================
-
-
 @pytest.fixture
 def lucidac_endpoint():
     """
@@ -63,25 +58,11 @@ def redac_endpoint():
     return endpoint
 
 
-# =============================================================================
-# LUCIDAC Basic Tests
-# =============================================================================
-
-
 @pytest.mark.device
 @pytest.mark.lucidac
 class TestLUCIDACBasic:
-    """Basic validation tests for LUCIDAC hardware."""
 
     async def test_connection(self, lucidac_endpoint):
-        """
-        Test that connection to LUCIDAC can be established.
-
-        Verifies:
-        - TCP connection succeeds
-        - Protocol handshake completes
-        - Controller registers device
-        """
         host, port = lucidac_endpoint
 
         async with REDACController(standalone=True) as ctrl:
@@ -95,14 +76,6 @@ class TestLUCIDACBasic:
             )
 
     async def test_describe(self, lucidac_endpoint):
-        """
-        Test that LUCIDAC entity description can be retrieved.
-
-        Verifies:
-        - get_entity() returns valid entity tree
-        - Entity has expected structure (clusters, blocks)
-        - MAC address is parseable
-        """
         host, port = lucidac_endpoint
 
         async with REDACController(standalone=True) as ctrl:
@@ -126,14 +99,6 @@ class TestLUCIDACBasic:
             )
 
     async def test_simple_run(self, lucidac_endpoint):
-        """
-        Test executing a simple run on LUCIDAC.
-
-        Verifies:
-        - Run can be started
-        - Run transitions through expected states
-        - Run completes successfully (DONE state)
-        """
         host, port = lucidac_endpoint
 
         async with REDACController(standalone=True) as ctrl:
@@ -169,13 +134,6 @@ class TestLUCIDACBasic:
                 )
 
     async def test_reset_device(self, lucidac_endpoint):
-        """
-        Test resetting the LUCIDAC device.
-
-        Verifies:
-        - Reset command completes without error
-        - Controller state remains valid after reset
-        """
         host, port = lucidac_endpoint
 
         async with REDACController(standalone=True) as ctrl:
@@ -192,25 +150,11 @@ class TestLUCIDACBasic:
             )
 
 
-# =============================================================================
-# REDAC Basic Tests
-# =============================================================================
-
-
 @pytest.mark.device
 @pytest.mark.redac
 class TestREDACBasic:
-    """Basic validation tests for REDAC hardware."""
 
     async def test_connection(self, redac_endpoint):
-        """
-        Test that connection to REDAC can be established.
-
-        Verifies:
-        - TCP connection succeeds
-        - Protocol handshake completes
-        - Controller registers device
-        """
         host, port = redac_endpoint
 
         async with REDACController(standalone=True) as ctrl:
@@ -224,14 +168,6 @@ class TestREDACBasic:
             )
 
     async def test_multi_carrier(self, redac_endpoint):
-        """
-        Test REDAC with multiple carriers.
-
-        Verifies:
-        - Multiple carriers are detected if present
-        - Each carrier is registered separately
-        - Protocol manages all carrier paths
-        """
         host, port = redac_endpoint
 
         async with REDACController(standalone=True) as ctrl:
@@ -259,14 +195,6 @@ class TestREDACBasic:
             )
 
     async def test_describe(self, redac_endpoint):
-        """
-        Test that REDAC entity description can be retrieved.
-
-        Verifies:
-        - Entity tree is populated
-        - Carriers have expected structure
-        - Cluster and block information is available
-        """
         host, port = redac_endpoint
 
         async with REDACController(standalone=True) as ctrl:
@@ -280,11 +208,6 @@ class TestREDACBasic:
                 assert len(carrier.clusters) >= 0, (
                     "Carrier should have clusters list"
                 )
-
-
-# =============================================================================
-# Simulator Basic Tests
-# =============================================================================
 
 
 def configure_harmonic_oscillator(computer):
@@ -342,17 +265,8 @@ def configure_harmonic_oscillator(computer):
 @pytest.mark.device
 @pytest.mark.sim
 class TestSimulatorBasic:
-    """Basic validation tests for Simulator."""
 
     async def test_connection(self, simulator_endpoint):
-        """
-        Test that connection to Simulator can be established.
-
-        Verifies:
-        - TCP connection succeeds
-        - Protocol handshake completes
-        - Controller registers device
-        """
         host, port = simulator_endpoint
 
         async with SimController(standalone=True) as ctrl:
@@ -366,14 +280,6 @@ class TestSimulatorBasic:
             )
 
     async def test_describe(self, simulator_endpoint):
-        """
-        Test that Simulator entity description can be retrieved.
-
-        Verifies:
-        - get_entity() returns valid entity tree
-        - Entity has expected structure (clusters, blocks)
-        - MAC address is parseable
-        """
         host, port = simulator_endpoint
 
         async with SimController(standalone=True) as ctrl:
@@ -397,15 +303,6 @@ class TestSimulatorBasic:
             )
 
     async def test_simple_run(self, simulator_endpoint):
-        """
-        Test executing a simple run on Simulator.
-
-        Verifies:
-        - Circuit can be configured
-        - Run can be started
-        - Run transitions through expected states
-        - Run completes successfully (DONE state)
-        """
         host, port = simulator_endpoint
 
         async with SimController(standalone=True) as ctrl:
@@ -447,13 +344,6 @@ class TestSimulatorBasic:
                 )
 
     async def test_reset_device(self, simulator_endpoint):
-        """
-        Test resetting the Simulator device.
-
-        Verifies:
-        - Reset command completes without error
-        - Controller state remains valid after reset
-        """
         host, port = simulator_endpoint
 
         async with SimController(standalone=True) as ctrl:

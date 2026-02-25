@@ -1,68 +1,32 @@
 [project]
-name = "pybrid-computing"
+name = "pybrid-workspace"
+version = "0.0.0"
 requires-python = ">=3.11,<4.0"
-dynamic = ["version"]
-description = "Library to interact with analog computers and analog-digital hybrid computers, in particular the LUCIDAC and REDAC computers made by anabrid"
-authors = [
-  {name = "Michael Steck", email = "pybrid-code@anabrid.com"}
-]
-readme = "README.md"
-license = "MIT OR GPL-2.0-or-later"
-homepage = "https://anabrid.com/"
-documentation = "https://anabrid.dev/docs/pybrid/"
-classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Environment :: Console",
-  "Intended Audience :: Developers",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: End Users/Desktop",
-  "Topic :: Communications",
-  "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
-  "Topic :: Software Development :: Embedded Systems",
-  "Topic :: Terminals :: Serial",
-  "Operating System :: POSIX"
-]
-dependencies = [
-  "anyio>=4.11.0",
-  "asyncclick>=8.2.2.2",
-  "inflection>=0.5.1",
-  "matplotlib>=3.10.6",
-  "packaging>=25.0",
-  "protobuf>=6.31.1",
-  "pydantic>=2.11.9",
-  "pyftdi>=0.57.1",
-  "pyi>=0.1.0",
-  "zeroconf>=0.147.2",
-  "prompt-toolkit>=3.0.52",
-  "pyserial-asyncio>=0.6",
-  "torch (==2.7.1)",
-  "torchvision (==0.22.1)",
-  "scipy (>=1.16.3,<2.0.0)",
-  "perun (>=0.9.0,<0.10.0)",
-  "qiskit (>=2.2.3,<3.0.0)"
-]
+description = "uv workspace root for pybrid-computing packages"
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+pybrid-computing = { workspace = true }
+pybrid-computing-native = { workspace = true }
 
 [dependency-groups]
 dev = [
+  "pybrid-computing",
+  "pybrid-computing-native",
   "pytest>=8.4.2",
+  "pytest-asyncio>=1.2.0",
   "black>=25.9.0",
   "sphinx>=8.2.3",
   "sphinx-autobuild>=2025.8.25",
   "sphinx-click~=6.1.0",
   "sphinx-rtd-theme>=3.0.2",
   "sphinxcontrib-plantuml>=0.31",
-  "pytest-asyncio>=1.2.0"
 ]
-
-[project.scripts]
-pybrid = 'pybrid.cli.base:entrypoint'
-
-[build-system]
-requires = ["hatchling", "uv-dynamic-versioning"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["pybrid"]
 
 [tool.black]
 line-length = 120
@@ -70,11 +34,15 @@ line-length = 120
 [tool.isort]
 profile = "black"
 
-[tool.hatch.version]
-source = "uv-dynamic-versioning"
-
-[tool.uv-dynamic-versioning]
-vcs = "git"
-pattern = "^v(?P<base>\\d+\\.\\d+\\.\\d+)$"
-format-jinja = "{% if distance == 0 %}{{ base }}{% else %}{{ base }}+{{ commit }}{% endif %}"
-fallback-version = "0.11.4"
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = "-s --log-cli-level=ERROR"
+pythonpath = ["."]
+markers = [
+  "device: Tests requiring real hardware (TEST_*_ENDPOINT)",
+  "benchmark: Performance/stress tests (excluded from default run)",
+  "slow: Tests that take longer to run",
+  "lucidac: Tests specific to LUCIDAC",
+  "redac: Tests specific to REDAC",
+  "sim: Tests specific to simulator",
+]

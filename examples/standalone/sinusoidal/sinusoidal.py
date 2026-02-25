@@ -1,12 +1,11 @@
 import asyncio
 import logging
-from ipaddress import IPv4Address, ip_network
+from ipaddress import ip_network
 
 import numpy as np
 from matplotlib import pyplot as plt
 from pybrid.base.utils.logging import set_pybrid_logging_level
-from pybrid.base.transport import TCPTransport
-from pybrid.redac import Protocol, Controller, DAQConfig, RunConfig
+from pybrid.redac import Controller, DAQConfig, RunConfig
 from pybrid.redac.detect import detect_in_network
 
 # For development purposes, set all logging to DEBUG

@@ -19,7 +19,16 @@ import numpy as np
 # Create a Sprott attractor circuit in lucipy-syntax
 ###
 
-sprott  = Circuit()                     # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
+
+sprott  = luci.create_circuit()         # Create a circuit
 
 scale = 0.7                             # Scaling factor
 
@@ -47,17 +56,6 @@ sprott.connect(mz, yz.b)
 sprott.measure(mx, adc_channel=0)                   # Connect integrators to ADC
 sprott.measure(my, adc_channel=1)                   # to sample data
 sprott.measure(mz, adc_channel=2)
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(sprott)                # Assign circuit
 
 ###
 # Settings for sampling and circuit execution

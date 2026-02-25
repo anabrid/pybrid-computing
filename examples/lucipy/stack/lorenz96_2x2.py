@@ -17,7 +17,7 @@ circuit.
 Requires connecting analog inputs/outputs 0-1 pairwise (e.g. output 0 from LUCIDAC
 0 connected to input 0 of LUCIDAC 1, ...).
 """
-from pybrid.lucipy import Circuit, LUCIDAC, time_series
+from pybrid.lucipy import LUCIDAC, time_series
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,7 +28,11 @@ F = 0.2
 A = 5
 B = 0.1666
 
-l = [Circuit(), Circuit()]
+# Generate stack of two LUCIDACs - enter IP addresses here or leave empty
+# to use auto-discover.
+stack = LUCIDAC("192.168.150.15", "192.168.150.57")
+
+l = [stack.create_circuit(d) for d in range(2)]
 c = [l[0].const(), l[1].const()]
 m_id = [l[0].mul(), l[1].mul()]
 
@@ -96,12 +100,6 @@ for i in range(4):
 # Measurements
 for i in range(4):
     l[i // 2].probe(x[i], adc_channel=i % 2)
-
-# Generate stack of two LUCIDACs - enter IP addresses here or leave empty
-# to use auto-discover.
-stack = LUCIDAC("192.168.150.15", "192.168.150.57")
-for ix in range(2):
-    stack[ix].set_circuit(l[ix])
 
 sample_rate = 100_000
 stack.set_daq(sample_rate=sample_rate)

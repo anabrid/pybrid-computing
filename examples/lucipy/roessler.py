@@ -10,7 +10,16 @@ import numpy as np
 # Create a Roessler attractor circuit in lucipy-syntax
 ###
 
-r   = Circuit()                         # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC("192.168.150.17")
+
+r   = luci.create_circuit()             # Create a circuit
 
 x   = r.int(ic = .0066)                 # Integrators with initial conditions
 y   = r.int()
@@ -36,17 +45,6 @@ r.connect(c, m.b, weight = -0.3796)
 r.measure(x, adc_channel=0)             # Connect integrators to ADC
 r.measure(y, adc_channel=1)             # to sample data
 r.measure(z, adc_channel=2)
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(r)                     # Assign circuit
 
 ###
 # Settings for sampling and circuit execution

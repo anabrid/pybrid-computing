@@ -13,7 +13,9 @@ import numpy as np
 _lambda = 0.3       # decay rate
 _n0 = 0.8           # initial quantity
 
-c = Circuit()
+luci    = LUCIDAC()
+
+c = luci.create_circuit()
 
 N = c.int(ic = -_n0, slow=True)
 
@@ -24,10 +26,6 @@ c.measure(N, adc_channel=0)
 
 import json
 print(json.dumps(c.generate(), indent=2))
-
-luci    = LUCIDAC()
-
-luci.set_circuit(c)                     # Assign circuit
 
 ###
 # Settings for sampling and circuit execution

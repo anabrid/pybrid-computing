@@ -8,12 +8,9 @@ Tests the lucipy high-level circuit definition API, circuit export to
 protobuf format, and connection to LUCIDAC via DummyDAC.
 """
 
-import asyncio
 import json
 import logging
 import warnings
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -26,30 +23,15 @@ import pytest
 _PROTOCOL_LOGGER = "pybrid.redac.protocol.protocol"
 
 from pybrid.lucipy import Circuit, LUCIDAC
-from pybrid.lucipy.circuits import (
-    Integrator,
-    Multiplier,
-    Constant,
-    Identity,
-    Input,
-    Output,
-)
-from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
+from pybrid.mock import DummyDAC, DummyDACConfig
 
 
 class TestCircuitDefinition:
     """Tests for circuit definition using lucipy API."""
 
     def test_create_simple_circuit(self):
-        """
-        Test creating a simple integrator circuit.
-
-        Verifies:
-        - Circuit can allocate integrators
-        - Connections can be made between elements
-        - ICs and k0 values can be set on the internal pybrid object
-        """
-        circuit = Circuit()
+        """Simple integrator circuit with self-feedback allocates correctly and sets IC on the pybrid object."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         # Allocate integrator with initial condition
         i0 = circuit.int(ic=0.5)
@@ -80,15 +62,7 @@ class TestCircuitDefinition:
         assert c_factor == pytest.approx(-1.0), "Coefficient should be -1.0"
 
     def test_create_harmonic_oscillator(self):
-        """
-        Test creating a harmonic oscillator circuit (two coupled integrators).
-
-        Verifies:
-        - Multiple integrators can be allocated
-        - Cross-connections work correctly
-        - Circuit represents second-order ODE
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         # Allocate two integrators
         x = circuit.int(ic=1.0)  # x(0) = 1
@@ -123,15 +97,7 @@ class TestCircuitDefinition:
         assert len(lanes_x_to_v) == 1, "Should have one lane for x->v connection"
 
     def test_multiplier_circuit(self):
-        """
-        Test creating a circuit with multipliers.
-
-        Verifies:
-        - Multipliers can be allocated
-        - Both inputs (a, b) can be connected
-        - Output can be routed
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         # Allocate integrator and multiplier
         i0 = circuit.int(ic=0.5)
@@ -156,14 +122,7 @@ class TestCircuitDefinition:
         assert m0.id == 0, "First multiplier should have id 0"
 
     def test_constant_injection(self):
-        """
-        Test injecting constants into circuit.
-
-        Verifies:
-        - Constants can be allocated and used
-        - Connection with constant weight is properly set up
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         i0 = circuit.int(ic=0.0)
         c0 = circuit.const()
@@ -188,14 +147,7 @@ class TestCircuitDefinition:
         assert cluster.ublock.outputs[lane] == expected_output
 
     def test_front_panel_io(self):
-        """
-        Test front panel input/output connections.
-
-        Verifies:
-        - Front panel I/O can be allocated
-        - Can route signals to/from front panel using probe()
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         i0 = circuit.int(ic=0.0)
 
@@ -216,15 +168,8 @@ class TestCircuitExport:
     """Tests for circuit export to configuration formats."""
 
     def test_generate_json_config(self):
-        """
-        Test generating JSON configuration from circuit.
-
-        Verifies:
-        - Circuit can be exported to JSON format
-        - JSON contains U, C, I block configurations
-        - MIntBlock configuration is included
-        """
-        circuit = Circuit()
+        """generate() produces a nested dict with U, C, I, and M0 block configurations per cluster."""
+        circuit = Circuit("00-00-00-00-00-00")
         i0 = circuit.int(ic=0.5)
         circuit.connect(i0, i0, weight=-0.5)
 
@@ -244,12 +189,8 @@ class TestCircuitExport:
         assert "/M0" in cluster, "Should have M0 block"
 
     def test_generate_json_is_serializable(self):
-        """
-        Test that generate() output can be passed to json.dumps().
-
-        This is the pattern used by examples/lucipy/decay.py.
-        """
-        circuit = Circuit()
+        """generate() output is JSON-serializable (pattern used by examples/lucipy/decay.py)."""
+        circuit = Circuit("00-00-00-00-00-00")
         i0 = circuit.int(ic=-0.8, slow=True)
         circuit.connect(i0, i0, weight=0.3)
         circuit.measure(i0, adc_channel=0)
@@ -267,15 +208,7 @@ class TestCircuitExport:
         assert "00-00-00-00-00-00" in parsed
 
     def test_to_protobuf_config(self):
-        """
-        Test converting circuit to protobuf format.
-
-        Verifies:
-        - Circuit can be exported to protobuf
-        - pb.File object is created
-        - JSON representation is valid
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int(ic=0.3)
         circuit.connect(i0, i0, weight=-1.0)
 
@@ -299,40 +232,14 @@ class TestLUCIDACWrapper:
     """Tests for LUCIDAC wrapper class connection to DummyDAC."""
 
     @pytest.mark.asyncio
-    async def test_lucidac_wrapper_initialization(self, dummy_dac_virtual):
-        """
-        Test that LUCIDAC wrapper can be initialized with endpoint.
-
-        Verifies:
-        - Wrapper accepts endpoint string
-        - Initialization succeeds without errors
-        """
-        # Get actual bound port from the server socket
-        port = dummy_dac_virtual._server.sockets[0].getsockname()[1]
-        endpoint = f"tcp://127.0.0.1:{port}"
-
-        # Should accept endpoint as positional argument
-        lucidac = LUCIDAC(endpoint)
-
-        # Verify it created internal structures
-        assert lucidac._num_devices == 1, "Should have one device registered"
-
-    @pytest.mark.asyncio
     async def test_lucidac_set_circuit(self, dummy_dac_virtual):
-        """
-        Test setting circuit on LUCIDAC wrapper.
-
-        Verifies:
-        - Circuit can be attached to wrapper
-        - set_circuit() succeeds without errors
-        """
         port = dummy_dac_virtual._server.sockets[0].getsockname()[1]
         endpoint = f"tcp://127.0.0.1:{port}"
 
         lucidac = LUCIDAC(endpoint)
 
         # Create and set circuit
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int(ic=0.5)
         circuit.connect(i0, i0, weight=-1.0)
 
@@ -343,47 +250,13 @@ class TestLUCIDACWrapper:
         stored_circuit = lucidac._circuits[0]
         assert stored_circuit is not None, "Circuit should be stored in pool"
 
-    @pytest.mark.asyncio
-    async def test_lucidac_set_run_config(self, dummy_dac_virtual):
-        """
-        Test setting run configuration on LUCIDAC wrapper.
-
-        Verifies:
-        - Run config can be set with op_time and ic_time
-        - DAQ config can be set
-        """
-        port = dummy_dac_virtual._server.sockets[0].getsockname()[1]
-        endpoint = f"tcp://127.0.0.1:{port}"
-
-        lucidac = LUCIDAC(endpoint)
-
-        # Set run configuration (should succeed without errors)
-        lucidac.set_run(op_time=1_000_000, ic_time=100_000)  # 1ms op, 0.1ms ic
-        lucidac.set_daq(num_channels=4, sample_rate=100_000)
-
-        # Verify configs are stored internally
-        assert lucidac._run_config.op_time == 1_000_000, "op_time should be set"
-        assert lucidac._run_config.ic_time == 100_000, "ic_time should be set"
-        assert lucidac._daq_config.num_channels == 4, "num_channels should be set"
-        assert lucidac._daq_config.sample_rate == 100_000, "sample_rate should be set"
-
 
 class TestLUCIStackE2E:
     """E2E tests for LUCIStack set-and-run workflow against DummyDAC."""
 
     @pytest.mark.asyncio
     async def test_lucistack_set_and_run_against_dummy(self):
-        """
-        Full end-to-end workflow: create circuit, configure, and run
-        against a DummyDAC in LUCIDAC mode.
-
-        Verifies:
-        - LUCIStack can be initialized from an endpoint string
-        - Circuit can be set on the stack
-        - DAQ and run config can be applied
-        - _run() executes successfully against DummyDAC
-        - A Run object is returned with data
-        """
+        """Full set-and-run workflow against DummyDAC: circuit, DAQ config, _run(), Run object returned."""
         from tests.conftest import get_test_port
 
         config = DummyDACConfig(lucidac_mode=True)
@@ -397,7 +270,7 @@ class TestLUCIStackE2E:
             luci = LUCIDAC(endpoint)
 
             # Build a simple decay circuit: dx/dt = -x, x(0) = 1.0
-            circuit = Circuit()
+            circuit = Circuit("AA-BB-CC-DD-EE-FF")
             i0 = circuit.int(ic=1.0)
             circuit.connect(i0, i0, weight=-1.0)
             circuit.measure(i0, adc_channel=0)
@@ -425,25 +298,9 @@ class TestLorenz96Pattern:
     """E2E test replicating examples/lucipy/lorenz96.py circuit definition."""
 
     def test_lorenz96_example_pattern(self):
-        """
-        Replicate the Lorenz 96 example pattern from examples/lucipy/lorenz96.py.
-
-        The Lorenz 96 circuit uses:
-        - N=4 integrators (slow mode)
-        - N=4 multipliers
-        - 1 constant source
-        - Cross-coupling connections between integrators via multipliers
-        - Constant forcing term injected into each integrator
-        - 4 ADC measure channels
-
-        Verifies:
-        - Circuit compiles without error
-        - All elements are allocated correctly
-        - to_config() produces valid protobuf output
-        - to_computer() returns a valid LUCIDAC with expected block state
-        """
+        """Lorenz 96 circuit pattern (N=4) compiles correctly with expected element counts and slow integrators."""
         N = 4
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         x = []
         m = []

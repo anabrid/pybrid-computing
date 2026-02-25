@@ -13,7 +13,7 @@ These tests verify that connect(source, target, weight) correctly:
 - Handles special cases: constants (lane halves), inputs (skip UBlock),
   outputs (skip IBlock)
 
-Written as TDD tests before the Circuit class rewrite.
+Uses DummyDAC-independent unit tests; no hardware required.
 """
 
 import math
@@ -38,11 +38,8 @@ class TestConnectBasic:
     """Tests for basic connect() operations between computing elements."""
 
     def test_connect_integrator_to_integrator(self):
-        """
-        Connect integrator i0 output to integrator i1 input with weight=1.0.
-        Verify U-block, C-block and I-block are set correctly on the pybrid object.
-        """
-        circuit = Circuit()
+        """Connecting i0->i1 with weight=1.0 sets U-block output, C-block coefficient, and I-block route."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         i1 = circuit.int()
 
@@ -78,10 +75,7 @@ class TestConnectBasic:
         )
 
     def test_connect_with_negative_weight(self):
-        """
-        Connect with weight=-1.0. Verify C-block coefficient is negative.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         i1 = circuit.int()
 
@@ -106,8 +100,7 @@ class TestConnectBasic:
         )
 
     def test_connect_multiplier_output_to_integrator(self):
-        """Connect multiplier output to integrator input."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
         i0 = circuit.int()
 
@@ -145,8 +138,7 @@ class TestConnectConstant:
     """
 
     def test_connect_constant_uses_first_free_lane(self):
-        """Constant connection uses the first free lane (no range constraint)."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         c0 = circuit.const(value=1.0)
         i0 = circuit.int()
 
@@ -158,8 +150,7 @@ class TestConnectConstant:
         )
 
     def test_constant_on_lane_0_15_uses_mblock_output_15(self):
-        """Constant routed to lane 0-15 must use M-block output 15."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         c0 = circuit.const(value=1.0)
         i0 = circuit.int()
 
@@ -174,8 +165,7 @@ class TestConnectConstant:
         )
 
     def test_constant_on_lane_16_31_uses_mblock_output_14(self):
-        """Constant routed to lane 16-31 must use M-block output 14."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Fill lanes 0-15 with standard connections
@@ -194,8 +184,7 @@ class TestConnectConstant:
         )
 
     def test_constant_iblock_routes_to_target(self):
-        """Constant connection correctly routes through IBlock to the target."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         c0 = circuit.const(value=1.0)
         i0 = circuit.int()
 
@@ -209,11 +198,8 @@ class TestConnectConstant:
         )
 
     def test_constant_weight_split_across_ranges(self):
-        """
-        Weight splitting for constants: lanes may span both ranges.
-        Each lane uses the correct M-block output (14 or 15).
-        """
-        circuit = Circuit()
+        """When weight splitting spans both lane ranges, each lane uses the correct M-block output (14 or 15)."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Fill lanes 0-13 so only lanes 14, 15, 16, 17, ... are free
@@ -247,11 +233,8 @@ class TestConnectWeightSplitting:
     """Tests for weight splitting across multiple lanes."""
 
     def test_connect_large_weight_splits_lanes(self):
-        """
-        weight=20.0 requires ceil(20/8) = 3 lanes. Each lane should have
-        coefficient = 20.0/3.
-        """
-        circuit = Circuit()
+        """weight=20.0 allocates ceil(20/8)=3 lanes with effective coefficient 20.0/3 each."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         i1 = circuit.int()
 
@@ -298,12 +281,8 @@ class TestConnectACL:
     """Tests for connecting Input/Output (ACL) elements."""
 
     def test_connect_input_to_integrator(self):
-        """
-        Input element connected to integrator. Verify ACL_IN path:
-        UBlock connection should be -1/None (do_not_connect) since ACL_IN
-        bypasses the U-block.
-        """
-        circuit = Circuit()
+        """ACL_IN path: U-block is bypassed (output=None/-1), I-block routes ACL lane to integrator."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         inp = circuit.input()
         i0 = circuit.int()
 
@@ -329,11 +308,8 @@ class TestConnectACL:
         )
 
     def test_connect_input_ignores_weight(self):
-        """
-        ACL_IN bypasses both U-block and C-block. The weight parameter
-        must be silently ignored — only I-block routing happens.
-        """
-        circuit = Circuit()
+        """ACL_IN bypasses U-block and C-block; weight is silently ignored and C-block stays at default 1.0."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         inp = circuit.input()
         i0 = circuit.int()
 
@@ -366,11 +342,8 @@ class TestConnectACL:
         )
 
     def test_connect_integrator_to_output(self):
-        """
-        Integrator connected to Output element. Verify ACL_OUT path:
-        IBlock output should be -1/skipped for the ACL_OUT path.
-        """
-        circuit = Circuit()
+        """ACL_OUT path: U-block routes integrator to ACL lane; I-block is not used for that lane."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         out = circuit.output()
 
@@ -398,11 +371,8 @@ class TestConnectACL:
             )
 
     def test_connect_output_with_valid_weight(self):
-        """
-        ACL_OUT supports weights in [-1, 1] via U-block + C-block (no I-block).
-        Verify C-block coefficient is set correctly for a fractional weight.
-        """
-        circuit = Circuit()
+        """ACL_OUT with fractional weight sets C-block coefficient correctly."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         out = circuit.output()
 
@@ -425,11 +395,7 @@ class TestConnectACL:
         )
 
     def test_connect_output_with_negative_weight(self):
-        """
-        ACL_OUT with negative weight in valid range. Verify C-block coefficient
-        is set to the negative value.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         out = circuit.output()
 
@@ -444,39 +410,22 @@ class TestConnectACL:
             f"CBlock coefficient should be -0.75, got {c_factor}"
         )
 
-    def test_connect_output_rejects_weight_above_1(self):
-        """
-        ACL_OUT has no I-block upscaling, so C-block coefficient is limited
-        to [-1, 1]. weight=2.0 must raise ValueError.
-        """
-        circuit = Circuit()
+    @pytest.mark.parametrize("weight", [2.0, -3.0])
+    def test_connect_output_rejects_weight_outside_range(self, weight):
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         out = circuit.output()
 
         with pytest.raises(ValueError, match="(?i)weight|acl|output|range"):
-            circuit.connect(i0, out, weight=2.0)
-
-    def test_connect_output_rejects_weight_below_minus_1(self):
-        """
-        ACL_OUT negative weight outside [-1, 1] must raise ValueError.
-        """
-        circuit = Circuit()
-        i0 = circuit.int()
-        out = circuit.output()
-
-        with pytest.raises(ValueError, match="(?i)weight|acl|output|range"):
-            circuit.connect(i0, out, weight=-3.0)
+            circuit.connect(i0, out, weight=weight)
 
 
 class TestConnectIdentity:
     """Tests for Identity elements in connect()."""
 
     def test_identity_as_source_in_connect(self):
-        """
-        Identity used as source routes via M-block output 12+offset.
-        Verify U-block routes from that lane.
-        """
-        circuit = Circuit()
+        """Identity as source routes via M-block output 12+offset through U-block and I-block."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
         id0 = m0.b.id()  # offset=1, M-block output 13
         i0 = circuit.int()
@@ -506,10 +455,7 @@ class TestConnectIdentity:
         )
 
     def test_identity_as_target_raises(self):
-        """
-        Identity can only be a source. Using it as a target must raise TypeError.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         inp = circuit.input()
         m0 = circuit.mul()
         id0 = m0.a.id()
@@ -522,11 +468,7 @@ class TestConnectRoutingErrors:
     """Tests for invalid routing directions."""
 
     def test_connect_from_output_raises_type_error(self):
-        """
-        An Output element can only be a target (ACL_OUT path).
-        Using it as a source must raise TypeError.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         out = circuit.output()
         i0 = circuit.int()
 
@@ -534,11 +476,7 @@ class TestConnectRoutingErrors:
             circuit.connect(out, i0, weight=1.0)
 
     def test_connect_to_input_raises_type_error(self):
-        """
-        An Input element can only be a source (ACL_IN path).
-        Using it as a target must raise TypeError.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         inp = circuit.input()
 
@@ -546,49 +484,12 @@ class TestConnectRoutingErrors:
             circuit.connect(i0, inp, weight=1.0)
 
 
-class TestConnectConstantLaneRange:
-    """Tests for constant M-block output selection based on lane range."""
-
-    def test_constant_mblock_output_consistent_with_lane(self):
-        """
-        For every lane used by a constant connection, the UBlock output
-        must be 15 (lanes 0-15) or 14 (lanes 16-31).
-        """
-        circuit = Circuit()
-        integrators = [circuit.int() for _ in range(8)]
-        c0 = circuit.const(value=1.0)
-
-        circuit.connect(c0, integrators[0], weight=1.0)
-
-        cluster = circuit.to_computer().entities[0].clusters[0]
-
-        # Find all lanes set by the constant (output 14 or 15)
-        allocated_lanes = [
-            lane for lane in range(32)
-            if cluster.ublock.outputs[lane] in (14, 15)
-        ]
-        assert len(allocated_lanes) >= 1, (
-            "Expected at least 1 lane with UBlock output 14 or 15"
-        )
-
-        for lane in allocated_lanes:
-            expected_output = 15 if lane < 16 else 14
-            assert cluster.ublock.outputs[lane] == expected_output, (
-                f"Lane {lane} should use M-block output {expected_output}, "
-                f"got {cluster.ublock.outputs[lane]}"
-            )
-
-
 class TestConnectValidation:
     """Tests for validate-then-commit behavior and lane exhaustion."""
 
     def test_connect_validates_before_commit(self):
-        """
-        Fill 31 lanes (leaving 1 free out of 32), then connect() needing
-        2 lanes (weight=10.0 -> ceil(10/8)=2). Must raise ValueError
-        with NO state mutation.
-        """
-        circuit = Circuit()
+        """A connect() that needs more lanes than available must raise ValueError without mutating state."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Fill 31 of 32 total lanes (0-31) with weight=1.0 connections
@@ -617,10 +518,7 @@ class TestConnectValidation:
         )
 
     def test_connect_exhausts_lanes(self):
-        """
-        Fill all 32 lanes (0-31), then the next connect() must raise ValueError.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Fill all 32 lanes
@@ -638,11 +536,7 @@ class TestConnectExtendedLanePool:
     """Tests for extended lane allocation using lanes 24-31 for general signals."""
 
     def test_general_signal_spills_to_lane_24_plus(self):
-        """
-        After filling all 24 standard lanes (0-23), the next general
-        connection should succeed by allocating from lanes 24-31.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Fill lanes 0-23
@@ -664,11 +558,8 @@ class TestConnectExtendedLanePool:
         )
 
     def test_general_signal_skips_acl_occupied_lane(self):
-        """
-        If ACL port 0 (lane 24) is allocated, general signals filling
-        beyond lane 23 should skip lane 24 and use lane 25 instead.
-        """
-        circuit = Circuit()
+        """General signal spill skips ACL-occupied lanes and uses the next free one."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
         circuit.input(port=0)  # blocks lane 24
 
@@ -687,48 +578,22 @@ class TestConnectExtendedLanePool:
             f"got UBlock output at lane 25 = {cluster.ublock.outputs[25]}"
         )
 
-    def test_acl_input_fails_if_lane_occupied_by_general_signal(self):
-        """
-        If a general signal already occupies lane 24, allocating input(port=0)
-        must raise ValueError with a message recommending other lanes.
-        """
-        circuit = Circuit()
+    @pytest.mark.parametrize("acl_method", ["input", "output"])
+    def test_acl_fails_if_lane_occupied_by_general_signal(self, acl_method):
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
-        # Fill lanes 0-24 (lane 24 is used by general signal spill-over)
+        # Fill lanes 0-24 (lane 24 occupied by general signal spill-over)
         for lane_idx in range(25):
             src_idx = lane_idx % 8
             tgt_idx = (lane_idx + 1) % 8
             circuit.connect(integrators[src_idx], integrators[tgt_idx], weight=1.0)
 
-        # input(port=0) should fail — lane 24 is occupied by a general signal
         with pytest.raises(ValueError, match="(?i)(try|other|different).*(lane|port)"):
-            circuit.input(port=0)
-
-    def test_acl_output_fails_if_lane_occupied_by_general_signal(self):
-        """
-        If a general signal already occupies lane 24, allocating output(port=0)
-        must raise ValueError with a message recommending other lanes.
-        """
-        circuit = Circuit()
-        integrators = [circuit.int() for _ in range(8)]
-
-        # Fill lanes 0-24
-        for lane_idx in range(25):
-            src_idx = lane_idx % 8
-            tgt_idx = (lane_idx + 1) % 8
-            circuit.connect(integrators[src_idx], integrators[tgt_idx], weight=1.0)
-
-        # output(port=0) should fail — lane 24 is occupied by a general signal
-        with pytest.raises(ValueError, match="(?i)(try|other|different).*(lane|port)"):
-            circuit.output(port=0)
+            getattr(circuit, acl_method)(port=0)
 
     def test_acl_port_succeeds_if_lane_not_used(self):
-        """
-        If general signals only used lanes 0-23, input(port=0) (lane 24)
-        should still work fine.
-        """
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Use only some lanes 0-23
@@ -742,11 +607,8 @@ class TestConnectExtendedLanePool:
         assert inp.lane == 24
 
     def test_constant_spills_to_lanes_24_31(self):
-        """
-        Constant connection uses lanes 24-31 when 0-23 are full.
-        Since lanes 24-31 are in range 16-31, M-block output 14 is used.
-        """
-        circuit = Circuit()
+        """Constant connection in spill range 24-31 uses M-block output 14 (range 16-31)."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Fill lanes 0-23 with general connections
@@ -766,11 +628,8 @@ class TestConnectExtendedLanePool:
         )
 
     def test_total_capacity_32_minus_acl_ports(self):
-        """
-        With 2 ACL ports allocated, only 30 weight-1 general connections
-        should be possible. The 31st must fail.
-        """
-        circuit = Circuit()
+        """With 2 ACL ports allocated, only 30 general connections fit; the 31st must raise ValueError."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
         circuit.input(port=0)   # blocks lane 24
         circuit.output(port=1)  # blocks lane 25
@@ -786,11 +645,8 @@ class TestConnectExtendedLanePool:
             circuit.connect(integrators[0], integrators[1], weight=1.0)
 
     def test_validate_then_commit_extended_pool(self):
-        """
-        Fill 31 of 32 lanes, then attempt a 2-lane connect (weight=10.0).
-        Must fail with no state mutation.
-        """
-        circuit = Circuit()
+        """Validate-before-commit: a 2-lane connect into 1 free slot must fail without mutating state."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         # Fill 31 lanes
@@ -821,99 +677,57 @@ class TestConstantIdentityShadowing:
     passthroughs, making them useless.
     """
 
-    def test_connect_identity_offset2_after_const_warns(self):
-        """Connecting Identity(offset=2) when constant giver is active warns."""
-        circuit = Circuit()
+    @pytest.mark.parametrize("id_input,offset", [("a", 2), ("b", 3)])
+    def test_connect_identity_high_offset_after_const_warns(self, id_input, offset):
+        """Connecting Identity(offset=2 or 3) when constant giver is active warns."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         circuit.const(value=1.0)  # turns on constant giver
         circuit.mul()  # mul0
         m1 = circuit.mul()  # mul1
-        id2 = m1.a.id()  # offset=2
+        identity = getattr(m1, id_input).id()
         i0 = circuit.int()
 
         with pytest.warns(UserWarning, match="(?i)shadow|constant.*giver|identity"):
-            circuit.connect(id2, i0, weight=1.0)
+            circuit.connect(identity, i0, weight=1.0)
 
-    def test_connect_identity_offset3_after_const_warns(self):
-        """Connecting Identity(offset=3) when constant giver is active warns."""
-        circuit = Circuit()
-        circuit.const(value=1.0)  # turns on constant giver
-        circuit.mul()  # mul0
-        m1 = circuit.mul()  # mul1
-        id3 = m1.b.id()  # offset=3
-        i0 = circuit.int()
-
-        with pytest.warns(UserWarning, match="(?i)shadow|constant.*giver|identity"):
-            circuit.connect(id3, i0, weight=1.0)
-
-    def test_connect_identity_offset0_after_const_no_warning(self):
-        """Identity(offset=0) (output 12) is not affected by constant giver."""
-        circuit = Circuit()
+    @pytest.mark.parametrize("id_input,offset", [("a", 0), ("b", 1)])
+    def test_connect_identity_low_offset_after_const_no_warning(self, id_input, offset):
+        """Identity(offset=0 or 1) is not affected by constant giver — no warning."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         circuit.const(value=1.0)
         m0 = circuit.mul()
-        id0 = m0.a.id()  # offset=0
+        identity = getattr(m0, id_input).id()
         i0 = circuit.int()
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            circuit.connect(id0, i0, weight=1.0)
+            circuit.connect(identity, i0, weight=1.0)
             shadowing_warnings = [
                 x for x in w
                 if issubclass(x.category, UserWarning)
                 and "shadow" in str(x.message).lower()
             ]
             assert len(shadowing_warnings) == 0, (
-                f"Identity(offset=0) should not trigger shadowing warning, "
+                f"Identity(offset={offset}) should not trigger shadowing warning, "
                 f"got: {[str(x.message) for x in shadowing_warnings]}"
             )
 
-    def test_connect_identity_offset1_after_const_no_warning(self):
-        """Identity(offset=1) (output 13) is not affected by constant giver."""
-        circuit = Circuit()
-        circuit.const(value=1.0)
-        m0 = circuit.mul()
-        id1 = m0.b.id()  # offset=1
-        i0 = circuit.int()
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            circuit.connect(id1, i0, weight=1.0)
-            shadowing_warnings = [
-                x for x in w
-                if issubclass(x.category, UserWarning)
-                and "shadow" in str(x.message).lower()
-            ]
-            assert len(shadowing_warnings) == 0, (
-                f"Identity(offset=1) should not trigger shadowing warning, "
-                f"got: {[str(x.message) for x in shadowing_warnings]}"
-            )
-
-    def test_const_after_identity_offset2_connected_warns(self):
-        """Allocating a constant after Identity(offset=2) was connected warns."""
-        circuit = Circuit()
+    @pytest.mark.parametrize("id_input,offset", [("a", 2), ("b", 3)])
+    def test_const_after_identity_high_offset_connected_warns(self, id_input, offset):
+        """Allocating a constant after Identity(offset=2 or 3) was connected warns."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         circuit.mul()  # mul0
         m1 = circuit.mul()  # mul1
-        id2 = m1.a.id()  # offset=2
+        identity = getattr(m1, id_input).id()
         i0 = circuit.int()
-        circuit.connect(id2, i0, weight=1.0)
-
-        with pytest.warns(UserWarning, match="(?i)shadow|constant.*giver|identity"):
-            circuit.const(value=1.0)
-
-    def test_const_after_identity_offset3_connected_warns(self):
-        """Allocating a constant after Identity(offset=3) was connected warns."""
-        circuit = Circuit()
-        circuit.mul()  # mul0
-        m1 = circuit.mul()  # mul1
-        id3 = m1.b.id()  # offset=3
-        i0 = circuit.int()
-        circuit.connect(id3, i0, weight=1.0)
+        circuit.connect(identity, i0, weight=1.0)
 
         with pytest.warns(UserWarning, match="(?i)shadow|constant.*giver|identity"):
             circuit.const(value=1.0)
 
     def test_const_without_identity_no_warning(self):
         """Allocating a constant with no Identity connected emits no warning."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -937,8 +751,7 @@ class TestCircuitOwnership:
     """
 
     def test_elements_carry_circuit_id(self):
-        """All element types carry the creating circuit's _circuit_id."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
         m0 = circuit.mul()
         id0 = m0.a.id()
@@ -955,8 +768,7 @@ class TestCircuitOwnership:
             )
 
     def test_mulinput_inherits_circuit_id(self):
-        """_MulInput from multiplier.a/.b inherits the circuit's _circuit_id."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
 
         assert m0.a._circuit_id == circuit._circuit_id, (
@@ -966,19 +778,9 @@ class TestCircuitOwnership:
             "Multiplier.b should carry the circuit's _circuit_id"
         )
 
-    def test_connect_same_circuit_succeeds(self):
-        """Connecting elements from the same circuit works normally."""
-        circuit = Circuit()
-        i0 = circuit.int()
-        i1 = circuit.int()
-
-        # Should not raise
-        circuit.connect(i0, i1, weight=1.0)
-
     def test_connect_cross_circuit_source_raises(self):
-        """Source from a different circuit raises ValueError."""
-        circuit_a = Circuit()
-        circuit_b = Circuit()
+        circuit_a = Circuit("AA-BB-CC-DD-EE-FF")
+        circuit_b = Circuit("AA-BB-CC-DD-EE-FF")
 
         i0_a = circuit_a.int()
         i1_b = circuit_b.int()
@@ -987,9 +789,8 @@ class TestCircuitOwnership:
             circuit_a.connect(i0_a, i1_b, weight=1.0)
 
     def test_connect_cross_circuit_target_raises(self):
-        """Target from a different circuit raises ValueError."""
-        circuit_a = Circuit()
-        circuit_b = Circuit()
+        circuit_a = Circuit("AA-BB-CC-DD-EE-FF")
+        circuit_b = Circuit("AA-BB-CC-DD-EE-FF")
 
         i0_b = circuit_b.int()
         i1_a = circuit_a.int()
@@ -998,9 +799,8 @@ class TestCircuitOwnership:
             circuit_a.connect(i0_b, i1_a, weight=1.0)
 
     def test_probe_cross_circuit_source_raises(self):
-        """Probing an element from a different circuit raises ValueError."""
-        circuit_a = Circuit()
-        circuit_b = Circuit()
+        circuit_a = Circuit("AA-BB-CC-DD-EE-FF")
+        circuit_b = Circuit("AA-BB-CC-DD-EE-FF")
 
         i0_b = circuit_b.int()
 

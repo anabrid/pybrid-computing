@@ -60,10 +60,6 @@ def get_test_proxy_port() -> int:
     return get_test_port(0) + 1000
 
 
-# ---------------------------------------------------------------------------
-# Subprocess-based server management for E2E CLI tests
-# ---------------------------------------------------------------------------
-
 import json
 import socket
 import subprocess

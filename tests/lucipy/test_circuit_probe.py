@@ -22,8 +22,7 @@ class TestProbeADC:
     """Test probe() ADC assignment mode (new canonical behavior)."""
 
     def test_probe_adc_assigns_channel(self):
-        """probe(source, adc_channel=0) assigns ADC channel 0."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrator = circuit.int()
 
         channel = circuit.probe(integrator, adc_channel=0)
@@ -32,8 +31,7 @@ class TestProbeADC:
         assert circuit._adc_channels[0] == integrator.lane
 
     def test_probe_adc_greedy(self):
-        """probe(source) auto-assigns next free ADC channel."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         int0 = circuit.int()
         int1 = circuit.int()
 
@@ -46,8 +44,7 @@ class TestProbeADC:
         assert circuit._adc_channels[1] == int1.lane
 
     def test_probe_adc_raises_on_occupied_channel(self):
-        """probe(source, adc_channel=N) raises if channel N is occupied."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         int0 = circuit.int()
         int1 = circuit.int()
 
@@ -61,8 +58,7 @@ class TestProbeFrontPortDeprecated:
     """Test probe(front_port=...) deprecated ACL_OUT mode."""
 
     def test_probe_front_port_deprecated(self):
-        """probe(source, front_port=0) emits DeprecationWarning and allocates ACL_OUT."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrator = circuit.int()
 
         with pytest.warns(DeprecationWarning, match="probe\\(front_port=...\\) is deprecated"):
@@ -81,8 +77,7 @@ class TestProbeFrontPortDeprecated:
         assert cluster.cblock.elements[24].computation.factor == 1.0
 
     def test_probe_front_port_with_weight(self):
-        """probe(source, front_port=1, weight=0.5) applies weight."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrator = circuit.int()
 
         with pytest.warns(DeprecationWarning):
@@ -99,8 +94,7 @@ class TestMeasureDeprecated:
     """Test measure() deprecated alias."""
 
     def test_measure_deprecated(self):
-        """measure(source) emits DeprecationWarning and delegates to probe()."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrator = circuit.int()
 
         with pytest.warns(DeprecationWarning, match="measure\\(\\) is deprecated"):
@@ -110,8 +104,7 @@ class TestMeasureDeprecated:
         assert circuit._adc_channels[0] == integrator.lane
 
     def test_measure_with_adc_channel(self):
-        """measure(source, adc_channel=2) works via delegation."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrator = circuit.int()
 
         with pytest.warns(DeprecationWarning):
@@ -125,8 +118,7 @@ class TestFrontPanelPropertyDeprecated:
     """Test front_panel property deprecation (kept for sine-extra.py)."""
 
     def test_front_panel_property_deprecated(self):
-        """circuit.front_panel emits DeprecationWarning and returns FrontPlane."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
 
         with pytest.warns(DeprecationWarning, match="front_panel property is deprecated"):
             front_panel = circuit.front_panel

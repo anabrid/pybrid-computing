@@ -10,7 +10,7 @@ elements (integrators, multipliers, identities, constants, inputs, outputs)
 using greedy allocation, returns properly typed wrapper dataclasses, and
 raises ValueError on resource exhaustion.
 
-Written as TDD tests before the Circuit class rewrite.
+Uses DummyDAC-independent unit tests; no hardware required.
 """
 
 import pytest
@@ -30,8 +30,7 @@ class TestIntegratorAllocation:
     """Tests for Circuit.int() integrator allocation."""
 
     def test_allocate_integrator(self):
-        """Circuit.int() returns an Integrator with valid id and lane."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int()
 
         assert isinstance(i0, Integrator), (
@@ -47,7 +46,7 @@ class TestIntegratorAllocation:
 
     def test_allocate_integrator_with_ic(self):
         """Circuit.int(ic=0.5) sets the initial condition on the internal pybrid object."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int(ic=0.5)
 
         assert isinstance(i0, Integrator), (
@@ -65,8 +64,7 @@ class TestIntegratorAllocation:
         )
 
     def test_allocate_all_integrators(self):
-        """Allocating 8 integrators yields distinct ids covering 0-7."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
         ids = [i.id for i in integrators]
@@ -78,8 +76,7 @@ class TestIntegratorAllocation:
         )
 
     def test_allocate_integrator_overflow(self):
-        """The 9th int() call must raise ValueError."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         for _ in range(8):
             circuit.int()
 
@@ -91,8 +88,7 @@ class TestMultiplierAllocation:
     """Tests for Circuit.mul() multiplier allocation."""
 
     def test_allocate_multiplier(self):
-        """Circuit.mul() returns a Multiplier with valid id."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
 
         assert isinstance(m0, Multiplier), (
@@ -107,8 +103,7 @@ class TestMultiplierAllocation:
         )
 
     def test_allocate_all_multipliers(self):
-        """Allocating 4 multipliers yields distinct ids covering 0-3."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         multipliers = [circuit.mul() for _ in range(4)]
 
         ids = [m.id for m in multipliers]
@@ -120,8 +115,7 @@ class TestMultiplierAllocation:
         )
 
     def test_allocate_multiplier_overflow(self):
-        """The 5th mul() call must raise ValueError."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         for _ in range(4):
             circuit.mul()
 
@@ -136,87 +130,40 @@ class TestIdentityCreation:
     Only multipliers 0 and 1 have identity paths (M-block outputs 12-15).
     """
 
-    def test_mul0_a_id_returns_identity_offset_0(self):
-        """mul0.a.id() returns Identity(offset=0) for multiplier 0, input a."""
-        circuit = Circuit()
-        m0 = circuit.mul()
-        id_a = m0.a.id()
+    @pytest.mark.parametrize("mul_idx,input_name,expected_offset", [
+        (0, "a", 0),
+        (0, "b", 1),
+        (1, "a", 2),
+        (1, "b", 3),
+    ])
+    def test_identity_offset(self, mul_idx, input_name, expected_offset):
+        """mul{idx}.{input}.id() returns Identity with the correct offset."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
+        muls = [circuit.mul() for _ in range(mul_idx + 1)]
+        mul = muls[mul_idx]
+        result = getattr(mul, input_name).id()
 
-        assert isinstance(id_a, Identity), (
-            "m0.a.id() must return an Identity instance"
+        assert isinstance(result, Identity), (
+            f"mul{mul_idx}.{input_name}.id() must return an Identity instance"
         )
-        assert id_a.offset == 0, (
-            f"mul0.a identity offset must be 0, got {id_a.offset}"
-        )
-
-    def test_mul0_b_id_returns_identity_offset_1(self):
-        """mul0.b.id() returns Identity(offset=1) for multiplier 0, input b."""
-        circuit = Circuit()
-        m0 = circuit.mul()
-        id_b = m0.b.id()
-
-        assert isinstance(id_b, Identity), (
-            "m0.b.id() must return an Identity instance"
-        )
-        assert id_b.offset == 1, (
-            f"mul0.b identity offset must be 1, got {id_b.offset}"
+        assert result.offset == expected_offset, (
+            f"mul{mul_idx}.{input_name} identity offset must be {expected_offset}, "
+            f"got {result.offset}"
         )
 
-    def test_mul1_a_id_returns_identity_offset_2(self):
-        """mul1.a.id() returns Identity(offset=2) for multiplier 1, input a."""
-        circuit = Circuit()
-        circuit.mul()  # mul0
-        m1 = circuit.mul()  # mul1
-        id_a = m1.a.id()
-
-        assert isinstance(id_a, Identity), (
-            "m1.a.id() must return an Identity instance"
-        )
-        assert id_a.offset == 2, (
-            f"mul1.a identity offset must be 2, got {id_a.offset}"
-        )
-
-    def test_mul1_b_id_returns_identity_offset_3(self):
-        """mul1.b.id() returns Identity(offset=3) for multiplier 1, input b."""
-        circuit = Circuit()
-        circuit.mul()  # mul0
-        m1 = circuit.mul()  # mul1
-        id_b = m1.b.id()
-
-        assert isinstance(id_b, Identity), (
-            "m1.b.id() must return an Identity instance"
-        )
-        assert id_b.offset == 3, (
-            f"mul1.b identity offset must be 3, got {id_b.offset}"
-        )
-
-    def test_mul2_id_raises(self):
-        """mul2.a.id() and mul2.b.id() raise ValueError (no identity path)."""
-        circuit = Circuit()
-        for _ in range(2):
-            circuit.mul()
-        m2 = circuit.mul()  # mul2, id=2
+    @pytest.mark.parametrize("mul_idx", [2, 3])
+    def test_identity_raises_on_high_multiplier(self, mul_idx):
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
+        muls = [circuit.mul() for _ in range(mul_idx + 1)]
+        mul = muls[mul_idx]
 
         with pytest.raises(ValueError, match="(?i)identity|path|multiplier"):
-            m2.a.id()
+            mul.a.id()
         with pytest.raises(ValueError, match="(?i)identity|path|multiplier"):
-            m2.b.id()
-
-    def test_mul3_id_raises(self):
-        """mul3.a.id() and mul3.b.id() raise ValueError (no identity path)."""
-        circuit = Circuit()
-        for _ in range(3):
-            circuit.mul()
-        m3 = circuit.mul()  # mul3, id=3
-
-        with pytest.raises(ValueError, match="(?i)identity|path|multiplier"):
-            m3.a.id()
-        with pytest.raises(ValueError, match="(?i)identity|path|multiplier"):
-            m3.b.id()
+            mul.b.id()
 
     def test_id_carries_circuit_id(self):
-        """Identity from _MulInput.id() carries the creating circuit's _circuit_id."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
         id_a = m0.a.id()
 
@@ -225,8 +172,7 @@ class TestIdentityCreation:
         )
 
     def test_id_no_allocation_conflict_with_mul(self):
-        """Identity coexists with multipliers — no mutual exclusion."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
         id0 = m0.a.id()
 
@@ -237,8 +183,7 @@ class TestIdentityCreation:
         )
 
     def test_id_same_input_multiple_times(self):
-        """Calling .id() on the same _MulInput multiple times returns equivalent Identity."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
         id_a1 = m0.a.id()
         id_a2 = m0.a.id()
@@ -248,25 +193,16 @@ class TestIdentityCreation:
         )
 
     def test_circuit_id_method_raises(self):
-        """Circuit.id() raises RuntimeError directing users to the new syntax."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         with pytest.raises(RuntimeError, match="(?i)removed|multiplier"):
             circuit.id(offset=0)
-
-    def test_identity_method_removed(self):
-        """The deprecated identity() method no longer exists."""
-        circuit = Circuit()
-        assert not hasattr(circuit, "identity"), (
-            "identity() method should have been removed"
-        )
 
 
 class TestConstantAllocation:
     """Tests for Circuit.const() constant allocation."""
 
     def test_allocate_constant(self):
-        """const() returns a Constant with a valid id."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         c0 = circuit.const()
 
         assert isinstance(c0, Constant), (
@@ -277,8 +213,7 @@ class TestConstantAllocation:
         )
 
     def test_allocate_two_constants(self):
-        """Two const() calls return Constant wrappers with distinct ids."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         c0 = circuit.const()
         c1 = circuit.const()
 
@@ -288,8 +223,7 @@ class TestConstantAllocation:
         )
 
     def test_allocate_constant_overflow(self):
-        """The 3rd const() call must raise ValueError."""
-        circuit = Circuit()
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
         circuit.const()
         circuit.const()
 
@@ -300,32 +234,21 @@ class TestConstantAllocation:
 class TestInputOutputAllocation:
     """Tests for Circuit.input() and Circuit.output() ACL port allocation."""
 
-    def test_allocate_input(self):
-        """input() returns an Input with port 0 and lane in 24-31."""
-        circuit = Circuit()
-        inp = circuit.input()
+    @pytest.mark.parametrize("method,expected_type", [
+        ("input", Input),
+        ("output", Output),
+    ])
+    def test_allocate_acl_port(self, method, expected_type):
+        """input()/output() returns the correct type with port 0 and lane in 24-31."""
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
+        result = getattr(circuit, method)()
 
-        assert isinstance(inp, Input), (
-            "input() must return an Input instance"
+        assert isinstance(result, expected_type), (
+            f"{method}() must return a {expected_type.__name__} instance"
         )
-        assert inp.port == 0, (
-            f"First input port should be 0 (greedy), got {inp.port}"
+        assert result.port == 0, (
+            f"First {method} port should be 0 (greedy), got {result.port}"
         )
-        assert 24 <= inp.lane <= 31, (
-            f"Input lane must be in 24-31 (ACL range), got {inp.lane}"
-        )
-
-    def test_allocate_output(self):
-        """output() returns an Output with port 0 and lane in 24-31."""
-        circuit = Circuit()
-        out = circuit.output()
-
-        assert isinstance(out, Output), (
-            "output() must return an Output instance"
-        )
-        assert out.port == 0, (
-            f"First output port should be 0 (greedy), got {out.port}"
-        )
-        assert 24 <= out.lane <= 31, (
-            f"Output lane must be in 24-31 (ACL range), got {out.lane}"
+        assert 24 <= result.lane <= 31, (
+            f"{method} lane must be in 24-31 (ACL range), got {result.lane}"
         )

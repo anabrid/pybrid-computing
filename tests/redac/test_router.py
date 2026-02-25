@@ -39,11 +39,6 @@ from pybrid.redac.entities import Loc
 from pybrid.redac.router import Router, RoutingException
 
 
-# =============================================================================
-# Test Fixtures
-# =============================================================================
-
-
 def build():
     """
     Create a Router with a full two-stack, two-wing topology.
@@ -83,19 +78,8 @@ def build():
     return router
 
 
-# =============================================================================
-# Cluster Routing Tests
-# =============================================================================
-
-
 def test_cluster_0_7():
-    """
-    Test routing within cluster-local lanes (0-7).
-
-    Lanes 0-7 can only route within the same cluster and must have
-    matching source and target lane numbers. Attempting to route
-    these lanes to different targets should fail with RoutingException.
-    """
+    """Lanes 0-7 route only within the same cluster; mismatched lane numbers raise RoutingException."""
     router = build()
 
     cluster = Loc.new_cluster(0, 0, 0)
@@ -115,19 +99,8 @@ def test_cluster_0_7():
         router.route(cluster / 7, cluster / 6)
 
 
-# =============================================================================
-# Carrier Routing Tests
-# =============================================================================
-
-
 def test_carrier():
-    """
-    Test routing between clusters on the same carrier.
-
-    Lanes 8-31 can route between clusters via the carrier's T-block.
-    The source and target lanes must match. Lane numbers outside the
-    valid range (0-31) should raise AssertionError.
-    """
+    """Lanes 8-31 route between clusters on the same carrier; mismatched lanes or out-of-range raise errors."""
     router = build()
     # stack wing carrier cluster lane
     carrier = Loc.new_carrier(0, 0)
@@ -139,6 +112,5 @@ def test_carrier():
 
     with raises(AssertionError):
         router.route(carrier / 0 / 32, carrier / 1 / 32)
-
 
 

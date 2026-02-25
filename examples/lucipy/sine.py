@@ -9,7 +9,16 @@ import numpy as np
 # Create a simple sine/cosine oscillator circuit in lucipy-syntax
 ###
 
-c   = Circuit()                         # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
+
+c   = luci.create_circuit()             # Create a circuit
 
 ic_sin  = -1                            # Initial value for the sine
 omega   = .01 * (2.*np.pi)              # Oscillation frequency
@@ -22,17 +31,6 @@ c.connect(cos, sin, weight = -omega)    # Connect cosine to sine integrator
 
 c.measure(sin, adc_channel=0)           # Connect integrators to ADC
 c.measure(cos, adc_channel=1)           # to sample data
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(c)                     # Assign circuit
 
 ###
 # Settings for sampling and circuit execution

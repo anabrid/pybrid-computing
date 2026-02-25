@@ -10,7 +10,16 @@ import numpy as np
 # Create a Mathieu equation circuit in lucipy-syntax
 ###
 
-m   = Circuit()                         # Create a circuit
+###
+# Auto-detect LUCIDAC-device (empty constructor) or:
+# - set environment variable LUCIDAC_ENDPOINT to a connection string
+# - pass the connection string directly
+#
+# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
+###
+luci    = LUCIDAC()
+
+m   = luci.create_circuit()             # Create a circuit
 
 # First we need an amplitude stabilized cosine signal. Since we do not have
 # limiters at the moment, we use a van der Pol oscillator for that purpose.
@@ -55,17 +64,6 @@ m.connect(y, p.a)                       # Parametric excitation term
 m.connect(ym, p.b, weight = 2)
 
 m.measure(ym, adc_channel=0)            # Connect to ADC to sample data
-
-###
-# Auto-detect LUCIDAC-device (empty constructor) or:
-# - set environment variable LUCIDAC_ENDPOINT to a connection string
-# - pass the connection string directly
-#
-# where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
-###
-luci    = LUCIDAC()
-
-luci.set_circuit(m)                     # Assign circuit
 
 ###
 # Settings for sampling and circuit execution
