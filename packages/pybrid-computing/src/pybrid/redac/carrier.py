@@ -90,6 +90,10 @@ class Carrier(Entity):
         front_plane = None
         acl_select = None
 
+        location = None
+        if tree.HasField("v0"):
+            location = Loc.new_carrier(tree.v0.stack, tree.v0.carrier)
+
         for child in tree.children:
             path_: Path = path / Path.parse(child.id)
             if not path_.id_:
@@ -98,16 +102,25 @@ class Carrier(Entity):
                 continue
             if path_.id_ == "T":
                 tblock = TBlock.create_from_entity_type_tree(path_, child)
+                if location:
+                    tblock.location = location.carrier()
                 continue
             if path_.id_ == "ST0":
                 st0block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
+                if location:
+                    st0block.location = location.stack()
                 continue
             if path_.id_ == "ST1":
                 st1block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
+                if location:
+                    st1block.location = location.stack()
                 continue
             if path_.id_ == "ST2":
                 st2block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
                 st1block = TBlock.create_from_entity_type_tree(path_, child)
+                if location:
+                    st2block.location = location.stack()
+                    st1block.location = location.stack()
                 continue
             if path_.id_ == "FP":
                 # Firmware reports FP with class_=UNKNOWN(0), so detect by name.
@@ -119,10 +132,6 @@ class Carrier(Entity):
                 cluster = Cluster.create_from_entity_type_tree(path_, child)
                 clusters.append(cluster)
                 continue
-
-        location = None
-        if tree.HasField("v0"):
-            location = Loc.new_carrier(tree.v0.stack, tree.v0.carrier)
 
         return cls(path=path, clusters=clusters, tblock=tblock, st0block=st0block,
             st1block=st1block, front_plane=front_plane, acl_select=acl_select,
@@ -141,6 +150,11 @@ class Carrier(Entity):
         m_slot = int(entity.path[2].strip("M"))
         element_idx = int(entity.path.id_)
         return cluster_idx * 16 + m_slot * 8 + element_idx
+
+    def loc(self) -> Loc:
+        if self.location is None:
+            raise Exception("Location value must be set for carrier before routing is possible!")
+        return self.location
 
     @property
     def front_panel(self):

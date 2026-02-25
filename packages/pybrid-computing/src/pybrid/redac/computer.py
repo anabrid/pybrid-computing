@@ -70,10 +70,7 @@ class REDAC(AnalogComputer):
     def add_carrier(self, carrier: Carrier):
         self.carriers.append(carrier)
         self._entities_by_path.update(build_entity_path_dict([carrier]))
-        try:
-            self.router.add_carrier(carrier)
-        except Exception as exc:
-            logger.warning("Could not add carrier to router: %s", exc)
+        self.router.add_carrier(carrier)
 
     @classmethod
     def create_from_entity_type_tree(cls, type_tree):

@@ -39,41 +39,34 @@ from pybrid.redac.entities import Loc
 from pybrid.redac.router import Router, RoutingException
 
 
+def _make_tblock(stack: int, carrier: int) -> TBlock:
+    t = TBlock(Path(("dummy", "T")))
+    t.location = Loc.new_carrier(stack, carrier)
+    return t
+
+
+def _make_bpl_tblock(stack: int) -> BackplaneTBlock:
+    t = BackplaneTBlock(Path(("dummy", "ST")))
+    t.location = Loc.new_stack(stack)
+    return t
+
+
 def build():
     """
-    Create a Router with a full two-stack, two-wing topology.
+    Create a Router with a full two-stack topology.
 
-    Topology:
-    - Stack 0:
-      - Wing 0: Carriers 0, 1, 2 (T-blocks + ST0)
-      - Wing 1: Carriers 0, 1, 2 (T-blocks + ST1)
-    - Stack 1:
-      - Wing 0: Carriers 0, 1, 2
-      - Wing 1: Carriers 0, 1, 2
-
-    Returns:
-        Router configured with the full topology.
+    Topology per stack: 6 carriers (0-5), 3 backplane T-blocks (partitions 0-2).
     """
     router = Router()
-    router.add_t_block(TBlock(Path(("00-00-00-00-00-00", "T"))))  # Stack 0 Wing 0 Carrier 0
-    router.add_t_block(TBlock(Path(("00-00-00-00-00-01", "T"))))  # Stack 0 Wing 0 Carrier 1
-    router.add_t_block(TBlock(Path(("00-00-00-00-00-02", "T"))))  # Stack 0 Wing 0 Carrier 2
 
-    router.add_t_block(TBlock(Path(("00-00-01-00-00-00", "T"))))  # Stack 0 Wing 1 Carrier 0
-    router.add_t_block(TBlock(Path(("00-00-01-00-00-01", "T"))))  # Stack 0 Wing 1 Carrier 1
-    router.add_t_block(TBlock(Path(("00-00-01-00-00-02", "T"))))  # Stack 0 Wing 1 Carrier 2
+    for carrier in range(6):
+        router.add_t_block(_make_tblock(0, carrier))
+    router.add_t_bpl_block(0, _make_bpl_tblock(0))
+    router.add_t_bpl_block(1, _make_bpl_tblock(0))
+    router.add_t_bpl_block(2, _make_bpl_tblock(0))
 
-    router.add_t_bpl_block(0, BackplaneTBlock(Path(("00-00-00-00-00-00", "ST0"))))  # Stack 0
-    router.add_t_bpl_block(1, BackplaneTBlock(Path(("00-00-00-00-00-00", "ST1"))))  # Stack 0
-    router.add_t_bpl_block(2, BackplaneTBlock(Path(("00-00-00-00-00-00", "ST2"))))  # Stack 0
-
-    router.add_t_block(TBlock(Path(("01-00-00-00-00-00", "T"))))  # Stack 1 Wing 0 Carrier 0
-    router.add_t_block(TBlock(Path(("01-00-00-00-00-01", "T"))))  # Stack 1 Wing 0 Carrier 1
-    router.add_t_block(TBlock(Path(("01-00-00-00-00-02", "T"))))  # Stack 1 Wing 0 Carrier 2
-
-    router.add_t_block(TBlock(Path(("01-00-01-00-00-00", "T"))))  # Stack 1 Wing 1 Carrier 0
-    router.add_t_block(TBlock(Path(("01-00-01-00-00-01", "T"))))  # Stack 1 Wing 1 Carrier 1
-    router.add_t_block(TBlock(Path(("01-00-01-00-00-02", "T"))))  # Stack 1 Wing 1 Carrier 2
+    for carrier in range(6):
+        router.add_t_block(_make_tblock(1, carrier))
 
     return router
 
