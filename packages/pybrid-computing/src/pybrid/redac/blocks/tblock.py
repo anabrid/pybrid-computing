@@ -2,6 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+from typing import Optional
 from dataclasses import field, dataclass
 
 from pybrid.redac.blocks.block import FunctionBlock
@@ -12,6 +13,8 @@ from pybrid.redac.entities import EntityClass, EntityType, Loc
 @dataclass
 class TBlock(FunctionBlock):
     muxes: list[int] = field(default_factory=lambda: [0, 1, 2, 3] * 24)
+
+    location: Loc = field(default_factory=lambda : Loc(args=[]))
 
     @staticmethod
     def index(dst_sector: int, sector_lane: int):
@@ -33,11 +36,7 @@ class TBlock(FunctionBlock):
         return self.muxes[TBlock.index(dst_sector, sector_lane)]
 
     def loc(self) -> "Loc":
-        elems = self.path.root.split("-")
-        if self.path[-1] == "T":
-            return Loc.new_carrier(int(elems[0], base=16), int(elems[5], base=16))
-        else:
-            raise NotImplementedError()
+        return self.location
 
     def reset(self):
         self.muxes = [0, 1, 2, 3] * 24

@@ -14,6 +14,8 @@ from pybrid.redac.entities import EntityClass, EntityType, Loc
 class BackplaneTBlock(FunctionBlock):
     muxes: list[int] = field(default_factory=lambda: [0, 1, 2, 3, 4, 5, 6, 7] * 9)
 
+    location: Loc = field(default_factory=lambda : Loc(args=[]))
+
     def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
         assert 0 <= src_sector < 9
         self.muxes[self.index(dst_sector, sector_lane)] = src_sector
@@ -27,5 +29,4 @@ class BackplaneTBlock(FunctionBlock):
         return dst_sector + sector_lane * 9
 
     def loc(self) -> "Loc":
-        elems = self.path.root.split("-")
-        return Loc.new_stack(int(elems[0]))
+        return self.location
