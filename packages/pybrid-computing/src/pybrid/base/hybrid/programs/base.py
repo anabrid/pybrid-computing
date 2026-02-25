@@ -101,6 +101,7 @@ class SingleRun(BaseProgram):
         self.set_configuration(self.run, self.computer)
         session = self.controller.create_session()
         session.set_config(self.computer)
+        session.calibrate()
         session.run(self.run.config, daq=self.run.daq)
         try:
             results = await session.execute()
@@ -151,6 +152,7 @@ class MultipleRuns(BaseProgram):
             # session cycling that can crash the proxy.
             session = self.controller.create_session()
             session.set_config(self.computer)
+            session.calibrate()
             session.run(new_run.config, daq=new_run.daq)
             try:
                 results = await session.execute()

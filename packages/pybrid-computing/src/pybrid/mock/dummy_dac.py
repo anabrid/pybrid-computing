@@ -66,6 +66,7 @@ class DummyDAC:
         self._active_connections = set()
         self._carrier_macs = self._generate_carrier_macs()
         self._stored_config: pb.ConfigBundle | None = None
+        self._calibrated: bool = False
         self._client_udp_ports = {}
         self._handlers = self._create_handlers()
 
@@ -90,7 +91,12 @@ class DummyDAC:
             UDPStreamingHandler,
             StartRunHandler,
             RegisterExternalEntitiesHandler,
+            CalibrationHandler,
         )
+
+        calibration_field = pb.MessageV1.DESCRIPTOR.fields_by_name[
+            "calibration_command"
+        ].number
 
         return {
             pb.MessageV1.DESCRIBE_COMMAND_FIELD_NUMBER: DescribeHandler(self),
@@ -100,6 +106,7 @@ class DummyDAC:
             pb.MessageV1.UDP_DATA_STREAMING_COMMAND_FIELD_NUMBER: UDPStreamingHandler(self),
             pb.MessageV1.START_RUN_COMMAND_FIELD_NUMBER: StartRunHandler(self),
             pb.MessageV1.REGISTER_EXTERNAL_ENTITIES_COMMAND_FIELD_NUMBER: RegisterExternalEntitiesHandler(self),
+            calibration_field: CalibrationHandler(self),
         }
 
     def _generate_carrier_macs(self) -> list[str]:

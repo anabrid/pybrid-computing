@@ -212,7 +212,6 @@ async def test_run_lifecycle_via_native_channel():
                     sample_op_end=True,
                 ),
                 sync_config=pb.SyncConfig(enabled=False),
-                calibration_config=pb.CalibrationConfig(enabled=False),
             )
 
             # Start the run — waits for acceptance acknowledgement only.

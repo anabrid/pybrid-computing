@@ -852,6 +852,28 @@ Returns:
 Raises:
     RuntimeError: On timeout or if the response contains an error.
 )doc")
+        .def("calibrate",
+            [](ControlChannel& self, const std::string& leader, bool math, bool gain, bool offset, double timeout) {
+                {
+                    py::gil_scoped_release release;
+                    self.calibrate(leader, math, gain, offset, timeout);
+                }
+            },
+            py::arg("leader") = "",
+            py::arg("math") = false,
+            py::arg("gain") = false,
+            py::arg("offset") = false,
+            py::arg("timeout") = 5.0,
+            R"doc(
+Send a CalibrateCommand.
+
+Args:
+    leader:     Entity path of the calibration leader (empty string for no leader).
+    math:       Enable math calibration (default: False).
+    gain:       Enable gain calibration (default: False).
+    offset:     Enable offset calibration (default: False).
+    timeout:    Maximum time to wait in seconds (default: 5.0).
+)doc")
         .def("get_config",
             [](ControlChannel& self, const std::string& entity_path,
                bool recursive, double timeout) {

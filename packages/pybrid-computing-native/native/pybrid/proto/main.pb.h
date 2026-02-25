@@ -106,12 +106,18 @@ extern CalibrateLaneCommandDefaultTypeInternal _CalibrateLaneCommand_default_ins
 class CalibrateOffsetCommand;
 struct CalibrateOffsetCommandDefaultTypeInternal;
 extern CalibrateOffsetCommandDefaultTypeInternal _CalibrateOffsetCommand_default_instance_;
+class CalibrationCommand;
+struct CalibrationCommandDefaultTypeInternal;
+extern CalibrationCommandDefaultTypeInternal _CalibrationCommand_default_instance_;
 class CalibrationConfig;
 struct CalibrationConfigDefaultTypeInternal;
 extern CalibrationConfigDefaultTypeInternal _CalibrationConfig_default_instance_;
 class CalibrationData;
 struct CalibrationDataDefaultTypeInternal;
 extern CalibrationDataDefaultTypeInternal _CalibrationData_default_instance_;
+class CalibrationResponse;
+struct CalibrationResponseDefaultTypeInternal;
+extern CalibrationResponseDefaultTypeInternal _CalibrationResponse_default_instance_;
 class CarrierLocationMessageV0;
 struct CarrierLocationMessageV0DefaultTypeInternal;
 extern CarrierLocationMessageV0DefaultTypeInternal _CarrierLocationMessageV0_default_instance_;
@@ -657,6 +663,39 @@ inline const std::string& Temperature_Unit_Name(Temperature_Unit value) {
 inline bool Temperature_Unit_Parse(absl::string_view name, Temperature_Unit* value) {
   return ::google::protobuf::internal::ParseNamedEnum<Temperature_Unit>(
       Temperature_Unit_descriptor(), name, value);
+}
+enum CalibrationConfig_Kind : int {
+  CalibrationConfig_Kind_Disabled = 0,
+  CalibrationConfig_Kind_Enabled = 1,
+  CalibrationConfig_Kind_CalibrationConfig_Kind_INT_MIN_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::min(),
+  CalibrationConfig_Kind_CalibrationConfig_Kind_INT_MAX_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::max(),
+};
+
+bool CalibrationConfig_Kind_IsValid(int value);
+extern const uint32_t CalibrationConfig_Kind_internal_data_[];
+constexpr CalibrationConfig_Kind CalibrationConfig_Kind_Kind_MIN = static_cast<CalibrationConfig_Kind>(0);
+constexpr CalibrationConfig_Kind CalibrationConfig_Kind_Kind_MAX = static_cast<CalibrationConfig_Kind>(1);
+constexpr int CalibrationConfig_Kind_Kind_ARRAYSIZE = 1 + 1;
+const ::google::protobuf::EnumDescriptor*
+CalibrationConfig_Kind_descriptor();
+template <typename T>
+const std::string& CalibrationConfig_Kind_Name(T value) {
+  static_assert(std::is_same<T, CalibrationConfig_Kind>::value ||
+                    std::is_integral<T>::value,
+                "Incorrect type passed to Kind_Name().");
+  return CalibrationConfig_Kind_Name(static_cast<CalibrationConfig_Kind>(value));
+}
+template <>
+inline const std::string& CalibrationConfig_Kind_Name(CalibrationConfig_Kind value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<CalibrationConfig_Kind_descriptor,
+                                                 0, 1>(
+      static_cast<int>(value));
+}
+inline bool CalibrationConfig_Kind_Parse(absl::string_view name, CalibrationConfig_Kind* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<CalibrationConfig_Kind>(
+      CalibrationConfig_Kind_descriptor(), name, value);
 }
 enum ManualControlCommand_State : int {
   ManualControlCommand_State_IC = 0,
@@ -3269,7 +3308,7 @@ class SuccessMessage final : public ::google::protobuf::internal::ZeroFieldsBase
     return reinterpret_cast<const SuccessMessage*>(
         &_SuccessMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 108;
+  static constexpr int kIndexInFileMessages = 110;
   friend void swap(SuccessMessage& a, SuccessMessage& b) { a.Swap(&b); }
   inline void Swap(SuccessMessage* other) {
     if (other == this) return;
@@ -4972,7 +5011,7 @@ class ReadTemperatureCommand final : public ::google::protobuf::internal::ZeroFi
     return reinterpret_cast<const ReadTemperatureCommand*>(
         &_ReadTemperatureCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 100;
+  static constexpr int kIndexInFileMessages = 102;
   friend void swap(ReadTemperatureCommand& a, ReadTemperatureCommand& b) { a.Swap(&b); }
   inline void Swap(ReadTemperatureCommand* other) {
     if (other == this) return;
@@ -6434,7 +6473,7 @@ class MessageV2 final : public ::google::protobuf::internal::ZeroFieldsBase
     return reinterpret_cast<const MessageV2*>(
         &_MessageV2_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 116;
+  static constexpr int kIndexInFileMessages = 118;
   friend void swap(MessageV2& a, MessageV2& b) { a.Swap(&b); }
   inline void Swap(MessageV2* other) {
     if (other == this) return;
@@ -7446,7 +7485,7 @@ class GetOverloadStatusCommand final : public ::google::protobuf::internal::Zero
     return reinterpret_cast<const GetOverloadStatusCommand*>(
         &_GetOverloadStatusCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 104;
+  static constexpr int kIndexInFileMessages = 106;
   friend void swap(GetOverloadStatusCommand& a, GetOverloadStatusCommand& b) { a.Swap(&b); }
   inline void Swap(GetOverloadStatusCommand* other) {
     if (other == this) return;
@@ -8124,7 +8163,7 @@ class ErrorMessage final : public ::google::protobuf::Message
     return reinterpret_cast<const ErrorMessage*>(
         &_ErrorMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 110;
+  static constexpr int kIndexInFileMessages = 112;
   friend void swap(ErrorMessage& a, ErrorMessage& b) { a.Swap(&b); }
   inline void Swap(ErrorMessage* other) {
     if (other == this) return;
@@ -8609,7 +8648,7 @@ class DeviceBusyMessage final : public ::google::protobuf::internal::ZeroFieldsB
     return reinterpret_cast<const DeviceBusyMessage*>(
         &_DeviceBusyMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 109;
+  static constexpr int kIndexInFileMessages = 111;
   friend void swap(DeviceBusyMessage& a, DeviceBusyMessage& b) { a.Swap(&b); }
   inline void Swap(DeviceBusyMessage* other) {
     if (other == this) return;
@@ -9833,6 +9872,134 @@ class CarrierLocationMessageV0 final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class CalibrationResponse final : public ::google::protobuf::internal::ZeroFieldsBase
+/* @@protoc_insertion_point(class_definition:pb.CalibrationResponse) */ {
+ public:
+  inline CalibrationResponse() : CalibrationResponse(nullptr) {}
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR CalibrationResponse(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline CalibrationResponse(const CalibrationResponse& from) : CalibrationResponse(nullptr, from) {}
+  inline CalibrationResponse(CalibrationResponse&& from) noexcept
+      : CalibrationResponse(nullptr, std::move(from)) {}
+  inline CalibrationResponse& operator=(const CalibrationResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CalibrationResponse& operator=(CalibrationResponse&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+#ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+#endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const CalibrationResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const CalibrationResponse* internal_default_instance() {
+    return reinterpret_cast<const CalibrationResponse*>(
+        &_CalibrationResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 95;
+  friend void swap(CalibrationResponse& a, CalibrationResponse& b) { a.Swap(&b); }
+  inline void Swap(CalibrationResponse* other) {
+    if (other == this) return;
+#ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr && GetArena() == other->GetArena()) {
+#else   // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+#endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CalibrationResponse* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  CalibrationResponse* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<CalibrationResponse>(arena);
+  }
+  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const CalibrationResponse& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const CalibrationResponse& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+
+  public:
+ private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() { return "pb.CalibrationResponse"; }
+
+ protected:
+  explicit CalibrationResponse(::google::protobuf::Arena* arena);
+  CalibrationResponse(::google::protobuf::Arena* arena, const CalibrationResponse& from);
+  CalibrationResponse(::google::protobuf::Arena* arena, CalibrationResponse&& from) noexcept
+      : CalibrationResponse(arena) {
+    *this = ::std::move(from);
+  }
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const final;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  // @@protoc_insertion_point(class_scope:pb.CalibrationResponse)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from);
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  friend struct ::TableStruct_main_2eproto;
+};
+// -------------------------------------------------------------------
+
 class CalibrationData final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.CalibrationData) */ {
  public:
@@ -9888,7 +10055,7 @@ class CalibrationData final : public ::google::protobuf::Message
     return reinterpret_cast<const CalibrationData*>(
         &_CalibrationData_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 98;
+  static constexpr int kIndexInFileMessages = 100;
   friend void swap(CalibrationData& a, CalibrationData& b) { a.Swap(&b); }
   inline void Swap(CalibrationData* other) {
     if (other == this) return;
@@ -10066,7 +10233,7 @@ class CalibrateOffsetCommand final : public ::google::protobuf::internal::ZeroFi
     return reinterpret_cast<const CalibrateOffsetCommand*>(
         &_CalibrateOffsetCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 96;
+  static constexpr int kIndexInFileMessages = 98;
   friend void swap(CalibrateOffsetCommand& a, CalibrateOffsetCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateOffsetCommand* other) {
     if (other == this) return;
@@ -10195,7 +10362,7 @@ class CalibrateLaneCommand final : public ::google::protobuf::Message
     return reinterpret_cast<const CalibrateLaneCommand*>(
         &_CalibrateLaneCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 97;
+  static constexpr int kIndexInFileMessages = 99;
   friend void swap(CalibrateLaneCommand& a, CalibrateLaneCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateLaneCommand* other) {
     if (other == this) return;
@@ -10361,7 +10528,7 @@ class CalibrateInitCommand final : public ::google::protobuf::internal::ZeroFiel
     return reinterpret_cast<const CalibrateInitCommand*>(
         &_CalibrateInitCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 94;
+  static constexpr int kIndexInFileMessages = 96;
   friend void swap(CalibrateInitCommand& a, CalibrateInitCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateInitCommand* other) {
     if (other == this) return;
@@ -10489,7 +10656,7 @@ class CalibrateFinalizeCommand final : public ::google::protobuf::internal::Zero
     return reinterpret_cast<const CalibrateFinalizeCommand*>(
         &_CalibrateFinalizeCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 95;
+  static constexpr int kIndexInFileMessages = 97;
   friend void swap(CalibrateFinalizeCommand& a, CalibrateFinalizeCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateFinalizeCommand* other) {
     if (other == this) return;
@@ -10618,7 +10785,7 @@ class BearerAuth final : public ::google::protobuf::Message
     return reinterpret_cast<const BearerAuth*>(
         &_BearerAuth_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 113;
+  static constexpr int kIndexInFileMessages = 115;
   friend void swap(BearerAuth& a, BearerAuth& b) { a.Swap(&b); }
   inline void Swap(BearerAuth* other) {
     if (other == this) return;
@@ -12101,7 +12268,7 @@ class TemperatureMeasurement final : public ::google::protobuf::Message
     return reinterpret_cast<const TemperatureMeasurement*>(
         &_TemperatureMeasurement_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 101;
+  static constexpr int kIndexInFileMessages = 103;
   friend void swap(TemperatureMeasurement& a, TemperatureMeasurement& b) { a.Swap(&b); }
   inline void Swap(TemperatureMeasurement* other) {
     if (other == this) return;
@@ -14410,7 +14577,7 @@ class OverloadStatus_Element final : public ::google::protobuf::Message
     return reinterpret_cast<const OverloadStatus_Element*>(
         &_OverloadStatus_Element_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 105;
+  static constexpr int kIndexInFileMessages = 107;
   friend void swap(OverloadStatus_Element& a, OverloadStatus_Element& b) { a.Swap(&b); }
   inline void Swap(OverloadStatus_Element* other) {
     if (other == this) return;
@@ -15137,7 +15304,7 @@ class GenericMessage final : public ::google::protobuf::Message
     return reinterpret_cast<const GenericMessage*>(
         &_GenericMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 112;
+  static constexpr int kIndexInFileMessages = 114;
   friend void swap(GenericMessage& a, GenericMessage& b) { a.Swap(&b); }
   inline void Swap(GenericMessage* other) {
     if (other == this) return;
@@ -16663,13 +16830,34 @@ class CalibrationConfig final : public ::google::protobuf::Message
  public:
   ::google::protobuf::Metadata GetMetadata() const final;
   // nested types ----------------------------------------------------
+  using Kind = CalibrationConfig_Kind;
+  static constexpr Kind Disabled = CalibrationConfig_Kind_Disabled;
+  static constexpr Kind Enabled = CalibrationConfig_Kind_Enabled;
+  static inline bool Kind_IsValid(int value) {
+    return CalibrationConfig_Kind_IsValid(value);
+  }
+  static constexpr Kind Kind_MIN = CalibrationConfig_Kind_Kind_MIN;
+  static constexpr Kind Kind_MAX = CalibrationConfig_Kind_Kind_MAX;
+  static constexpr int Kind_ARRAYSIZE = CalibrationConfig_Kind_Kind_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor* Kind_descriptor() {
+    return CalibrationConfig_Kind_descriptor();
+  }
+  template <typename T>
+  static inline const std::string& Kind_Name(T value) {
+    return CalibrationConfig_Kind_Name(value);
+  }
+  static inline bool Kind_Parse(absl::string_view name, Kind* value) {
+    return CalibrationConfig_Kind_Parse(name, value);
+  }
 
   // accessors -------------------------------------------------------
   enum : int {
-    kLeaderFieldNumber = 2,
-    kEnabledFieldNumber = 1,
+    kLeaderFieldNumber = 1,
+    kMathFieldNumber = 2,
+    kGainFieldNumber = 3,
+    kOffsetFieldNumber = 4,
   };
-  // optional .pb.EntityId leader = 2;
+  // optional .pb.EntityId leader = 1;
   bool has_leader() const;
   void clear_leader() ;
   const ::pb::EntityId& leader() const;
@@ -16684,14 +16872,34 @@ class CalibrationConfig final : public ::google::protobuf::Message
   ::pb::EntityId* _internal_mutable_leader();
 
   public:
-  // bool enabled = 1;
-  void clear_enabled() ;
-  bool enabled() const;
-  void set_enabled(bool value);
+  // .pb.CalibrationConfig.Kind math = 2;
+  void clear_math() ;
+  ::pb::CalibrationConfig_Kind math() const;
+  void set_math(::pb::CalibrationConfig_Kind value);
 
   private:
-  bool _internal_enabled() const;
-  void _internal_set_enabled(bool value);
+  ::pb::CalibrationConfig_Kind _internal_math() const;
+  void _internal_set_math(::pb::CalibrationConfig_Kind value);
+
+  public:
+  // .pb.CalibrationConfig.Kind gain = 3;
+  void clear_gain() ;
+  ::pb::CalibrationConfig_Kind gain() const;
+  void set_gain(::pb::CalibrationConfig_Kind value);
+
+  private:
+  ::pb::CalibrationConfig_Kind _internal_gain() const;
+  void _internal_set_gain(::pb::CalibrationConfig_Kind value);
+
+  public:
+  // .pb.CalibrationConfig.Kind offset = 4;
+  void clear_offset() ;
+  ::pb::CalibrationConfig_Kind offset() const;
+  void set_offset(::pb::CalibrationConfig_Kind value);
+
+  private:
+  ::pb::CalibrationConfig_Kind _internal_offset() const;
+  void _internal_set_offset(::pb::CalibrationConfig_Kind value);
 
   public:
   // @@protoc_insertion_point(class_scope:pb.CalibrationConfig)
@@ -16699,7 +16907,7 @@ class CalibrationConfig final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 1,
+      2, 4, 1,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -16718,7 +16926,9 @@ class CalibrationConfig final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     ::pb::EntityId* leader_;
-    bool enabled_;
+    int math_;
+    int gain_;
+    int offset_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -16781,7 +16991,7 @@ class CalibrateDataCommand final : public ::google::protobuf::Message
     return reinterpret_cast<const CalibrateDataCommand*>(
         &_CalibrateDataCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 99;
+  static constexpr int kIndexInFileMessages = 101;
   friend void swap(CalibrateDataCommand& a, CalibrateDataCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateDataCommand* other) {
     if (other == this) return;
@@ -17132,7 +17342,7 @@ class AuthRequest final : public ::google::protobuf::Message
     return reinterpret_cast<const AuthRequest*>(
         &_AuthRequest_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 114;
+  static constexpr int kIndexInFileMessages = 116;
   friend void swap(AuthRequest& a, AuthRequest& b) { a.Swap(&b); }
   inline void Swap(AuthRequest* other) {
     if (other == this) return;
@@ -17696,7 +17906,7 @@ class TemperatureDataset final : public ::google::protobuf::Message
     return reinterpret_cast<const TemperatureDataset*>(
         &_TemperatureDataset_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 102;
+  static constexpr int kIndexInFileMessages = 104;
   friend void swap(TemperatureDataset& a, TemperatureDataset& b) { a.Swap(&b); }
   inline void Swap(TemperatureDataset* other) {
     if (other == this) return;
@@ -17944,7 +18154,6 @@ class StartRunCommand final : public ::google::protobuf::Message
     kRunConfigFieldNumber = 2,
     kDaqConfigFieldNumber = 3,
     kSyncConfigFieldNumber = 4,
-    kCalibrationConfigFieldNumber = 5,
     kEndRepetitiveFieldNumber = 6,
     kClearQueueFieldNumber = 7,
   };
@@ -18008,21 +18217,6 @@ class StartRunCommand final : public ::google::protobuf::Message
   ::pb::SyncConfig* _internal_mutable_sync_config();
 
   public:
-  // .pb.CalibrationConfig calibration_config = 5;
-  bool has_calibration_config() const;
-  void clear_calibration_config() ;
-  const ::pb::CalibrationConfig& calibration_config() const;
-  PROTOBUF_NODISCARD ::pb::CalibrationConfig* release_calibration_config();
-  ::pb::CalibrationConfig* mutable_calibration_config();
-  void set_allocated_calibration_config(::pb::CalibrationConfig* value);
-  void unsafe_arena_set_allocated_calibration_config(::pb::CalibrationConfig* value);
-  ::pb::CalibrationConfig* unsafe_arena_release_calibration_config();
-
-  private:
-  const ::pb::CalibrationConfig& _internal_calibration_config() const;
-  ::pb::CalibrationConfig* _internal_mutable_calibration_config();
-
-  public:
   // bool end_repetitive = 6;
   void clear_end_repetitive() ;
   bool end_repetitive() const;
@@ -18048,7 +18242,7 @@ class StartRunCommand final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 7, 5,
+      3, 6, 4,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -18070,7 +18264,6 @@ class StartRunCommand final : public ::google::protobuf::Message
     ::pb::RunConfig* run_config_;
     ::pb::DaqConfig* daq_config_;
     ::pb::SyncConfig* sync_config_;
-    ::pb::CalibrationConfig* calibration_config_;
     bool end_repetitive_;
     bool clear_queue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -18310,7 +18503,7 @@ class OverloadStatus final : public ::google::protobuf::Message
     return reinterpret_cast<const OverloadStatus*>(
         &_OverloadStatus_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 106;
+  static constexpr int kIndexInFileMessages = 108;
   friend void swap(OverloadStatus& a, OverloadStatus& b) { a.Swap(&b); }
   inline void Swap(OverloadStatus* other) {
     if (other == this) return;
@@ -18705,7 +18898,7 @@ class DeviceDescription final : public ::google::protobuf::Message
     return reinterpret_cast<const DeviceDescription*>(
         &_DeviceDescription_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 117;
+  static constexpr int kIndexInFileMessages = 119;
   friend void swap(DeviceDescription& a, DeviceDescription& b) { a.Swap(&b); }
   inline void Swap(DeviceDescription* other) {
     if (other == this) return;
@@ -19435,6 +19628,179 @@ class DaqData final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class CalibrationCommand final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pb.CalibrationCommand) */ {
+ public:
+  inline CalibrationCommand() : CalibrationCommand(nullptr) {}
+  ~CalibrationCommand() override;
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR CalibrationCommand(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline CalibrationCommand(const CalibrationCommand& from) : CalibrationCommand(nullptr, from) {}
+  inline CalibrationCommand(CalibrationCommand&& from) noexcept
+      : CalibrationCommand(nullptr, std::move(from)) {}
+  inline CalibrationCommand& operator=(const CalibrationCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CalibrationCommand& operator=(CalibrationCommand&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+#ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+#endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const CalibrationCommand& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const CalibrationCommand* internal_default_instance() {
+    return reinterpret_cast<const CalibrationCommand*>(
+        &_CalibrationCommand_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 94;
+  friend void swap(CalibrationCommand& a, CalibrationCommand& b) { a.Swap(&b); }
+  inline void Swap(CalibrationCommand* other) {
+    if (other == this) return;
+#ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr && GetArena() == other->GetArena()) {
+#else   // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+#endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CalibrationCommand* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  CalibrationCommand* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return ::google::protobuf::Message::DefaultConstruct<CalibrationCommand>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const CalibrationCommand& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const CalibrationCommand& from) { CalibrationCommand::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(CalibrationCommand* other);
+ private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() { return "pb.CalibrationCommand"; }
+
+ protected:
+  explicit CalibrationCommand(::google::protobuf::Arena* arena);
+  CalibrationCommand(::google::protobuf::Arena* arena, const CalibrationCommand& from);
+  CalibrationCommand(::google::protobuf::Arena* arena, CalibrationCommand&& from) noexcept
+      : CalibrationCommand(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::MessageLite::ClassData* GetClassData()
+      const final;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const final;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kConfigFieldNumber = 1,
+  };
+  // .pb.CalibrationConfig config = 1;
+  bool has_config() const;
+  void clear_config() ;
+  const ::pb::CalibrationConfig& config() const;
+  PROTOBUF_NODISCARD ::pb::CalibrationConfig* release_config();
+  ::pb::CalibrationConfig* mutable_config();
+  void set_allocated_config(::pb::CalibrationConfig* value);
+  void unsafe_arena_set_allocated_config(::pb::CalibrationConfig* value);
+  ::pb::CalibrationConfig* unsafe_arena_release_config();
+
+  private:
+  const ::pb::CalibrationConfig& _internal_config() const;
+  ::pb::CalibrationConfig* _internal_mutable_config();
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb.CalibrationCommand)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::pb::CalibrationConfig* config_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_main_2eproto;
+};
+// -------------------------------------------------------------------
+
 class ACLWire final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.ACLWire) */ {
  public:
@@ -20094,7 +20460,7 @@ class ReadTemperatureResponse final : public ::google::protobuf::Message
     return reinterpret_cast<const ReadTemperatureResponse*>(
         &_ReadTemperatureResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 103;
+  static constexpr int kIndexInFileMessages = 105;
   friend void swap(ReadTemperatureResponse& a, ReadTemperatureResponse& b) { a.Swap(&b); }
   inline void Swap(ReadTemperatureResponse* other) {
     if (other == this) return;
@@ -20267,7 +20633,7 @@ class GetOverloadStatusResponse final : public ::google::protobuf::Message
     return reinterpret_cast<const GetOverloadStatusResponse*>(
         &_GetOverloadStatusResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 107;
+  static constexpr int kIndexInFileMessages = 109;
   friend void swap(GetOverloadStatusResponse& a, GetOverloadStatusResponse& b) { a.Swap(&b); }
   inline void Swap(GetOverloadStatusResponse* other) {
     if (other == this) return;
@@ -21638,7 +22004,7 @@ class File final : public ::google::protobuf::Message
     return reinterpret_cast<const File*>(
         &_File_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 118;
+  static constexpr int kIndexInFileMessages = 120;
   friend void swap(File& a, File& b) { a.Swap(&b); }
   inline void Swap(File* other) {
     if (other == this) return;
@@ -22091,9 +22457,6 @@ class ConfigCommand final : public ::google::protobuf::Message
     kBundleFieldNumber = 1,
     kResetBeforeFieldNumber = 2,
     kShKludgeFieldNumber = 3,
-    kCalibrateMblockFieldNumber = 4,
-    kCalibrateOffsetFieldNumber = 5,
-    kCalibrateRoutesFieldNumber = 6,
   };
   // .pb.ConfigBundle bundle = 1;
   bool has_bundle() const;
@@ -22130,42 +22493,12 @@ class ConfigCommand final : public ::google::protobuf::Message
   void _internal_set_sh_kludge(bool value);
 
   public:
-  // bool calibrate_mblock = 4;
-  void clear_calibrate_mblock() ;
-  bool calibrate_mblock() const;
-  void set_calibrate_mblock(bool value);
-
-  private:
-  bool _internal_calibrate_mblock() const;
-  void _internal_set_calibrate_mblock(bool value);
-
-  public:
-  // bool calibrate_offset = 5;
-  void clear_calibrate_offset() ;
-  bool calibrate_offset() const;
-  void set_calibrate_offset(bool value);
-
-  private:
-  bool _internal_calibrate_offset() const;
-  void _internal_set_calibrate_offset(bool value);
-
-  public:
-  // bool calibrate_routes = 6;
-  void clear_calibrate_routes() ;
-  bool calibrate_routes() const;
-  void set_calibrate_routes(bool value);
-
-  private:
-  bool _internal_calibrate_routes() const;
-  void _internal_set_calibrate_routes(bool value);
-
-  public:
   // @@protoc_insertion_point(class_scope:pb.ConfigCommand)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 6, 1,
+      2, 3, 1,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -22186,9 +22519,6 @@ class ConfigCommand final : public ::google::protobuf::Message
     ::pb::ConfigBundle* bundle_;
     bool reset_before_;
     bool sh_kludge_;
-    bool calibrate_mblock_;
-    bool calibrate_offset_;
-    bool calibrate_routes_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -22268,6 +22598,7 @@ class MessageV1 final : public ::google::protobuf::Message
     kUdpDataStreamingCommand = 215,
     kReadTemperatureCommand = 216,
     kGetOverloadStatusCommand = 217,
+    kCalibrationCommand = 218,
     kDescribeResponse = 300,
     kExtractResponse = 301,
     kConfigResponse = 302,
@@ -22285,6 +22616,7 @@ class MessageV1 final : public ::google::protobuf::Message
     kReadTemperatureResponse = 314,
     kGetOverloadStatusResponse = 315,
     kUdpDataStreamingRefusedResponse = 316,
+    kCalibrationResponse = 317,
     kCalibrateInitCommand = 400,
     kCalibrateLaneCommand = 401,
     kCalibrateOffsetCommand = 402,
@@ -22299,7 +22631,7 @@ class MessageV1 final : public ::google::protobuf::Message
     return reinterpret_cast<const MessageV1*>(
         &_MessageV1_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 115;
+  static constexpr int kIndexInFileMessages = 117;
   friend void swap(MessageV1& a, MessageV1& b) { a.Swap(&b); }
   inline void Swap(MessageV1* other) {
     if (other == this) return;
@@ -22390,6 +22722,7 @@ class MessageV1 final : public ::google::protobuf::Message
     kUdpDataStreamingCommandFieldNumber = 215,
     kReadTemperatureCommandFieldNumber = 216,
     kGetOverloadStatusCommandFieldNumber = 217,
+    kCalibrationCommandFieldNumber = 218,
     kDescribeResponseFieldNumber = 300,
     kExtractResponseFieldNumber = 301,
     kConfigResponseFieldNumber = 302,
@@ -22407,6 +22740,7 @@ class MessageV1 final : public ::google::protobuf::Message
     kReadTemperatureResponseFieldNumber = 314,
     kGetOverloadStatusResponseFieldNumber = 315,
     kUdpDataStreamingRefusedResponseFieldNumber = 316,
+    kCalibrationResponseFieldNumber = 317,
     kCalibrateInitCommandFieldNumber = 400,
     kCalibrateLaneCommandFieldNumber = 401,
     kCalibrateOffsetCommandFieldNumber = 402,
@@ -22813,6 +23147,25 @@ class MessageV1 final : public ::google::protobuf::Message
   ::pb::GetOverloadStatusCommand* _internal_mutable_get_overload_status_command();
 
   public:
+  // .pb.CalibrationCommand calibration_command = 218;
+  bool has_calibration_command() const;
+  private:
+  bool _internal_has_calibration_command() const;
+
+  public:
+  void clear_calibration_command() ;
+  const ::pb::CalibrationCommand& calibration_command() const;
+  PROTOBUF_NODISCARD ::pb::CalibrationCommand* release_calibration_command();
+  ::pb::CalibrationCommand* mutable_calibration_command();
+  void set_allocated_calibration_command(::pb::CalibrationCommand* value);
+  void unsafe_arena_set_allocated_calibration_command(::pb::CalibrationCommand* value);
+  ::pb::CalibrationCommand* unsafe_arena_release_calibration_command();
+
+  private:
+  const ::pb::CalibrationCommand& _internal_calibration_command() const;
+  ::pb::CalibrationCommand* _internal_mutable_calibration_command();
+
+  public:
   // .pb.DescribeResponse describe_response = 300;
   bool has_describe_response() const;
   private:
@@ -23136,6 +23489,25 @@ class MessageV1 final : public ::google::protobuf::Message
   ::pb::UdpDataStreamingRefusedResponse* _internal_mutable_udp_data_streaming_refused_response();
 
   public:
+  // .pb.CalibrationResponse calibration_response = 317;
+  bool has_calibration_response() const;
+  private:
+  bool _internal_has_calibration_response() const;
+
+  public:
+  void clear_calibration_response() ;
+  const ::pb::CalibrationResponse& calibration_response() const;
+  PROTOBUF_NODISCARD ::pb::CalibrationResponse* release_calibration_response();
+  ::pb::CalibrationResponse* mutable_calibration_response();
+  void set_allocated_calibration_response(::pb::CalibrationResponse* value);
+  void unsafe_arena_set_allocated_calibration_response(::pb::CalibrationResponse* value);
+  ::pb::CalibrationResponse* unsafe_arena_release_calibration_response();
+
+  private:
+  const ::pb::CalibrationResponse& _internal_calibration_response() const;
+  ::pb::CalibrationResponse* _internal_mutable_calibration_response();
+
+  public:
   // .pb.CalibrateInitCommand calibrate_init_command = 400;
   bool has_calibrate_init_command() const;
   private:
@@ -23313,6 +23685,7 @@ class MessageV1 final : public ::google::protobuf::Message
   void set_has_udp_data_streaming_command();
   void set_has_read_temperature_command();
   void set_has_get_overload_status_command();
+  void set_has_calibration_command();
   void set_has_describe_response();
   void set_has_extract_response();
   void set_has_config_response();
@@ -23330,6 +23703,7 @@ class MessageV1 final : public ::google::protobuf::Message
   void set_has_read_temperature_response();
   void set_has_get_overload_status_response();
   void set_has_udp_data_streaming_refused_response();
+  void set_has_calibration_response();
   void set_has_calibrate_init_command();
   void set_has_calibrate_lane_command();
   void set_has_calibrate_offset_command();
@@ -23342,8 +23716,8 @@ class MessageV1 final : public ::google::protobuf::Message
   inline void clear_has_kind();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 46, 45,
-      63, 41>
+      0, 48, 47,
+      71, 41>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -23384,6 +23758,7 @@ class MessageV1 final : public ::google::protobuf::Message
       ::pb::UdpDataStreamingCommand* udp_data_streaming_command_;
       ::pb::ReadTemperatureCommand* read_temperature_command_;
       ::pb::GetOverloadStatusCommand* get_overload_status_command_;
+      ::pb::CalibrationCommand* calibration_command_;
       ::pb::DescribeResponse* describe_response_;
       ::pb::ExtractResponse* extract_response_;
       ::pb::ConfigResponse* config_response_;
@@ -23401,6 +23776,7 @@ class MessageV1 final : public ::google::protobuf::Message
       ::pb::ReadTemperatureResponse* read_temperature_response_;
       ::pb::GetOverloadStatusResponse* get_overload_status_response_;
       ::pb::UdpDataStreamingRefusedResponse* udp_data_streaming_refused_response_;
+      ::pb::CalibrationResponse* calibration_response_;
       ::pb::CalibrateInitCommand* calibrate_init_command_;
       ::pb::CalibrateLaneCommand* calibrate_lane_command_;
       ::pb::CalibrateOffsetCommand* calibrate_offset_command_;
@@ -23479,7 +23855,7 @@ class Envelope final : public ::google::protobuf::Message
     return reinterpret_cast<const Envelope*>(
         &_Envelope_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 111;
+  static constexpr int kIndexInFileMessages = 113;
   friend void swap(Envelope& a, Envelope& b) { a.Swap(&b); }
   inline void Swap(Envelope* other) {
     if (other == this) return;
@@ -27733,72 +28109,6 @@ inline void ConfigCommand::_internal_set_sh_kludge(bool value) {
   _impl_.sh_kludge_ = value;
 }
 
-// bool calibrate_mblock = 4;
-inline void ConfigCommand::clear_calibrate_mblock() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.calibrate_mblock_ = false;
-}
-inline bool ConfigCommand::calibrate_mblock() const {
-  // @@protoc_insertion_point(field_get:pb.ConfigCommand.calibrate_mblock)
-  return _internal_calibrate_mblock();
-}
-inline void ConfigCommand::set_calibrate_mblock(bool value) {
-  _internal_set_calibrate_mblock(value);
-  // @@protoc_insertion_point(field_set:pb.ConfigCommand.calibrate_mblock)
-}
-inline bool ConfigCommand::_internal_calibrate_mblock() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.calibrate_mblock_;
-}
-inline void ConfigCommand::_internal_set_calibrate_mblock(bool value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.calibrate_mblock_ = value;
-}
-
-// bool calibrate_offset = 5;
-inline void ConfigCommand::clear_calibrate_offset() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.calibrate_offset_ = false;
-}
-inline bool ConfigCommand::calibrate_offset() const {
-  // @@protoc_insertion_point(field_get:pb.ConfigCommand.calibrate_offset)
-  return _internal_calibrate_offset();
-}
-inline void ConfigCommand::set_calibrate_offset(bool value) {
-  _internal_set_calibrate_offset(value);
-  // @@protoc_insertion_point(field_set:pb.ConfigCommand.calibrate_offset)
-}
-inline bool ConfigCommand::_internal_calibrate_offset() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.calibrate_offset_;
-}
-inline void ConfigCommand::_internal_set_calibrate_offset(bool value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.calibrate_offset_ = value;
-}
-
-// bool calibrate_routes = 6;
-inline void ConfigCommand::clear_calibrate_routes() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.calibrate_routes_ = false;
-}
-inline bool ConfigCommand::calibrate_routes() const {
-  // @@protoc_insertion_point(field_get:pb.ConfigCommand.calibrate_routes)
-  return _internal_calibrate_routes();
-}
-inline void ConfigCommand::set_calibrate_routes(bool value) {
-  _internal_set_calibrate_routes(value);
-  // @@protoc_insertion_point(field_set:pb.ConfigCommand.calibrate_routes)
-}
-inline bool ConfigCommand::_internal_calibrate_routes() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.calibrate_routes_;
-}
-inline void ConfigCommand::_internal_set_calibrate_routes(bool value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.calibrate_routes_ = value;
-}
-
 // -------------------------------------------------------------------
 
 // ACLPlugin
@@ -29284,29 +29594,7 @@ inline void SyncConfig::_internal_set_group(::uint32_t value) {
 
 // CalibrationConfig
 
-// bool enabled = 1;
-inline void CalibrationConfig::clear_enabled() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.enabled_ = false;
-}
-inline bool CalibrationConfig::enabled() const {
-  // @@protoc_insertion_point(field_get:pb.CalibrationConfig.enabled)
-  return _internal_enabled();
-}
-inline void CalibrationConfig::set_enabled(bool value) {
-  _internal_set_enabled(value);
-  // @@protoc_insertion_point(field_set:pb.CalibrationConfig.enabled)
-}
-inline bool CalibrationConfig::_internal_enabled() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.enabled_;
-}
-inline void CalibrationConfig::_internal_set_enabled(bool value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.enabled_ = value;
-}
-
-// optional .pb.EntityId leader = 2;
+// optional .pb.EntityId leader = 1;
 inline bool CalibrationConfig::has_leader() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.leader_ != nullptr);
@@ -29400,6 +29688,72 @@ inline void CalibrationConfig::set_allocated_leader(::pb::EntityId* value) {
 
   _impl_.leader_ = reinterpret_cast<::pb::EntityId*>(value);
   // @@protoc_insertion_point(field_set_allocated:pb.CalibrationConfig.leader)
+}
+
+// .pb.CalibrationConfig.Kind math = 2;
+inline void CalibrationConfig::clear_math() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.math_ = 0;
+}
+inline ::pb::CalibrationConfig_Kind CalibrationConfig::math() const {
+  // @@protoc_insertion_point(field_get:pb.CalibrationConfig.math)
+  return _internal_math();
+}
+inline void CalibrationConfig::set_math(::pb::CalibrationConfig_Kind value) {
+  _internal_set_math(value);
+  // @@protoc_insertion_point(field_set:pb.CalibrationConfig.math)
+}
+inline ::pb::CalibrationConfig_Kind CalibrationConfig::_internal_math() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return static_cast<::pb::CalibrationConfig_Kind>(_impl_.math_);
+}
+inline void CalibrationConfig::_internal_set_math(::pb::CalibrationConfig_Kind value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.math_ = value;
+}
+
+// .pb.CalibrationConfig.Kind gain = 3;
+inline void CalibrationConfig::clear_gain() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.gain_ = 0;
+}
+inline ::pb::CalibrationConfig_Kind CalibrationConfig::gain() const {
+  // @@protoc_insertion_point(field_get:pb.CalibrationConfig.gain)
+  return _internal_gain();
+}
+inline void CalibrationConfig::set_gain(::pb::CalibrationConfig_Kind value) {
+  _internal_set_gain(value);
+  // @@protoc_insertion_point(field_set:pb.CalibrationConfig.gain)
+}
+inline ::pb::CalibrationConfig_Kind CalibrationConfig::_internal_gain() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return static_cast<::pb::CalibrationConfig_Kind>(_impl_.gain_);
+}
+inline void CalibrationConfig::_internal_set_gain(::pb::CalibrationConfig_Kind value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.gain_ = value;
+}
+
+// .pb.CalibrationConfig.Kind offset = 4;
+inline void CalibrationConfig::clear_offset() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.offset_ = 0;
+}
+inline ::pb::CalibrationConfig_Kind CalibrationConfig::offset() const {
+  // @@protoc_insertion_point(field_get:pb.CalibrationConfig.offset)
+  return _internal_offset();
+}
+inline void CalibrationConfig::set_offset(::pb::CalibrationConfig_Kind value) {
+  _internal_set_offset(value);
+  // @@protoc_insertion_point(field_set:pb.CalibrationConfig.offset)
+}
+inline ::pb::CalibrationConfig_Kind CalibrationConfig::_internal_offset() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return static_cast<::pb::CalibrationConfig_Kind>(_impl_.offset_);
+}
+inline void CalibrationConfig::_internal_set_offset(::pb::CalibrationConfig_Kind value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.offset_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -29889,102 +30243,6 @@ inline void StartRunCommand::set_allocated_sync_config(::pb::SyncConfig* value) 
 
   _impl_.sync_config_ = reinterpret_cast<::pb::SyncConfig*>(value);
   // @@protoc_insertion_point(field_set_allocated:pb.StartRunCommand.sync_config)
-}
-
-// .pb.CalibrationConfig calibration_config = 5;
-inline bool StartRunCommand::has_calibration_config() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000010u) != 0;
-  PROTOBUF_ASSUME(!value || _impl_.calibration_config_ != nullptr);
-  return value;
-}
-inline void StartRunCommand::clear_calibration_config() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (_impl_.calibration_config_ != nullptr) _impl_.calibration_config_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000010u;
-}
-inline const ::pb::CalibrationConfig& StartRunCommand::_internal_calibration_config() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  const ::pb::CalibrationConfig* p = _impl_.calibration_config_;
-  return p != nullptr ? *p : reinterpret_cast<const ::pb::CalibrationConfig&>(::pb::_CalibrationConfig_default_instance_);
-}
-inline const ::pb::CalibrationConfig& StartRunCommand::calibration_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.StartRunCommand.calibration_config)
-  return _internal_calibration_config();
-}
-inline void StartRunCommand::unsafe_arena_set_allocated_calibration_config(::pb::CalibrationConfig* value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.calibration_config_);
-  }
-  _impl_.calibration_config_ = reinterpret_cast<::pb::CalibrationConfig*>(value);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000010u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000010u;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.StartRunCommand.calibration_config)
-}
-inline ::pb::CalibrationConfig* StartRunCommand::release_calibration_config() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-
-  _impl_._has_bits_[0] &= ~0x00000010u;
-  ::pb::CalibrationConfig* released = _impl_.calibration_config_;
-  _impl_.calibration_config_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
-  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  if (GetArena() == nullptr) {
-    delete old;
-  }
-#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArena() != nullptr) {
-    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return released;
-}
-inline ::pb::CalibrationConfig* StartRunCommand::unsafe_arena_release_calibration_config() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:pb.StartRunCommand.calibration_config)
-
-  _impl_._has_bits_[0] &= ~0x00000010u;
-  ::pb::CalibrationConfig* temp = _impl_.calibration_config_;
-  _impl_.calibration_config_ = nullptr;
-  return temp;
-}
-inline ::pb::CalibrationConfig* StartRunCommand::_internal_mutable_calibration_config() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (_impl_.calibration_config_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::pb::CalibrationConfig>(GetArena());
-    _impl_.calibration_config_ = reinterpret_cast<::pb::CalibrationConfig*>(p);
-  }
-  return _impl_.calibration_config_;
-}
-inline ::pb::CalibrationConfig* StartRunCommand::mutable_calibration_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  _impl_._has_bits_[0] |= 0x00000010u;
-  ::pb::CalibrationConfig* _msg = _internal_mutable_calibration_config();
-  // @@protoc_insertion_point(field_mutable:pb.StartRunCommand.calibration_config)
-  return _msg;
-}
-inline void StartRunCommand::set_allocated_calibration_config(::pb::CalibrationConfig* value) {
-  ::google::protobuf::Arena* message_arena = GetArena();
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  if (message_arena == nullptr) {
-    delete (_impl_.calibration_config_);
-  }
-
-  if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
-    if (message_arena != submessage_arena) {
-      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
-    }
-    _impl_._has_bits_[0] |= 0x00000010u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000010u;
-  }
-
-  _impl_.calibration_config_ = reinterpret_cast<::pb::CalibrationConfig*>(value);
-  // @@protoc_insertion_point(field_set_allocated:pb.StartRunCommand.calibration_config)
 }
 
 // bool end_repetitive = 6;
@@ -33770,6 +34028,110 @@ inline void WriteSystemIdentResponse::_internal_set_valid(bool value) {
 
 // -------------------------------------------------------------------
 
+// CalibrationCommand
+
+// .pb.CalibrationConfig config = 1;
+inline bool CalibrationCommand::has_config() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.config_ != nullptr);
+  return value;
+}
+inline void CalibrationCommand::clear_config() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.config_ != nullptr) _impl_.config_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const ::pb::CalibrationConfig& CalibrationCommand::_internal_config() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  const ::pb::CalibrationConfig* p = _impl_.config_;
+  return p != nullptr ? *p : reinterpret_cast<const ::pb::CalibrationConfig&>(::pb::_CalibrationConfig_default_instance_);
+}
+inline const ::pb::CalibrationConfig& CalibrationCommand::config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.CalibrationCommand.config)
+  return _internal_config();
+}
+inline void CalibrationCommand::unsafe_arena_set_allocated_config(::pb::CalibrationConfig* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.config_);
+  }
+  _impl_.config_ = reinterpret_cast<::pb::CalibrationConfig*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.CalibrationCommand.config)
+}
+inline ::pb::CalibrationConfig* CalibrationCommand::release_config() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::pb::CalibrationConfig* released = _impl_.config_;
+  _impl_.config_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  if (GetArena() == nullptr) {
+    delete old;
+  }
+#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArena() != nullptr) {
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return released;
+}
+inline ::pb::CalibrationConfig* CalibrationCommand::unsafe_arena_release_config() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:pb.CalibrationCommand.config)
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::pb::CalibrationConfig* temp = _impl_.config_;
+  _impl_.config_ = nullptr;
+  return temp;
+}
+inline ::pb::CalibrationConfig* CalibrationCommand::_internal_mutable_config() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.config_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::pb::CalibrationConfig>(GetArena());
+    _impl_.config_ = reinterpret_cast<::pb::CalibrationConfig*>(p);
+  }
+  return _impl_.config_;
+}
+inline ::pb::CalibrationConfig* CalibrationCommand::mutable_config() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  ::pb::CalibrationConfig* _msg = _internal_mutable_config();
+  // @@protoc_insertion_point(field_mutable:pb.CalibrationCommand.config)
+  return _msg;
+}
+inline void CalibrationCommand::set_allocated_config(::pb::CalibrationConfig* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (message_arena == nullptr) {
+    delete (_impl_.config_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+
+  _impl_.config_ = reinterpret_cast<::pb::CalibrationConfig*>(value);
+  // @@protoc_insertion_point(field_set_allocated:pb.CalibrationCommand.config)
+}
+
+// -------------------------------------------------------------------
+
+// CalibrationResponse
+
+// -------------------------------------------------------------------
+
 // CalibrateInitCommand
 
 // -------------------------------------------------------------------
@@ -36980,6 +37342,83 @@ inline ::pb::GetOverloadStatusCommand* MessageV1::mutable_get_overload_status_co
   return _msg;
 }
 
+// .pb.CalibrationCommand calibration_command = 218;
+inline bool MessageV1::has_calibration_command() const {
+  return kind_case() == kCalibrationCommand;
+}
+inline bool MessageV1::_internal_has_calibration_command() const {
+  return kind_case() == kCalibrationCommand;
+}
+inline void MessageV1::set_has_calibration_command() {
+  _impl_._oneof_case_[0] = kCalibrationCommand;
+}
+inline void MessageV1::clear_calibration_command() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (kind_case() == kCalibrationCommand) {
+    if (GetArena() == nullptr) {
+      delete _impl_.kind_.calibration_command_;
+    }
+    clear_has_kind();
+  }
+}
+inline ::pb::CalibrationCommand* MessageV1::release_calibration_command() {
+  // @@protoc_insertion_point(field_release:pb.MessageV1.calibration_command)
+  if (kind_case() == kCalibrationCommand) {
+    clear_has_kind();
+    auto* temp = _impl_.kind_.calibration_command_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.kind_.calibration_command_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::pb::CalibrationCommand& MessageV1::_internal_calibration_command() const {
+  return kind_case() == kCalibrationCommand ? *_impl_.kind_.calibration_command_ : reinterpret_cast<::pb::CalibrationCommand&>(::pb::_CalibrationCommand_default_instance_);
+}
+inline const ::pb::CalibrationCommand& MessageV1::calibration_command() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.MessageV1.calibration_command)
+  return _internal_calibration_command();
+}
+inline ::pb::CalibrationCommand* MessageV1::unsafe_arena_release_calibration_command() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pb.MessageV1.calibration_command)
+  if (kind_case() == kCalibrationCommand) {
+    clear_has_kind();
+    auto* temp = _impl_.kind_.calibration_command_;
+    _impl_.kind_.calibration_command_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void MessageV1::unsafe_arena_set_allocated_calibration_command(::pb::CalibrationCommand* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_kind();
+  if (value) {
+    set_has_calibration_command();
+    _impl_.kind_.calibration_command_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.MessageV1.calibration_command)
+}
+inline ::pb::CalibrationCommand* MessageV1::_internal_mutable_calibration_command() {
+  if (kind_case() != kCalibrationCommand) {
+    clear_kind();
+    set_has_calibration_command();
+    _impl_.kind_.calibration_command_ =
+        ::google::protobuf::Message::DefaultConstruct<::pb::CalibrationCommand>(GetArena());
+  }
+  return _impl_.kind_.calibration_command_;
+}
+inline ::pb::CalibrationCommand* MessageV1::mutable_calibration_command() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::pb::CalibrationCommand* _msg = _internal_mutable_calibration_command();
+  // @@protoc_insertion_point(field_mutable:pb.MessageV1.calibration_command)
+  return _msg;
+}
+
 // .pb.DescribeResponse describe_response = 300;
 inline bool MessageV1::has_describe_response() const {
   return kind_case() == kDescribeResponse;
@@ -38289,6 +38728,83 @@ inline ::pb::UdpDataStreamingRefusedResponse* MessageV1::mutable_udp_data_stream
   return _msg;
 }
 
+// .pb.CalibrationResponse calibration_response = 317;
+inline bool MessageV1::has_calibration_response() const {
+  return kind_case() == kCalibrationResponse;
+}
+inline bool MessageV1::_internal_has_calibration_response() const {
+  return kind_case() == kCalibrationResponse;
+}
+inline void MessageV1::set_has_calibration_response() {
+  _impl_._oneof_case_[0] = kCalibrationResponse;
+}
+inline void MessageV1::clear_calibration_response() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (kind_case() == kCalibrationResponse) {
+    if (GetArena() == nullptr) {
+      delete _impl_.kind_.calibration_response_;
+    }
+    clear_has_kind();
+  }
+}
+inline ::pb::CalibrationResponse* MessageV1::release_calibration_response() {
+  // @@protoc_insertion_point(field_release:pb.MessageV1.calibration_response)
+  if (kind_case() == kCalibrationResponse) {
+    clear_has_kind();
+    auto* temp = _impl_.kind_.calibration_response_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.kind_.calibration_response_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::pb::CalibrationResponse& MessageV1::_internal_calibration_response() const {
+  return kind_case() == kCalibrationResponse ? *_impl_.kind_.calibration_response_ : reinterpret_cast<::pb::CalibrationResponse&>(::pb::_CalibrationResponse_default_instance_);
+}
+inline const ::pb::CalibrationResponse& MessageV1::calibration_response() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.MessageV1.calibration_response)
+  return _internal_calibration_response();
+}
+inline ::pb::CalibrationResponse* MessageV1::unsafe_arena_release_calibration_response() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pb.MessageV1.calibration_response)
+  if (kind_case() == kCalibrationResponse) {
+    clear_has_kind();
+    auto* temp = _impl_.kind_.calibration_response_;
+    _impl_.kind_.calibration_response_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void MessageV1::unsafe_arena_set_allocated_calibration_response(::pb::CalibrationResponse* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_kind();
+  if (value) {
+    set_has_calibration_response();
+    _impl_.kind_.calibration_response_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.MessageV1.calibration_response)
+}
+inline ::pb::CalibrationResponse* MessageV1::_internal_mutable_calibration_response() {
+  if (kind_case() != kCalibrationResponse) {
+    clear_kind();
+    set_has_calibration_response();
+    _impl_.kind_.calibration_response_ =
+        ::google::protobuf::Message::DefaultConstruct<::pb::CalibrationResponse>(GetArena());
+  }
+  return _impl_.kind_.calibration_response_;
+}
+inline ::pb::CalibrationResponse* MessageV1::mutable_calibration_response() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::pb::CalibrationResponse* _msg = _internal_mutable_calibration_response();
+  // @@protoc_insertion_point(field_mutable:pb.MessageV1.calibration_response)
+  return _msg;
+}
+
 // .pb.CalibrateInitCommand calibrate_init_command = 400;
 inline bool MessageV1::has_calibrate_init_command() const {
   return kind_case() == kCalibrateInitCommand;
@@ -39417,6 +39933,12 @@ struct is_proto_enum<::pb::Temperature_Unit> : std::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor<::pb::Temperature_Unit>() {
   return ::pb::Temperature_Unit_descriptor();
+}
+template <>
+struct is_proto_enum<::pb::CalibrationConfig_Kind> : std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor<::pb::CalibrationConfig_Kind>() {
+  return ::pb::CalibrationConfig_Kind_descriptor();
 }
 template <>
 struct is_proto_enum<::pb::ManualControlCommand_State> : std::true_type {};

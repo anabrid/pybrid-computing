@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <cstdint>
 #include <functional>
+#include <future>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -127,6 +128,11 @@ private:
     std::unique_ptr<TCPTransport> client_transport_;
 };
 
+struct BroadcastResult {
+    bool had_error = false;
+    std::string error_text;
+};
+
 /// Thin TCP relay between backend REDAC devices and client connections.
 ///
 /// Manages N backends and a FIFO queue of client sessions (one active at a time).
@@ -206,7 +212,14 @@ private:
     void handle_config(ClientSession& client, const pb::MessageV1& msg);
     void handle_start_run(ClientSession& client, const pb::MessageV1& msg);
     void handle_auth(ClientSession& client, const pb::MessageV1& msg);
+    void handle_calibrate(ClientSession& client, const pb::MessageV1& msg);
     void handle_udp_streaming(ClientSession& client, const pb::MessageV1& msg);
+
+    /// Dispatch requests to backends in parallel, returning the first error (if any).
+    BroadcastResult broadcast_to_backends(
+        std::vector<BackendDevice*> targets,
+        std::function<pb::MessageV1(BackendDevice&)> request_factory,
+        double timeout_secs = BACKEND_REQUEST_TIMEOUT_SECS);
 
     BackendDevice* find_backend_for_path(const std::string& entity_path);
     static pb::Entity merge_entity_trees(const std::vector<pb::Entity>& entities);

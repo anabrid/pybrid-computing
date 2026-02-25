@@ -35,5 +35,8 @@ class ResetHandler(BaseHandler):
         """
         logger.debug("RESET: Clearing stored configuration")
         self.server._stored_config = None
+        if not cmd.keep_calibration:
+            self.server._calibrated = False
+            logger.debug("RESET: Calibration state cleared")
         logger.debug("RESET: Configuration cleared")
         return pb.ResetResponse()

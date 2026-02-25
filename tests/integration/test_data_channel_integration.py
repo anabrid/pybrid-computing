@@ -75,7 +75,6 @@ def _make_run_command(
             sample_op_end=True,
         ),
         sync_config=pb.SyncConfig(enabled=False),
-        calibration_config=pb.CalibrationConfig(enabled=False),
     )
 
 
