@@ -830,6 +830,7 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
         run_.daq.sample_rate = sample_rate
 
     timeout = max(op_time + 3, 3)
+    session.calibrate()
     session.run(run_.config, daq=run_.daq, timeout=timeout)
     results = await session.execute()
     if results:

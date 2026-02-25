@@ -94,7 +94,6 @@ def _make_run_command(op_time_ns: int, num_channels: int = 2, sample_rate: int =
             sample_op_end=True,
         ),
         sync_config=pb.SyncConfig(enabled=False),
-        calibration_config=pb.CalibrationConfig(enabled=False),
     )
 
 

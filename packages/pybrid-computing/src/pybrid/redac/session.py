@@ -34,7 +34,7 @@ import numpy as np
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.processing.gap_fill import GapFillMode, ChunkRecord, sort_and_fill_chunks
-from pybrid.redac.run import Run, RunConfig, DAQConfig, CalibrationConfig
+from pybrid.redac.run import Run, RunConfig, DAQConfig
 from pybrid.redac.sync import SyncImplementationType
 from pybrid.redac.entities import Path
 
@@ -81,6 +81,13 @@ class RunCommand(SessionCommand):
     entities: Optional[set[Path]] = None
     timeout: Optional[float] = None
 
+@dataclass
+class CalibrateCommand(SessionCommand):
+    leader: str
+    math: bool
+    gain: bool
+    offset: bool
+
 
 class Session:
     """Single-use pipeline that buffers config and run commands and executes
@@ -108,6 +115,11 @@ class Session:
     def set_config_bundle(self, bundle: pb.ConfigBundle) -> "Session":
         """:returns: ``self`` so calls can be chained."""
         self._pipeline.append(SetConfigCommand(bundle=bundle))
+        return self
+    
+    def calibrate(self, leader: str = "", math: bool = False, gain: bool = True, offset: bool = True) -> "Session":
+        """:returns: ``self`` so calls can be chained."""
+        self._pipeline.append(CalibrateCommand(leader=leader, math=math, gain=gain, offset=offset))
         return self
 
     def run(
@@ -146,6 +158,8 @@ class Session:
                 for cmd in self._pipeline:
                     if isinstance(cmd, SetConfigCommand):
                         await self._execute_set_config(cmd)
+                    elif isinstance(cmd, CalibrateCommand):
+                        await self._execute_calibrate(cmd)
                     elif isinstance(cmd, RunCommand):
                         run = await self._execute_run(cmd)
                         self.runs.append(run)
@@ -157,6 +171,36 @@ class Session:
             await _run_pipeline()
 
         return self.runs
+
+    async def _execute_calibrate(self, cmd: CalibrateCommand) -> None:
+        """Run calibration over all devices.
+
+        When *leader* is empty, defaults to the first registered carrier path.
+        """
+        if self._controller.sync_impl == SyncImplementationType.NATIVE:
+            if not (cmd.math or cmd.gain or cmd.offset):
+                raise NotImplementedError(
+                    "NATIVE sync requires calibration for implicit synchronisation."
+                )
+
+        leader = cmd.leader
+        if not leader:
+            all_paths = list(self._controller.connection_manager.connections.keys())
+            if all_paths:
+                leader = str(all_paths[0])
+
+        unique_conns = self._controller.connection_manager.get_unique_connections()
+
+        for conn in unique_conns:
+            if conn.control is None:
+                raise NotImplementedError(
+                    "Running calibration requires the native C++ extensions "
+                    "(pybrid-computing-native). The control channel is not available "
+                    "in this environment."
+                )
+            result = await conn.control.calibrate(leader, cmd.math, cmd.gain, cmd.offset, 
+                timeout=10.0)
+            result.raise_on_error()
 
     async def _execute_set_config(self, cmd: SetConfigCommand) -> None:
         """Upload configuration to all unique device connections.
@@ -234,15 +278,8 @@ class Session:
         first_path = involved_paths[0]
 
         if self._controller.sync_impl == SyncImplementationType.NATIVE:
-            if not run.calibration.enabled:
-                raise NotImplementedError(
-                    "NATIVE sync requires calibration for implicit synchronisation."
-                )
             run.sync.enabled = True
             run.sync.master = first_path
-
-            if run.calibration.enabled and run.calibration.leader is None:
-                run.calibration = replace(run.calibration, leader=first_path)
 
         run_state = DistributedRunState(run, involved_paths)
 
@@ -329,20 +366,11 @@ class Session:
                 ),
                 group=run.sync.group,
             )
-            pb_calibration_config = pb.CalibrationConfig(
-                enabled=run.calibration.enabled,
-                leader=(
-                    None
-                    if run.calibration.leader is None
-                    else pb.EntityId(path=str(run.calibration.leader))
-                ),
-            )
             run_command = pb.StartRunCommand(
                 run=pb.Run(id=str(run.id_), chunk=0),
                 run_config=pb_run_config,
                 daq_config=pb_daq_config,
-                sync_config=pb_sync_config,
-                calibration_config=pb_calibration_config,
+                sync_config=pb_sync_config
             )
 
             from google.protobuf.json_format import MessageToJson

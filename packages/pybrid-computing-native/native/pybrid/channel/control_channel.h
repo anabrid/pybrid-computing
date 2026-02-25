@@ -63,6 +63,7 @@ public:
     pb::MessageV1 send_and_recv(const pb::MessageV1& msg, double timeout_secs = 5.0);
 
     pb::Entity describe(double timeout_secs = 5.0);
+    void calibrate(const std::string& leader, bool math, bool gain, bool offset, double timeout_secs = 5.0);
     pb::ConfigBundle get_config(
         const std::string& entity_path,
         bool recursive = true,

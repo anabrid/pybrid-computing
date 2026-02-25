@@ -282,6 +282,25 @@ class AsyncControlChannel:
         response = await self.send_and_recv(msg, timeout)
         return self._to_result(response)
 
+    async def calibrate(
+        self,
+        leader: str = "",
+        math: bool = False,
+        gain: bool = False,
+        offset: bool = False,
+        timeout: float = 5.0,
+    ) -> Result:
+        cmd = pb.CalibrationCommand()
+        cfg = cmd.config
+        if leader:
+            cfg.leader.path = leader
+        cfg.math = pb.CalibrationConfig.Enabled if math else pb.CalibrationConfig.Disabled
+        cfg.gain = pb.CalibrationConfig.Enabled if gain else pb.CalibrationConfig.Disabled
+        cfg.offset = pb.CalibrationConfig.Enabled if offset else pb.CalibrationConfig.Disabled
+        msg = self._new_message(cmd)
+        response = await self.send_and_recv(msg, timeout)
+        return self._to_result(response)
+
     async def reset(
         self,
         *,

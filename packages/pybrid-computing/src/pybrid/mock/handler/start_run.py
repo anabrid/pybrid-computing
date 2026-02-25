@@ -291,6 +291,9 @@ class StartRunHandler(BaseHandler):
 
         logger.debug("RUN[%s]: Execution complete", run_id[:8])
 
+    #: Amplitude scaling applied to samples/final-values when calibrated.
+    CALIBRATION_SCALE = 0.5
+
     def _generate_samples(
         self, num_channels: int, num_samples: int, sample_rate: int
     ) -> np.ndarray:
@@ -299,6 +302,9 @@ class StartRunHandler(BaseHandler):
 
         Creates deterministic test data where each channel has a phase-shifted
         sine wave, making it easy to verify channel ordering and data integrity.
+
+        When the server has been calibrated (``server._calibrated``), all
+        sample amplitudes are scaled by :data:`CALIBRATION_SCALE`.
 
         :param num_channels: Number of channels to generate.
         :param num_samples: Number of samples per channel.
@@ -310,6 +316,8 @@ class StartRunHandler(BaseHandler):
             t = np.arange(num_samples) / sample_rate
             phase = i / 8 * 2 * np.pi
             samples[i] = np.sin(t + phase)
+        if self.server._calibrated:
+            samples *= self.CALIBRATION_SCALE
         return samples
 
     def _generate_final_values(self, num_channels: int) -> np.ndarray:
@@ -317,21 +325,20 @@ class StartRunHandler(BaseHandler):
         Generate final values for ADC channels.
 
         Creates deterministic test data representing the final sampled values
-        at the end of a run (OP_END state). The number of channels is determined
-        by the client's DAQ configuration.
+        at the end of a run (OP_END state).
 
-        The values are generated as fractions of the channel index to make
-        verification easy and predictable.
+        When the server has been calibrated (``server._calibrated``), all
+        values are scaled by :data:`CALIBRATION_SCALE`.
 
         :param num_channels: Number of ADC channels from the client's DAQ config.
         :return: Array of shape (num_channels,) with float32 values.
         """
-        # Each value is derived from its index for easy verification
-        # Generate values between -1 and 1 based on position
         final_values = np.zeros(num_channels, dtype=np.float32)
         half = num_channels // 2
         for i in range(num_channels):
             final_values[i] = (i - half) / max(half, 1)
+        if self.server._calibrated:
+            final_values *= self.CALIBRATION_SCALE
         return final_values
 
     async def _send_carrier_samples(

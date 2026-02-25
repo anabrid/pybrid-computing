@@ -1,5 +1,6 @@
 #include "pybrid/proxy/proxy_server.h"
 
+#include <future>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -12,6 +13,51 @@
 #include "pybrid/utils/uuid.h"
 
 namespace anabrid::pybrid::native {
+
+BroadcastResult ProxyServer::broadcast_to_backends(
+    std::vector<BackendDevice*> targets,
+    std::function<pb::MessageV1(BackendDevice&)> request_factory,
+    double timeout_secs) {
+
+    struct BackendTask {
+        BackendDevice* backend;
+        std::future<pb::MessageV1> future;
+    };
+
+    std::vector<BackendTask> tasks;
+    tasks.reserve(targets.size());
+
+    for (auto* backend : targets) {
+        if (!backend->control || !backend->control->is_connected()) continue;
+
+        // Capture by value: request built eagerly so the factory doesn't
+        // need to be thread-safe.
+        pb::MessageV1 req = request_factory(*backend);
+        auto* ctrl = backend->control.get();
+        tasks.push_back({backend, std::async(std::launch::async,
+            [ctrl, r = std::move(req), timeout_secs]() mutable {
+                return ctrl->send_and_recv(r, timeout_secs);
+            })});
+    }
+
+    BroadcastResult result;
+    for (auto& task : tasks) {
+        try {
+            pb::MessageV1 resp = task.future.get();
+            if (resp.has_error_message() && !result.had_error) {
+                result.had_error = true;
+                result.error_text = resp.error_message().description();
+            }
+        } catch (const std::exception& e) {
+            if (!result.had_error) {
+                result.had_error = true;
+                result.error_text = e.what();
+            }
+        }
+    }
+
+    return result;
+}
 
 void ProxyServer::handle_describe(ClientSession& client, const pb::MessageV1& msg) {
     std::vector<pb::Entity> entities;
@@ -31,34 +77,21 @@ void ProxyServer::handle_describe(ClientSession& client, const pb::MessageV1& ms
 }
 
 void ProxyServer::handle_reset(ClientSession& client, const pb::MessageV1& msg) {
-    bool had_error = false;
-    std::string error_text;
+    std::vector<BackendDevice*> targets;
+    for (auto& b : backends_) targets.push_back(&b);
 
-    // backends_ is only modified before start(), so no lock needed here.
-    for (auto& backend : backends_) {
-        if (!backend.control || !backend.control->is_connected()) continue;
-        try {
+    auto result = broadcast_to_backends(targets,
+        [&msg](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
             *req.mutable_reset_command() = msg.reset_command();
-
-            pb::MessageV1 resp = backend.control->send_and_recv(req, BACKEND_REQUEST_TIMEOUT_SECS);
-            if (resp.has_error_message() && !had_error) {
-                had_error = true;
-                error_text = resp.error_message().description();
-            }
-        } catch (const std::exception& e) {
-            if (!had_error) {
-                had_error = true;
-                error_text = std::string("Backend reset failed: ") + e.what();
-            }
-        }
-    }
+            return req;
+        });
 
     pb::MessageV1 response;
     response.set_id(msg.id());
-    if (had_error) {
-        response.mutable_error_message()->set_description(error_text);
+    if (result.had_error) {
+        response.mutable_error_message()->set_description(result.error_text);
     } else {
         response.mutable_reset_response();
     }
@@ -112,10 +145,7 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
         }
         const auto& cmd = msg.config_command();
         std::cerr << "  flags: reset_before=" << cmd.reset_before()
-                  << " sh_kludge=" << cmd.sh_kludge()
-                  << " calibrate_mblock=" << cmd.calibrate_mblock()
-                  << " calibrate_offset=" << cmd.calibrate_offset()
-                  << " calibrate_routes=" << cmd.calibrate_routes() << "\n";
+                  << " sh_kludge=" << cmd.sh_kludge() << "\n";
     }
 
     // Phase 1: Route all config entries to backends. Unroutable paths cause
@@ -154,45 +184,27 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
         return;
     }
 
-    bool had_error = false;
-    std::string error_text;
-
-    // Phase 2: Send per-backend config commands. send_and_recv is blocking so
-    // we do not hold backends_mutex_ here.
+    // Phase 2: Send per-backend config commands in parallel.
+    std::vector<BackendDevice*> targets;
     for (auto& [backend_ptr, sub_bundle] : per_backend) {
-        if (!backend_ptr->control || !backend_ptr->control->is_connected()) {
-            had_error = true;
-            error_text = "Backend not connected";
-            break;
-        }
-        try {
+        targets.push_back(backend_ptr);
+    }
+
+    auto result = broadcast_to_backends(targets,
+        [&per_backend, &msg](BackendDevice& backend) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
             pb::ConfigCommand* config_cmd = req.mutable_config_command();
-            *config_cmd->mutable_bundle() = sub_bundle;
+            *config_cmd->mutable_bundle() = per_backend[&backend];
             config_cmd->set_reset_before(msg.config_command().reset_before());
             config_cmd->set_sh_kludge(msg.config_command().sh_kludge());
-            config_cmd->set_calibrate_mblock(msg.config_command().calibrate_mblock());
-            config_cmd->set_calibrate_offset(msg.config_command().calibrate_offset());
-            config_cmd->set_calibrate_routes(msg.config_command().calibrate_routes());
-
-            pb::MessageV1 resp = backend_ptr->control->send_and_recv(req, BACKEND_REQUEST_TIMEOUT_SECS);
-            if (resp.has_error_message() && !had_error) {
-                had_error = true;
-                error_text = resp.error_message().description();
-            }
-        } catch (const std::exception& e) {
-            if (!had_error) {
-                had_error = true;
-                error_text = std::string("Config failed: ") + e.what();
-            }
-        }
-    }
+            return req;
+        });
 
     pb::MessageV1 response;
     response.set_id(msg.id());
-    if (had_error) {
-        response.mutable_error_message()->set_description(error_text);
+    if (result.had_error) {
+        response.mutable_error_message()->set_description(result.error_text);
     } else {
         response.mutable_config_response();
     }
@@ -231,33 +243,21 @@ void ProxyServer::handle_start_run(ClientSession& client, const pb::MessageV1& m
         }
     }
 
-    bool had_error = false;
-    std::string error_text;
+    std::vector<BackendDevice*> targets;
+    for (auto& b : backends_) targets.push_back(&b);
 
-    for (auto& backend : backends_) {
-        if (!backend.control || !backend.control->is_connected()) continue;
-        try {
+    auto result = broadcast_to_backends(targets,
+        [&msg](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
             *req.mutable_start_run_command() = msg.start_run_command();
-
-            pb::MessageV1 resp = backend.control->send_and_recv(req, BACKEND_REQUEST_TIMEOUT_SECS);
-            if (resp.has_error_message() && !had_error) {
-                had_error = true;
-                error_text = resp.error_message().description();
-            }
-        } catch (const std::exception& e) {
-            if (!had_error) {
-                had_error = true;
-                error_text = std::string("StartRun failed: ") + e.what();
-            }
-        }
-    }
+            return req;
+        });
 
     pb::MessageV1 response;
     response.set_id(msg.id());
-    if (had_error) {
-        response.mutable_error_message()->set_description(error_text);
+    if (result.had_error) {
+        response.mutable_error_message()->set_description(result.error_text);
     } else {
         response.mutable_start_run_response();
     }
@@ -285,6 +285,39 @@ void ProxyServer::handle_auth(ClientSession& client, const pb::MessageV1& msg) {
     pb::MessageV1 response;
     response.set_id(msg.id());
     response.mutable_success_message();
+    client.send(response);
+}
+
+void ProxyServer::handle_calibrate(ClientSession& client, const pb::MessageV1& msg) {
+    if (debug_) {
+        const auto& cfg = msg.calibration_command().config();
+        std::cerr << "[ProxyServer] DEBUG: handle_calibrate — Session "
+                  << client.session_id_ << "\n"
+                  << "  math=" << pb::CalibrationConfig_Kind_Name(cfg.math())
+                  << " gain=" << pb::CalibrationConfig_Kind_Name(cfg.gain())
+                  << " offset=" << pb::CalibrationConfig_Kind_Name(cfg.offset())
+                  << " leader=" << (cfg.has_leader() ? cfg.leader().path() : "<none>")
+                  << "\n";
+    }
+
+    std::vector<BackendDevice*> targets;
+    for (auto& b : backends_) targets.push_back(&b);
+
+    auto result = broadcast_to_backends(targets,
+        [&msg](BackendDevice&) {
+            pb::MessageV1 req;
+            req.set_id(utils::generate_uuid());
+            *req.mutable_calibration_command() = msg.calibration_command();
+            return req;
+        });
+
+    pb::MessageV1 response;
+    response.set_id(msg.id());
+    if (result.had_error) {
+        response.mutable_error_message()->set_description(result.error_text);
+    } else {
+        response.mutable_calibration_response();
+    }
     client.send(response);
 }
 

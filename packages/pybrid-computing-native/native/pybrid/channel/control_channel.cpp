@@ -292,6 +292,32 @@ pb::Entity ControlChannel::describe(double timeout_secs) {
     return response.describe_response().entity();
 }
 
+void ControlChannel::calibrate(const std::string& leader, bool math, bool gain,
+    bool offset, double timeout_secs){
+    pb::MessageV1 msg;
+    msg.set_id(utils::generate_uuid());
+    auto calibration_cmd = msg.mutable_calibration_command();
+    auto calibration_config = calibration_cmd->mutable_config();
+
+    if (!leader.empty()) {
+        calibration_config->mutable_leader()->set_path(leader);
+    }
+    calibration_config->set_math(math ? pb::CalibrationConfig_Kind_Enabled :
+        pb::CalibrationConfig_Kind_Disabled);
+    calibration_config->set_gain(gain ? pb::CalibrationConfig_Kind_Enabled :
+        pb::CalibrationConfig_Kind_Disabled);
+    calibration_config->set_offset(offset ? pb::CalibrationConfig_Kind_Enabled :
+        pb::CalibrationConfig_Kind_Disabled);
+
+    pb::MessageV1 response = send_and_recv(msg, timeout_secs);
+
+    if (response.has_error_message()) {
+        throw std::runtime_error(
+            "ControlChannel::calibrate(): device returned error: " +
+            response.error_message().description());
+    }
+}
+
 pb::ConfigBundle ControlChannel::get_config(
     const std::string& entity_path,
     bool recursive,

@@ -754,6 +754,9 @@ void ProxyServer::dispatch_message(ClientSession& session, const pb::MessageV1& 
         case pb::MessageV1::kAuthRequestFieldNumber:
             handle_auth(session, msg);
             break;
+        case pb::MessageV1::kCalibrationCommandFieldNumber:
+            handle_calibrate(session, msg);
+            break;
         case pb::MessageV1::kUdpDataStreamingCommandFieldNumber:
             handle_udp_streaming(session, msg);
             break;

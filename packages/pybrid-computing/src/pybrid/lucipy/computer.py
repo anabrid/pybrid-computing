@@ -231,6 +231,7 @@ class LucipyWrapper:
         # Build and execute session pipeline
         session = self._controller.create_session()
         session.set_config_bundle(pb.ConfigBundle(configs=all_configs))
+        session.calibrate()
         session.run(config=self._run_config, daq=daq_config)
         runs = await session.execute()
 

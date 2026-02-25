@@ -82,7 +82,6 @@ def _make_run_command(op_time_ns: int) -> pb.StartRunCommand:
             sample_op=False,
         ),
         sync_config=pb.SyncConfig(enabled=False),
-        calibration_config=pb.CalibrationConfig(enabled=False),
     )
 
 

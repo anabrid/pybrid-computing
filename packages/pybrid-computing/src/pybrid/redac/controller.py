@@ -353,6 +353,13 @@ class Controller(BaseController):
         )
         from pybrid.redac.session import Session
         session = Session(self)
+
+        # For backwards compatibility: calibrate before the run, as it used to
+        # happen implicitly when issuing a "run" command.
+        all_paths = list(self.connection_manager.connections.keys())
+        leader = str(all_paths[0]) if all_paths else ""
+        session.calibrate(leader=leader)
+
         if run is None:
             session.run(timeout=timeout)
         else:
