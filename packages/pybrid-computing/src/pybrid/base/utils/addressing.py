@@ -65,7 +65,9 @@ class Addressing:
             if len(path) == 0:
                 continue
 
-            carrier = path.split("/")[0]
+            # leading slash generates empty string as first array member
+            use_ix = 1 if path.startswith("/") else 0
+            carrier = path.split("/")[use_ix]
             if Addressing.is_physical_mac(carrier):
                 return True
 
@@ -83,11 +85,14 @@ class Addressing:
             if len(path) == 0:
                 continue
 
+            # leading slash generates empty string as first array member
+            use_ix = 1 if path.startswith("/") else 0
             parts = path.split("/")
-            if parts[0] in map:
-                parts[0] = map[parts[0]]
+
+            if parts[use_ix] in map: 
+                parts[use_ix] = map[parts[use_ix]]
             else:
-                raise Exception(f"Unable to map address {parts[0]}")
+                raise Exception(f"Unable to map address {parts[use_ix]}")
 
             config.entity.path = "/".join(parts)
 
