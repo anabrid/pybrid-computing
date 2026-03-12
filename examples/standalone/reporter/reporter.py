@@ -271,7 +271,7 @@ async def itor_test(controller: Controller, reporter: Reporter) -> None:
 
 async def main():
     reporter = Reporter()
-    controller = Controller(standalone=True)
+    controller = Controller()
 
     import argparse
     parser = argparse.ArgumentParser()

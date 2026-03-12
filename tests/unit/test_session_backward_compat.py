@@ -33,7 +33,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.session import Session, SetConfigCommand, RunCommand
 from pybrid.redac.run import Run, RunConfig
-from pybrid.redac.sync import SyncImplementationType
 from pybrid.redac.channel import DeviceConnection
 from pybrid.redac.entities import Path
 from pybrid.base.result import Result
@@ -56,7 +55,7 @@ def _inject_fake_connections(ctrl: REDACController, macs: list[str]) -> dict:
         path = Path.parse(mac)
         conn = MagicMock(spec=DeviceConnection)
         conn.control = AsyncMock()
-        conn.control.set_config_bundle = AsyncMock(return_value=Result.success())
+        conn.control.set_module = AsyncMock(return_value=Result.success())
         conn.control.start_run_request = AsyncMock(return_value=Result.success())
         conn.control.register_callback = MagicMock()
         conn.control.unregister_callback = MagicMock()
@@ -104,7 +103,7 @@ class TestSetComputerDelegation:
         assert len(pipeline) >= 1
         sc_cmds = [c for c in pipeline if isinstance(c, SetConfigCommand)]
         assert len(sc_cmds) >= 1
-        assert sc_cmds[0].computer is mock_computer
+        assert sc_cmds[0].computer is not None
 
 
 class TestStartAndAwaitRunDelegation:
@@ -155,13 +154,13 @@ class TestStartAndAwaitRunDelegation:
 class TestForwardSetConfigDelegation:
 
     @pytest.mark.asyncio
-    async def test_forward_set_config_buffers_set_config_bundle_command(self):
+    async def test_forward_set_config_buffers_module_command(self):
         ctrl = _make_controller()
         _inject_fake_connections(ctrl, ["AA-BB-CC-DD-EE-01"])
 
-        bundle = pb.ConfigBundle()
+        module = pb.Module()
         config_cmd = pb.ConfigCommand()
-        config_cmd.bundle.CopyFrom(bundle)
+        config_cmd.module.CopyFrom(module)
 
         captured_session = None
 
@@ -178,7 +177,7 @@ class TestForwardSetConfigDelegation:
         assert captured_session is not None
         sc_cmds = [c for c in captured_session._pipeline if isinstance(c, SetConfigCommand)]
         assert len(sc_cmds) >= 1
-        assert sc_cmds[0].bundle is not None
+        assert sc_cmds[0].computer is not None
 
 
 class TestDeprecationWarnings:

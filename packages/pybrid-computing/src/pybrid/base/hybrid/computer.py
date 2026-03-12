@@ -48,17 +48,14 @@ class AnalogComputer(ABC):
         pass
 
     @abstractmethod
-    def get_serializer_implementation(self) -> type:
-        """
-        Return the serializer implementation native to this computer type.
-        """
-        pass
+    def get_serializer(self) -> type:
+        """Return the unified Serializer implementation for this computer type."""
+        ...
 
     @abstractmethod
-    def get_deserializer_implementation(self) -> type:
-        """
-        Return the deserializer implementation native to this computer type.
-        """
+    def get_deserializer(self) -> type:
+        """Return the unified Deserializer implementation for this computer type."""
+        ...
 
     def reset(self):
         for entity in self.entities:

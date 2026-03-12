@@ -166,9 +166,9 @@ TEST_F(ControlChannelTest, StartStop) {
  * @brief send_and_recv() returns the correlated response identified by UUID.
  *
  * Verifies:
- * - A DescribeCommand sent from the client is received on the server.
- * - The server replies with a DescribeResponse carrying the same id.
- * - send_and_recv() returns the correct response entity.
+ * - An ExtractCommand sent from the client is received on the server.
+ * - The server replies with an ExtractResponse carrying the same id.
+ * - send_and_recv() returns the correct response module item.
  */
 TEST_F(ControlChannelTest, SendAndRecvCorrelation) {
     auto channel = ControlChannel::create("127.0.0.1", server_port(), 5.0);
@@ -179,7 +179,9 @@ TEST_F(ControlChannelTest, SendAndRecvCorrelation) {
     const std::string request_id = "test-uuid-1234";
     pb::MessageV1 request;
     request.set_id(request_id);
-    request.mutable_describe_command();  // Sets the active kind to DescribeCommand.
+    auto* cmd = request.mutable_extract_command();
+    cmd->set_recursive(true);
+    cmd->set_specification(true);
 
     // Send request from a background thread so we can serve it.
     std::future<pb::MessageV1> response_future = std::async(
@@ -189,19 +191,21 @@ TEST_F(ControlChannelTest, SendAndRecvCorrelation) {
     // Server receives the request and checks the id.
     pb::MessageV1 received = server_recv_message(5.0);
     EXPECT_EQ(received.id(), request_id);
-    EXPECT_TRUE(received.has_describe_command());
+    EXPECT_TRUE(received.has_extract_command());
 
-    // Server replies with a correlated DescribeResponse.
+    // Server replies with a correlated ExtractResponse.
     pb::MessageV1 response;
     response.set_id(request_id);
-    response.mutable_describe_response()->mutable_entity()->set_id("/test-entity");
+    auto* mod = response.mutable_extract_response()->mutable_module();
+    auto* item = mod->add_items();
+    item->mutable_entity_specification()->mutable_entity()->set_id("/test-entity");
     server_send_message(response);
 
     // Caller gets the response.
     pb::MessageV1 result = response_future.get();
     EXPECT_EQ(result.id(), request_id);
-    ASSERT_TRUE(result.has_describe_response());
-    EXPECT_EQ(result.describe_response().entity().id(), "/test-entity");
+    ASSERT_TRUE(result.has_extract_response());
+    EXPECT_EQ(result.extract_response().module().items(0).entity_specification().entity().id(), "/test-entity");
 }
 
 /**
@@ -218,7 +222,9 @@ TEST_F(ControlChannelTest, SendAndRecvTimeout) {
 
     pb::MessageV1 request;
     request.set_id("no-reply-uuid");
-    request.mutable_describe_command();
+    auto* cmd_timeout = request.mutable_extract_command();
+    cmd_timeout->set_recursive(true);
+    cmd_timeout->set_specification(true);
 
     // Server receives but intentionally never replies.
     std::thread server_thread([this]() {
@@ -327,7 +333,9 @@ TEST_F(ControlChannelTest, StopBreaksPendingPromises) {
 
     pb::MessageV1 request;
     request.set_id("pending-uuid");
-    request.mutable_describe_command();
+    auto* cmd_pending = request.mutable_extract_command();
+    cmd_pending->set_recursive(true);
+    cmd_pending->set_specification(true);
 
     // Start send_and_recv in background with a long timeout.
     std::future<pb::MessageV1> fut = std::async(
@@ -359,14 +367,16 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
     // --- Sub-case a: notification dispatched to callback ---
     std::atomic<bool> notif_received{false};
     channel->register_callback(
-        pb::MessageV1::kDescribeResponseFieldNumber,
+        pb::MessageV1::kExtractResponseFieldNumber,
         [&](pb::MessageV1& /* msg */) {
             notif_received.store(true, std::memory_order_release);
         });
 
     // Build a notification envelope (empty id → notification).
     pb::MessageV1 notif_msg;
-    notif_msg.mutable_describe_response()->mutable_entity()->set_id("/injected");
+    auto* notif_mod = notif_msg.mutable_extract_response()->mutable_module();
+    auto* notif_item = notif_mod->add_items();
+    notif_item->mutable_entity_specification()->mutable_entity()->set_id("/injected");
     pb::Envelope notif_env;
     *notif_env.mutable_message_v1() = notif_msg;
     std::string notif_bytes;
@@ -384,7 +394,9 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
     const std::string req_id = "inject-uuid-9";
     pb::MessageV1 request;
     request.set_id(req_id);
-    request.mutable_describe_command();
+    auto* cmd_inject = request.mutable_extract_command();
+    cmd_inject->set_recursive(true);
+    cmd_inject->set_specification(true);
 
     std::future<pb::MessageV1> fut = std::async(
         std::launch::async,
@@ -396,7 +408,9 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
     // Inject the response directly via on_tcp_response().
     pb::MessageV1 resp_msg;
     resp_msg.set_id(req_id);
-    resp_msg.mutable_describe_response()->mutable_entity()->set_id("/injected-resp");
+    auto* resp_mod = resp_msg.mutable_extract_response()->mutable_module();
+    auto* resp_item = resp_mod->add_items();
+    resp_item->mutable_entity_specification()->mutable_entity()->set_id("/injected-resp");
     pb::Envelope resp_env;
     *resp_env.mutable_message_v1() = resp_msg;
     std::string resp_bytes;
@@ -407,8 +421,8 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
 
     pb::MessageV1 result = fut.get();
     EXPECT_EQ(result.id(), req_id);
-    ASSERT_TRUE(result.has_describe_response());
-    EXPECT_EQ(result.describe_response().entity().id(), "/injected-resp");
+    ASSERT_TRUE(result.has_extract_response());
+    EXPECT_EQ(result.extract_response().module().items(0).entity_specification().entity().id(), "/injected-resp");
 }
 
 /**

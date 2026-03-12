@@ -26,19 +26,19 @@ for carrier in computer.carriers:
         computer.daq.capture(cluster.m0block.elements[0], cluster.m0block.elements[1])
 
 # Export PB configuration for later use, either `pybrid redac run -c sinusoidal-circuit.json` or redaccess
-serializer = computer.get_serializer_implementation()()
-config = serializer.serialize(computer)
+serializer = computer.get_serializer()()
+module = serializer.serialize(computer)
 
-# create a "bundle', i.e. a self-contained JSON that may be passed to
+# create a "module', i.e. a self-contained JSON that may be passed to
 # pybrid redac run
-bundle = pb.File(
+file = pb.File(
     version=ProtoVersioning.current(),
-    bundle=pb.ConfigBundle(configs=config)
+    module=module,
 )
 
-# store bundle to file
-bundle_json = ProtoIO.pbfile_to_json(bundle)
+# store module to file
+module_json = ProtoIO.pbfile_to_json(file)
 
 target = FilePath(__file__).parent / "redac-0-configuration.json"
 with open(target, "w") as f:
-    f.write(json.dumps(bundle_json, indent=2))
+    f.write(json.dumps(module_json, indent=2))

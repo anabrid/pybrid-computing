@@ -3,16 +3,34 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
+from pybrid.base.hybrid.serializer import Serializer, Deserializer
 from pybrid.lucidac.front_plane import FrontPlane, SignalGenerator
 from pybrid.redac.entities import Path
 from pybrid.base.proto import main_pb2 as pb
+
 
 class LUCIDACSerializer(REDACSerializer):
 
     def __init__(self):
         super().__init__()
 
-    @REDACSerializer._serialize.register
+    @Serializer._serialize_specification.register
+    def _(self, entity: FrontPlane) -> pb.Entity:
+        """Serialize a FrontPlane as a FRONTPANEL-class pb.Entity leaf node."""
+        from pybrid.redac.entities import EntityType
+        et = getattr(entity, "entity_type", None)
+        if et is None:
+            et = EntityType.reverse_lookup(FrontPlane)
+        version = self._make_version(et.version)
+        return pb.Entity(
+            id=self._entity_id(entity),
+            class_=et.class_.value,
+            type=et.type_ or 0,
+            variant=et.variant or 0,
+            version=version,
+        )
+
+    @Serializer._serialize_configuration.register
     def _(self, entity: FrontPlane):
         fp_config = self.cc.new_config(entity).front_panel_config
         fp_config.leds = entity.leds
@@ -33,19 +51,28 @@ class LUCIDACSerializer(REDACSerializer):
     def serialize_additional(self):
         pass
 
+
 class LUCIDACDeserializer(REDACDeserializer):
 
-    def __init__(self, computer):
+    def __init__(self, computer=None):
         super().__init__(computer)
 
-    @REDACDeserializer._deserialize.register
+    def _handle_unknown_carrier_child(self, path: Path, child: pb.Entity):
+        """Detect FrontPlane by path name, since firmware reports class_=UNKNOWN(0)."""
+        if path.id_ == "FP":
+            front_plane = FrontPlane(path)
+            acl_select = 8 * ["INTERNAL"]
+            return (front_plane, acl_select)
+        return super()._handle_unknown_carrier_child(path, child)
+
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.FrontPanelConfig):
         """Deserialize front panel LED configuration and apply to FrontPanel."""
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity = self.computer.get_entity(entity_path)
         entity.leds = config.leds
 
-    @REDACDeserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.SignalGeneratorConfig):
         """Deserialize signal generator configuration and apply to FrontPanel."""
         entity_path = Path.parse(self._current_full_config.entity.path)
@@ -63,4 +90,4 @@ class LUCIDACDeserializer(REDACDeserializer):
             dac_outputs=list(config.dac_outputs)
         )
 
-    
+

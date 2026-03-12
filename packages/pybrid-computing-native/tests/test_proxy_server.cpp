@@ -6,7 +6,7 @@
  * @brief Unit tests for the ProxyServer class.
  *
  * Uses real TCP loopback: TCPServer instances simulate backend devices.
- * Each mock backend responds to DescribeCommand, ResetCommand, and
+ * Each mock backend responds to ExtractCommand, ResetCommand, and
  * StartRunCommand with scripted protobuf responses, matching the
  * minimum protocol surface that the ProxyServer exercises during
  * add_backend() and message forwarding.
@@ -74,7 +74,7 @@ public:
     /**
      * @brief Start the mock backend's TCP listener on an ephemeral port.
      *
-     * @param carrier_path Entity path to advertise in DescribeResponse.
+     * @param carrier_path Entity path to advertise in ExtractResponse.
      */
     explicit MockBackend(const std::string& carrier_path = CARRIER_PATH_A)
         : carrier_path_(carrier_path) {
@@ -157,15 +157,17 @@ public:
     }
 
     /**
-     * @brief Build a DescribeResponse carrying this backend's carrier entity.
+     * @brief Build an ExtractResponse carrying this backend's carrier entity.
      *
      * @param request_id The id to copy into the response for correlation.
-     * @return A fully constructed MessageV1 describing a single carrier.
+     * @return A fully constructed MessageV1 with an ExtractResponse module item.
      */
-    pb::MessageV1 make_describe_response(const std::string& request_id) const {
+    pb::MessageV1 make_extract_response(const std::string& request_id) const {
         pb::MessageV1 resp;
         resp.set_id(request_id);
-        pb::Entity* carrier = resp.mutable_describe_response()->mutable_entity();
+        auto* mod = resp.mutable_extract_response()->mutable_module();
+        auto* item = mod->add_items();
+        pb::Entity* carrier = item->mutable_entity_specification()->mutable_entity();
         carrier->set_id(carrier_path_);
         carrier->set_class_(pb::Entity::CARRIER);
         return resp;
@@ -211,22 +213,22 @@ public:
     }
 
     /**
-     * @brief Serve the standard add_backend() handshake: DescribeCommand
+     * @brief Serve the standard add_backend() handshake: ExtractCommand
      *        followed by ResetCommand, responding to each.
      *
-     * The ProxyServer calls add_backend(), which sends DescribeCommand then
+     * The ProxyServer calls add_backend(), which sends ExtractCommand then
      * ResetCommand in sequence. This helper drains both and sends canned
      * responses. Must be called from a background thread that has already
      * called accept_connection().
      */
     void serve_add_backend_handshake() {
-        // 1. DescribeCommand
-        pb::MessageV1 describe_req = recv_message();
-        if (!describe_req.has_describe_command()) {
+        // 1. ExtractCommand
+        pb::MessageV1 extract_req = recv_message();
+        if (!extract_req.has_extract_command()) {
             throw std::runtime_error(
-                "MockBackend::serve_add_backend_handshake: expected DescribeCommand");
+                "MockBackend::serve_add_backend_handshake: expected ExtractCommand");
         }
-        send_message(make_describe_response(describe_req.id()));
+        send_message(make_extract_response(extract_req.id()));
 
         // 2. ResetCommand
         pb::MessageV1 reset_req = recv_message();
@@ -377,57 +379,54 @@ TEST_F(ProxyServerTest, AcceptClientConnection) {
 }
 
 // =============================================================================
-// Test 2: DescribeForwarding
+// Test 2: ExtractForwarding
 // =============================================================================
 
 /**
- * @brief DescribeCommand from client → proxy forwards to backend → aggregated
- *        entity tree returned to client.
+ * @brief ExtractCommand from client → proxy returns cached aggregated module
+ *        to client.
  *
  * Verifies:
- * - Client sends DescribeCommand through the proxy.
- * - Proxy forwards it to the backend and collects the DescribeResponse.
- * - The entity tree returned to the client contains the carrier path
+ * - Client sends ExtractCommand through the proxy.
+ * - The module returned to the client contains the carrier path
  *   advertised by the backend.
  */
-TEST_F(ProxyServerTest, DescribeForwarding) {
+TEST_F(ProxyServerTest, ExtractForwarding) {
     start_proxy_with_single_backend();
 
     auto client = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
     client->start();
 
-    // Run the describe call in a background thread so we can concurrently
-    // serve any forwarded messages that the proxy sends to the backend.
-    // (The proxy handles describe internally from the describe response cached
-    // during add_backend, but we verify that the client-facing response is
-    // correct regardless of the implementation strategy.)
+    // The proxy handles extract internally from the extract response cached
+    // during add_backend, so we verify that the client-facing response is correct.
     pb::MessageV1 request;
     const std::string req_id = utils::generate_uuid();
     request.set_id(req_id);
-    request.mutable_describe_command();
+    auto* cmd = request.mutable_extract_command();
+    cmd->set_recursive(true);
+    cmd->set_specification(true);
 
     std::future<pb::MessageV1> fut = std::async(
         std::launch::async,
         [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
-    ASSERT_TRUE(result.has_describe_response())
-        << "Expected describe_response, got kind: " << result.kind_case();
+    ASSERT_TRUE(result.has_extract_response())
+        << "Expected extract_response, got kind: " << result.kind_case();
 
-    // The aggregated entity tree must reference the carrier path.
-    const pb::Entity& root = result.describe_response().entity();
+    // The aggregated module items must reference the carrier path.
+    const pb::Module& mod = result.extract_response().module();
     bool found = false;
-    // Root itself might be the carrier, or it might be a parent containing it.
-    if (root.id() == CARRIER_PATH_A) {
-        found = true;
-    }
-    for (int i = 0; i < root.children_size(); ++i) {
-        if (root.children(i).id() == CARRIER_PATH_A) {
-            found = true;
+    for (int i = 0; i < mod.items_size(); ++i) {
+        if (mod.items(i).has_entity_specification()) {
+            const std::string& id = mod.items(i).entity_specification().entity().id();
+            if (id == CARRIER_PATH_A) {
+                found = true;
+            }
         }
     }
     EXPECT_TRUE(found) << "Carrier path '" << CARRIER_PATH_A
-                       << "' not found in entity tree. Root id: " << root.id();
+                       << "' not found in extract module items.";
 
     client->stop();
 }
@@ -512,8 +511,8 @@ TEST_F(ProxyServerTest, ConfigForwarding) {
     request.set_id(req_id);
 
     // ConfigCommand with one Config entry targeting the carrier path.
-    auto* bundle = request.mutable_config_command()->mutable_bundle();
-    auto* cfg = bundle->add_configs();
+    auto* module = request.mutable_config_command()->mutable_module();
+    auto* cfg = module->add_items();
     cfg->mutable_entity()->set_path(CARRIER_PATH_A + "/0/U");
     cfg->mutable_device_config();  // Minimal non-null config payload.
 
@@ -588,19 +587,19 @@ TEST_F(ProxyServerTest, RunStateForwarding) {
 }
 
 // =============================================================================
-// Test 6: MultiBackendDescribe
+// Test 6: MultiBackendExtract
 // =============================================================================
 
 /**
- * @brief Two loopback backends — proxy aggregates both entity trees and
- *        returns a merged result to the client.
+ * @brief Two loopback backends — proxy aggregates both modules and returns
+ *        a merged result to the client.
  *
  * Verifies:
  * - ProxyServer::add_backend() can be called for two backends.
- * - A single DescribeCommand from the client receives a response that
- *   contains the carrier paths from both backends.
+ * - A single ExtractCommand from the client receives a response that
+ *   contains the carrier paths from both backends as module items.
  */
-TEST_F(ProxyServerTest, MultiBackendDescribe) {
+TEST_F(ProxyServerTest, MultiBackendExtract) {
     // Second backend with a different carrier path.
     auto backend_b = std::make_unique<MockBackend>(CARRIER_PATH_B);
 
@@ -627,21 +626,24 @@ TEST_F(ProxyServerTest, MultiBackendDescribe) {
 
     pb::MessageV1 request;
     request.set_id(utils::generate_uuid());
-    request.mutable_describe_command();
+    auto* cmd = request.mutable_extract_command();
+    cmd->set_recursive(true);
+    cmd->set_specification(true);
 
     std::future<pb::MessageV1> fut = std::async(
         std::launch::async,
         [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
-    ASSERT_TRUE(result.has_describe_response());
+    ASSERT_TRUE(result.has_extract_response());
 
-    // Collect all entity ids in the aggregated tree.
-    const pb::Entity& root = result.describe_response().entity();
+    // Collect all entity ids in the aggregated module items.
+    const pb::Module& mod = result.extract_response().module();
     std::vector<std::string> ids;
-    ids.push_back(root.id());
-    for (int i = 0; i < root.children_size(); ++i) {
-        ids.push_back(root.children(i).id());
+    for (int i = 0; i < mod.items_size(); ++i) {
+        if (mod.items(i).has_entity_specification()) {
+            ids.push_back(mod.items(i).entity_specification().entity().id());
+        }
     }
 
     bool found_a = false, found_b = false;
@@ -649,8 +651,8 @@ TEST_F(ProxyServerTest, MultiBackendDescribe) {
         if (id == CARRIER_PATH_A) found_a = true;
         if (id == CARRIER_PATH_B) found_b = true;
     }
-    EXPECT_TRUE(found_a) << "Carrier A path not found in merged describe response";
-    EXPECT_TRUE(found_b) << "Carrier B path not found in merged describe response";
+    EXPECT_TRUE(found_a) << "Carrier A path not found in merged extract response";
+    EXPECT_TRUE(found_b) << "Carrier B path not found in merged extract response";
 
     client->stop();
 }
@@ -672,15 +674,15 @@ TEST_F(ProxyServerTest, MultiBackendDescribe) {
 TEST_F(ProxyServerTest, ClientSessionOrdering) {
     start_proxy_with_single_backend();
 
-    // First client connects and successfully describes.
+    // First client connects and successfully extracts.
     auto client1 = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
     client1->start();
 
     pb::MessageV1 req1;
     req1.set_id(utils::generate_uuid());
-    req1.mutable_describe_command();
+    { auto* c = req1.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
     pb::MessageV1 resp1 = client1->send_and_recv(req1, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp1.has_describe_response()) << "First client: expected describe_response";
+    EXPECT_TRUE(resp1.has_extract_response()) << "First client: expected extract_response";
 
     // Second client connects. While client1 is still active, client2's
     // request must not be served — it should time out or block.
@@ -689,7 +691,7 @@ TEST_F(ProxyServerTest, ClientSessionOrdering) {
 
     pb::MessageV1 req2;
     req2.set_id(utils::generate_uuid());
-    req2.mutable_describe_command();
+    req2.mutable_reset_command();
 
     // Attempt with a short timeout — should NOT receive a response while
     // client1 is still connected.
@@ -704,9 +706,9 @@ TEST_F(ProxyServerTest, ClientSessionOrdering) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     pb::MessageV1 req2b;
     req2b.set_id(utils::generate_uuid());
-    req2b.mutable_describe_command();
+    { auto* c = req2b.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
     pb::MessageV1 resp2 = client2->send_and_recv(req2b, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp2.has_describe_response()) << "Second client: expected describe_response";
+    EXPECT_TRUE(resp2.has_extract_response()) << "Second client: expected extract_response";
 
     client2->stop();
 }
@@ -763,10 +765,12 @@ TEST_F(ProxyServerTest, ClientSessionTimeoutExpiry) {
 
     pb::MessageV1 req;
     req.set_id(utils::generate_uuid());
-    req.mutable_describe_command();
+    auto* cmd = req.mutable_extract_command();
+    cmd->set_recursive(true);
+    cmd->set_specification(true);
     pb::MessageV1 resp = client2->send_and_recv(req, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp.has_describe_response())
-        << "Second client after timeout: expected describe_response";
+    EXPECT_TRUE(resp.has_extract_response())
+        << "Second client after timeout: expected extract_response";
 
     client1->stop();
     client2->stop();
@@ -787,16 +791,16 @@ TEST_F(ProxyServerTest, ClientSessionTimeoutExpiry) {
 TEST_F(ProxyServerTest, ClientDisconnectCleansUpSession) {
     start_proxy_with_single_backend();
 
-    // First client connects, issues a describe, then disconnects abruptly.
+    // First client connects, issues an extract, then disconnects abruptly.
     {
         auto client1 = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
         client1->start();
 
         pb::MessageV1 req;
         req.set_id(utils::generate_uuid());
-        req.mutable_describe_command();
+        { auto* c = req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
         pb::MessageV1 resp = client1->send_and_recv(req, TEST_TIMEOUT_SECS);
-        EXPECT_TRUE(resp.has_describe_response());
+        EXPECT_TRUE(resp.has_extract_response());
 
         // Abrupt disconnect: stop without sending any close signal.
         client1->stop();
@@ -811,10 +815,10 @@ TEST_F(ProxyServerTest, ClientDisconnectCleansUpSession) {
 
     pb::MessageV1 req2;
     req2.set_id(utils::generate_uuid());
-    req2.mutable_describe_command();
+    { auto* c = req2.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
     pb::MessageV1 resp2 = client2->send_and_recv(req2, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp2.has_describe_response())
-        << "Second client after first disconnect: expected describe_response";
+    EXPECT_TRUE(resp2.has_extract_response())
+        << "Second client after first disconnect: expected extract_response";
 
     client2->stop();
 }
@@ -847,12 +851,12 @@ TEST_F(ProxyServerTest, DeviceDisconnectSendsError) {
 
     client->start();
 
-    // Verify the client is active by completing a describe roundtrip first.
+    // Verify the client is active by completing an extract roundtrip first.
     pb::MessageV1 req;
     req.set_id(utils::generate_uuid());
-    req.mutable_describe_command();
+    { auto* c = req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
     pb::MessageV1 resp = client->send_and_recv(req, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp.has_describe_response());
+    EXPECT_TRUE(resp.has_extract_response());
 
     // Disconnect the backend device.
     backend_->disconnect();
@@ -1011,7 +1015,7 @@ TEST_F(ProxyServerTest, AuthRequired_WrongToken_Rejected) {
  *
  * Verifies:
  * - AuthRequest with matching token returns SuccessMessage.
- * - After successful auth, the client can issue a DescribeCommand normally.
+ * - After successful auth, the client can issue an ExtractCommand normally.
  */
 TEST_F(ProxyServerTest, AuthRequired_CorrectToken_Accepted) {
     EnvVarGuard guard(AUTH_ENV_VAR, AUTH_TOKEN);
@@ -1045,10 +1049,10 @@ TEST_F(ProxyServerTest, AuthRequired_CorrectToken_Accepted) {
         << "Auth with correct token should return SuccessMessage, got kind: "
         << auth_result.kind_case();
 
-    // Step 2: After auth, describe should work.
+    // Step 2: After auth, extract should work.
     pb::MessageV1 describe_msg;
     describe_msg.set_id(utils::generate_uuid());
-    describe_msg.mutable_describe_command();
+    { auto* c = describe_msg.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
     std::future<pb::MessageV1> desc_fut = std::async(
         std::launch::async,
@@ -1056,8 +1060,8 @@ TEST_F(ProxyServerTest, AuthRequired_CorrectToken_Accepted) {
 
     pb::MessageV1 desc_result = desc_fut.get();
 
-    EXPECT_TRUE(desc_result.has_describe_response())
-        << "Describe after successful auth should work, got kind: "
+    EXPECT_TRUE(desc_result.has_extract_response())
+        << "Extract after successful auth should work, got kind: "
         << desc_result.kind_case();
 
     client->stop();
@@ -1068,7 +1072,7 @@ TEST_F(ProxyServerTest, AuthRequired_CorrectToken_Accepted) {
 // =============================================================================
 
 /**
- * @brief Client sends a DescribeCommand before authenticating when auth is
+ * @brief Client sends an ExtractCommand before authenticating when auth is
  *        required. The proxy must respond with an ErrorMessage containing
  *        "Authentication required".
  *
@@ -1094,10 +1098,10 @@ TEST_F(ProxyServerTest, AuthRequired_UnauthenticatedMessage_Rejected) {
     auto client = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
     client->start();
 
-    // Send describe WITHOUT authenticating first.
+    // Send extract WITHOUT authenticating first.
     pb::MessageV1 describe_msg;
     describe_msg.set_id(utils::generate_uuid());
-    describe_msg.mutable_describe_command();
+    { auto* c = describe_msg.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
     std::future<pb::MessageV1> fut = std::async(
         std::launch::async,
@@ -1106,7 +1110,7 @@ TEST_F(ProxyServerTest, AuthRequired_UnauthenticatedMessage_Rejected) {
     pb::MessageV1 result = fut.get();
 
     EXPECT_TRUE(result.has_error_message())
-        << "Unauthenticated describe should be rejected, got kind: "
+        << "Unauthenticated extract should be rejected, got kind: "
         << result.kind_case();
 
     // Verify the error message text.
@@ -1122,38 +1126,38 @@ TEST_F(ProxyServerTest, AuthRequired_UnauthenticatedMessage_Rejected) {
 }
 
 // =============================================================================
-// Test 15: ConcurrentDescribe_NoActiveSession
+// Test 15: ConcurrentExtract_NoActiveSession
 // =============================================================================
 
 /**
- * @brief Two clients connect simultaneously and both send DescribeCommand.
- *        Both should receive the cached DescribeResponse without either needing
- *        to be the "active" session — describe is served from cache.
+ * @brief Two clients connect simultaneously and both send ExtractCommand.
+ *        Both should receive the cached ExtractResponse without either needing
+ *        to be the "active" session — extract is served from cache.
  *
  * Verifies:
  * - Two ControlChannel instances can connect to the same proxy.
- * - Both send DescribeCommand in parallel (via std::async).
- * - Both receive a valid DescribeResponse containing the expected carrier path.
+ * - Both send ExtractCommand in parallel (via std::async).
+ * - Both receive a valid ExtractResponse containing the expected carrier path.
  * - Neither client needs to wait for the other or become the "active" session.
  */
-TEST_F(ProxyServerTest, ConcurrentDescribe_NoActiveSession) {
+TEST_F(ProxyServerTest, ConcurrentExtract_NoActiveSession) {
     start_proxy_with_single_backend();
 
-    // Create two clients that will send describe concurrently.
+    // Create two clients that will send extract concurrently.
     auto client_a = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
     client_a->start();
 
     auto client_b = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
     client_b->start();
 
-    // Send describe from both clients in parallel.
+    // Send extract from both clients in parallel.
     pb::MessageV1 req_a;
     req_a.set_id(utils::generate_uuid());
-    req_a.mutable_describe_command();
+    { auto* c = req_a.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
     pb::MessageV1 req_b;
     req_b.set_id(utils::generate_uuid());
-    req_b.mutable_describe_command();
+    { auto* c = req_b.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
     auto fut_a = std::async(std::launch::async, [&]() {
         return client_a->send_and_recv(req_a, TEST_TIMEOUT_SECS);
@@ -1166,21 +1170,25 @@ TEST_F(ProxyServerTest, ConcurrentDescribe_NoActiveSession) {
     pb::MessageV1 result_a = fut_a.get();
     pb::MessageV1 result_b = fut_b.get();
 
-    // Both must have received a valid DescribeResponse.
-    ASSERT_TRUE(result_a.has_describe_response())
-        << "Client A: expected describe_response, got kind: " << result_a.kind_case();
-    ASSERT_TRUE(result_b.has_describe_response())
-        << "Client B: expected describe_response, got kind: " << result_b.kind_case();
+    // Both must have received a valid ExtractResponse.
+    ASSERT_TRUE(result_a.has_extract_response())
+        << "Client A: expected extract_response, got kind: " << result_a.kind_case();
+    ASSERT_TRUE(result_b.has_extract_response())
+        << "Client B: expected extract_response, got kind: " << result_b.kind_case();
 
     // Both responses must contain the carrier path.
     auto check_carrier = [](const pb::MessageV1& resp, const std::string& label) {
-        const pb::Entity& root = resp.describe_response().entity();
-        bool found = (root.id() == CARRIER_PATH_A);
-        for (int i = 0; i < root.children_size(); ++i) {
-            if (root.children(i).id() == CARRIER_PATH_A) found = true;
+        const pb::Module& mod = resp.extract_response().module();
+        bool found = false;
+        for (int i = 0; i < mod.items_size(); ++i) {
+            if (mod.items(i).has_entity_specification()) {
+                if (mod.items(i).entity_specification().entity().id() == CARRIER_PATH_A) {
+                    found = true;
+                }
+            }
         }
         EXPECT_TRUE(found) << label << ": carrier path '" << CARRIER_PATH_A
-                           << "' not found in entity tree";
+                           << "' not found in extract module items";
     };
 
     check_carrier(result_a, "Client A");
@@ -1238,8 +1246,8 @@ TEST_F(ProxyServerTest, ActiveSessionQueue_ControlMessageWaits) {
 
     pb::MessageV1 config_req;
     config_req.set_id(utils::generate_uuid());
-    auto* bundle = config_req.mutable_config_command()->mutable_bundle();
-    auto* cfg = bundle->add_configs();
+    auto* module = config_req.mutable_config_command()->mutable_module();
+    auto* cfg = module->add_items();
     cfg->mutable_entity()->set_path(CARRIER_PATH_A + "/0/U");
     cfg->mutable_device_config();
 
@@ -1308,13 +1316,13 @@ TEST_F(ProxyServerTest, SessionOverload_Rejected) {
     auto client2 = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
     client2->start();
 
-    // First client describe should succeed (active session).
+    // First client extract should succeed (active session).
     pb::MessageV1 req1;
     req1.set_id(utils::generate_uuid());
-    req1.mutable_describe_command();
+    { auto* c = req1.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
     pb::MessageV1 resp1 = client1->send_and_recv(req1, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp1.has_describe_response())
-        << "Client 1 describe should succeed within max_sessions limit";
+    EXPECT_TRUE(resp1.has_extract_response())
+        << "Client 1 extract should succeed within max_sessions limit";
 
     // Third client should be rejected.
     // The proxy should either refuse the connection or return an OVERLOADED error.
@@ -1326,7 +1334,7 @@ TEST_F(ProxyServerTest, SessionOverload_Rejected) {
         // If connection succeeded, try sending a message — should get an error.
         pb::MessageV1 req3;
         req3.set_id(utils::generate_uuid());
-        req3.mutable_describe_command();
+        { auto* c = req3.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
         try {
             pb::MessageV1 resp3 = client3->send_and_recv(req3, 2.0);
@@ -1353,20 +1361,20 @@ TEST_F(ProxyServerTest, SessionOverload_Rejected) {
 }
 
 // =============================================================================
-// Test 18: DescribeWhileOtherActive
+// Test 18: ExtractWhileOtherActive
 // =============================================================================
 
 /**
  * @brief Client A sends a ResetCommand (becomes active, takes time). While A
- *        is active, Client B sends DescribeCommand. B should get the cached
+ *        is active, Client B sends ExtractCommand. B should get the cached
  *        response immediately — it does NOT wait for A to finish.
  *
  * Verifies:
- * - DescribeCommand is served from cache without requiring active session status.
- * - A slow control command on Client A does not block Client B's describe.
+ * - ExtractCommand is served from cache without requiring active session status.
+ * - A slow control command on Client A does not block Client B's extract.
  * - Client A eventually gets its reset response after the delay.
  */
-TEST_F(ProxyServerTest, DescribeWhileOtherActive) {
+TEST_F(ProxyServerTest, ExtractWhileOtherActive) {
     start_proxy_with_single_backend();
 
     // --- Client A sends reset; backend introduces a deliberate 2-second delay ---
@@ -1394,13 +1402,13 @@ TEST_F(ProxyServerTest, DescribeWhileOtherActive) {
     // Brief pause to ensure A's reset is in progress.
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    // --- Client B sends describe while A's reset is in flight ---
+    // --- Client B sends extract while A's reset is in flight ---
     auto client_b = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
     client_b->start();
 
     pb::MessageV1 desc_req;
     desc_req.set_id(utils::generate_uuid());
-    desc_req.mutable_describe_command();
+    { auto* c = desc_req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
     auto start_time = std::chrono::steady_clock::now();
     auto desc_fut = std::async(std::launch::async, [&]() {
@@ -1411,13 +1419,13 @@ TEST_F(ProxyServerTest, DescribeWhileOtherActive) {
     auto elapsed = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - start_time).count();
 
-    // B's describe should have completed quickly (< 500ms), NOT waiting for
+    // B's extract should have completed quickly (< 500ms), NOT waiting for
     // A's 2-second reset to finish.
-    ASSERT_TRUE(desc_result.has_describe_response())
-        << "Client B describe should succeed while A is active, got kind: "
+    ASSERT_TRUE(desc_result.has_extract_response())
+        << "Client B extract should succeed while A is active, got kind: "
         << desc_result.kind_case();
     EXPECT_LT(elapsed, 0.5)
-        << "Describe should be served from cache in < 500ms, took " << elapsed << "s";
+        << "Extract should be served from cache in < 500ms, took " << elapsed << "s";
 
     // Wait for A's slow reset to complete as well.
     backend_slow_reset.get();
@@ -1470,8 +1478,8 @@ TEST_F(ProxyServerTest, ActiveSessionTransition) {
 
     pb::MessageV1 config_req;
     config_req.set_id(utils::generate_uuid());
-    auto* bundle = config_req.mutable_config_command()->mutable_bundle();
-    auto* cfg = bundle->add_configs();
+    auto* module = config_req.mutable_config_command()->mutable_module();
+    auto* cfg = module->add_items();
     cfg->mutable_entity()->set_path(CARRIER_PATH_A + "/0/U");
     cfg->mutable_device_config();
 
@@ -1536,7 +1544,7 @@ TEST_F(ProxyServerTest, ActiveSessionTransition) {
 //
 // Simulation strategy
 // -------------------
-// The MockBackend already handles DescribeCommand and ResetCommand in
+// The MockBackend already handles ExtractCommand and ResetCommand in
 // serve_add_backend_handshake().  After those two messages the backend TCP
 // socket is still open; the test drives it further to:
 //   - receive the UdpDataStreamingCommand the proxy sends during DataChannel
@@ -1566,7 +1574,7 @@ TEST_F(ProxyServerTest, ActiveSessionTransition) {
  *
  * Verifies:
  * - The backend receives a UdpDataStreamingCommand as the third message
- *   (after DescribeCommand and ResetCommand) during the add_backend() handshake.
+ *   (after ExtractCommand and ResetCommand) during the add_backend() handshake.
  * - The port field in the command is non-zero (the proxy has bound a UDP socket).
  *
  * The test does NOT reply to the UdpDataStreamingCommand — it is only interested
@@ -1582,10 +1590,10 @@ TEST_F(ProxyServerTest, DataChannelUdpNegotiation) {
     std::future<void> backend_thread = std::async(std::launch::async, [&]() {
         backend_->accept_connection();
 
-        // 1. DescribeCommand
-        pb::MessageV1 describe_req = backend_->recv_message();
-        ASSERT_TRUE(describe_req.has_describe_command());
-        backend_->send_message(backend_->make_describe_response(describe_req.id()));
+        // 1. ExtractCommand
+        pb::MessageV1 extract_req = backend_->recv_message();
+        ASSERT_TRUE(extract_req.has_extract_command());
+        backend_->send_message(backend_->make_extract_response(extract_req.id()));
 
         // 2. ResetCommand
         pb::MessageV1 reset_req = backend_->recv_message();
@@ -1627,7 +1635,7 @@ TEST_F(ProxyServerTest, DataChannelUdpNegotiation) {
  *        client over TCP.
  *
  * Scenario:
- * 1. add_backend() completes (DescribeCommand + ResetCommand + UDP negotiation).
+ * 1. add_backend() completes (ExtractCommand + ResetCommand + UDP negotiation).
  * 2. Backend replies to UdpDataStreamingCommand with a SuccessMessage (accepted).
  * 3. proxy->start() begins accepting client connections.
  * 4. Client connects and becomes the active session.
@@ -1649,10 +1657,10 @@ TEST_F(ProxyServerTest, DataChannelForwardingToClient) {
     std::future<void> backend_thread = std::async(std::launch::async, [&]() {
         backend_->accept_connection();
 
-        // DescribeCommand
-        pb::MessageV1 describe_req = backend_->recv_message();
-        ASSERT_TRUE(describe_req.has_describe_command());
-        backend_->send_message(backend_->make_describe_response(describe_req.id()));
+        // ExtractCommand
+        pb::MessageV1 extract_req = backend_->recv_message();
+        ASSERT_TRUE(extract_req.has_extract_command());
+        backend_->send_message(backend_->make_extract_response(extract_req.id()));
 
         // ResetCommand
         pb::MessageV1 reset_req = backend_->recv_message();
@@ -1690,12 +1698,12 @@ TEST_F(ProxyServerTest, DataChannelForwardingToClient) {
         });
     client->start();
 
-    // Confirm client is the active session via a describe roundtrip.
+    // Confirm client is the active session via an extract roundtrip.
     pb::MessageV1 desc_req;
     desc_req.set_id(utils::generate_uuid());
-    desc_req.mutable_describe_command();
+    { auto* c = desc_req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
     pb::MessageV1 desc_resp = client->send_and_recv(desc_req, TEST_TIMEOUT_SECS);
-    ASSERT_TRUE(desc_resp.has_describe_response());
+    ASSERT_TRUE(desc_resp.has_extract_response());
 
     // Allow the ForwardingDataChannel's UDP receive loop to start.
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -1746,7 +1754,7 @@ TEST_F(ProxyServerTest, DataChannelForwardingToClient) {
  *        back to TCP, and RunDataMessage is still forwarded to the active client.
  *
  * Scenario:
- * 1. add_backend() completes (DescribeCommand + ResetCommand + UDP negotiation).
+ * 1. add_backend() completes (ExtractCommand + ResetCommand + UDP negotiation).
  * 2. Backend replies to UdpDataStreamingCommand with
  *    UdpDataStreamingRefusedResponse (UDP refused).
  * 3. The ForwardingDataChannel falls back to the shared TCP ControlChannel.
@@ -1764,10 +1772,10 @@ TEST_F(ProxyServerTest, DataChannelTcpFallback) {
     std::future<void> backend_thread = std::async(std::launch::async, [&]() {
         backend_->accept_connection();
 
-        // DescribeCommand
-        pb::MessageV1 describe_req = backend_->recv_message();
-        ASSERT_TRUE(describe_req.has_describe_command());
-        backend_->send_message(backend_->make_describe_response(describe_req.id()));
+        // ExtractCommand
+        pb::MessageV1 extract_req = backend_->recv_message();
+        ASSERT_TRUE(extract_req.has_extract_command());
+        backend_->send_message(backend_->make_extract_response(extract_req.id()));
 
         // ResetCommand
         pb::MessageV1 reset_req = backend_->recv_message();
@@ -1805,9 +1813,9 @@ TEST_F(ProxyServerTest, DataChannelTcpFallback) {
     // Confirm client is the active session.
     pb::MessageV1 desc_req;
     desc_req.set_id(utils::generate_uuid());
-    desc_req.mutable_describe_command();
+    { auto* c = desc_req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
     pb::MessageV1 desc_resp = client->send_and_recv(desc_req, TEST_TIMEOUT_SECS);
-    ASSERT_TRUE(desc_resp.has_describe_response());
+    ASSERT_TRUE(desc_resp.has_extract_response());
 
     // Allow the ForwardingDataChannel to set up its TCP fallback receive loop.
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -1834,10 +1842,10 @@ TEST_F(ProxyServerTest, AddBackendInjectsLocation) {
     std::future<void> backend_thread = std::async(std::launch::async, [&]() {
         backend_->accept_connection();
 
-        // DescribeCommand
-        pb::MessageV1 describe_req = backend_->recv_message();
-        ASSERT_TRUE(describe_req.has_describe_command());
-        backend_->send_message(backend_->make_describe_response(describe_req.id()));
+        // ExtractCommand
+        pb::MessageV1 extract_req = backend_->recv_message();
+        ASSERT_TRUE(extract_req.has_extract_command());
+        backend_->send_message(backend_->make_extract_response(extract_req.id()));
 
         // ResetCommand
         pb::MessageV1 reset_req = backend_->recv_message();
@@ -1867,35 +1875,32 @@ TEST_F(ProxyServerTest, AddBackendInjectsLocation) {
 
     pb::MessageV1 request;
     request.set_id(utils::generate_uuid());
-    request.mutable_describe_command();
+    { auto* c = request.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
     std::future<pb::MessageV1> fut = std::async(
         std::launch::async,
         [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
-    ASSERT_TRUE(result.has_describe_response())
-        << "Expected describe_response, got kind: " << result.kind_case();
+    ASSERT_TRUE(result.has_extract_response())
+        << "Expected extract_response, got kind: " << result.kind_case();
 
-    const pb::Entity& root = result.describe_response().entity();
+    const pb::Module& mod = result.extract_response().module();
 
-    auto find_entity_with_location =
-        [&](const pb::Entity& tree) -> const pb::Entity* {
-        if (tree.has_v0()) {
-            return &tree;
-        }
-        for (int i = 0; i < tree.children_size(); ++i) {
-            if (tree.children(i).has_v0()) {
-                return &tree.children(i);
+    // Find an entity in the module items that carries location_v0 data.
+    const pb::Entity* located = nullptr;
+    for (int i = 0; i < mod.items_size() && located == nullptr; ++i) {
+        if (mod.items(i).has_entity_specification()) {
+            const pb::Entity& ent = mod.items(i).entity_specification().entity();
+            if (ent.has_location_v0()) {
+                located = &ent;
             }
         }
-        return nullptr;
-    };
+    }
 
-    const pb::Entity* located = find_entity_with_location(root);
     ASSERT_NE(located, nullptr);
-    EXPECT_EQ(located->v0().stack(), 0u);
-    EXPECT_EQ(located->v0().carrier(), 2u);
+    EXPECT_EQ(located->location_v0().stack(), 0u);
+    EXPECT_EQ(located->location_v0().carrier(), 2u);
 
     client->stop();
 }
@@ -1904,10 +1909,10 @@ TEST_F(ProxyServerTest, AddBackendNoLocationByDefault) {
     std::future<void> backend_thread = std::async(std::launch::async, [&]() {
         backend_->accept_connection();
 
-        // DescribeCommand
-        pb::MessageV1 describe_req = backend_->recv_message();
-        ASSERT_TRUE(describe_req.has_describe_command());
-        backend_->send_message(backend_->make_describe_response(describe_req.id()));
+        // ExtractCommand
+        pb::MessageV1 extract_req = backend_->recv_message();
+        ASSERT_TRUE(extract_req.has_extract_command());
+        backend_->send_message(backend_->make_extract_response(extract_req.id()));
 
         // ResetCommand
         pb::MessageV1 reset_req = backend_->recv_message();
@@ -1936,25 +1941,27 @@ TEST_F(ProxyServerTest, AddBackendNoLocationByDefault) {
 
     pb::MessageV1 request;
     request.set_id(utils::generate_uuid());
-    request.mutable_describe_command();
+    { auto* c = request.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
 
     std::future<pb::MessageV1> fut = std::async(
         std::launch::async,
         [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
-    ASSERT_TRUE(result.has_describe_response())
-        << "Expected describe_response, got kind: " << result.kind_case();
+    ASSERT_TRUE(result.has_extract_response())
+        << "Expected extract_response, got kind: " << result.kind_case();
 
-    const pb::Entity& root = result.describe_response().entity();
-    bool any_has_v0 = root.has_v0();
-    for (int i = 0; i < root.children_size(); ++i) {
-        if (root.children(i).has_v0()) {
-            any_has_v0 = true;
+    const pb::Module& mod = result.extract_response().module();
+    bool any_has_location_v0 = false;
+    for (int i = 0; i < mod.items_size(); ++i) {
+        if (mod.items(i).has_entity_specification()) {
+            if (mod.items(i).entity_specification().entity().has_location_v0()) {
+                any_has_location_v0 = true;
+            }
         }
     }
 
-    EXPECT_FALSE(any_has_v0);
+    EXPECT_FALSE(any_has_location_v0);
 
     client->stop();
 }

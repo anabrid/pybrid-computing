@@ -32,7 +32,7 @@ class TestAsyncControlChannelUnit:
         channel = AsyncControlChannel(native)
         msg = pb.MessageV1()
         msg.id = "test-uuid"
-        msg.describe_command.CopyFrom(pb.DescribeCommand())
+        msg.extract_command.CopyFrom(pb.ExtractCommand(recursive=True, specification=True))
         await channel.send(msg)
         native.send.assert_called_once()
         # Verify the arg is bytes
@@ -42,55 +42,64 @@ class TestAsyncControlChannelUnit:
     async def test_send_and_recv(self):
         """send_and_recv() round-trips serialization."""
         native = self._make_mock_native()
-        # Mock the response as serialized bytes
+        # Build a response with an extract_response containing a Module with one item
         response = pb.MessageV1()
         response.id = "test-uuid"
-        response.describe_response.entity.id = "/test"
+        item = pb.Item()
+        item.entity.path = "/test"
+        item.entity_specification.entity.id = "/test"
+        response.extract_response.module.items.append(item)
         native.send_and_recv.return_value = response.SerializeToString()
 
         channel = AsyncControlChannel(native)
         msg = pb.MessageV1()
         msg.id = "test-uuid"
-        msg.describe_command.CopyFrom(pb.DescribeCommand())
+        msg.extract_command.CopyFrom(pb.ExtractCommand(recursive=True, specification=True))
 
         result = await channel.send_and_recv(msg)
         assert result.id == "test-uuid"
-        assert result.describe_response.entity.id == "/test"
+        assert result.extract_response.module.items[0].entity_specification.entity.id == "/test"
 
-    async def test_describe(self):
-        """describe() builds DescribeCommand, calls send_and_recv, extracts entity."""
+    async def test_extract(self):
+        """extract() builds ExtractCommand, calls send_and_recv, returns Module."""
         native = self._make_mock_native()
         channel = AsyncControlChannel(native)
 
-        # Mock send_and_recv to return a describe response
+        # Mock send_and_recv to return an extract response with a Module
         response = pb.MessageV1(id="resp-uuid")
-        response.describe_response.entity.id = "/test-entity"
+        item = pb.Item()
+        item.entity.path = "/test-entity"
+        item.entity_specification.entity.id = "/test-entity"
+        response.extract_response.module.items.append(item)
         channel.send_and_recv = AsyncMock(return_value=response)
 
-        result = await channel.describe()
-        assert result.id == "/test-entity"
-        # Verify the outgoing message has a describe_command
+        result = await channel.extract(specification=True, recursive=True)
+        assert isinstance(result, pb.Module)
+        assert result.items[0].entity_specification.entity.id == "/test-entity"
+        # Verify the outgoing message has an extract_command with the right flags
         sent_msg = channel.send_and_recv.call_args[0][0]
-        assert sent_msg.HasField("describe_command")
+        assert sent_msg.HasField("extract_command")
+        assert sent_msg.extract_command.specification is True
+        assert sent_msg.extract_command.recursive is True
 
-    async def test_get_config(self):
-        """get_config() builds ExtractCommand, calls send_and_recv, extracts bundle."""
+    async def test_extract_with_path_and_configuration(self):
+        """extract() with path and configuration flag sets entity path and configuration."""
         native = self._make_mock_native()
         channel = AsyncControlChannel(native)
 
         response = pb.MessageV1(id="resp-uuid")
-        # extract_response.bundle is already a default ConfigBundle
         channel.send_and_recv = AsyncMock(return_value=response)
 
-        result = await channel.get_config("/", recursive=True)
-        assert isinstance(result, pb.ConfigBundle)
+        result = await channel.extract("/", configuration=True, recursive=True)
+        assert isinstance(result, pb.Module)
         sent_msg = channel.send_and_recv.call_args[0][0]
         assert sent_msg.HasField("extract_command")
         assert sent_msg.extract_command.entity.path == "/"
         assert sent_msg.extract_command.recursive is True
+        assert sent_msg.extract_command.configuration is True
 
-    async def test_set_config_bundle(self):
-        """set_config_bundle() builds ConfigCommand, returns Result on success."""
+    async def test_set_module(self):
+        """set_module() builds ConfigCommand, returns Result on success."""
         native = self._make_mock_native()
         channel = AsyncControlChannel(native)
 
@@ -98,8 +107,8 @@ class TestAsyncControlChannelUnit:
         response = pb.MessageV1(id="resp-uuid")
         channel.send_and_recv = AsyncMock(return_value=response)
 
-        bundle = pb.ConfigBundle()
-        result = await channel.set_config_bundle(bundle)
+        module = pb.Module()
+        result = await channel.set_module(module)
         assert result.ok
         sent_msg = channel.send_and_recv.call_args[0][0]
         assert sent_msg.HasField("config_command")
@@ -173,8 +182,8 @@ class TestAsyncControlChannelResultType:
         native.is_running.return_value = False
         return native
 
-    async def test_set_config_bundle_returns_result_on_success(self):
-        """set_config_bundle() returns Result(ok=True) when the device replies without error."""
+    async def test_set_module_returns_result_on_success(self):
+        """set_module() returns Result(ok=True) when the device replies without error."""
         native = self._make_mock_native()
         channel = AsyncControlChannel(native)
 
@@ -182,16 +191,16 @@ class TestAsyncControlChannelResultType:
         response.config_response.CopyFrom(pb.ConfigResponse())
         channel.send_and_recv = AsyncMock(return_value=response)
 
-        bundle = pb.ConfigBundle()
-        result = await channel.set_config_bundle(bundle)
+        module = pb.Module()
+        result = await channel.set_module(module)
 
         assert isinstance(result, Result), (
-            f"set_config_bundle() must return a Result, got {type(result)}"
+            f"set_module() must return a Result, got {type(result)}"
         )
         assert result.ok is True
 
-    async def test_set_config_bundle_returns_result_on_error(self):
-        """set_config_bundle() returns Result(ok=False) with the error description when the device replies with error_message."""
+    async def test_set_module_returns_result_on_error(self):
+        """set_module() returns Result(ok=False) with the error description when the device replies with error_message."""
         native = self._make_mock_native()
         channel = AsyncControlChannel(native)
 
@@ -199,11 +208,11 @@ class TestAsyncControlChannelResultType:
         response.error_message.description = "config mismatch: unknown entity path"
         channel.send_and_recv = AsyncMock(return_value=response)
 
-        bundle = pb.ConfigBundle()
-        result = await channel.set_config_bundle(bundle)
+        module = pb.Module()
+        result = await channel.set_module(module)
 
         assert isinstance(result, Result), (
-            f"set_config_bundle() must return a Result, got {type(result)}"
+            f"set_module() must return a Result, got {type(result)}"
         )
         assert result.ok is False
         assert "config mismatch" in result.error

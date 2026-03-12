@@ -12,7 +12,7 @@ members = ["packages/*"]
 
 [tool.uv.sources]
 pybrid-computing = { workspace = true }
-pybrid-computing-native = { workspace = true }
+pybrid-computing-native = { workspace = true, editable = false }
 
 [dependency-groups]
 dev = [

@@ -70,16 +70,16 @@ struct BackendDevice {
 
     std::future<void> data_channel_init_future;
 
-    /// Carrier entity paths discovered via DescribeCommand at add_backend() time.
+    /// Carrier entity paths discovered via ExtractCommand at add_backend() time.
     /// Used for routing ConfigCommand and ExtractCommand to the correct backend.
     std::vector<std::string> carrier_paths;
 
-    /// Entity tree cached during add_backend(); returned by handle_describe()
+    /// Module cached during add_backend(); returned by handle_extract()
     /// without re-querying the backend on each client request.
-    pb::Entity cached_entity;
+    pb::Module cached_module;
 
     /// Physical location of this carrier in the REDAC rack, if provided at
-    /// add_backend() time. Injected into cached_entity.location.v0.
+    /// add_backend() time.
     std::optional<uint32_t> location_stack;
     std::optional<uint32_t> location_carrier;
 
@@ -167,11 +167,15 @@ public:
     /// Connect to a backend device; must be called before start().
     /// If both stack and carrier are provided, injects location metadata into
     /// the cached entity tree for clients to discover physical rack position.
-    /// @throws std::runtime_error on connection or describe/reset failure.
+    /// @throws std::runtime_error on connection or extract/reset failure.
     /// @throws std::logic_error if called after start().
     void add_backend(const std::string& host, uint16_t port,
                      std::optional<uint32_t> stack = std::nullopt,
                      std::optional<uint32_t> carrier = std::nullopt);
+
+    /// Collects and groups attached devices by a unique device ID. After calling
+    /// this, no more devices may be added.
+    void map_backends();
 
     /// Bind and start accepting client connections.
     /// @throws std::runtime_error if bind fails or no backends were added.
@@ -180,9 +184,6 @@ public:
     void stop();
     bool is_running() const;
     uint16_t local_port() const;
-
-    /// Optional USBSPI sync callback. Invoked after all backends report TAKE_OFF.
-    void set_sync_callback(std::function<void(int group_id)> fn);
 
     /// Session idle timeout in seconds after the last DONE state change.
     void set_session_timeout(double secs);
@@ -206,7 +207,6 @@ private:
     void on_forwarded_run_state(ClientSession& session, BackendDevice& backend, 
         pb::RunState state, std::string reason = "");
 
-    void handle_describe(ClientSession& client, const pb::MessageV1& msg);
     void handle_reset(ClientSession& client, const pb::MessageV1& msg);
     void handle_extract(ClientSession& client, const pb::MessageV1& msg);
     void handle_config(ClientSession& client, const pb::MessageV1& msg);
@@ -214,6 +214,7 @@ private:
     void handle_auth(ClientSession& client, const pb::MessageV1& msg);
     void handle_calibrate(ClientSession& client, const pb::MessageV1& msg);
     void handle_udp_streaming(ClientSession& client, const pb::MessageV1& msg);
+    void handle_register_external_entities(ClientSession& client, const pb::MessageV1& msg);
 
     /// Dispatch requests to backends in parallel, returning the first error (if any).
     BroadcastResult broadcast_to_backends(
@@ -233,6 +234,8 @@ private:
 
     /// Precomputed MAC → BackendDevice* map built in start(). O(1) routing.
     std::unordered_map<std::string, BackendDevice*> path_to_backend_;
+    std::unordered_map<std::string, pb::Address> map_backends_;
+    bool is_accepting_backends_{true};
 
     TCPServer server_;
     std::thread accept_thread_;
@@ -251,7 +254,6 @@ private:
     size_t max_sessions_{8};
     std::atomic<size_t> active_session_count_{0};
 
-    std::function<void(int group_id)> sync_callback_;
     double session_timeout_secs_{DEFAULT_SESSION_TIMEOUT_SECS};
 
     std::atomic<bool> running_{false};

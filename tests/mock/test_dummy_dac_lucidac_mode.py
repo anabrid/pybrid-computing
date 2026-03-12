@@ -27,7 +27,7 @@ async def test_lucidac_mode_entity_tree():
     async with DummyDAC("127.0.0.1", port, config) as dac:
         dac_port = dac._server.sockets[0].getsockname()[1]
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device("127.0.0.1", dac_port)
 
             # Should have exactly 1 carrier (LUCIDAC mode)
@@ -61,7 +61,7 @@ async def test_default_mode_no_fp():
     async with DummyDAC("127.0.0.1", port, config) as dac:
         dac_port = dac._server.sockets[0].getsockname()[1]
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device("127.0.0.1", dac_port)
 
             # Should have 2 carriers (default REDAC mode)

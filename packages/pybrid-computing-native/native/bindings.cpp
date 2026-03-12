@@ -664,7 +664,7 @@ Example:
     >>> channel.start()
     >>> try:
     ...     entity = channel.describe()
-    ...     config = channel.get_config("/")
+    ...     config = channel.extract("/", configuration=True)
     ... finally:
     ...     channel.stop()
 
@@ -826,28 +826,41 @@ Args:
         .def("transport", &ControlChannel::transport,
              py::return_value_policy::reference_internal,
              "Get a reference to the underlying TCPTransport.")
-        .def("describe",
-            [](ControlChannel& self, double timeout) {
-                pb::Entity entity;
+        .def("extract",
+            [](ControlChannel& self, const std::string& entity_path,
+               bool recursive, bool specification,
+               bool configuration, bool calibration, double timeout) {
+                pb::Module module;
                 {
                     py::gil_scoped_release release;
-                    entity = self.describe(timeout);
+                    module = self.extract(entity_path, recursive, specification,
+                                          configuration, calibration, timeout);
                 }
                 std::string serialized;
-                entity.SerializeToString(&serialized);
+                module.SerializeToString(&serialized);
                 return py::bytes(serialized);
             },
+            py::arg("entity_path") = "",
+            py::arg("recursive") = true,
+            py::arg("specification") = false,
+            py::arg("configuration") = false,
+            py::arg("calibration") = false,
             py::arg("timeout") = 5.0,
             R"doc(
-Send a DescribeCommand and return the serialized Entity response.
+Send an ExtractCommand and return the serialized Module response.
 
 Releases the GIL while waiting for the response.
 
 Args:
-    timeout: Maximum time to wait in seconds (default: 5.0).
+    entity_path:   Path of the entity to extract (empty string for root, default: "").
+    recursive:     Extract recursively (default: true).
+    specification: Include entity specifications (default: false).
+    configuration: Include entity configurations (default: false).
+    calibration:   Include calibration data (default: false).
+    timeout:       Maximum time to wait in seconds (default: 5.0).
 
 Returns:
-    Serialized Entity bytes.
+    Serialized Module bytes.
 
 Raises:
     RuntimeError: On timeout or if the response contains an error.
@@ -874,58 +887,28 @@ Args:
     offset:     Enable offset calibration (default: False).
     timeout:    Maximum time to wait in seconds (default: 5.0).
 )doc")
-        .def("get_config",
-            [](ControlChannel& self, const std::string& entity_path,
-               bool recursive, double timeout) {
-                pb::ConfigBundle bundle;
-                {
-                    py::gil_scoped_release release;
-                    bundle = self.get_config(entity_path, recursive, timeout);
-                }
-                std::string serialized;
-                bundle.SerializeToString(&serialized);
-                return py::bytes(serialized);
-            },
-            py::arg("entity_path"), py::arg("recursive") = true,
-            py::arg("timeout") = 5.0,
-            R"doc(
-Send an ExtractCommand and return the serialized ConfigBundle response.
-
-Releases the GIL while waiting for the response.
-
-Args:
-    entity_path: The path of the entity whose config to extract.
-    recursive:   If true, extract config of child entities recursively (default: True).
-    timeout:     Maximum time to wait in seconds (default: 5.0).
-
-Returns:
-    Serialized ConfigBundle bytes.
-
-Raises:
-    RuntimeError: On timeout or if the response contains an error.
-)doc")
-        .def("set_config_bundle",
+        .def("set_module",
             [](ControlChannel& self, py::bytes data, double timeout) {
                 std::string_view sv = data;
-                pb::ConfigBundle bundle;
-                if (!bundle.ParseFromArray(sv.data(), sv.size())) {
-                    throw std::runtime_error("Failed to parse ConfigBundle");
+                pb::Module module;
+                if (!module.ParseFromArray(sv.data(), sv.size())) {
+                    throw std::runtime_error("Failed to parse Module");
                 }
                 bool result;
                 {
                     py::gil_scoped_release release;
-                    result = self.set_config_bundle(bundle, timeout);
+                    result = self.set_module(module, timeout);
                 }
                 return result;
             },
-            py::arg("bundle_bytes"), py::arg("timeout") = 5.0,
+            py::arg("module_bytes"), py::arg("timeout") = 5.0,
             R"doc(
-Send a ConfigCommand with the given bundle and return success.
+Send a ConfigCommand with the given module and return success.
 
 Releases the GIL while waiting for the response.
 
 Args:
-    bundle_bytes: Serialized ConfigBundle bytes.
+    module_bytes: Serialized Module bytes.
     timeout:      Maximum time to wait in seconds (default: 5.0).
 
 Returns:
@@ -1052,10 +1035,22 @@ Args:
     host: Remote IP address of the backend device.
     port: Remote control port of the backend device.
     stack: Optional rack stack index (0-255).
-    carrier: Optional carrier index within the stack (0-255).
+    carrier: Optional carrier index within the stack (0-255).hb7
 
 Raises:
     RuntimeError: If connection or handshake fails.
+)doc")
+        .def("map_backends",
+            [](ProxyServer& self) {
+                py::gil_scoped_release release;
+                self.map_backends();
+            },
+            R"doc(
+Finalize the list of backends by distributing a list of devices IDs and IPs
+amongst all registered backends.
+
+Raises:
+    RuntimeError: If any of the devices report an error.
 )doc")
         .def("start",
             [](ProxyServer& self, const std::string& host, uint16_t port) {
@@ -1078,7 +1073,6 @@ Raises:
                 // Clear the Python sync callback while the GIL is still held so
                 // that the py::function destructor does not run without the GIL
                 // (which would be undefined behaviour in CPython).
-                self.set_sync_callback({});
                 py::gil_scoped_release release;
                 self.stop();
             },
@@ -1123,28 +1117,10 @@ errors from devices, and proxy-internal errors.
 Args:
     enabled: True to enable debug logging, False to disable.
 )doc")
-        .def("set_sync_callback",
-            [](ProxyServer& self, py::function callback) {
-                self.set_sync_callback([callback](int group_id) {
-                    py::gil_scoped_acquire acquire;
-                    callback(group_id);
-                });
-            },
-            py::arg("callback"),
-            R"doc(
-Register a USBSPI sync callback.
-
-Called after all backends report TAKE_OFF during a StartRunCommand.
-Must be called before start().
-
-Args:
-    callback: Callable receiving the run group_id (int).
-)doc")
         .def("__enter__", [](ProxyServer& self) -> ProxyServer& { return self; })
         .def("__exit__", [](ProxyServer& self, py::object, py::object, py::object) {
             // Clear the Python sync callback while the GIL is still held (same
             // reason as stop() above — py::function destructor needs the GIL).
-            self.set_sync_callback({});
             py::gil_scoped_release release;
             self.stop();
         });

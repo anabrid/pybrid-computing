@@ -46,7 +46,7 @@ class TestREDACMultiCluster:
     async def test_all_clusters_configurable(self, redac_endpoint):
         host, port = redac_endpoint
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
             # Collect all cluster paths
@@ -62,15 +62,15 @@ class TestREDACMultiCluster:
             configs = []
             for cluster_path in cluster_paths:
                 # Configure M0 block with default IC values
-                config_entry = pb.Config(
+                config_entry = pb.Item(
                     entity=pb.EntityId(path=str(cluster_path / "M0")),
                 )
                 configs.append(config_entry)
 
-            bundle = pb.ConfigBundle(configs=configs)
+            module = pb.Module(items=configs)
 
             # Send configuration - should not raise
-            await ctrl.set_config_bundle(bundle)
+            await ctrl.set_module(module)
 
             # Verify all clusters were addressed
             # (No error means configuration was accepted)
@@ -81,7 +81,7 @@ class TestREDACMultiCluster:
     async def test_parallel_cluster_run(self, redac_endpoint):
         host, port = redac_endpoint
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
             num_carriers = len(ctrl.computer.carriers)
@@ -130,7 +130,7 @@ class TestREDACMultiCluster:
     async def test_cluster_isolation(self, redac_endpoint):
         host, port = redac_endpoint
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
             # Get all cluster paths
@@ -144,21 +144,21 @@ class TestREDACMultiCluster:
 
             # Configure first cluster with specific values
             first_cluster_path = cluster_paths[0]
-            config_first = pb.Config(
+            config_first = pb.Item(
                 entity=pb.EntityId(path=str(first_cluster_path / "M0")),
             )
 
-            bundle_first = pb.ConfigBundle(configs=[config_first])
-            await ctrl.set_config_bundle(bundle_first)
+            module_first = pb.Module(items=[config_first])
+            await ctrl.set_module(module_first)
 
             # Configure second cluster with different values
             second_cluster_path = cluster_paths[1]
-            config_second = pb.Config(
+            config_second = pb.Item(
                 entity=pb.EntityId(path=str(second_cluster_path / "M0")),
             )
 
-            bundle_second = pb.ConfigBundle(configs=[config_second])
-            await ctrl.set_config_bundle(bundle_second)
+            module_second = pb.Module(items=[config_second])
+            await ctrl.set_module(module_second)
 
             # Both configurations should have succeeded independently
             # (Test passes if no exception was raised)

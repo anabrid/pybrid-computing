@@ -14,23 +14,20 @@ if TYPE_CHECKING:
 
 
 class RegisterExternalEntitiesHandler(BaseHandler):
-    """
-    Handler for external entities registration commands.
+    """Handler for external entities registration commands.
 
-    This is a no-op for DummyDAC since it doesn't coordinate with external entities.
+    Stores the received entity map for test inspection but performs no
+    real coordination (DummyDAC doesn't route cross-carrier signals).
     """
+
+    last_entities: dict[str, bytes]
+
+    def __init__(self, server):
+        super().__init__(server)
+        self.last_entities = {}
 
     async def handle(
         self, cmd: pb.RegisterExternalEntitiesCommand, connection: "ClientConnection"
     ) -> pb.SuccessMessage:
-        """
-        Handle external entities registration (no-op for DummyDAC).
-
-        This command is sent by the Controller but doesn't need any action
-        from the DummyDAC since it doesn't coordinate with external entities.
-
-        :param cmd: The register external entities command.
-        :param connection: The client connection (unused).
-        :return: SuccessMessage indicating the command was accepted.
-        """
+        self.last_entities = {k: v.data for k, v in cmd.entities.items()}
         return pb.SuccessMessage()

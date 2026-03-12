@@ -29,8 +29,8 @@ cos = c.int()
 c.connect(sin, cos, weight = +omega)    # Connect sine to cosine integrator
 c.connect(cos, sin, weight = -omega)    # Connect cosine to sine integrator
 
-c.measure(sin, adc_channel=0)           # Connect integrators to ADC
-c.measure(cos, adc_channel=1)           # to sample data
+c.probe(sin, adc_channel=0)           # Connect integrators to ADC
+c.probe(cos, adc_channel=1)           # to sample data
 
 ###
 # Settings for sampling and circuit execution

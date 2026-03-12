@@ -95,7 +95,7 @@ class StartRunHandler(BaseHandler):
         Get the number of ADC channels from the stored ConfigCommand.
 
         Counts ADC channels configured across all carriers in the stored
-        configuration bundle. This is more reliable than the DaqConfig
+        module. This is more reliable than the DaqConfig
         in the StartRunCommand.
 
         :return: Total number of configured ADC channels, or 0 if no config stored.
@@ -105,7 +105,7 @@ class StartRunHandler(BaseHandler):
             return 0
 
         total_channels = 0
-        for config in self.server._stored_config.configs:
+        for config in self.server._stored_config.items:
             # Check if this config has an adc_config set
             if config.HasField("adc_config"):
                 total_channels += len(config.adc_config.channels)

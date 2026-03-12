@@ -18,7 +18,6 @@ import pytest
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.run import RunConfig, DAQConfig
-from pybrid.redac.sync import SyncImplementationType
 
 try:
     from pybrid.native._impl import ControlChannel as _NativeControlChannel
@@ -52,7 +51,7 @@ async def test_calibrated_run_scales_sample_data():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             # --- Uncalibrated run ---
@@ -108,7 +107,7 @@ async def test_calibrated_run_scales_final_values():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             # --- Uncalibrated run ---
@@ -152,7 +151,7 @@ async def test_reset_without_keep_calibration_clears_state():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             # Calibrate, then reset without keeping calibration.

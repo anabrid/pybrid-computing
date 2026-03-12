@@ -2,82 +2,122 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import queue
-from typing import List, Dict, Any
+from typing import List
 from functools import singledispatchmethod
 
 from abc import ABC, abstractmethod
 from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.base.hybrid.entities import Entity
+from pybrid.base.hybrid.entities import Entity, Path
 
 class Serializer(ABC):
-    """
-    Given an entity, serializes its configuration into Protobuf format.
-    """
+    """Unified serializer for both entity-tree specification and operational configuration."""
 
     class ConfigCollector:
-        configs : List[pb.Config]
+        configs: List[pb.Item]
 
-        def __init__(self, configs: List[pb.Config]):
-            self.configs = configs
+        def __init__(self, configs: List[pb.Item]):
+            self.items = configs
 
-        def add_config(self, config: pb.Config):
-            self.configs.append(config)
+        def add_config(self, config: pb.Item):
+            self.items.append(config)
 
-        def new_config(self, entity: Entity) -> pb.Config:
-            config = pb.Config(entity=pb.EntityId(path=str(entity.path)))
+        def new_config(self, entity: Entity) -> pb.Item:
+            config = pb.Item(entity=pb.EntityId(path=str(entity.path)))
             self.add_config(config)
             return config
 
-        def pop_config(self) -> pb.Config:
-            return self.configs.pop()
-        
-    @abstractmethod
-    def serialize(self, computer: AnalogComputer) -> List[pb.Config]:
-        """
-        Serializes the computer's configuration into the config fomat
-        """
-        pass
+        def pop_config(self) -> pb.Item:
+            return self.items.pop()
 
-    @abstractmethod
-    def serialize_entities(self, entities: List[Entity]) -> List[pb.Config]:
-        """
-        Serializes the configuration of a single entity.
-        """
-        pass
+    def serialize(self, computer: AnalogComputer) -> pb.Module:
+        """Produce a full module: specification entries first, then configuration entries."""
+        items = []
+        for entity in computer.entities:
+            pb_entity = self.serialize_specification(entity)
+            config = pb.Item(entity=pb.EntityId(path=str(entity.path)))
+            config.entity_specification.entity.CopyFrom(pb_entity)
+            items.append(config)
+        items.extend(self.serialize_configuration(computer))
+        return pb.Module(items=items)
+
+    def serialize_specification(self, entity: Entity) -> pb.Entity:
+        """Serialize a single entity's specification (structure, not state)."""
+        return self._serialize_specification(entity)
+
+    def serialize_configuration(self, computer: AnalogComputer) -> List[pb.Item]:
+        """Serialize operational state via BFS traversal over get_config_entities()."""
+        self.cc = Serializer.ConfigCollector([])
+        for top_entity in computer.get_config_entities():
+            traversal = queue.Queue()
+            traversal.put(top_entity)
+            while not traversal.empty():
+                entity = traversal.get()
+                for child in entity.children:
+                    traversal.put(child)
+                self._serialize_configuration(entity)
+        return self.cc.items
 
     @abstractmethod
     def serialize_additional(self):
-        """Hook to serialize objects outside the entity hierarchy."""
-        pass
+        """Hook for cross-entity objects (e.g. UseConfig)."""
 
     @singledispatchmethod
-    def _serialize(self, entity: Entity):
+    def _serialize_specification(self, entity: Entity) -> pb.Entity:
+        """Dispatch on Python entity type for specification serialization."""
+        raise NotImplementedError(
+            f"No specification serializer registered for {type(entity)!r}"
+        )
+
+    @singledispatchmethod
+    def _serialize_configuration(self, entity: Entity):
+        """Dispatch on Python entity type for configuration serialization."""
         return None
 
-class Deserializer(ABC):
-    """
-    Given a configuration
-    """
 
-    def __init__(self, computer: AnalogComputer):
+class Deserializer(ABC):
+    """Unified deserializer for both entity-tree specification and operational configuration."""
+
+    computer: AnalogComputer
+
+    def __init__(self, computer: AnalogComputer = None):
         self.computer = computer
 
-    @abstractmethod
-    def config_type(self) -> type:
-        pass
+    def deserialize(self, module: pb.Module):
+        """Process a full module: specification entries first, then configuration entries."""
+        spec_configs = []
+        op_configs = []
+        for conf in module.items:
+            if conf.WhichOneof('kind') == 'entity_specification':
+                spec_configs.append(conf)
+            else:
+                op_configs.append(conf)
+        for conf in spec_configs:
+            entity = conf.entity_specification.entity
+            path = Path.parse(conf.entity.path)
+            self.deserialize_specification(entity, path)
+        self.deserialize_configuration(op_configs)
 
     @abstractmethod
-    def deserialize(self, config: List[pb.Config]):
-        """
-        Deserializes a config and applies it to the analog computer.
-        """
-        pass
+    def deserialize_specification(self, entity: pb.Entity, path: Path) -> Entity:
+        """Deserialize a pb.Entity tree into Python entity objects."""
+        ...
+
+    def deserialize_configuration(self, configs: List[pb.Item]):
+        """Apply operational config entries to self.computer."""
+        for conf in configs:
+            self._current_full_config = conf
+            config_kind = conf.WhichOneof('kind')
+            if config_kind:
+                self._deserialize_configuration(getattr(conf, config_kind))
 
     @singledispatchmethod
-    def _deserialize(self, config: pb.Config):
-        """
-        Single-dispatch function that reads a config and applies its configuration
-        to a device.
-        """
+    def _deserialize_configuration(self, config):
+        """Dispatch on pb config type for configuration deserialization."""
         pass
+
+
+__all__ = [
+    "Serializer",
+    "Deserializer",
+]

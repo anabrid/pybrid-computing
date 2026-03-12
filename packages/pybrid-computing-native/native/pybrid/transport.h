@@ -2,7 +2,13 @@
 
 #include <cstddef>
 #include <string>
-#include <sys/types.h>  // for ssize_t
+
+#ifdef _MSC_VER
+// POSIX ssize_t is not available in MSVC; ptrdiff_t is the portable equivalent.
+using ssize_t = std::ptrdiff_t;
+#else
+#include <sys/types.h>
+#endif
 
 namespace anabrid::pybrid::native {
 

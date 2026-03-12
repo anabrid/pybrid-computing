@@ -255,11 +255,15 @@ async def test_physical_mac_mode():
         port = server.port
         channel = await _make_channel(port)
         try:
-            entity = await asyncio.wait_for(channel.describe(), timeout=OP_TIMEOUT)
-            mac_pattern = re.compile(r'^[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$')
-            for carrier in entity.children:
+            module = await asyncio.wait_for(
+                channel.extract(specification=True, recursive=True), timeout=OP_TIMEOUT
+            )
+            root_entity = module.items[0].entity_specification.entity
+            # Entity ids use the firmware wire format with a leading '/'.
+            mac_pattern = re.compile(r'^/?[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$')
+            for carrier in root_entity.children:
                 mac = carrier.id
-                assert not mac.startswith("00-00-00-00-00-"), (
+                assert not mac.lstrip("/").startswith("00-00-00-00-00-"), (
                     f"Physical MAC should not start with virtual prefix, got: {mac}"
                 )
                 assert mac_pattern.match(mac), f"Invalid MAC format: {mac}"
@@ -279,35 +283,18 @@ async def test_extract_error_injection():
         channel = await _make_channel(port)
         try:
             # First store some config.
-            test_config = pb.Config(entity=pb.EntityId(path="/00-00-00-00-00-00/0/M0"))
-            bundle = pb.ConfigBundle(configs=[test_config])
-            await asyncio.wait_for(channel.set_config_bundle(bundle), timeout=OP_TIMEOUT)
+            test_config = pb.Item(entity=pb.EntityId(path="/00-00-00-00-00-00/0/M0"))
+            module = pb.Module(items=[test_config])
+            await asyncio.wait_for(channel.set_module(module), timeout=OP_TIMEOUT)
 
             # Now try to extract — should raise RuntimeError due to error injection.
             with pytest.raises(RuntimeError, match="Simulated extract error"):
                 await asyncio.wait_for(
-                    channel.get_config("/00-00-00-00-00-00", recursive=True),
+                    channel.extract("/00-00-00-00-00-00", configuration=True, recursive=True),
                     timeout=OP_TIMEOUT,
                 )
         finally:
             await channel.stop()
-
-
-def test_dummy_controller_deprecation_warning():
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        from pybrid.redac.dummy import DummyController
-        _ = DummyController()
-
-        assert len(w) >= 1, "Expected at least one warning"
-        deprecation_warnings = [
-            warning for warning in w if issubclass(warning.category, DeprecationWarning)
-        ]
-        assert len(deprecation_warnings) >= 1, "Expected at least one DeprecationWarning"
-        assert "DummyDAC" in str(deprecation_warnings[0].message), (
-            f"Expected 'DummyDAC' in deprecation message, got: {deprecation_warnings[0].message}"
-        )
-
 
 @_native_skipif
 @pytest.mark.asyncio

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import FunctionBlock, MBlock, UBlock, CBlock, IBlock
-from pybrid.redac.entities import Entity, Path, EntityType, EntityClass, Loc
+from pybrid.redac.entities import Entity, Path, EntityType, Loc
 
 
 @dataclass(kw_only=True)
@@ -34,6 +34,10 @@ class Cluster(Entity):
     #: The SHBlock in this cluster.
     shblock: object
 
+    #: Protobuf entity metadata preserved from deserialization (class, type, variant, version).
+    #: Used by the description serializer to reproduce the exact entity type fields.
+    entity_type: typing.Optional[EntityType] = None
+
     def loc(self) -> "Loc":
         elems = self.path.root.split("-")
         return Loc.new_carrier(int(elems[0], base=16), int(elems[5], base=16)) / int(self.path[1])
@@ -58,16 +62,13 @@ class Cluster(Entity):
 
     @classmethod
     def create_from_entity_type_tree(cls, path, tree: pb.Entity):
-        this_entity_type = EntityType.pop_from_dict(tree)
-        assert this_entity_type.class_ is EntityClass.CLUSTER
-
-        blocks = dict()
-        for child in tree.children:
-            path_ = path / Path.parse(child.id)
-            block = FunctionBlock.create_from_entity_type_tree(path_, child)
-            blocks[f"{path_.id_.lower()}block"] = block
-
-        return cls(path=path, **blocks)
+        warnings.warn(
+            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        from pybrid.redac.protocol.serializer import REDACDeserializer
+        return REDACDeserializer().deserialize_specification(tree, path)
 
     def set_constant(self, value: bool | float):
         self.ublock.set_constant(value)

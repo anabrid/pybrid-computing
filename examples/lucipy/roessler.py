@@ -17,7 +17,7 @@ import numpy as np
 #
 # where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
 ###
-luci    = LUCIDAC("192.168.150.17")
+luci    = LUCIDAC()
 
 r   = luci.create_circuit()             # Create a circuit
 

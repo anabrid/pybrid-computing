@@ -5,7 +5,6 @@
 """Handler classes for DummyDAC command processing."""
 
 from pybrid.mock.handler.base import BaseHandler
-from pybrid.mock.handler.describe import DescribeHandler
 from pybrid.mock.handler.reset import ResetHandler
 from pybrid.mock.handler.config import ConfigHandler
 from pybrid.mock.handler.extract import ExtractHandler
@@ -16,7 +15,6 @@ from pybrid.mock.handler.calibration import CalibrationHandler
 
 __all__ = [
     "BaseHandler",
-    "DescribeHandler",
     "ResetHandler",
     "ConfigHandler",
     "ExtractHandler",

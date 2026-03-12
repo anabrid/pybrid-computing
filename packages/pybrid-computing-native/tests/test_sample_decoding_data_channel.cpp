@@ -1316,15 +1316,17 @@ TEST_F(SampleDecodingDataChannelTest, HandlesNegativeGain) {
  * @brief Test that non-data messages are ignored.
  *
  * Only run_data_message should produce output; other message types
- * (like describe_command, config_response) should be ignored.
+ * (like extract_command, config_response) should be ignored.
  */
 TEST_F(SampleDecodingDataChannelTest, IgnoresNonDataMessages) {
     TestableSampleDecodingDataChannel channel;
     channel.set_output_queue(mock_buffer.get());
 
-    // Create a describe_command message (not a data message)
+    // Create an extract_command message (not a data message)
     pb::MessageV1 msg;
-    msg.mutable_describe_command();
+    auto* cmd = msg.mutable_extract_command();
+    cmd->set_recursive(true);
+    cmd->set_specification(true);
 
     std::string serialized;
     msg.SerializeToString(&serialized);

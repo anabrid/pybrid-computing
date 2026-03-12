@@ -9,7 +9,6 @@ BaseController / REDACController.
 The new architecture replaces:
   - `controller.protocols`   → `controller.connection_manager.connections`
   - `controller.devices`     → `controller.connection_manager.get_connection(path)`
-  - `controller.standalone`  → `controller.sync_impl`
 
 Each old property is kept as a shim that:
   1. Emits a DeprecationWarning
@@ -27,7 +26,6 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from pybrid.redac.controller import Controller as REDACController
-from pybrid.redac.sync import SyncImplementationType
 from pybrid.redac.channel import DeviceConnection
 from pybrid.redac.entities import Path
 
@@ -114,68 +112,3 @@ class TestDevicesShim:
         assert len(deprecation_warnings) >= 1, (
             "Accessing controller.devices must emit at least one DeprecationWarning"
         )
-
-
-class TestStandaloneShim:
-    """Tests for the deprecated `standalone` property shim."""
-
-    @pytest.mark.parametrize("sync_impl,expected", [
-        (SyncImplementationType.NATIVE, True),
-        (SyncImplementationType.USBSPI, False),
-    ])
-    def test_standalone_shim_getter(self, sync_impl, expected):
-        """`controller.standalone` returns True for NATIVE and False for USBSPI."""
-        ctrl = _make_controller(sync_impl=sync_impl)
-
-        with warnings.catch_warnings(record=True):
-            warnings.simplefilter("always")
-            result = ctrl.standalone
-
-        assert result is expected, (
-            f"standalone must be {expected} when sync_impl={sync_impl.name}, got {result}"
-        )
-
-    def test_standalone_shim_emits_deprecation_warning(self):
-        ctrl = _make_controller()
-
-        with warnings.catch_warnings(record=True) as caught:
-            warnings.simplefilter("always")
-            _ = ctrl.standalone
-
-        deprecation_warnings = [w for w in caught if issubclass(w.category, DeprecationWarning)]
-        assert len(deprecation_warnings) >= 1, (
-            "Reading controller.standalone must emit at least one DeprecationWarning"
-        )
-
-    @pytest.mark.parametrize("value,initial_impl,expected_impl", [
-        (True, SyncImplementationType.USBSPI, SyncImplementationType.NATIVE),
-        (False, SyncImplementationType.NATIVE, SyncImplementationType.USBSPI),
-    ])
-    def test_standalone_setter_shim(self, value, initial_impl, expected_impl):
-        """Setting `controller.standalone` maps to the correct SyncImplementationType."""
-        ctrl = _make_controller(sync_impl=initial_impl)
-
-        with warnings.catch_warnings(record=True) as caught:
-            warnings.simplefilter("always")
-            ctrl.standalone = value
-
-        assert ctrl.sync_impl == expected_impl, (
-            f"Setting standalone={value} must set sync_impl to {expected_impl.name}"
-        )
-        deprecation_warnings = [w for w in caught if issubclass(w.category, DeprecationWarning)]
-        assert len(deprecation_warnings) >= 1, (
-            "Setting controller.standalone must emit at least one DeprecationWarning"
-        )
-
-    def test_standalone_round_trip(self):
-        """Toggling standalone twice returns to the original sync_impl, verifying getter/setter consistency."""
-        ctrl = _make_controller(sync_impl=SyncImplementationType.NATIVE)
-
-        with warnings.catch_warnings(record=True):
-            warnings.simplefilter("always")
-            # Flip to False (USBSPI)
-            ctrl.standalone = False
-            assert ctrl.sync_impl == SyncImplementationType.USBSPI
-            # Flip back to True (NATIVE)
-            ctrl.standalone = True
-            assert ctrl.sync_impl == SyncImplementationType.NATIVE

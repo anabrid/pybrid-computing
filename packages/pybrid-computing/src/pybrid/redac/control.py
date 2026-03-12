@@ -45,8 +45,8 @@ class AsyncControlChannel:
 
         async with await AsyncControlChannel.create("192.168.1.1", 5732) as ch:
             ch.start()
-            entity = await ch.describe()
-            bundle = await ch.get_config("/")
+            spec = await ch.extract(specification=True, recursive=True)
+            config = await ch.extract("/", configuration=True)
     """
 
     def __init__(
@@ -232,39 +232,38 @@ class AsyncControlChannel:
             return Result.failure(response.error_message.description)
         return Result.success()
 
-    async def describe(self, timeout: float = 5.0) -> pb.Entity:
-        msg = self._new_message(pb.DescribeCommand())
-        response = await self.send_and_recv(msg, timeout)
-        self._to_result(response).raise_on_error()
-        return response.describe_response.entity
-
-    async def get_config(
+    async def extract(
         self,
-        path: "str | Path",
+        path: "str | Path | None" = None,
         *,
         recursive: bool = True,
+        specification: bool = False,
+        configuration: bool = False,
+        calibration: bool = False,
         timeout: float = 5.0,
-    ) -> pb.ConfigBundle:
-        cmd = pb.ExtractCommand()
-        cmd.entity.path = str(path)
-        cmd.recursive = recursive
+    ) -> pb.Module:
+        cmd = pb.ExtractCommand(
+            recursive=recursive,
+            specification=specification,
+            configuration=configuration,
+            calibration=calibration,
+        )
+        if path is not None:
+            cmd.entity.path = str(path)
         msg = self._new_message(cmd)
         response = await self.send_and_recv(msg, timeout)
         self._to_result(response).raise_on_error()
-        return response.extract_response.bundle
+        return response.extract_response.module
 
-    async def set_config_bundle(
+    async def set_module(
         self,
-        bundle: pb.ConfigBundle,
+        module: pb.Module,
         timeout: float = 5.0,
     ) -> Result:
-        """Send a ``ConfigCommand`` with *bundle* and return the outcome.
-
-        Callers must call :meth:`~pybrid.base.result.Result.raise_on_error`
-        if they want errors propagated as exceptions.
-        """
+        """Send a ``ConfigCommand`` with *module* and return the outcome."""
+        
         cmd = pb.ConfigCommand()
-        cmd.bundle.CopyFrom(bundle)
+        cmd.module.CopyFrom(module)
         msg = self._new_message(cmd)
         response = await self.send_and_recv(msg, timeout)
         return self._to_result(response)
@@ -297,6 +296,25 @@ class AsyncControlChannel:
         cfg.math = pb.CalibrationConfig.Enabled if math else pb.CalibrationConfig.Disabled
         cfg.gain = pb.CalibrationConfig.Enabled if gain else pb.CalibrationConfig.Disabled
         cfg.offset = pb.CalibrationConfig.Enabled if offset else pb.CalibrationConfig.Disabled
+        msg = self._new_message(cmd)
+        response = await self.send_and_recv(msg, timeout)
+        return self._to_result(response)
+
+    async def register_external_entities(
+        self,
+        entities: dict[str, tuple[int, int, int, int]],
+        timeout: float = 5.0,
+    ) -> Result:
+        """Send a ``RegisterExternalEntitiesCommand`` with the given entity map.
+
+        Args:
+            entities: Mapping of carrier MAC to IP address octets.
+            timeout:  Send/recv timeout in seconds.
+        """
+        cmd = pb.RegisterExternalEntitiesCommand()
+        for mac, ip_octets in entities.items():
+            addr = pb.Address(data=bytes(ip_octets))
+            cmd.entities[mac].CopyFrom(addr)
         msg = self._new_message(cmd)
         response = await self.send_and_recv(msg, timeout)
         return self._to_result(response)

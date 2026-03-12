@@ -16,10 +16,15 @@ from pybrid.sim.protocol.serializer import SimulatorSerializer, SimulatorDeseria
 
 logger = logging.getLogger(__name__)
 
-
-
 class Simulator(REDAC):
+    """
+    A simulator device capable of simulating all REDAC-like devies. Note that a 
+    simulator does not simulate a specific _hardware_ but is user-configurable.
 
+    At runtime, users can connect via add_device and assign a hardware config that
+    will allow configuration of the simulator.
+    """
+    
     #: Simulation config sent as a separate top-level message alongside entity configs.
     sim_config: SimConfigEntity = SimConfigEntity(Path())
 
@@ -43,8 +48,8 @@ class Simulator(REDAC):
     def global_entities(self) -> List[Entity]:
         return [self.sim_config]
 
-    def get_serializer_implementation(self) -> type:
+    def get_serializer(self) -> type:
         return SimulatorSerializer
 
-    def get_deserializer_implementation(self) -> type:
+    def get_deserializer(self) -> type:
         return SimulatorDeserializer

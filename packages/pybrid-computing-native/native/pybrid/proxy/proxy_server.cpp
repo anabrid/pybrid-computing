@@ -1,9 +1,11 @@
 #include "pybrid/proxy/proxy_server.h"
 
+#include <algorithm>
 #include <chrono>
 #include <condition_variable>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -140,20 +142,42 @@ void ProxyServer::add_backend(const std::string& host, uint16_t port,
         throw std::logic_error("ProxyServer::add_backend(): must be called before start()");
     }
 
+    if (!is_accepting_backends_) {
+        throw std::logic_error("Backends have been finalized, no more changes are permitted.");
+    }
+
     auto control = ControlChannel::create(host, port, BACKEND_CONNECT_TIMEOUT_SECS);
     control->start();
 
-    pb::Entity entity = control->describe(BACKEND_REQUEST_TIMEOUT_SECS);
+    pb::Module module = control->extract(
+        /*entity_path=*/"", /*recursive=*/true, /*specification=*/true,
+        /*configuration=*/false, /*calibration=*/false,
+        BACKEND_REQUEST_TIMEOUT_SECS);
 
-    // The root entity's ID is the carrier MAC path (e.g. "/04-E9-E5-17-E5-68").
-    // Children (like "/0", "/CTRL", "/FP") are sub-entities, not carriers.
+    // Extract entity info from specification items for routing.
     std::vector<std::string> carrier_paths;
-    if (!entity.id().empty()) {
-        std::string mac = entity.id();
-        if (!mac.empty() && mac[0] == '/') {
-            mac = mac.substr(1);
+    for (const auto& item : module.items()) {
+        if (item.has_entity_specification()) {
+            const auto& entity = item.entity_specification().entity();
+            if (!entity.id().empty()) {
+                std::string mac = entity.id();
+                if (!mac.empty() && mac[0] == '/') {
+                    mac = mac.substr(1);
+                }
+                carrier_paths.push_back(mac);
+
+                std::array<uint8_t, 4> ip{};
+                std::stringstream ss{host};
+                std::string segment;
+
+                for (size_t i = 0; i < 4 && std::getline(ss, segment, '.'); ++i)
+                    ip[i] = static_cast<uint8_t>(std::stoi(segment));
+
+                pb::Address addr;
+                addr.set_data(std::string(ip.begin(), ip.end()));
+                map_backends_[entity.id()] = std::move(addr);
+            }
         }
-        carrier_paths.push_back(mac);
     }
 
     std::cerr << "[ProxyServer] Backend " << host << ":" << port
@@ -191,16 +215,51 @@ void ProxyServer::add_backend(const std::string& host, uint16_t port,
         dev.data_channel = std::move(data_channel);
         dev.data_channel_init_future = std::move(init_future);
         dev.carrier_paths = std::move(carrier_paths);
-        dev.cached_entity = std::move(entity);
+        dev.cached_module = std::move(module);
         dev.location_stack = stack;
         dev.location_carrier = carrier;
         if (stack.has_value() && carrier.has_value()) {
-            auto* loc = dev.cached_entity.mutable_v0();
-            loc->set_stack(stack.value());
-            loc->set_carrier(carrier.value());
+            for (auto& item : *dev.cached_module.mutable_items()) {
+                if (item.has_entity_specification()) {
+                    auto* loc = item.mutable_entity_specification()
+                                    ->mutable_entity()
+                                    ->mutable_location_v0();
+                    loc->set_stack(stack.value());
+                    loc->set_carrier(carrier.value());
+                }
+            }
         }
         backends_.push_back(std::move(dev));
     }
+}
+
+void ProxyServer::map_backends()
+{
+    if (running_.load()) {
+        throw std::logic_error("ProxyServer::map_backends(): must be called before start()");
+    }
+
+    pb::RegisterExternalEntitiesCommand cmd;
+    for (auto& [k, v] : map_backends_)
+        (*cmd.mutable_entities())[k] = v;
+
+    std::vector<BackendDevice*> targets;
+    for (auto& b : backends_) targets.push_back(&b);
+
+    auto result = broadcast_to_backends(targets,
+        [&cmd](BackendDevice&) {
+            pb::MessageV1 req;
+            req.set_id(utils::generate_uuid());
+            *req.mutable_register_external_entities_command() = cmd;
+            return req;
+        });
+
+    if (result.had_error) {
+        throw std::runtime_error(
+            "ProxyServer::map_backends(): " + result.error_text);
+    }
+
+    is_accepting_backends_ = false;
 }
 
 void ProxyServer::start(const std::string& host, uint16_t port) {
@@ -212,6 +271,12 @@ void ProxyServer::start(const std::string& host, uint16_t port) {
     if (backends_.empty()) {
         running_.store(false);
         throw std::runtime_error("ProxyServer::start(): no backends have been added");
+    }
+
+    if (is_accepting_backends_) {
+        running_.store(false);
+        map_backends();
+        running_.store(true);
     }
 
     server_.bind(port);
@@ -327,10 +392,6 @@ bool ProxyServer::is_running() const {
 
 uint16_t ProxyServer::local_port() const {
     return server_.local_port();
-}
-
-void ProxyServer::set_sync_callback(std::function<void(int)> fn) {
-    sync_callback_ = std::move(fn);
 }
 
 void ProxyServer::set_session_timeout(double secs) {
@@ -450,8 +511,8 @@ void ProxyServer::run_session(ClientSession& session) {
         pb::MessageV1 msg = env.message_v1();
 
         int kind = utils::get_kind_field_number(msg);
-        if (kind == pb::MessageV1::kDescribeCommandFieldNumber) {
-            handle_describe(session, msg);
+        if (kind == pb::MessageV1::kExtractCommandFieldNumber) {
+            handle_extract(session, msg);
         } else if (kind == pb::MessageV1::kAuthRequestFieldNumber) {
             handle_auth(session, msg);
         } else if (kind == pb::MessageV1::kPingCommandFieldNumber) {
@@ -719,10 +780,8 @@ void ProxyServer::on_forwarded_run_state(
     if (is_take_off) {
         uint64_t gen = run_id_.load(std::memory_order_acquire);
         size_t count = take_off_count_.fetch_add(1, std::memory_order_acq_rel) + 1;
-        if (sync_callback_ && count >= backends_.size() &&
-            run_id_.load(std::memory_order_acquire) == gen) {
-            sync_callback_(0);
-        }
+        
+        // this used to be the entrypoint for USB-SPI-based synchronization
     }
 }
 
@@ -736,9 +795,6 @@ void ProxyServer::dispatch_message(ClientSession& session, const pb::MessageV1& 
     }
 
     switch (kind) {
-        case pb::MessageV1::kDescribeCommandFieldNumber:
-            handle_describe(session, msg);
-            break;
         case pb::MessageV1::kResetCommandFieldNumber:
             handle_reset(session, msg);
             break;
@@ -759,6 +815,9 @@ void ProxyServer::dispatch_message(ClientSession& session, const pb::MessageV1& 
             break;
         case pb::MessageV1::kUdpDataStreamingCommandFieldNumber:
             handle_udp_streaming(session, msg);
+            break;
+        case pb::MessageV1::kRegisterExternalEntitiesCommandFieldNumber:
+            handle_register_external_entities(session, msg);
             break;
         case pb::MessageV1::kPingCommandFieldNumber: {
             pb::MessageV1 ping_response;

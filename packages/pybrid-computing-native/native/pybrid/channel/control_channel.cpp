@@ -276,20 +276,30 @@ void ControlChannel::dispatch_callback(pb::MessageV1& msg) {
     }
 }
 
-pb::Entity ControlChannel::describe(double timeout_secs) {
+pb::Module ControlChannel::extract(
+    const std::string& entity_path,
+    bool recursive, bool specification, bool configuration,
+    bool calibration, double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
-    msg.mutable_describe_command();
+    auto* cmd = msg.mutable_extract_command();
+    if (!entity_path.empty()) {
+        cmd->mutable_entity()->set_path(entity_path);
+    }
+    cmd->set_recursive(recursive);
+    cmd->set_specification(specification);
+    cmd->set_configuration(configuration);
+    cmd->set_calibration(calibration);
 
     pb::MessageV1 response = send_and_recv(msg, timeout_secs);
 
     if (response.has_error_message()) {
         throw std::runtime_error(
-            "ControlChannel::describe(): device returned error: " +
+            "ControlChannel::extract(): device returned error: " +
             response.error_message().description());
     }
 
-    return response.describe_response().entity();
+    return response.extract_response().module();
 }
 
 void ControlChannel::calibrate(const std::string& leader, bool math, bool gain,
@@ -318,35 +328,12 @@ void ControlChannel::calibrate(const std::string& leader, bool math, bool gain,
     }
 }
 
-pb::ConfigBundle ControlChannel::get_config(
-    const std::string& entity_path,
-    bool recursive,
-    double timeout_secs)
-{
-    pb::MessageV1 msg;
-    msg.set_id(utils::generate_uuid());
-
-    pb::ExtractCommand* extract_command = msg.mutable_extract_command();
-    extract_command->mutable_entity()->set_path(entity_path);
-    extract_command->set_recursive(recursive);
-
-    pb::MessageV1 response = send_and_recv(msg, timeout_secs);
-
-    if (response.has_error_message()) {
-        throw std::runtime_error(
-            "ControlChannel::get_config(): device returned error: " +
-            response.error_message().description());
-    }
-
-    return response.extract_response().bundle();
-}
-
-bool ControlChannel::set_config_bundle(const pb::ConfigBundle& bundle, double timeout_secs) {
+bool ControlChannel::set_module(const pb::Module& module, double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
 
     pb::ConfigCommand* config_command = msg.mutable_config_command();
-    config_command->mutable_bundle()->CopyFrom(bundle);
+    config_command->mutable_module()->CopyFrom(module);
 
     pb::MessageV1 response = send_and_recv(msg, timeout_secs);
 

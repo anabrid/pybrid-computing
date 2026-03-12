@@ -17,6 +17,7 @@ As described in :class:`Path`, the hierarchy represented is as follows.
 """
 
 import typing
+import warnings
 from dataclasses import dataclass, fields, replace
 from enum import Enum
 
@@ -144,6 +145,14 @@ class EntityType:
                     return cls.lookup(type_.fallback_type(), True)
                 except ValueError:
                     raise UnknownEntityTypeError("Neither entity type %s nor any fallbacks are registered." % type_)
+
+    @classmethod
+    def reverse_lookup(cls, target_cls: type) -> "EntityType":
+        """Return the EntityType registered for the given class."""
+        for entity_type, registered_cls in _ENTITY_TYPE_REGISTRY.items():
+            if registered_cls is target_cls:
+                return entity_type
+        raise UnknownEntityTypeError(f"No EntityType registered for {target_cls}")
 
 @dataclass
 class Loc:
@@ -286,7 +295,13 @@ class Entity(BaseEntity):
 
     @classmethod
     def create_from_entity_type_tree(cls, sub_path, sub_tree):
-        raise NotImplementedError
+        warnings.warn(
+            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        from pybrid.redac.protocol.serializer import REDACDeserializer
+        return REDACDeserializer().deserialize_specification(sub_tree, sub_path)
 
     def generate_partial_configuration(self, attribute):
         if self.__dataclass_fields__.get(attribute, None):

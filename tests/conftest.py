@@ -208,7 +208,6 @@ def subprocess_proxy(
             "-h", backend_host,
             "-p", str(backend_port),
             "--no-reset",
-            "--standalone",
             "proxy",
             "-m", str(map_path),
             "-p", str(partition_path),

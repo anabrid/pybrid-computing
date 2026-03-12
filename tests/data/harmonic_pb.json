@@ -2,8 +2,8 @@
  "version": {
   "minor": 1
  },
- "bundle": {
-  "configs": [
+ "module": {
+  "items": [
    {
     "entity": {
      "path": "00-00-00-00-00-00"

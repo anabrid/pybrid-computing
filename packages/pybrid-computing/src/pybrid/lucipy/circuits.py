@@ -32,6 +32,7 @@ import warnings
 # for protobuf export
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.base.proto.io import ProtoIO
+from pybrid.redac.carrier import ADCChannel
 
 from pybrid.lucipy._compat import deprecated
 from pybrid.lucipy.helpers import Helpers
@@ -84,8 +85,8 @@ class Circuit:
         # shadowing (outputs 14/15 are shared with the constant giver).
         self._identity_outputs_connected = set()
 
-        # ADC channel tracking
-        self._adc_channels = [None] * 8  # None = free, stores source lane
+        # ADC channel tracking — stored directly on the carrier
+        self._carrier.adc_config = [None] * 8  # None = free, ADCChannel = occupied
 
         # Initialize IBlock outputs properly (each output needs its own independent set)
         self._cluster.iblock.outputs = [set() for _ in range(16)]
@@ -411,19 +412,21 @@ class Circuit:
         :returns: Assigned ADC channel number
         :raises ValueError: If no free ADC channel is available
         """
+        adc_config = self._carrier.adc_config
+
         if adc_channel is None:
-            adc_channel = Helpers.next_free([ch is not None for ch in self._adc_channels])
+            adc_channel = Helpers.next_free([ch is not None for ch in adc_config])
             if adc_channel is None:
                 raise ValueError("No free ADC channel available, all 8 are occupied.")
 
         if not 0 <= adc_channel <= 7:
             raise ValueError(f"ADC channel must be in range 0-7, got {adc_channel}")
 
-        if self._adc_channels[adc_channel] is not None:
+        if adc_config[adc_channel] is not None:
             raise ValueError(f"ADC channel {adc_channel} is already occupied.")
 
         source_lane = source.source_output_lane()
-        self._adc_channels[adc_channel] = source_lane
+        adc_config[adc_channel] = ADCChannel(index=source_lane)
         return adc_channel
 
     def to_computer(self):
@@ -467,18 +470,12 @@ class Circuit:
         from pybrid.lucidac.protocol.serializer import LUCIDACSerializer
         from pybrid.base.proto.versioning import ProtoVersioning
 
-        # Configure ADC channels on the carrier from our tracking state
-        from pybrid.redac.carrier import ADCChannel
-        self._carrier.adc_config = [
-            ADCChannel(index=ch) for ch in self._adc_channels if ch is not None
-        ]
-
         serializer = LUCIDACSerializer()
-        configs = serializer.serialize(self._lucidac)
+        module = serializer.serialize(self._lucidac)
 
         pb_file = pb.File(
             version=ProtoVersioning.current(),
-            bundle=pb.ConfigBundle(configs=configs),
+            module=module,
         )
 
         config_json = ProtoIO.pbfile_to_json(pb_file)
@@ -546,8 +543,11 @@ class Circuit:
         # -- Build carrier config -----------------------------------
         carrier_config = {"/0": cluster_config}
 
-        # ADC channels
-        adc_channels = list(self._adc_channels)
+        # ADC channels — derive lane indices from carrier's adc_config
+        adc_channels = [
+            ch.index if ch is not None else None
+            for ch in self._carrier.adc_config
+        ]
         if any(ch is not None for ch in adc_channels):
             carrier_config["adc_channels"] = adc_channels
 

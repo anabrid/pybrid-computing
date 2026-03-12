@@ -65,7 +65,7 @@ class DummyDAC:
         self._server = None
         self._active_connections = set()
         self._carrier_macs = self._generate_carrier_macs()
-        self._stored_config: pb.ConfigBundle | None = None
+        self._stored_config: pb.Module | None = None
         self._calibrated: bool = False
         self._client_udp_ports = {}
         self._handlers = self._create_handlers()
@@ -84,7 +84,6 @@ class DummyDAC:
         :return: Dictionary mapping field numbers to handler instances.
         """
         from pybrid.mock.handler import (
-            DescribeHandler,
             ResetHandler,
             ConfigHandler,
             ExtractHandler,
@@ -99,7 +98,6 @@ class DummyDAC:
         ].number
 
         return {
-            pb.MessageV1.DESCRIBE_COMMAND_FIELD_NUMBER: DescribeHandler(self),
             pb.MessageV1.RESET_COMMAND_FIELD_NUMBER: ResetHandler(self),
             pb.MessageV1.CONFIG_COMMAND_FIELD_NUMBER: ConfigHandler(self),
             pb.MessageV1.EXTRACT_COMMAND_FIELD_NUMBER: ExtractHandler(self),
@@ -165,8 +163,9 @@ class DummyDAC:
             patch=data["version"][2]
         )
 
+        # Preserve the leading '/' so that entity IDs match the firmware wire format.
         entity = pb.Entity(
-            id=id_.lstrip('/'),
+            id=id_,
             class_=data["class"],
             type=data["type"],
             variant=data["variant"],
