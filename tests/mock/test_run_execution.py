@@ -178,12 +178,12 @@ async def test_run_data_end_uses_config_channel_count():
                 pb.AdcChannel(idx=i, gain=1.0, offset=0.0)
                 for i in range(requested_channels)
             ]
-            carrier_config = pb.Config(
+            carrier_config = pb.Item(
                 entity=pb.EntityId(path="/00-00-00-00-00-00"),
                 adc_config=pb.AdcConfig(channels=adc_channels),
             )
-            bundle = pb.ConfigBundle(configs=[carrier_config])
-            await asyncio.wait_for(channel.set_config_bundle(bundle), timeout=OP_TIMEOUT)
+            module = pb.Module(items=[carrier_config])
+            await asyncio.wait_for(channel.set_module(module), timeout=OP_TIMEOUT)
 
             # Send StartRunCommand with a different DaqConfig channel count (4).
             cmd = _make_run_command(op_time_ns, num_channels=4, sample_rate=1000)

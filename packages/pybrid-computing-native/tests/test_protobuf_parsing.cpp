@@ -3,14 +3,15 @@
 
 TEST(ProtobufTest, ParseMessageV1) {
     pb::MessageV1 msg;
-    msg.mutable_describe_command();  // Set any field
+    auto* cmd = msg.mutable_extract_command();
+    cmd->set_recursive(true);
 
     std::string serialized;
     ASSERT_TRUE(msg.SerializeToString(&serialized));
 
     pb::MessageV1 parsed;
     ASSERT_TRUE(parsed.ParseFromString(serialized));
-    ASSERT_TRUE(parsed.has_describe_command());
+    ASSERT_TRUE(parsed.has_extract_command());
 }
 
 TEST(ProtobufTest, ParseRunDataMessage) {

@@ -210,11 +210,3 @@ class TestSortAndFillChunks:
         assert filled[0].chunk_number == 5
         assert not gap
         assert not reordered
-
-    def test_backward_compat_import(self):
-        """GapFillMode is importable from pybrid.native for backward compat."""
-        from pybrid.native import GapFillMode as NativeGapFillMode
-
-        assert NativeGapFillMode is GapFillMode
-        assert NativeGapFillMode.NONE == 0
-        assert NativeGapFillMode.INTERPOLATE == 3

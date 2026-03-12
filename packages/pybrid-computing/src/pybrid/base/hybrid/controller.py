@@ -7,7 +7,7 @@ from __future__ import annotations
 import asyncio
 import typing
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid.computer import AnalogComputer
@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     #   → pybrid.redac.entities  (partially initialised)
     from pybrid.redac.connection import ConnectionManager
     from pybrid.redac.session import Session
-    from pybrid.redac.sync import SyncImplementationType
 
 
 class BaseController(ABC):
@@ -35,39 +34,33 @@ class BaseController(ABC):
     connection_manager: "ConnectionManager"
     runs: dict
     sample_listeners: list
-    sync_impl: "SyncImplementationType"
     _default_session: typing.Any
     _session_lock: asyncio.Lock
 
-    def __init__(self, sync_impl=None) -> None:
+    def __init__(self) -> None:
         # Lazy imports to break circular dependency:
         # pybrid.redac.entities → pybrid.base.hybrid → controller
         # → pybrid.redac.connection/sync → pybrid.redac.entities (circular)
         from pybrid.redac.connection import ConnectionManager
-        from pybrid.redac.sync import SyncImplementationType
-
-        if sync_impl is None:
-            sync_impl = SyncImplementationType.NATIVE
 
         self.computer = None
         self.connection_manager = ConnectionManager()
         self.runs = {}
         self.sample_listeners = []
-        self.sync_impl = sync_impl
         self._default_session = None
         self._session_lock = asyncio.Lock()
 
-    async def add_device(self, host: str, port: int, name: str | None = None) -> None:
+    async def add_device(self, host: str, port: int, specification: Optional[pb.Module] = None) -> None:
         """Add device(s) from a network endpoint.
 
         Delegates discovery and connection management to :attr:`connection_manager`.
         Subclasses should override this method and call ``super().add_device()``
         to update :attr:`computer` with newly discovered carriers.
         """
-        await self.connection_manager.add_device(host, port)
+        await self.connection_manager.add_device(host, port, specification)
 
-    async def describe(self) -> pb.DescribeBundle:
-        """Return cached hardware description from connection establishment."""
+    async def extract(self) -> pb.Module:
+        """Return cached hardware specification from connection establishment."""
         return self.connection_manager.cache_descriptions
 
     def register_listener(self, listener) -> None:

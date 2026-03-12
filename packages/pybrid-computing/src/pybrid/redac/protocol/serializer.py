@@ -1,11 +1,9 @@
 # Copyright (c) 2022-2024 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-import queue
 import logging
+import string
 import typing
-
-from functools import singledispatch
 from typing import List, Any, Dict
 
 from pybrid.redac.router import Tracer
@@ -15,60 +13,34 @@ from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock
 from pybrid.redac.carrier import Carrier, ADCChannel
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
+from pybrid.redac.cluster import Cluster
+from pybrid.redac.device import Device
 from pybrid.redac.elements import ComputationElement
-from pybrid.redac.entities import Path, Loc
+from pybrid.redac.entities import Path, Loc, EntityType, EntityClass
 
 from pybrid.base.hybrid.serializer import Serializer, Deserializer
 
 logger = logging.getLogger(__name__)
 
-_CONFIG_TYPE = Dict[str, Any] | List[pb.Config]
+_CONFIG_TYPE = Dict[str, Any] | List[pb.Item]
+
 
 class REDACSerializer(Serializer):
+    """Unified serializer for REDAC entity-tree specification and operational configuration."""
 
     def __init__(self):
         super().__init__()
-
         self.computer = None
+    
+    ###
+    # Configuration
+    ###
 
-    def config_type(self) -> type:
-        return List[pb.Config]
-
-    def serialize(self, computer: AnalogComputer) -> _CONFIG_TYPE:
-        self.computer = computer
-
-        cc = Serializer.ConfigCollector([])
-        self.serialize_entities(computer.get_config_entities(), cc=cc)
-        self.serialize_additional()
-
-        return cc.configs
-
-    def serialize_entities(self, entities: List[Entity], cc: Serializer.ConfigCollector = None) -> _CONFIG_TYPE:
-        """
-        Serializes the configuration of a single entity.
-        """
-        if cc:
-            self.cc = cc
-        else:
-            self.cc = Serializer.ConfigCollector([])
-
-        # recursively traverse over all top-level entities
-        for entity in entities:
-            traversal = queue.Queue()
-            traversal.put(entity)
-            while not traversal.empty():
-                entity = traversal.get()
-                for child in entity.children:
-                    traversal.put(child)
-                self._serialize(entity)
-
-        return self.cc.configs
-
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: ComputationElement):
         return None
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: Carrier):
         adc_config = self.cc.new_config(entity).adc_config
         adc_channels = adc_config.channels
@@ -92,19 +64,18 @@ class REDACSerializer(Serializer):
                 acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
                     interface.lower() == "external" else pb.PortConfig.AclState.INTERNAL)
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: CBlock):
         coef_config = self.cc.new_config(entity).coef_config
         elements = coef_config.elements
         for elem_idx, element in enumerate(entity.elements):
-            elements.append(pb.CoefConfig.Element(idx=elem_idx,factor=element.computation.factor))
+            elements.append(pb.CoefConfig.Element(idx=elem_idx, factor=element.computation.factor))
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: MMulBlock):
         pass
-        #mul_config = self.cc.new_config(entity).mul_config
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: MIntBlock):
         itor_config = self.cc.new_config(entity).itor_config
         for elem_idx, element in enumerate(entity.elements):
@@ -118,7 +89,7 @@ class REDACSerializer(Serializer):
         for idx, bit in enumerate(entity.limiters):
             limiter_config.elements.append(pb.LimiterConfig.Element(idx=idx, enable=bit))
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: IBlock):
         sum_config = self.cc.new_config(entity).sum_config
         for sum_idx, inputs in enumerate(entity.outputs):
@@ -133,7 +104,7 @@ class REDACSerializer(Serializer):
         for lane_idx, bit in enumerate(entity.upscaling):
             sum_config.upscales.append(pb.UpscaleConfig(lane=lane_idx, enabled=bit))
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: UBlock):
         select_config = self.cc.new_config(entity).select_config
         if not entity.constant:
@@ -150,10 +121,8 @@ class REDACSerializer(Serializer):
 
         if len(select_config.connections) == 0:
             self.cc.pop_config()
-        else:
-            pass
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: TBlock):
         switch_config = self.cc.new_config(entity).switch_config
         for idx, state in enumerate(entity.muxes):
@@ -164,7 +133,7 @@ class REDACSerializer(Serializer):
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: BackplaneTBlock):
         switch_config = self.cc.new_config(entity).bpl_switch_config
         for idx, state in enumerate(entity.muxes):
@@ -175,18 +144,136 @@ class REDACSerializer(Serializer):
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
 
+    @staticmethod
+    def _make_version(version) -> pb.Version:
+        """Convert a packaging.version.Version to pb.Version, or return a zero version."""
+        if version is None:
+            return pb.Version()
+        return pb.Version(major=version.major, minor=version.minor, patch=version.micro)
+
+    @staticmethod
+    def _entity_id(entity) -> str:
+        """Return the wire-format entity ID with leading '/'."""
+        return "/" + str(entity.path.id_)
+    
+    ###
+    # Specification
+    ###
+
+    @Serializer._serialize_specification.register
+    def _(self, entity: Device) -> pb.Entity:
+        """Serialize a Device as a DEVICE-class pb.Entity containing carrier children."""
+        pb_entity = pb.Entity(
+            id=self._entity_id(entity),
+            class_=pb.Entity.DEVICE,
+        )
+        for carrier in entity.carriers:
+            pb_entity.children.append(self.serialize_specification(carrier))
+        return pb_entity
+
+    @Serializer._serialize_specification.register
+    def _(self, entity: Carrier) -> pb.Entity:
+        """Serialize a Carrier as a CARRIER-class pb.Entity with cluster and optional block children."""
+        et = entity.entity_type
+        if et is not None:
+            class_ = et.class_.value
+            type_ = et.type_ or 0
+            variant = et.variant or 0
+            version = self._make_version(et.version)
+        else:
+            class_ = pb.Entity.CARRIER
+            type_ = 0
+            variant = 0
+            version = pb.Version()
+
+        pb_entity = pb.Entity(
+            id=self._entity_id(entity),
+            class_=class_,
+            type=type_,
+            variant=variant,
+            version=version,
+        )
+
+        if entity.location:
+            pb_entity.location_v0.stack = entity.location.path[0]
+            pb_entity.location_v0.carrier = entity.location.path[1]
+
+        for cluster in entity.clusters:
+            pb_entity.children.append(self.serialize_specification(cluster))
+        if entity.tblock:
+            pb_entity.children.append(self.serialize_specification(entity.tblock))
+        if entity.st0block:
+            pb_entity.children.append(self.serialize_specification(entity.st0block))
+        if entity.st1block:
+            pb_entity.children.append(self.serialize_specification(entity.st1block))
+        if entity.st2block:
+            pb_entity.children.append(self.serialize_specification(entity.st2block))
+        if entity.front_plane:
+            pb_entity.children.append(self.serialize_specification(entity.front_plane))
+
+        return pb_entity
+
+    @Serializer._serialize_specification.register
+    def _(self, entity: Cluster) -> pb.Entity:
+        """Serialize a Cluster as a CLUSTER-class pb.Entity with block children."""
+        et = entity.entity_type
+        if et is not None:
+            class_ = et.class_.value
+            type_ = et.type_ or 0
+            variant = et.variant or 0
+            version = self._make_version(et.version)
+        else:
+            class_ = pb.Entity.CLUSTER
+            type_ = 0
+            variant = 0
+            version = pb.Version()
+
+        pb_entity = pb.Entity(
+            id=self._entity_id(entity),
+            class_=class_,
+            type=type_,
+            variant=variant,
+            version=version,
+        )
+
+        for block in entity.children:
+            pb_entity.children.append(self.serialize_specification(block))
+
+        return pb_entity
+
+    def _serialize_specification_function_block(self, entity) -> pb.Entity:
+        """Default specification serializer for FunctionBlock leaf nodes."""
+        et = getattr(entity, "entity_type", None)
+        if et is None:
+            et = EntityType.reverse_lookup(type(entity))
+        version = self._make_version(et.version)
+        return pb.Entity(
+            id=self._entity_id(entity),
+            class_=et.class_.value,
+            type=et.type_ or 0,
+            variant=et.variant or 0,
+            version=version,
+        )
+
+    def serialize_specification(self, entity: Entity) -> pb.Entity:
+        """Serialize specification; fall back to FunctionBlock handler for unregistered types."""
+        try:
+            return self._serialize_specification(entity)
+        except NotImplementedError:
+            return self._serialize_specification_function_block(entity)
+
     def serialize_use_configs(self):
         from pybrid.redac import REDAC
         if self.computer is not REDAC:
             return
         tracer = Tracer()
-        carriers : typing.Dict[Loc, Carrier] = dict()
-        use_configs: typing.Dict[Loc, pb.Config] = dict()
+        carriers: typing.Dict[Loc, Carrier] = dict()
+        use_configs: typing.Dict[Loc, pb.Item] = dict()
         uses: typing.Dict[Loc, pb.Use] = dict()
         for carrier in self.computer.carriers:
             tracer.add_carrier(carrier)
             carriers[carrier.loc()] = carrier
-            config = pb.Config(entity=pb.EntityId(path=str(carrier.tblock.path)))
+            config = pb.Item(entity=pb.EntityId(path=str(carrier.tblock.path)))
             use_configs[carrier.loc()] = config
 
         def find_use(lane_loc: Loc) -> pb.Use:
@@ -196,8 +283,6 @@ class REDACSerializer(Serializer):
 
             carrier_loc = lane_loc.carrier()
             assert carrier_loc in use_configs
-            #if carrier_loc not in use_configs:
-            #    use_configs[carrier_loc] = pb.UseConfig()
             mux_id = TBlock.index(lane_loc.cluster_id() + 1, lane_loc.lane_id() - 8)
             use_config = use_configs[carrier_loc].use_config
             for use in use_config.uses:
@@ -232,34 +317,145 @@ class REDACSerializer(Serializer):
 
             for use_config in use_configs.values():
                 if len(use_config.use_config.uses) != 0:
-                    self.cc.configs.append(use_config)
+                    self.cc.items.append(use_config)
 
     def serialize_additional(self):
         self.serialize_use_configs()
 
-class REDACDeserializer(Deserializer):
 
-    def __init__(self, computer: "REDAC"):
+class REDACDeserializer(Deserializer):
+    """Unified deserializer for REDAC entity-tree specification and operational configuration."""
+
+    # Registry: EntityClass enum → method name (str).
+    # Subclasses extend via dict merge: {**REDACDeserializer._spec_handlers, ...}
+    _spec_handlers: dict = {
+        EntityClass.DEVICE: "_spec_device",
+        EntityClass.CARRIER: "_spec_carrier",
+        EntityClass.CLUSTER: "_spec_cluster",
+    }
+
+    def __init__(self, computer=None):
         super().__init__(computer)
 
-    def config_type(self) -> type:
-        return List[pb.Config]
+    def deserialize_specification(self, entity: pb.Entity, path: Path) -> Entity:
+        """Resolve handler by EntityClass, fall back to generic function-block handler."""
+        class_ = EntityClass(entity.class_)
+        handler_name = self._spec_handlers.get(class_)
+        if handler_name is not None:
+            return getattr(self, handler_name)(entity, path)
+        return self._spec_function_block(entity, path)
 
-    def deserialize(self, config: Dict[str, Any] | List[pb.Config]):
+    def _spec_device(self, entity: pb.Entity, path: Path) -> Device:
+        """Deserialize DEVICE: iterate carrier children via dispatch."""
+        carriers = []
+        for child in entity.children:
+            carrier_path = Path.parse(child.id)
+            carriers.append(self.deserialize_specification(child, carrier_path))
+        return Device(backplane=None, carriers=carriers, path=path)
+
+    def _spec_carrier(self, entity: pb.Entity, path: Path) -> Carrier:
+        """Deserialize CARRIER: collect clusters/T-blocks/FP via dispatch, construct all-at-once."""
+        this_entity_type = EntityType.pop_from_dict(entity)
+        assert this_entity_type.class_ is EntityClass.CARRIER
+
+        clusters = []
+        tblock = None
+        st0block = None
+        st1block = None
+        st2block = None
+        front_plane = None
+        acl_select = None
+
+        location = None
+        if entity.HasField("location_v0"):
+            location = Loc.new_carrier(entity.location_v0.stack, entity.location_v0.carrier)
+
+        for child in entity.children:
+            path_: Path = path / Path.parse(child.id)
+            if not path_.id_:
+                logger.warning("Reported entities include nameless entity at %s: %s", path_, child)
+                continue
+            if path_.id_ == "T":
+                tblock = self._spec_function_block(child, path_)
+                if location:
+                    tblock.location = location.carrier()
+                continue
+            if path_.id_ == "ST0":
+                st0block = self._spec_function_block(child, path_)
+                if location:
+                    st0block.location = location.stack()
+                continue
+            if path_.id_ == "ST1":
+                st1block = self._spec_function_block(child, path_)
+                if location:
+                    st1block.location = location.stack()
+                continue
+            if path_.id_ == "ST2":
+                # ST2 doubles as both the backplane TBlock and the carrier-side TBlock.
+                st2block = self._spec_function_block(child, path_)
+                st1block = self._spec_function_block(child, path_)
+                if location:
+                    st2block.location = location.stack()
+                    st1block.location = location.stack()
+                continue
+            if path_.id_ == "FP":
+                result = self._handle_unknown_carrier_child(path_, child)
+                if result is not None:
+                    front_plane, acl_select = result
+                continue
+            if path_.id_ in string.digits:
+                cluster = self.deserialize_specification(child, path_)
+                clusters.append(cluster)
+                continue
+
+        return Carrier(
+            path=path,
+            clusters=clusters,
+            tblock=tblock,
+            st0block=st0block,
+            st1block=st1block,
+            st2block=st2block,
+            front_plane=front_plane,
+            acl_select=acl_select,
+            location=location,
+            entity_type=this_entity_type,
+        )
+
+    def _spec_cluster(self, entity: pb.Entity, path: Path) -> Cluster:
+        """Deserialize CLUSTER: collect block children, construct with all required fields."""
+        this_entity_type = EntityType.pop_from_dict(entity)
+        assert this_entity_type.class_ is EntityClass.CLUSTER
+
+        blocks = dict()
+        for child in entity.children:
+            path_ = path / Path.parse(child.id)
+            block = self._spec_function_block(child, path_)
+            blocks[f"{path_.id_.lower()}block"] = block
+
+        # Optional blocks default to None when absent from the serialized entity tree.
+        blocks.setdefault("m0block", None)
+        blocks.setdefault("m1block", None)
+        blocks.setdefault("shblock", None)
+
+        return Cluster(path=path, entity_type=this_entity_type, **blocks)
+
+    def _spec_function_block(self, entity: pb.Entity, path: Path):
+        """Default: use EntityType registry for concrete class lookup."""
+        this_entity_type = EntityType.pop_from_dict(entity)
+        entity_class = EntityType.lookup(this_entity_type, decay=True)
+        block = entity_class(path=path)
+        block.entity_type = this_entity_type
+        return block
+
+    def _handle_unknown_carrier_child(self, path: Path, child: pb.Entity):
+        """Hook for subclasses to handle carrier children not recognized by REDAC (e.g. FP).
+
+        Returns a (front_plane, acl_select) tuple on success, or None to skip.
         """
-        Deserializes a list of protobuf configs and applies them to the analog computer.
-        """
-        for conf in config:
-            # Store full config so overloads can access entity path
-            self._current_full_config = conf
+        logger.warning("Unknown carrier child at %s: %s", path, child)
+        return None
 
-            # Extract the specific config type from the oneof and dispatch
-            config_kind = conf.WhichOneof('kind')
-            if config_kind:
-                specific_config = getattr(conf, config_kind)
-                self._deserialize(specific_config)
-
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.AdcConfig):
         """Deserialize ADC configuration and apply to Carrier."""
         entity_path = Path.parse(self._current_full_config.entity.path)
@@ -274,7 +470,7 @@ class REDACDeserializer(Deserializer):
             ))
         entity.adc_config = adc_channels
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.CoefConfig):
         """Deserialize coefficient configuration and apply to CBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
@@ -283,7 +479,7 @@ class REDACDeserializer(Deserializer):
         for element in config.elements:
             entity.elements[element.idx].computation.factor = element.factor
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.ItorConfig):
         """Deserialize integrator configuration and apply to MIntBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
@@ -293,7 +489,7 @@ class REDACDeserializer(Deserializer):
             entity.elements[element.idx].ic = element.ic
             entity.elements[element.idx].k = element.k
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.LimiterConfig):
         """Deserialize limiter configuration and apply to MIntBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
@@ -304,31 +500,28 @@ class REDACDeserializer(Deserializer):
             limiters[element.idx] = element.enable
         entity.limiters = limiters
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.SumConfig):
         """Deserialize sum configuration and apply to IBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity = self.computer.get_entity(entity_path)
 
-        # Initialize empty outputs
         outputs = [set() for _ in range(len(entity.outputs))]
         for connection in config.connections:
             outputs[connection.output] = set(connection.inputs)
         entity.outputs = outputs
 
-        # Deserialize upscaling
         upscaling = [False] * len(entity.upscaling)
         for upscale in config.upscales:
             upscaling[upscale.lane] = upscale.enabled
         entity.upscaling = upscaling
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.SelectConfig):
         """Deserialize select configuration and apply to UBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity = self.computer.get_entity(entity_path)
 
-        # Deserialize constant
         if config.constant == pb.SelectConfig.ConstantConfig.GROUND:
             entity.constant = False
         else:
@@ -336,18 +529,17 @@ class REDACDeserializer(Deserializer):
             magnitude = 1.0 if config.magnitude == pb.SelectConfig.Magnitude.ONE else 0.1
             entity.constant = sign * magnitude
 
-        # Deserialize connections
         outputs = [None] * len(entity.outputs)
         for connection in config.connections:
             outputs[connection.output] = connection.input
         entity.outputs = outputs
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.SwitchConfig):
         """Deserialize switch configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity = self.computer.get_entity(entity_path)
-        
+
         muxes = []
         for mux in config.muxes:
             if mux.HasField('state'):
@@ -355,7 +547,7 @@ class REDACDeserializer(Deserializer):
         if muxes:
             entity.muxes = muxes
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.UseConfig):
         """Deserialize use configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
@@ -375,7 +567,7 @@ class REDACDeserializer(Deserializer):
         entity.uses = uses
         entity.targets_upscaled = targets_upscaled
 
-    @Deserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.PortConfig):
         """Deserialize port configuration and apply to Carrier."""
         entity_path = Path.parse(self._current_full_config.entity.path)
@@ -388,3 +580,5 @@ class REDACDeserializer(Deserializer):
             else:
                 acl_select.append("internal")
         entity.acl_select = acl_select
+
+

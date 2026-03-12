@@ -47,7 +47,7 @@ class TestControllerMultiDevice:
         async with DummyDAC("127.0.0.1", get_test_port(), config) as dac:
             dac_port = dac._server.sockets[0].getsockname()[1]
 
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 # Initially no devices
                 assert len(ctrl.devices) == 0
 
@@ -80,13 +80,13 @@ class TestControllerMultiDevice:
 
     @pytest.mark.asyncio
     async def test_config_distributed_to_devices(self):
-        """Session with a config bundle targeting both carrier paths is built without error."""
+        """Session with a config module targeting both carrier paths is built without error."""
         config = DummyDACConfig(mac_mode=DummyDACMacMode.VIRTUAL)
 
         async with DummyDAC("127.0.0.1", get_test_port(), config) as dac:
             dac_port = dac._server.sockets[0].getsockname()[1]
 
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 await ctrl.add_device("127.0.0.1", dac_port)
 
                 # Get paths for each carrier
@@ -96,16 +96,16 @@ class TestControllerMultiDevice:
                 # Create config entries for different carriers
                 configs = []
                 for path in all_paths:
-                    config_entry = pb.Config(
+                    config_entry = pb.Item(
                         entity=pb.EntityId(path=str(path / "0" / "M0")),
                     )
                     configs.append(config_entry)
 
-                bundle = pb.ConfigBundle(configs=configs)
+                module = pb.Module(items=configs)
 
-                # Build session with config bundle — does NOT send anything yet
+                # Build session with config module — does NOT send anything yet
                 session = Session(ctrl)
-                session.set_config_bundle(bundle)
+                session.set_module(module)
 
                 # Verify session was built without error
                 # (actual execution requires native C++ — skipped here)
@@ -125,7 +125,7 @@ class TestControllerMultiDevice:
         async with DummyDAC("127.0.0.1", get_test_port(), config) as dac:
             dac_port = dac._server.sockets[0].getsockname()[1]
 
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 await ctrl.add_device("127.0.0.1", dac_port)
 
                 all_paths = list(ctrl.devices.keys())
@@ -170,7 +170,7 @@ class TestControllerMultiDevice:
         async with DummyDAC("127.0.0.1", get_test_port(), config) as dac:
             dac_port = dac._server.sockets[0].getsockname()[1]
 
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 await ctrl.add_device("127.0.0.1", dac_port)
 
                 # Verify initial state
@@ -200,7 +200,7 @@ class TestControllerMultiDevice:
         async with DummyDAC("127.0.0.1", get_test_port(), config) as dac:
             dac_port = dac._server.sockets[0].getsockname()[1]
 
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 # Initially empty
                 assert len(ctrl._clusters_per_carrier) == 0, (
                     "_clusters_per_carrier should be empty before add_device"

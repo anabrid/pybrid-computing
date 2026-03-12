@@ -65,7 +65,7 @@ class TestLUCIDACBasic:
     async def test_connection(self, lucidac_endpoint):
         host, port = lucidac_endpoint
 
-        async with REDACController(standalone=True) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
             assert len(ctrl.devices) >= 1, (
@@ -78,7 +78,7 @@ class TestLUCIDACBasic:
     async def test_describe(self, lucidac_endpoint):
         host, port = lucidac_endpoint
 
-        async with REDACController(standalone=True) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
             # Get all device paths
@@ -101,7 +101,7 @@ class TestLUCIDACBasic:
     async def test_simple_run(self, lucidac_endpoint):
         host, port = lucidac_endpoint
 
-        async with REDACController(standalone=True) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
             # Create a minimal run (very short op_time)
@@ -136,7 +136,7 @@ class TestLUCIDACBasic:
     async def test_reset_device(self, lucidac_endpoint):
         host, port = lucidac_endpoint
 
-        async with REDACController(standalone=True) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
             initial_device_count = len(ctrl.devices)
@@ -157,7 +157,7 @@ class TestREDACBasic:
     async def test_connection(self, redac_endpoint):
         host, port = redac_endpoint
 
-        async with REDACController(standalone=True) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
             assert len(ctrl.devices) >= 1, (
@@ -170,7 +170,7 @@ class TestREDACBasic:
     async def test_multi_carrier(self, redac_endpoint):
         host, port = redac_endpoint
 
-        async with REDACController(standalone=True) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
             # REDAC typically has multiple carriers
@@ -197,7 +197,7 @@ class TestREDACBasic:
     async def test_describe(self, redac_endpoint):
         host, port = redac_endpoint
 
-        async with REDACController(standalone=True) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
             # Check computer structure
@@ -269,7 +269,7 @@ class TestSimulatorBasic:
     async def test_connection(self, simulator_endpoint):
         host, port = simulator_endpoint
 
-        async with SimController(standalone=True) as ctrl:
+        async with SimController() as ctrl:
             await ctrl.add_device(host, port)
 
             assert len(ctrl.devices) >= 1, (
@@ -282,7 +282,7 @@ class TestSimulatorBasic:
     async def test_describe(self, simulator_endpoint):
         host, port = simulator_endpoint
 
-        async with SimController(standalone=True) as ctrl:
+        async with SimController() as ctrl:
             await ctrl.add_device(host, port)
 
             # Get all device paths
@@ -305,7 +305,7 @@ class TestSimulatorBasic:
     async def test_simple_run(self, simulator_endpoint):
         host, port = simulator_endpoint
 
-        async with SimController(standalone=True) as ctrl:
+        async with SimController() as ctrl:
             await ctrl.add_device(host, port)
 
             # Configure a simple harmonic oscillator circuit
@@ -346,7 +346,7 @@ class TestSimulatorBasic:
     async def test_reset_device(self, simulator_endpoint):
         host, port = simulator_endpoint
 
-        async with SimController(standalone=True) as ctrl:
+        async with SimController() as ctrl:
             await ctrl.add_device(host, port)
 
             initial_device_count = len(ctrl.devices)

@@ -4,11 +4,12 @@
 
 import logging
 import typing
+import warnings
 from dataclasses import dataclass
 
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
-from pybrid.redac.entities import Entity, Path
+from pybrid.redac.entities import Entity
 
 logger = logging.getLogger(__name__)
 import pybrid.base.proto.main_pb2 as pb
@@ -32,16 +33,11 @@ class Device(Entity):
 
     @classmethod
     def create_from_entity_type_tree(cls, path, entity: pb.Entity) -> "Device":
-        carriers = []
-        backplane = None
-
-        if entity.class_ == pb.Entity.CARRIER:
-            carriers.append(Carrier.create_from_entity_type_tree(path, entity))
-        elif entity.class_ == pb.Entity.DEVICE:
-            for child in entity.children:
-                carrier_path = Path.parse(child.id)
-                carrier = Carrier.create_from_entity_type_tree(carrier_path, child)
-                carriers.append(carrier)
-
-        return cls(backplane=backplane, carriers=carriers, path=path)
+        warnings.warn(
+            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        from pybrid.redac.protocol.serializer import REDACDeserializer
+        return REDACDeserializer().deserialize_specification(entity, path)
 

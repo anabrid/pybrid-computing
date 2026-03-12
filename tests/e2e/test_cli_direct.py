@@ -21,7 +21,7 @@ class TestCLIHelp:
 
     @pytest.mark.parametrize("args,expected_words", [
         (["--help"], ["redac", "lucidac", "dummy", "detect"]),
-        (["redac", "--help"], ["display", "run", "reset", "shell"]),
+        (["redac", "--help"], ["display", "run", "reset"]),
         (["dummy", "--help"], ["--host", "--port"]),
     ])
     def test_cli_help(self, args, expected_words):
@@ -126,7 +126,7 @@ class TestCLIRunDirect:
                 [
                     sys.executable, "-m", "pybrid.cli.base",
                     "redac", "-h", "127.0.0.1", "-p", str(port),
-                    "--no-reset", "--sync-impl", "native",
+                    "--no-reset",
                     "run",
                     "-c", str(config_path),
                     "--ic-time", "100000",
@@ -146,7 +146,7 @@ class TestCLIRunDirect:
                 [
                     sys.executable, "-m", "pybrid.cli.base",
                     "redac", "-h", "127.0.0.1", "-p", str(port),
-                    "--no-reset", "--sync-impl", "native",
+                    "--no-reset",
                     "run",
                     "--ic-time", "1000",
                     "--op-time", "0.001",

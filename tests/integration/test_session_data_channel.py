@@ -16,10 +16,6 @@ Key behaviors under test:
 4. Sample listeners registered on the controller receive data during a run.
 
 All tests require the native C++ extension. They are skipped when it is absent.
-
-Sync strategy: these tests use SyncImplementationType.USBSPI which avoids the
-calibration requirement of NATIVE sync. USBSPI trigger logic lives in the proxy,
-not in Session, so no Sync mocking is needed here.
 """
 
 import asyncio
@@ -31,7 +27,6 @@ import pybrid.base.proto.main_pb2 as pb
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.run import RunConfig, DAQConfig
-from pybrid.redac.sync import SyncImplementationType
 
 try:
     from pybrid.native._impl import ControlChannel as _NativeControlChannel
@@ -107,7 +102,7 @@ async def test_session_run_populates_data_via_data_channel():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             session = ctrl.create_session()
@@ -149,7 +144,7 @@ async def test_session_run_populates_final_values_via_data_channel():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             session = ctrl.create_session()
@@ -202,7 +197,7 @@ async def test_session_no_data_callbacks_on_control_channel():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             # Locate the single DeviceConnection's ControlChannel.
@@ -291,7 +286,7 @@ async def test_sample_listeners_invoked_from_data_channel():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             # Register listener BEFORE the run so it catches all data emissions.
@@ -358,7 +353,7 @@ async def test_concurrent_streaming_delivers_samples_during_op():
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 
-        async with REDACController(sync_impl=SyncImplementationType.USBSPI) as ctrl:
+        async with REDACController() as ctrl:
             await ctrl.add_device(LOCALHOST, port)
 
             listener = _TimestampingListener()

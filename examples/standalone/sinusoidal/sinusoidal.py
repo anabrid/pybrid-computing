@@ -14,7 +14,7 @@ set_pybrid_logging_level(logging.DEBUG)
 
 async def main():
     # Create a controller, which uses the protocol to execute commands.
-    controller = Controller(standalone=True)
+    controller = Controller()
     # Reference for run.
     run = None
 

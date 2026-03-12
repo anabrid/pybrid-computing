@@ -1,4 +1,15 @@
 cmake_minimum_required(VERSION 3.18)
+
+# macOS: auto-detect SDK so C++ stdlib headers are always found,
+# even when SDKROOT is not propagated through the build tool chain.
+if(APPLE AND NOT CMAKE_OSX_SYSROOT)
+    execute_process(
+        COMMAND xcrun --show-sdk-path
+        OUTPUT_VARIABLE CMAKE_OSX_SYSROOT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+
 project(pybrid_computing_native CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -9,6 +20,32 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # GCC 15+ compatibility: force include <cstdint> for uintptr_t in abseil-cpp
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "15")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-include;cstdint>")
+endif()
+
+# macOS: on newer macOS (26+), clang may not find C++ stdlib headers via its
+# default search paths. Try the SDK and toolchain locations explicitly.
+if(APPLE)
+    set(_CXX_HEADERS "")
+    if(CMAKE_OSX_SYSROOT AND IS_DIRECTORY "${CMAKE_OSX_SYSROOT}/usr/include/c++/v1")
+        set(_CXX_HEADERS "${CMAKE_OSX_SYSROOT}/usr/include/c++/v1")
+    else()
+        execute_process(
+            COMMAND xcrun --find clang++
+            OUTPUT_VARIABLE _CLANG_PATH
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        get_filename_component(_TOOLCHAIN_BIN "${_CLANG_PATH}" DIRECTORY)
+        get_filename_component(_TOOLCHAIN "${_TOOLCHAIN_BIN}" DIRECTORY)
+        if(IS_DIRECTORY "${_TOOLCHAIN}/include/c++/v1")
+            set(_CXX_HEADERS "${_TOOLCHAIN}/include/c++/v1")
+        endif()
+    endif()
+    if(_CXX_HEADERS)
+        add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-isystem;${_CXX_HEADERS}>")
+        # Also needed for check_cxx_source_compiles() in dependencies (e.g.
+        # protobuf's builtin-atomics test), which don't use add_compile_options.
+        set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -isystem ${_CXX_HEADERS}")
+    endif()
 endif()
 
 # Options
@@ -39,6 +76,7 @@ target_include_directories(asio_standalone INTERFACE
 target_compile_definitions(asio_standalone INTERFACE
     ASIO_STANDALONE
     ASIO_NO_DEPRECATED
+    $<$<PLATFORM_ID:Windows>:_WIN32_WINNT=0x0601>
 )
 if(WIN32)
     target_link_libraries(asio_standalone INTERFACE ws2_32 wsock32)
@@ -58,25 +96,50 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(concurrentqueue)
 
-# Protobuf + abseil: always build from source via FetchContent.
-# Pre-generated .pb.cc/.pb.h files require ABI-compatible protobuf v26.1.
-# System abseil versions may be incompatible (e.g. >= 20250512 removed
-# absl::if_constexpr), so we always use protobuf's bundled copy.
+# Abseil: required by protobuf.  Use a pre-installed build when available
+# (e.g. /home/dthuerck/install) so the ABI matches protobuf v32+.
+# Set PYBRID_ABSEIL_PREFIX to override the search path.
+if(DEFINED ENV{PYBRID_ABSEIL_PREFIX})
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{PYBRID_ABSEIL_PREFIX}")
+elseif(DEFINED PYBRID_ABSEIL_PREFIX)
+    list(APPEND CMAKE_PREFIX_PATH "${PYBRID_ABSEIL_PREFIX}")
+endif()
+
+find_package(absl QUIET CONFIG)
+if(absl_FOUND)
+    message(STATUS "Using system Abseil ${absl_VERSION} from ${absl_DIR}")
+else()
+    message(STATUS "System Abseil not found — fetching via FetchContent")
+    FetchContent_Declare(
+        abseil-cpp
+        GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
+        GIT_TAG        lts_2025_01_27
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
+    )
+    set(ABSL_PROPAGATE_CXX_STD ON CACHE BOOL "" FORCE)
+    set(ABSL_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(ABSL_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(abseil-cpp)
+endif()
+
+# Protobuf: always build from source via FetchContent.
+# Pre-generated .pb.cc/.pb.h files require ABI-compatible protobuf v32.
 FetchContent_Declare(
     protobuf
     GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
-    GIT_TAG        v26.1
+    GIT_TAG        v32.0
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
-    GIT_SUBMODULES "third_party/abseil-cpp" "third_party/utf8_range"
+    GIT_SUBMODULES "third_party/utf8_range"
     EXCLUDE_FROM_ALL
 )
 set(protobuf_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "" FORCE)
 set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
 set(protobuf_INSTALL OFF CACHE BOOL "" FORCE)
-set(protobuf_ABSL_PROVIDER "module" CACHE STRING "" FORCE)
-set(ABSL_BUILD_TESTING OFF CACHE BOOL "" FORCE)
-set(ABSL_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+set(protobuf_ABSL_PROVIDER "package" CACHE STRING "" FORCE)
 FetchContent_MakeAvailable(protobuf)
 
 # Library target (header-only for buffer classes)
@@ -104,6 +167,9 @@ target_include_directories(pybrid_native_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/pybrid/proto
 )
+# Windows: wingdi.h defines `#define ERROR 0` which conflicts with protobuf's
+# RunState::ERROR enum value. NOGDI prevents wingdi.h from being included.
+target_compile_definitions(pybrid_native_lib PUBLIC $<$<PLATFORM_ID:Windows>:NOGDI>)
 
 # Python extension (optional)
 if(PYBRID_BUILD_PYTHON)

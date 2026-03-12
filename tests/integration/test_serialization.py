@@ -130,8 +130,8 @@ def serialize_roundtrip(computer):
         A new computer with the deserialized configuration.
     """
     # Get the serializer and deserializer types
-    serializer_cls = computer.get_serializer_implementation()
-    deserializer_cls = computer.get_deserializer_implementation()
+    serializer_cls = computer.get_serializer()
+    deserializer_cls = computer.get_deserializer()
 
     # Serialize the current configuration
     serializer = serializer_cls()

@@ -1,9 +1,12 @@
 stages:
   - test
   - build
+  - publish
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  DELETE_OLD_PACKAGES: "true"
+  GIT_DEPTH: 0
 
 cache:
   paths:
@@ -16,6 +19,21 @@ cache:
 .anabrid-if-release-job:
   rules:
     - if: $CI_COMMIT_TAG
+    - when: manual
+      allow_failure: true
+
+.build-native-base:
+  extends: .anabrid-if-release-job
+  stage: build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 3 hours
+
+###
+# Runs Python-based tests, only applicable to Linux. Should not be run within
+# docker as it requires binding host ports.
+###
 
 test:
   extends: .anabrid-uv-job
@@ -23,23 +41,112 @@ test:
   before_script:
     - apt-get update -qq && apt-get install -y -qq build-essential cmake git > /dev/null
   script:
-    - apt-get update -qq && apt-get install -y -qq build-essential cmake > /dev/null
-    - uv sync --python 3.13 --group dev
+    - uv sync --python 3.13 --group dev --no-editable
     - PYBRID_TEST_PORT=16732 uv run pytest --ignore=tests/device --ignore=tests/e2e
   artifacts:
-    expire_in: 3 days
+    expire_in: 3 hours
     reports:
       junit: report.xml
 
-build:
+###
+# BUILD: Native/C++ code, mainly for networking and the proxy. This should best 
+# be in docker containers (`docker` tag) as it uses
+# native functions and involves installing packages
+#
+# Uses cibuildwheel (https://cibuildwheel.pypa.io/en/stable/) to build
+# binary Python weel packages across operating systems.
+###
+
+build:native:linux:
+  extends: .build-native-base
+  tags: [linux, shell]
+  script:
+    - uv venv --python 3.13
+    - uv pip install cibuildwheel
+    - uv run --no-project cibuildwheel --platform linux --output-dir dist packages/pybrid-computing-native
+
+build:native:macos:
+  extends: .build-native-base
+  tags: [macos, shell]
+  script:
+    - uv venv --python 3.13
+    - uv pip install cibuildwheel
+    - uv run --no-project cibuildwheel --platform macos --output-dir dist packages/pybrid-computing-native
+
+# Runner prerequisites (one-time setup):
+#   1. Enable long paths (MSBuild's deeply nested .tlog files exceed MAX_PATH):
+#      reg add HKLM\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1 /f
+#   2. Enable long paths in git:
+#      git config --system core.longpaths true
+#   3. Reboot the runner.
+build:native:windows:
+  extends: .build-native-base
+  tags: [windows, shell]
+  script:
+    - $env:Path = "C:\Users\anabrid\.local\bin;$env:Path"
+    # uvx instead of uv run: a uv venv leaks its stdlib into cibuildwheel's
+    # per-version build venvs, causing Python version mismatches on Windows.
+    - uvx cibuildwheel --platform windows --output-dir dist packages/pybrid-computing-native
+
+###
+# BUILD: Pure Python (pybrid) package as source.
+###
+
+build:python:
   extends: [.anabrid-uv-job, .anabrid-if-release-job]
   stage: build
   before_script:
-    - apt-get update -qq && apt-get install -y -qq build-essential cmake git > /dev/null
+    - apt-get update -qq && apt-get install -y -qq git > /dev/null
   script:
-    - uv build --package pybrid-computing-native
     - uv build --package pybrid-computing
   artifacts:
     paths:
       - dist/
-    expire_in: 3 days
+    expire_in: 3 hours
+
+###
+# PUBLISH: Both packages, pybrid-computing and pybrid-computing-native,
+# are pushed to Gitlab's package registry
+###
+
+publish:
+  extends: [.anabrid-uv-job, .anabrid-if-release-job]
+  stage: publish
+  needs:
+    - build:native:linux
+    - build:native:macos
+    - build:native:windows
+    - build:python
+  script:
+    - uv publish
+        --publish-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi
+        --username gitlab-ci-token
+        --password ${CI_JOB_TOKEN}
+        dist/*
+
+###
+# CLEANUP job, to be run manually, for the CI/CD. Removes all packages from the
+# Gitlab repo except for the latest 3.
+###
+
+cleanup:packages:
+  extends: .anabrid-uv-job
+  stage: publish
+  needs: [publish]
+  rules:
+    - if: $DELETE_OLD_PACKAGES == "true" && $CI_COMMIT_TAG
+    - if: $DELETE_OLD_PACKAGES == "true" && $CI_PIPELINE_SOURCE == "schedule"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq jq > /dev/null
+  script:
+    - |
+      for pkg_name in pybrid-computing pybrid-computing-native; do
+        curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_type=pypi&package_name=${pkg_name}&order_by=created_at&sort=desc&per_page=100" \
+          | jq -r '.[3:][].id' \
+          | while read pkg_id; do
+              echo "Deleting ${pkg_name} package ${pkg_id}"
+              curl -s --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+                "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${pkg_id}"
+            done
+      done

@@ -28,7 +28,7 @@ class TestProbeADC:
         channel = circuit.probe(integrator, adc_channel=0)
 
         assert channel == 0
-        assert circuit._adc_channels[0] == integrator.lane
+        assert circuit._carrier.adc_config[0].index == integrator.lane
 
     def test_probe_adc_greedy(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -40,8 +40,8 @@ class TestProbeADC:
 
         assert channel0 == 0
         assert channel1 == 1
-        assert circuit._adc_channels[0] == int0.lane
-        assert circuit._adc_channels[1] == int1.lane
+        assert circuit._carrier.adc_config[0].index == int0.lane
+        assert circuit._carrier.adc_config[1].index == int1.lane
 
     def test_probe_adc_raises_on_occupied_channel(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -101,7 +101,7 @@ class TestMeasureDeprecated:
             channel = circuit.measure(integrator)
 
         assert channel == 0
-        assert circuit._adc_channels[0] == integrator.lane
+        assert circuit._carrier.adc_config[0].index == integrator.lane
 
     def test_measure_with_adc_channel(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -111,7 +111,7 @@ class TestMeasureDeprecated:
             channel = circuit.measure(integrator, adc_channel=2)
 
         assert channel == 2
-        assert circuit._adc_channels[2] == integrator.lane
+        assert circuit._carrier.adc_config[2].index == integrator.lane
 
 
 class TestFrontPanelPropertyDeprecated:

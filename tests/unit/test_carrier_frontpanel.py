@@ -25,6 +25,7 @@ from pybrid.redac.cluster import Cluster
 from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
 from pybrid.redac.entities import Path, EntityClass
 from pybrid.base.utils.addressing import AddressingMap
+from pybrid.redac.protocol.serializer import REDACDeserializer
 
 # Import new names with fallback to old names so tests fail (not crash)
 try:
@@ -187,7 +188,8 @@ class TestCarrierParseFrontPlane:
         carrier_pb = _make_carrier_entity(mac, include_fp=True)
         carrier_path = Path.parse(mac)
 
-        carrier = Carrier.create_from_entity_type_tree(carrier_path, carrier_pb)
+        from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer
+        carrier = LUCIDACDeserializer().deserialize_specification(carrier_pb, carrier_path)
 
         fp = getattr(carrier, "front_plane", None)
         assert fp is not None, (
@@ -205,7 +207,7 @@ class TestCarrierParseFrontPlane:
         carrier_pb = _make_carrier_entity(mac, include_fp=False)
         carrier_path = Path.parse(mac)
 
-        carrier = Carrier.create_from_entity_type_tree(carrier_path, carrier_pb)
+        carrier = REDACDeserializer().deserialize_specification(carrier_pb, carrier_path)
 
         fp = getattr(carrier, "front_plane", None)
         assert fp is None, (
@@ -298,22 +300,22 @@ class TestLUCIStackSerializationWithFP:
         fp.leds = 0xFF
 
         # Serialize via the LUCIStack serializer
-        serializer_cls = lucistack.get_serializer_implementation()
+        serializer_cls = lucistack.get_serializer()
         serializer = serializer_cls()
-        configs = serializer.serialize(lucistack)
+        module = serializer.serialize(lucistack)
 
         # Expected FP entity path: "<mac>/FP"
         expected_fp_path = str(Path.parse(mac) / "FP")
 
         # Find configs that reference the FrontPlane entity path
         fp_configs = [
-            c for c in configs
+            c for c in module.items
             if c.entity.path == expected_fp_path
         ]
 
         assert len(fp_configs) > 0, (
             f"Expected at least one config entry for entity path '{expected_fp_path}', "
-            f"but found none. Config paths: {[c.entity.path for c in configs]}"
+            f"but found none. Config paths: {[c.entity.path for c in module.items]}"
         )
 
         # Verify that at least one config contains front_panel_config or

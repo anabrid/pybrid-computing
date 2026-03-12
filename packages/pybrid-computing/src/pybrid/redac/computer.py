@@ -74,22 +74,29 @@ class REDAC(AnalogComputer):
 
     @classmethod
     def create_from_entity_type_tree(cls, type_tree):
+        warnings.warn(
+            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        deserializer = REDACDeserializer()
         carriers = []
         for sub_path, sub_tree in type_tree.items():
-            carrier = Carrier.create_from_entity_type_tree(Path.parse(sub_path), sub_tree)
+            carrier = deserializer.deserialize_specification(sub_tree, Path.parse(sub_path))
             carriers.append(carrier)
         return cls(entities=carriers)
 
     @classmethod
     def create_from(cls, data):
-        """
-        Create a computer instance from a given hardware structure.
+        """Create a computer instance from a given hardware structure.
 
-        The function accepts the following data sources
-         - dict representing an entity type tree
-         - path to a file containing a json encoded entity type tree
-         - file descriptor to such a file
+        Accepts a dict entity type tree, a path to a JSON file, or a file descriptor.
         """
+        warnings.warn(
+            "create_from is deprecated. Use REDACDeserializer instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if isinstance(data, dict):
             entity_tree = data
         elif isinstance(data, TextIO):
@@ -97,7 +104,12 @@ class REDAC(AnalogComputer):
         elif isinstance(data, str | FilePath):
             with open(data) as fs:
                 entity_tree = json.load(fs)
-        return REDAC.create_from_entity_type_tree(entity_tree)
+        deserializer = REDACDeserializer()
+        carriers = []
+        for sub_path, sub_tree in entity_tree.items():
+            carrier = deserializer.deserialize_specification(sub_tree, Path.parse(sub_path))
+            carriers.append(carrier)
+        return cls(entities=carriers)
     
     def get_config_entities(self) -> List[Entity]:
         return self.entities
@@ -105,8 +117,8 @@ class REDAC(AnalogComputer):
     def global_entities(self) -> List[Entity]:
         return []
 
-    def get_serializer_implementation(self) -> type:
+    def get_serializer(self) -> type:
         return REDACSerializer
 
-    def get_deserializer_implementation(self) -> type:
+    def get_deserializer(self) -> type:
         return REDACDeserializer

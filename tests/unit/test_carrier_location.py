@@ -7,6 +7,7 @@ import pytest
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.entities import Path, Loc
+from pybrid.redac.protocol.serializer import REDACDeserializer
 
 
 def _make_version() -> pb.Version:
@@ -59,10 +60,10 @@ class TestCarrierLocationFromEntity:
     def test_carrier_location_from_entity(self):
         mac = "AA-BB-CC-DD-EE-FF"
         entity = _make_carrier_entity(mac)
-        entity.v0.stack = 1
-        entity.v0.carrier = 4
+        entity.location_v0.stack = 1
+        entity.location_v0.carrier = 4
 
-        carrier = Carrier.create_from_entity_type_tree(Path.parse(mac), entity)
+        carrier = REDACDeserializer().deserialize_specification(entity, Path.parse(mac))
 
         assert carrier.location is not None
         assert carrier.location == Loc.new_carrier(1, 4)
@@ -70,17 +71,17 @@ class TestCarrierLocationFromEntity:
     def test_carrier_location_none_when_no_location(self):
         mac = "AA-BB-CC-DD-EE-FF"
         entity = _make_carrier_entity(mac)
-        carrier = Carrier.create_from_entity_type_tree(Path.parse(mac), entity)
+        carrier = REDACDeserializer().deserialize_specification(entity, Path.parse(mac))
 
         assert carrier.location is None
 
     def test_carrier_location_first_carrier(self):
         mac = "AA-BB-CC-DD-EE-FF"
         entity = _make_carrier_entity(mac)
-        entity.v0.stack = 0
-        entity.v0.carrier = 0
+        entity.location_v0.stack = 0
+        entity.location_v0.carrier = 0
 
-        carrier = Carrier.create_from_entity_type_tree(Path.parse(mac), entity)
+        carrier = REDACDeserializer().deserialize_specification(entity, Path.parse(mac))
 
         assert carrier.location is not None
         assert carrier.location == Loc.new_carrier(0, 0)

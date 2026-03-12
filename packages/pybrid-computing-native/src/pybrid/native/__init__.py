@@ -9,8 +9,6 @@ using standalone ASIO for networking.
 """
 import asyncio
 
-from pybrid.processing.gap_fill import GapFillMode
-
 try:
     from pybrid.native._impl import (
         # Enums
@@ -71,7 +69,6 @@ __all__ = [
     "NATIVE_AVAILABLE",
     "ControlChannel",
     "BufferType",
-    "GapFillMode",
     "RecvStatus",
     "RunState",
     "RecvResult",

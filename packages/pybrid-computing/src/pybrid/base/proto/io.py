@@ -17,11 +17,11 @@ class ProtoIO:
     @classmethod
     def json_to_pbfile(cls, input: Dict[str, Any]) -> pb.File:
         if not "version" in input:
-            raise Exception("Malformatted input bundle: 'version' missing!")
-        if not "bundle" in input:
-            raise Exception("Malformatted input bundle: 'bundle' missing!")
-        if not "configs" in input["bundle"]:
-            raise Exception("Malformatted input bundle: 'bundle/configs' missing!")
+            raise Exception("Malformatted input module: 'version' missing!")
+        if not "module" in input:
+            raise Exception("Malformatted input module: 'module' missing!")
+        if not "items" in input["module"]:
+            raise Exception("Malformatted input module: 'module/items' missing!")
         
         # Parse each config to protobuf
         pb_file = pb.File()
@@ -36,9 +36,9 @@ class ProtoIO:
     @classmethod
     def json_is_pb_file(cls, input: Dict[str, Any]) -> bool:
         """
-        Detect whether a given dict / JSON is of protobuf/bundle format
+        Detect whether a given dict / JSON is of protobuf/items format
         """
-        return "bundle" in input
+        return "module" in input
 
     @classmethod
     def open_pb_file(cls, path: str, skip_update: bool = False) -> pb.File:
@@ -65,13 +65,13 @@ class ProtoIO:
                     json_config = json.load(f)
 
                 if not cls.json_is_pb_file(json_config):
-                    raise Exception("JSON-config is not a valid bundle - if you're using an legacy-style JSON, try pybrid convert!")
+                    raise Exception("JSON-config is not a valid module - if you're using an legacy-style JSON, try pybrid convert!")
                 
                 apb_config = cls.json_to_pbfile(json_config)
                 logger.warning("JSON-based PB format is deprecated and eventually only APB files can be loaded, please consider using APB files...")
             
             except Exception as e:
-                raise Exception(f"Unable to read json-bundle file {path}: {e}")
+                raise Exception(f"Unable to read json-module file {path}: {e}")
             
         else:
             raise Exception("Unknown file extension for config, only .json and .apb are supported.")

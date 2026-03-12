@@ -219,11 +219,11 @@ class TestCircuitExport:
 
         # Verify pb_file exists and has content
         assert pb_file is not None, "Should create pb.File"
-        assert pb_file.bundle is not None, "pb.File should have bundle"
+        assert pb_file.module is not None, "pb.File should have module"
 
         # Verify JSON representation
         assert config_json is not None, "Should have JSON config"
-        assert "pybrid_computing_pb" in config_json or "bundle" in config_json, (
+        assert "module" in config_json and "items" in config_json["module"], (
             "JSON should have expected format"
         )
 
@@ -345,7 +345,7 @@ class TestLorenz96Pattern:
             f"Should have 1 constant allocated, got {constants_allocated}"
         )
 
-        adc_assigned = sum(1 for ch in circuit._adc_channels if ch is not None)
+        adc_assigned = sum(1 for ch in circuit._carrier.adc_config if ch is not None)
         assert adc_assigned == N, (
             f"Should have {N} ADC channels assigned, got {adc_assigned}"
         )
@@ -373,5 +373,5 @@ class TestLorenz96Pattern:
             config_json, pb_file = circuit.to_config()
 
         assert pb_file is not None, "to_config() should produce a pb.File"
-        assert pb_file.bundle is not None, "pb.File should have a config bundle"
+        assert pb_file.module is not None, "pb.File should have a config module"
         assert config_json is not None, "to_config() should produce JSON config"

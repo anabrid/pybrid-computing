@@ -2,7 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from pybrid.base.hybrid.serializer import Serializer
+from pybrid.base.hybrid.serializer import Serializer, Deserializer
 from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
 from pybrid.redac.entities import Entity, Path
 from pybrid.sim.computer import SimConfigEntity
@@ -19,7 +19,7 @@ class SimulatorSerializer(REDACSerializer):
     def __init__(self):
         super().__init__()
 
-    @Serializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, entity: Carrier):
         # handle here until REDAC is ready
         adc_config = self.cc.new_config(entity).adc_config
@@ -44,7 +44,7 @@ class SimulatorSerializer(REDACSerializer):
                 acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
                     interface == "external" else pb.PortConfig.AclState.INTERNAL)
 
-    @REDACSerializer._serialize.register
+    @Serializer._serialize_configuration.register
     def _(self, sim_config: SimConfigEntity):
 
         # always add sim_config to root entity as a "global" value
@@ -112,7 +112,7 @@ class SimulatorDeserializer(REDACDeserializer):
     def __init__(self, computer: "Simulator"):
         super().__init__(computer)
 
-    @REDACDeserializer._deserialize.register
+    @Deserializer._deserialize_configuration.register
     def _(self, config: pb.SimConfig):
         """Deserialize simulator configuration and apply to SimConfigEntity."""
         from pybrid.sim.config import ACLConfig, ACLPlugin, ACLBind
@@ -201,3 +201,5 @@ class SimulatorDeserializer(REDACDeserializer):
                     raise Exception("DEVICE <> DEVICE connections are not supported by the simulator.")
 
             entity.acl_config = ACLConfig(plugins=plugins, inputs=inputs, outputs=outputs)
+
+

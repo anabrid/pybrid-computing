@@ -33,7 +33,6 @@ import warnings
 from ipaddress import ip_network
 from typing import Optional
 
-import pybrid.base.proto.main_pb2 as pb
 from pybrid.lucidac.controller import Controller as LUCIStackController
 from pybrid.lucipy.circuits import Circuit
 from pybrid.redac import DAQConfig, RunConfig, Run
@@ -200,7 +199,7 @@ class LucipyWrapper:
         """Execute computation (async implementation).
 
         Builds a :class:`~pybrid.redac.session.Session` pipeline that uploads
-        the merged config bundle and then runs the computation.
+        the merged config module and then runs the computation.
 
         Returns:
             Run object with execution results.
@@ -209,16 +208,6 @@ class LucipyWrapper:
             RuntimeError: If no circuit has been set for any device in scope.
         """
         await self._ensure_controller()
-
-        # Build merged config bundle from all circuits
-        all_configs = []
-        for idx in self._device_indices:
-            circuit = self._circuits.get(idx)
-            if circuit is None:
-                raise RuntimeError(f"No circuit set for device {idx}!")
-
-            _, pb_file = circuit.to_config()
-            all_configs.extend(pb_file.bundle.configs)
 
         # Deduce num_channels from first circuit's ADC assignments
         first_circuit = self._circuits[self._device_indices[0]]
@@ -230,8 +219,12 @@ class LucipyWrapper:
 
         # Build and execute session pipeline
         session = self._controller.create_session()
-        session.set_config_bundle(pb.ConfigBundle(configs=all_configs))
-        session.calibrate()
+        for idx in self._device_indices:
+            circuit = self._circuits.get(idx)
+            if circuit is None:
+                raise RuntimeError(f"No circuit set for device {idx}!")
+            session.set_config(circuit._lucidac)
+        session.calibrate(gain=True, offset=True)
         session.run(config=self._run_config, daq=daq_config)
         runs = await session.execute()
 
@@ -415,7 +408,7 @@ class LucipyWrapper:
         Returns:
             Number of assigned ADC channels.
         """
-        return len([ch for ch in circuit._adc_channels if ch is not None])
+        return len([ch for ch in circuit._carrier.adc_config if ch is not None])
 
     def _print_discovery_summary(self):
         """Print a summary of discovered devices to stdout."""

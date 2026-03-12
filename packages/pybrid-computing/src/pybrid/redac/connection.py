@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Literal, List
+from typing import Literal, List, Optional
 
 import pybrid.base.proto.main_pb2 as pb
 
@@ -61,12 +61,12 @@ class ConnectionManager:
     """
 
     connections: dict[Path, DeviceConnection]
-    cache_descriptions: pb.DescribeBundle
+    cache_descriptions: pb.Module
     _topology_mode: Literal["direct", "proxy"] | None
 
     def __init__(self) -> None:
         self.connections: dict[Path, DeviceConnection] = {}
-        self.cache_descriptions: pb.DescribeBundle = pb.DescribeBundle(entities=[])
+        self.cache_descriptions: pb.Module = pb.Module(items=[])
         self._topology_mode: Literal["direct", "proxy"] | None = None
 
     @property
@@ -78,24 +78,41 @@ class ConnectionManager:
         self,
         host: str,
         port: int,
+        specification: Optional[pb.Module] = None
     ) -> tuple[list[CarrierInfo], dict[Path, DeviceConnection]]:
         """Discover, classify, connect, and register one endpoint.
 
         Opens a temporary control channel to discover the device topology,
         then creates persistent connections and merges them into :attr:`connections`.
 
-        :raises RuntimeError: If mixing direct and proxy connections, if a second
-            proxy endpoint is added, or if the describe call times out.
-        """
-        entity = await self._discover_device(host, port)
+        For simulators, skips totpology detection
 
-        entities = entity
-        if entities.id == "/":
-            for child in entities.children:
-                self.cache_descriptions.entities.append(child)
+        :raises RuntimeError: If mixing direct and proxy connections, if a second
+            proxy endpoint is added, or if the extract call times out.
+        """
+        use_discovery = (specification is None)
+
+        carriers = []
+
+        if use_discovery:
+            module = await self._discover_device(host, port)
+            entities = [
+                item.entity_specification.entity
+                for item in module.items
+                if item.HasField("entity_specification")
+            ]
         else:
-            self.cache_descriptions.entities.append(entity)
-        carriers = self._detect_topology(entity)
+            entities = [
+                c.entity_specification.entity
+                for c in specification.items
+                if c.HasField("entity_specification")
+            ]
+
+        for entity in entities:
+            self.cache_descriptions.items.append(
+                pb.Item(entity_specification=pb.EntitySpecification(entity=entity)))
+            carriers.extend(self._detect_topology(entity))
+
         new_connections = await self._create_connections(host, port, carriers)
         self._register(carriers, new_connections)
         return carriers, new_connections
@@ -136,17 +153,17 @@ class ConnectionManager:
                 f"channels: {errors}"
             )
 
-    async def _discover_device(self, host: str, port: int) -> pb.Entity:
-        """Open a temporary control channel, describe the device, and close."""
+    async def _discover_device(self, host: str, port: int) -> pb.Module:
+        """Open a temporary control channel, extract the device specification, and close."""
         from pybrid.redac.control import AsyncControlChannel
 
         channel = await AsyncControlChannel.create(host, port)
         try:
             channel.start()
-            entity = await channel.describe()
+            module = await channel.extract(specification=True, recursive=True)
         finally:
             await channel.stop()
-        return entity
+        return module
 
     def _detect_topology(self, entity: pb.Entity) -> list[CarrierInfo]:
         """Parse the entity tree and return one :class:`CarrierInfo` per carrier.

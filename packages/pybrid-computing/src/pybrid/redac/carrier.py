@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import logging
-import string
+import warnings
 from dataclasses import dataclass, field
 from typing import Optional, TYPE_CHECKING
 
@@ -13,7 +13,7 @@ from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.redac.blocks import TBlock
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.cluster import Cluster
-from pybrid.redac.entities import Entity, Path, EntityType, EntityClass, Loc
+from pybrid.redac.entities import Entity, Path, EntityType, Loc
 
 if TYPE_CHECKING:
     from pybrid.lucidac.front_plane import FrontPlane
@@ -63,6 +63,10 @@ class Carrier(Entity):
     #: Physical location of this carrier in the REDAC rack, if known.
     location: Optional[Loc] = None
 
+    #: Protobuf entity metadata preserved from deserialization (class, type, variant, version).
+    #: Used by the description serializer to reproduce the exact entity type fields.
+    entity_type: Optional[EntityType] = None
+
     @property
     def children(self):
         """Generator iterating through child entities of type :class:`.cluster.Cluster`."""
@@ -80,62 +84,13 @@ class Carrier(Entity):
 
     @classmethod
     def create_from_entity_type_tree(cls, path, tree: pb.Entity):
-        this_entity_type = EntityType.pop_from_dict(tree)
-        assert this_entity_type.class_ is EntityClass.CARRIER
-        clusters = []
-        tblock = None
-        st0block = None
-        st1block = None
-        st2block = None
-        front_plane = None
-        acl_select = None
-
-        location = None
-        if tree.HasField("v0"):
-            location = Loc.new_carrier(tree.v0.stack, tree.v0.carrier)
-
-        for child in tree.children:
-            path_: Path = path / Path.parse(child.id)
-            if not path_.id_:
-                # Sanity check, firmware may report partially broken entities
-                logger.warning("Reported entities include nameless entity at %s: %s", path_, child)
-                continue
-            if path_.id_ == "T":
-                tblock = TBlock.create_from_entity_type_tree(path_, child)
-                if location:
-                    tblock.location = location.carrier()
-                continue
-            if path_.id_ == "ST0":
-                st0block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
-                if location:
-                    st0block.location = location.stack()
-                continue
-            if path_.id_ == "ST1":
-                st1block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
-                if location:
-                    st1block.location = location.stack()
-                continue
-            if path_.id_ == "ST2":
-                st2block = BackplaneTBlock.create_from_entity_type_tree(path_, child)
-                st1block = TBlock.create_from_entity_type_tree(path_, child)
-                if location:
-                    st2block.location = location.stack()
-                    st1block.location = location.stack()
-                continue
-            if path_.id_ == "FP":
-                # Firmware reports FP with class_=UNKNOWN(0), so detect by name.
-                from pybrid.lucidac.front_plane import FrontPlane as FP
-                front_plane = FP(path_)
-                acl_select = 8 * ["INTERNAL"]
-                continue
-            if path_.id_ in string.digits:
-                cluster = Cluster.create_from_entity_type_tree(path_, child)
-                clusters.append(cluster)
-                continue
-
-        return cls(path=path, clusters=clusters, tblock=tblock, st0block=st0block,
-            st1block=st1block, front_plane=front_plane, acl_select=acl_select,
-            location=location)
+        warnings.warn(
+            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        from pybrid.redac.protocol.serializer import REDACDeserializer
+        return REDACDeserializer().deserialize_specification(tree, path)
 
     def resolve_signal(self, entity: "Entity"):
         # TODO: This should be extended to a general approach to defining inputs and outputs of elements

@@ -3,25 +3,21 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import logging
+from typing import List
+
+import pybrid.base.proto.main_pb2 as pb
 
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.computer import REDAC
-from pybrid.redac.sync import SyncImplementationType
+from pybrid.redac.entities import Path
 from pybrid.sim.computer import Simulator
 
 logger = logging.getLogger(__name__)
 
 class Controller(REDACController):
 
-    def __init__(self, sync_impl: SyncImplementationType = SyncImplementationType.NATIVE):
+    def __init__(self):
         """Initialise the Simulator controller.
-
-        Args:
-            sync_impl: Synchronisation strategy. Defaults to NATIVE since the
-                simulator does not require an external SYNC generator.
         """
-        super().__init__(sync_impl)
+        super().__init__()
         self.computer = Simulator()
-
-    async def enable_udp(self, ctrl_protocol):
-        logger.info("Simulator does not support streaming via UDP, staying with TCP...")

@@ -59,23 +59,6 @@ BroadcastResult ProxyServer::broadcast_to_backends(
     return result;
 }
 
-void ProxyServer::handle_describe(ClientSession& client, const pb::MessageV1& msg) {
-    std::vector<pb::Entity> entities;
-    entities.reserve(backends_.size());
-
-    // backends_ is read-only after start(); no lock needed.
-    for (auto& backend : backends_) {
-        entities.push_back(backend.cached_entity);
-    }
-
-    pb::Entity merged = merge_entity_trees(entities);
-
-    pb::MessageV1 response;
-    response.set_id(msg.id());
-    *response.mutable_describe_response()->mutable_entity() = std::move(merged);
-    client.send(response);
-}
-
 void ProxyServer::handle_reset(ClientSession& client, const pb::MessageV1& msg) {
     std::vector<BackendDevice*> targets;
     for (auto& b : backends_) targets.push_back(&b);
@@ -100,6 +83,23 @@ void ProxyServer::handle_reset(ClientSession& client, const pb::MessageV1& msg) 
 
 void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg) {
     const std::string& path = msg.extract_command().entity().path();
+
+    if (path.empty()) {
+        // No entity path specified — aggregate cached modules from all backends.
+        pb::Module merged;
+        for (auto& backend : backends_) {
+            for (const auto& item : backend.cached_module.items()) {
+                *merged.add_items() = item;
+            }
+        }
+
+        pb::MessageV1 response;
+        response.set_id(msg.id());
+        *response.mutable_extract_response()->mutable_module() = std::move(merged);
+        client.send(response);
+        return;
+    }
+
     BackendDevice* backend = find_backend_for_path(path);
 
     if (!backend || !backend->control || !backend->control->is_connected()) {
@@ -123,19 +123,18 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
 }
 
 void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg) {
-    const pb::ConfigBundle& bundle = msg.config_command().bundle();
+    const pb::Module& module = msg.config_command().module();
 
     if (debug_) {
         std::cerr << "[ProxyServer] DEBUG: handle_config — "
-                  << bundle.configs_size() << " config entries:\n";
-        for (int i = 0; i < bundle.configs_size(); ++i) {
+                  << module.items_size() << " config entries:\n";
+        for (int i = 0; i < module.items_size(); ++i) {
             std::string json_str;
+            google::protobuf::json::PrintOptions opts;
+            opts.add_whitespace = true;
+            opts.always_print_fields_with_no_presence = true;
             auto status = google::protobuf::json::MessageToJsonString(
-                bundle.configs(i), &json_str,
-                google::protobuf::json::PrintOptions{
-                    .add_whitespace = true,
-                    .always_print_fields_with_no_presence = true,
-                });
+                module.items(i), &json_str, opts);
             if (status.ok()) {
                 std::cerr << "  [" << i << "] " << json_str << "\n";
             } else {
@@ -150,18 +149,18 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
 
     // Phase 1: Route all config entries to backends. Unroutable paths cause
     // a full reject — never send partial configs.
-    std::unordered_map<BackendDevice*, pb::ConfigBundle> per_backend;
+    std::unordered_map<BackendDevice*, pb::Module> per_backend;
     std::vector<std::string> unroutable_paths;
 
-    for (int i = 0; i < bundle.configs_size(); ++i) {
-        const pb::Config& cfg = bundle.configs(i);
+    for (int i = 0; i < module.items_size(); ++i) {
+        const pb::Item& cfg = module.items(i);
         const std::string& path = cfg.entity().path();
 
         // Config entries without an entity path (global settings) are broadcast
         // to all backends — they don't participate in MAC-based routing.
         if (path.empty()) {
             for (auto& backend : backends_) {
-                *per_backend[&backend].add_configs() = cfg;
+                *per_backend[&backend].add_items() = cfg;
             }
             continue;
         }
@@ -171,7 +170,7 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
             unroutable_paths.push_back(path);
             continue;
         }
-        *per_backend[backend].add_configs() = cfg;
+        *per_backend[backend].add_items() = cfg;
     }
 
     if (!unroutable_paths.empty()) {
@@ -186,7 +185,7 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
 
     // Phase 2: Send per-backend config commands in parallel.
     std::vector<BackendDevice*> targets;
-    for (auto& [backend_ptr, sub_bundle] : per_backend) {
+    for (auto& [backend_ptr, sub_module] : per_backend) {
         targets.push_back(backend_ptr);
     }
 
@@ -195,7 +194,7 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
             pb::ConfigCommand* config_cmd = req.mutable_config_command();
-            *config_cmd->mutable_bundle() = per_backend[&backend];
+            *config_cmd->mutable_module() = per_backend[&backend];
             config_cmd->set_reset_before(msg.config_command().reset_before());
             config_cmd->set_sh_kludge(msg.config_command().sh_kludge());
             return req;
@@ -228,12 +227,11 @@ void ProxyServer::handle_start_run(ClientSession& client, const pb::MessageV1& m
 
     if (debug_) {
         std::string json_str;
+        google::protobuf::json::PrintOptions opts;
+        opts.add_whitespace = true;
+        opts.always_print_fields_with_no_presence = true;
         auto status = google::protobuf::json::MessageToJsonString(
-            msg.start_run_command(), &json_str,
-            google::protobuf::json::PrintOptions{
-                .add_whitespace = true,
-                .always_print_fields_with_no_presence = true,
-            });
+            msg.start_run_command(), &json_str, opts);
         std::cerr << "[ProxyServer] DEBUG: handle_start_run — Session "
                   << client.session_id_ << "\n";
         if (status.ok()) {
@@ -327,6 +325,14 @@ void ProxyServer::handle_udp_streaming(
         client,
         msg.id(),
         "UDP streaming is not supported by the proxy; data is delivered over TCP.");
+}
+
+void ProxyServer::handle_register_external_entities(
+    ClientSession& client, const pb::MessageV1& msg) {
+    pb::MessageV1 response;
+    response.set_id(msg.id());
+    response.mutable_success_message();
+    client.send(response);
 }
 
 BackendDevice* ProxyServer::find_backend_for_path(const std::string& entity_path) {

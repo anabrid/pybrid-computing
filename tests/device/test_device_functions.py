@@ -25,7 +25,6 @@ import numpy as np
 import pytest
 
 from pybrid.base.proto.io import ProtoIO
-from pybrid.base.utils.addressing import Addressing
 from pybrid.redac.controller import Controller
 from pybrid.redac.run import Run, RunConfig, DAQConfig, RunState
 
@@ -60,7 +59,7 @@ class TestHarmonicOscillatorOnDevice:
         """Amplitude tolerance is wide to accommodate the energy increase real devices exhibit."""
         host, port, device_type = any_device_endpoint
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
             # Get device paths for config addressing
@@ -68,15 +67,7 @@ class TestHarmonicOscillatorOnDevice:
             if not device_paths:
                 pytest.skip("No devices available")
 
-            # Map virtual addresses to physical only for LUCIDAC
-            # Simulator and REDAC use virtual addresses directly
-            if device_type == "lucidac":
-                pb_file = Addressing.virtual_to_physical(ctrl.computer, harmonic_pb_config)
-            else:
-                pb_file = harmonic_pb_config
-
-            # Apply the configuration to the device
-            await ctrl.set_config_bundle(pb_file.bundle)
+            await ctrl.set_module(harmonic_pb_config.module)
 
             # Create run with DAQ configuration
             run = Run(
@@ -134,7 +125,7 @@ class TestHarmonicOscillatorOnDevice:
         """Expected frequency is k/(2*pi) ~ 1592 Hz with 5% tolerance for analog variation."""
         host, port, device_type = any_device_endpoint
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
             # Get device paths for config addressing
@@ -142,15 +133,7 @@ class TestHarmonicOscillatorOnDevice:
             if not device_paths:
                 pytest.skip("No devices available")
 
-            # Map virtual addresses to physical only for LUCIDAC
-            # Simulator and REDAC use virtual addresses directly
-            if device_type == "lucidac":
-                pb_file = Addressing.virtual_to_physical(ctrl.computer, harmonic_pb_config)
-            else:
-                pb_file = harmonic_pb_config
-
-            # Apply the configuration to the device
-            await ctrl.set_config_bundle(pb_file.bundle)
+            await ctrl.set_module(harmonic_pb_config.module)
 
             # Create run for frequency measurement
             run = Run(
@@ -224,7 +207,7 @@ class TestHarmonicOscillatorOnDevice:
         expected_samples = int(op_time_us * sample_rate / 1_000_000_000)
         sample_tolerance = 0.1  # Allow 10% tolerance for timing variations
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
             # Get device paths for config addressing
@@ -240,7 +223,7 @@ class TestHarmonicOscillatorOnDevice:
                 pb_file = harmonic_pb_config
 
             # Apply the circuit configuration to the device
-            await ctrl.set_config_bundle(pb_file.bundle)
+            await ctrl.set_module(pb_file.module)
 
             # Configure a run with explicit DAQ settings
             run = Run(

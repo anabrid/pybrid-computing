@@ -106,7 +106,7 @@ class TestErrorPropagation:
         old_handler = _enable_run_error_suppression(loop)
 
         try:
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 await ctrl.add_device(host, port)
 
                 # Create a run with impossibly high sample rate
@@ -167,7 +167,7 @@ class TestErrorPropagation:
         old_handler = _enable_run_error_suppression(loop)
 
         try:
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 await ctrl.add_device(host, port)
 
                 # Test with extremely large op_time
@@ -218,11 +218,11 @@ class TestErrorPropagation:
         old_handler = _enable_run_error_suppression(loop)
 
         try:
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 await ctrl.add_device(host, port)
 
                 # First, trigger an error condition (invalid config)
-                await ctrl.set_config_bundle(harmonic_pb_config.bundle)
+                await ctrl.set_module(harmonic_pb_config.module)
                 bad_run = Run(
                     id_=uuid4(),
                     config=RunConfig(
@@ -237,7 +237,7 @@ class TestErrorPropagation:
                     pass  # Expected error
 
                 # Now try a valid run - should succeed
-                await ctrl.set_config_bundle(harmonic_pb_config.bundle)
+                await ctrl.set_module(harmonic_pb_config.module)
                 good_run = Run(
                     id_=uuid4(),
                     config=RunConfig(
@@ -266,7 +266,7 @@ class TestErrorPropagation:
         old_handler = _enable_run_error_suppression(loop)
 
         try:
-            async with Controller(standalone=True) as ctrl:
+            async with Controller() as ctrl:
                 await ctrl.add_device(host, port)
 
                 # Create intentionally invalid configuration
@@ -338,7 +338,7 @@ def harmonic_pb_config_with_portconfig():
     pb_file = ProtoIO.json_to_pbfile(json_config)
 
     # Add a PortConfig for entity "00-00-00-00-00-00" (unavailable hardware)
-    port_config = pb.Config(
+    port_config = pb.Item(
         entity=pb.EntityId(path="00-00-00-00-00-00"),
         port_config=pb.PortConfig(
             states=[
@@ -353,7 +353,7 @@ def harmonic_pb_config_with_portconfig():
             ]
         )
     )
-    pb_file.bundle.configs.append(port_config)
+    pb_file.module.items.append(port_config)
 
     return pb_file
 
@@ -376,7 +376,7 @@ def harmonic_pb_config_with_switchconfig():
     pb_file = ProtoIO.json_to_pbfile(json_config)
 
     # Add a SwitchConfig for entity "00-00-00-00-00-00/T" (unavailable hardware on LUCIDAC)
-    switch_config = pb.Config(
+    switch_config = pb.Item(
         entity=pb.EntityId(path="00-00-00-00-00-00/T"),
         switch_config=pb.SwitchConfig(
             muxes=[
@@ -391,7 +391,7 @@ def harmonic_pb_config_with_switchconfig():
             ]
         )
     )
-    pb_file.bundle.configs.append(switch_config)
+    pb_file.module.items.append(switch_config)
 
     return pb_file
 
@@ -418,16 +418,16 @@ class TestUnavailableHardwareErrorPropagation:
 
         host, port = endpoint
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
-            # Attempt to set config bundle containing PortConfig for unavailable hardware
+            # Attempt to set module containing PortConfig for unavailable hardware
             # This should fail because the device doesn't have Port hardware
             error_caught = False
             error_message = ""
 
             try:
-                await ctrl.set_config_bundle(harmonic_pb_config_with_portconfig.bundle)
+                await ctrl.set_module(harmonic_pb_config_with_portconfig.module)
             except Exception as e:
                 error_caught = True
                 error_message = str(e)
@@ -461,16 +461,16 @@ class TestUnavailableHardwareErrorPropagation:
 
         host, port = endpoint
 
-        async with Controller(standalone=True) as ctrl:
+        async with Controller() as ctrl:
             await ctrl.add_device(host, port)
 
-            # Attempt to set config bundle containing SwitchConfig for unavailable hardware
+            # Attempt to set module containing SwitchConfig for unavailable hardware
             # This should fail because LUCIDAC doesn't have switch hardware at T-block
             error_caught = False
             error_message = ""
 
             try:
-                await ctrl.set_config_bundle(harmonic_pb_config_with_switchconfig.bundle)
+                await ctrl.set_module(harmonic_pb_config_with_switchconfig.module)
             except Exception as e:
                 error_caught = True
                 error_message = str(e)

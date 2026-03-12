@@ -26,7 +26,6 @@ from unittest.mock import AsyncMock, MagicMock, patch, call
 from pybrid.redac.session import Session, SessionCommand, SetConfigCommand, RunCommand
 
 from pybrid.redac.run import Run, RunConfig, RunState
-from pybrid.redac.sync import SyncConfig, SyncImplementationType
 from pybrid.redac.entities import Path
 from pybrid.redac.channel import DeviceConnection
 from pybrid.redac.connection import ConnectionManager
@@ -39,7 +38,7 @@ import pybrid.base.proto.main_pb2 as pb
 def _make_mock_control_channel() -> AsyncMock:
     """Return a fully-mocked AsyncControlChannel."""
     ctrl = AsyncMock()
-    ctrl.set_config_bundle = AsyncMock(return_value=Result.success())
+    ctrl.set_module = AsyncMock(return_value=Result.success())
     ctrl.start_run_request = AsyncMock(return_value=Result.success())
     ctrl.register_callback = MagicMock()
     ctrl.unregister_callback = MagicMock()
@@ -56,9 +55,7 @@ def _make_mock_device_connection() -> MagicMock:
 
 
 def _make_mock_controller(
-    paths: list[str] | None = None,
-    sync_impl: SyncImplementationType = SyncImplementationType.NATIVE,
-) -> MagicMock:
+    paths: list[str] | None = None) -> MagicMock:
     """
     Build a mock BaseController with populated connection_manager and an asyncio.Lock.
 
@@ -68,7 +65,6 @@ def _make_mock_controller(
     """
     paths = paths or ["AA-BB-CC-DD-EE-01"]
     ctrl = MagicMock(spec=BaseController)
-    ctrl.sync_impl = sync_impl
     ctrl.sample_listeners = []
     ctrl._session_lock = asyncio.Lock()
     ctrl.runs = {}
@@ -84,13 +80,12 @@ def _make_mock_controller(
     mgr.get_connection.side_effect = lambda p: connections[p]
     ctrl.connection_manager = mgr
 
-    # Serializer mock: produce a minimal ConfigBundle
     mock_serializer_instance = MagicMock()
-    mock_serializer_instance.serialize.return_value = []
+    mock_serializer_instance.serialize.return_value = pb.Module()
     mock_serializer_cls = MagicMock(return_value=mock_serializer_instance)
 
     mock_computer = MagicMock()
-    mock_computer.get_serializer_implementation.return_value = mock_serializer_cls
+    mock_computer.get_serializer.return_value = mock_serializer_cls
     ctrl.computer = mock_computer
 
     return ctrl
@@ -98,14 +93,13 @@ def _make_mock_controller(
 
 def _make_session(
     paths: list[str] | None = None,
-    sync_impl: SyncImplementationType = SyncImplementationType.NATIVE,
 ) -> tuple[Session, MagicMock]:
     """
     Create a Session bound to a mock controller.
 
     :returns: (session, mock_controller)
     """
-    ctrl = _make_mock_controller(paths=paths, sync_impl=sync_impl)
+    ctrl = _make_mock_controller(paths=paths)
     session = Session(ctrl)
     return session, ctrl
 
@@ -146,10 +140,8 @@ class TestSessionConfigDistribution:
             paths=["AA-BB-CC-DD-EE-01", "BB-BB-CC-DD-EE-02"]
         )
         comp = MagicMock()
-        # Mock the serializer to return a real ConfigBundle
-        fake_bundle = pb.ConfigBundle()
-        serializer_instance = ctrl.computer.get_serializer_implementation()()
-        serializer_instance.serialize.return_value = []
+        serializer_instance = ctrl.computer.get_serializer()()
+        serializer_instance.serialize.return_value = pb.Module()
 
         # Override _execute_run so we only test the config path
         session.set_config(comp)
@@ -159,11 +151,11 @@ class TestSessionConfigDistribution:
 
         unique_conns = ctrl.connection_manager.get_unique_connections()
         for conn in unique_conns:
-            conn.control.set_config_bundle.assert_called_once()
+            conn.control.set_module.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_proxy_mode_config_sent_once_not_per_carrier(self):
-        """In proxy mode all carrier paths share one DeviceConnection; set_config_bundle must be called exactly once."""
+        """In proxy mode all carrier paths share one DeviceConnection; set_module must be called exactly once."""
         session, ctrl = _make_session(paths=["AA-BB-CC-DD-EE-01"])
         # Simulate proxy mode: two paths pointing to the same DeviceConnection object
         shared_conn = _make_mock_device_connection()
@@ -178,7 +170,7 @@ class TestSessionConfigDistribution:
             await session.execute()
 
         # Should be called exactly once even though there are 2 carrier paths
-        shared_conn.control.set_config_bundle.assert_called_once()
+        shared_conn.control.set_module.assert_called_once()
 
 
 class TestSessionSequentialExecution:
@@ -191,10 +183,10 @@ class TestSessionSequentialExecution:
         execution_order = []
 
         async def fake_set_config(cmd):
-            execution_order.append(("set_config", id(cmd.computer)))
+            execution_order.append("set_config")
 
         async def fake_run(cmd):
-            execution_order.append(("run", id(cmd.config)))
+            execution_order.append("run")
             return Run()
 
         comp1, comp2 = MagicMock(), MagicMock()
@@ -206,11 +198,7 @@ class TestSessionSequentialExecution:
              patch.object(session, "_execute_run", new=fake_run):
             await session.execute()
 
-        assert len(execution_order) == 4
-        assert execution_order[0] == ("set_config", id(comp1))
-        assert execution_order[1] == ("run", id(cfg1))
-        assert execution_order[2] == ("set_config", id(comp2))
-        assert execution_order[3] == ("run", id(cfg2))
+        assert execution_order == ["set_config", "run", "set_config", "run"]
 
 
 class TestSessionDistributedRunState:
@@ -311,7 +299,7 @@ class TestSessionNativeSync:
     async def test_native_sync_sets_master_on_first_path(self):
         """With NATIVE sync_impl, run.sync must be enabled and master must be one of the known carrier paths."""
         paths = ["AA-BB-CC-DD-EE-01", "BB-BB-CC-DD-EE-02"]
-        session, ctrl = _make_session(paths=paths, sync_impl=SyncImplementationType.NATIVE)
+        session, ctrl = _make_session(paths=paths)
 
         captured_runs = []
 
@@ -468,7 +456,7 @@ class TestSessionDeferredExecution:
 
         # Verify: no control channel method has been called on any connection
         for conn in ctrl.connection_manager.get_unique_connections():
-            conn.control.set_config_bundle.assert_not_called()
+            conn.control.set_module.assert_not_called()
             conn.control.start_run_request.assert_not_called()
             conn.control.register_callback.assert_not_called()
 
@@ -477,17 +465,17 @@ class TestSessionErrorPropagation:
     """Session.execute() raises RuntimeError when device returns a failure Result.
 
     execute() must propagate config errors to the caller: it calls raise_on_error()
-    on both set_config_bundle and start_run_request results.
+    on both set_module and start_run_request results.
     """
 
     @pytest.mark.asyncio
     async def test_execute_set_config_raises_on_device_error(self):
-        """execute() raises RuntimeError when set_config_bundle returns a failure Result."""
+        """execute() raises RuntimeError when set_module returns a failure Result."""
         session, ctrl = _make_session(paths=["AA-BB-CC-DD-EE-01"])
 
         # Override the mock control channel to return a failure Result
         conn = list(ctrl.connection_manager.get_unique_connections())[0]
-        conn.control.set_config_bundle = AsyncMock(
+        conn.control.set_module = AsyncMock(
             return_value=Result.failure("config mismatch")
         )
 

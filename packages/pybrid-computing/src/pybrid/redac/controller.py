@@ -5,7 +5,9 @@ import asyncio
 import logging
 import typing
 import warnings
+
 from uuid import UUID
+from typing import List, Optional
 
 import numpy as np
 
@@ -15,7 +17,6 @@ from pybrid.redac.computer import REDAC
 from pybrid.redac.device import Device
 from pybrid.redac.entities import Path
 from pybrid.redac.run import Run, RunState, RunError
-from pybrid.redac.sync import Sync, SyncImplementationType
 from pybrid.base.hybrid.listeners import SampleListener
 
 logger = logging.getLogger(__name__)
@@ -144,46 +145,13 @@ class Controller(BaseController):
     #: Listeners that forward received UDP data directly to the user
     sample_listeners: typing.List[SampleListener] = []
 
-    #: Allows synching via USB
-    sync: typing.Optional[Sync]
 
-    def __init__(
-        self,
-        sync_impl: SyncImplementationType = SyncImplementationType.NATIVE,
-        *,
-        standalone: typing.Optional[bool] = None,
-    ):
-        """
-        :param sync_impl: Synchronisation strategy.  Defaults to
-            :attr:`~pybrid.redac.sync.SyncImplementationType.NATIVE`.
-        :param standalone: Deprecated.  Pass ``sync_impl`` instead.
-        :raises ValueError: If both ``sync_impl`` and ``standalone`` are supplied.
-        """
-        if standalone is not None:
-            if sync_impl is not SyncImplementationType.NATIVE:
-                raise ValueError(
-                    "Cannot pass both 'standalone' and 'sync_impl'. "
-                    "Use 'sync_impl' only."
-                )
-            warnings.warn(
-                "The 'standalone' parameter is deprecated. "
-                "Use 'sync_impl=SyncImplementationType.NATIVE' (True) or "
-                "'sync_impl=SyncImplementationType.USBSPI' (False) instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            sync_impl = (
-                SyncImplementationType.NATIVE
-                if standalone
-                else SyncImplementationType.USBSPI
-            )
-
-        super().__init__(sync_impl=sync_impl)
+    def __init__(self):
+        super().__init__()
         self.computer = REDAC(entities=[])
         self._raw_entity_dict = dict()
         self._ongoing_runs = dict()
         self._clusters_per_carrier = dict()
-        self.sync = None
 
     @classmethod
     def get_run_implementation(cls) -> typing.Type[Run]:
@@ -231,75 +199,49 @@ class Controller(BaseController):
             stacklevel=2,
         )
 
-    @property
-    def standalone(self) -> bool:
-        """Deprecated.  Use ``sync_impl`` instead.
-
-        .. deprecated::
-        """
-        warnings.warn(
-            "controller.standalone is deprecated. "
-            "Use controller.sync_impl instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.sync_impl == SyncImplementationType.NATIVE
-
-    @standalone.setter
-    def standalone(self, value: bool) -> None:
-        """Deprecated setter.  Updates :attr:`sync_impl` accordingly.
-
-        .. deprecated::
-        """
-        warnings.warn(
-            "Setting controller.standalone is deprecated. "
-            "Use controller.sync_impl instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.sync_impl = (
-            SyncImplementationType.NATIVE
-            if value
-            else SyncImplementationType.USBSPI
-        )
-
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await super().__aexit__(exc_type, exc_val, exc_tb)
 
-    def enable_sync(self):
-        """Enable the hardware synchronisation subsystem.
-
-        Creates a :class:`~pybrid.redac.sync.Sync` instance if one has not
-        already been created.  Exceptions are logged and swallowed so that
-        sync-unavailability does not propagate to callers.
-        """
-        if self.sync:
-            return
-        try:
-            self.sync = Sync()
-        except Exception as e:
-            logger.exception(e)
-
-    async def add_device(self, host, port, name=None):
+    async def add_device(self, host, port, specification: Optional[pb.Module] = None):
         """Add a device endpoint to this controller.
 
         After the base class discovers and connects to the device, walks
         newly discovered entities to update :attr:`computer` with new carriers.
+
+        `specification` argument is only used for the simulator which parses
+        its entities from a file as the simulator, being hardware-agnostic,
+        does not return a hardware specification.
         """
         # Snapshot the description count before the call so we know which
         # entities were freshly discovered.
-        prev_entity_count = len(self.connection_manager.cache_descriptions.entities)
+        prev_entity_count = len(self.connection_manager.cache_descriptions.items)
 
-        await super().add_device(host, port)
+        await super().add_device(host, port, specification)
 
-        new_entities = self.connection_manager.cache_descriptions.entities[prev_entity_count:]
-        for entity in new_entities:
+        new_items = self.connection_manager.cache_descriptions.items[prev_entity_count:]
+        for item in new_items:
+            if not item.HasField("entity_specification"):
+                continue
+            entity = item.entity_specification.entity
             root_path = Path.parse(entity.id.strip("/"))
-            device = Device.create_from_entity_type_tree(root_path, entity)
-            for carrier in device.carriers:
+
+            # Use the LUCIDAC-capable deserializer so that FP children in the
+            # entity tree are recognised regardless of the computer model type.
+            # LUCIDACDeserializer is a strict superset of the REDAC base and
+            # produces identical results for non-LUCIDAC entities.
+            from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer
+            deserializer = LUCIDACDeserializer()
+            result = deserializer.deserialize_specification(entity, root_path)
+            # The firmware may report a single CARRIER entity (standalone mode)
+            # or a DEVICE entity wrapping multiple carriers (proxy mode).
+            if isinstance(result, Device):
+                carriers = result.carriers
+            else:
+                carriers = [result]
+            for carrier in carriers:
                 self.computer.add_carrier(carrier)
                 self._clusters_per_carrier[carrier.path] = len(carrier.clusters)
             self._raw_entity_dict[entity.id] = entity
@@ -308,17 +250,17 @@ class Controller(BaseController):
         """Forward a config command via a Session.
 
         .. deprecated::
-            Use ``session.set_config_bundle(bundle).execute()`` instead.
+            Use ``session.set_module(module).execute()`` instead.
         """
         warnings.warn(
             "controller.forward_set_config() is deprecated. "
-            "Use session.set_config_bundle(bundle).execute() instead.",
+            "Use session.set_module(module).execute() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
         from pybrid.redac.session import Session
         session = Session(self)
-        session.set_config_bundle(message.bundle)
+        session.set_module(message.module)
         result = await session.execute()
         return result
 
@@ -366,6 +308,32 @@ class Controller(BaseController):
             session.run(run.config, daq=run.daq, timeout=timeout)
         result = await session.execute()
         return result[0] if result else run
+
+    async def register_external_entities(self):
+        """Distribute carrier MACs and IP addresses to every connected device.
+
+        Builds a map of ``{carrier_mac: ip_octets}`` from all carriers
+        in :attr:`computer` and sends a ``RegisterExternalEntitiesCommand`` to
+        each unique backend connection.
+        """
+
+        # TODO: reinstate once implemented in the firmware
+        logger.warning("RegisterExternalEntities command skipped...")
+        return
+
+        if not self.computer.carriers:
+            return
+
+        entities: dict[str, tuple[int, int, int, int]] = {}
+        for carrier in self.computer.carriers:
+            conn = self.connection_manager.get_connection(carrier.path)
+            host = conn.control.remote_host
+            octets = tuple(int(x) for x in host.split("."))
+            entities[str(carrier.path)] = octets
+
+        for conn in self.connection_manager.get_unique_connections():
+            result = await conn.control.register_external_entities(entities)
+            result.raise_on_error()
 
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         """Reset all carrier boards to initial configuration."""

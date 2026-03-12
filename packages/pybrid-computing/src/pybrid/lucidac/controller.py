@@ -20,7 +20,6 @@ from pybrid.redac.computer import REDAC
 from pybrid.lucidac.computer import LUCIStack
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.run import Run
-from pybrid.redac.sync import SyncImplementationType
 
 logger = logging.getLogger(__name__)
 
@@ -79,11 +78,11 @@ class Controller(REDACController):
             else:
                 gap_fill_mode = GapFillMode.ZERO
 
-        super().__init__(sync_impl=SyncImplementationType.NATIVE)
+        super().__init__()
         self.computer = LUCIStack(entities=[])
         self.gap_fill_mode = gap_fill_mode
 
-    async def add_device(self, host, port, name=None):
+    async def add_device(self, host, port):
         """
         Add a LUCIDAC endpoint (direct or proxy) to this controller.
 
@@ -98,7 +97,7 @@ class Controller(REDACController):
         """
         prev_conns = len(self.connection_manager.connections)
 
-        await super().add_device(host, port, name=name)
+        await super().add_device(host, port)
 
         new_conns = len(self.connection_manager.connections) - prev_conns
         if new_conns < 1:

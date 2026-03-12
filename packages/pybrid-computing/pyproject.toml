@@ -6,7 +6,7 @@ description = "Library to interact with analog computers and analog-digital hybr
 authors = [
   {name = "Michael Steck", email = "pybrid-code@anabrid.com"}
 ]
-readme = "../../README.md"
+readme = "README.md"
 license = "MIT OR GPL-2.0-or-later"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -28,7 +28,6 @@ dependencies = [
   "packaging>=25.0",
   "protobuf>=6.31.1",
   "pydantic>=2.11.9",
-  "pyftdi>=0.57.1",
   "pyi>=0.1.0",
   "zeroconf>=0.147.2",
   "prompt-toolkit>=3.0.52",
@@ -56,7 +55,8 @@ source = "uv-dynamic-versioning"
 [tool.uv-dynamic-versioning]
 vcs = "git"
 pattern = "^v(?P<base>\\d+\\.\\d+\\.\\d+)$"
-format-jinja = "{% if distance == 0 %}{{ base }}{% else %}{{ base }}+{{ commit }}{% endif %}"
+commit-length = 7
+format-jinja = "{% if distance == 0 %}{{ base }}{% else %}{{ serialize_pep440(bump_version(base), dev=distance, metadata=[commit]) }}{% endif %}"
 fallback-version = "0.11.4"
 
 [tool.uv.sources]

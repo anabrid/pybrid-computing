@@ -17,7 +17,6 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from pybrid.base.hybrid.controller import BaseController
-from pybrid.redac.sync import SyncImplementationType
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.lucidac.controller import Controller as LUCIDACController
 
@@ -41,8 +40,7 @@ class TestLUCIDACControllerDeltaAssertion:
         ctrl = _make_lucidac_controller()
 
         # Simulate BaseController.add_device adding one connection
-        async def fake_base_add_device(host, port, name=None):
-            # Add a fake connection to the manager
+        async def fake_base_add_device(self, host, port, specification=None):
             from pybrid.redac.entities import Path
             from pybrid.redac.channel import DeviceConnection
             fake_path = Path.parse("AA-BB-CC-DD-EE-01")
@@ -59,8 +57,8 @@ class TestLUCIDACControllerDeltaAssertion:
         ctrl = _make_lucidac_controller()
 
         # Simulate BaseController.add_device that adds nothing
-        async def fake_base_add_device_noop(host, port, name=None):
-            pass  # no new connections added
+        async def fake_base_add_device_noop(self, host, port, specification=None):
+            pass
 
         with patch.object(BaseController, "add_device", new=fake_base_add_device_noop):
             with pytest.raises(Exception, match="[Ff]ail|[Cc]arrier|LUCIDAC|new_conns"):

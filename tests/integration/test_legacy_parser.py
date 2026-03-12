@@ -90,8 +90,8 @@ class TestParseGoldenFile:
         result = LegacyConfigJSONParser.parse(harmonic_config, computer)
 
         assert result is not None
-        assert result.bundle is not None
-        assert len(result.bundle.configs) > 0
+        assert result.module is not None
+        assert len(result.module.items) > 0
 
     def test_harmonic_cblock_values(self, harmonic_config):
         """CBlock values from harmonic_legacy.json: elements[0]=-1.0, elements[8]=1.0, others=0.0."""
@@ -144,7 +144,7 @@ class TestParseAddressing:
         result = LegacyConfigJSONParser.parse(harmonic_config, computer)
 
         assert result is not None
-        assert result.bundle is not None
+        assert result.module is not None
 
 
 class TestParseErrorHandling:
@@ -167,11 +167,11 @@ class TestParseErrorHandling:
         assert result is not None
 
     def test_empty_config_produces_empty_result(self):
-        """Empty config dict produces a valid protobuf File with an empty bundle."""
+        """Empty config dict produces a valid protobuf File with an empty module."""
         computer = make_test_redac_with_mblock(num_carriers=1)
         config = {}
 
         result = LegacyConfigJSONParser.parse(config, computer)
 
         assert result is not None
-        assert result.bundle is not None
+        assert result.module is not None

@@ -44,11 +44,11 @@ class LUCIStack(REDAC):
         """Return the list of top-level entities to serialize."""
         return list(self.entities)
 
-    def get_serializer_implementation(self) -> type:
+    def get_serializer(self) -> type:
         """Return the LUCIDAC-specific serializer class."""
         return LUCIDACSerializer
 
-    def get_deserializer_implementation(self) -> type:
+    def get_deserializer(self) -> type:
         """Return the LUCIDAC-specific deserializer class."""
         return LUCIDACDeserializer
 

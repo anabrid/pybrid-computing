@@ -25,6 +25,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import struct
+import copy
 from abc import ABC
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
@@ -35,7 +36,6 @@ import numpy as np
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.processing.gap_fill import GapFillMode, ChunkRecord, sort_and_fill_chunks
 from pybrid.redac.run import Run, RunConfig, DAQConfig
-from pybrid.redac.sync import SyncImplementationType
 from pybrid.redac.entities import Path
 
 if TYPE_CHECKING:
@@ -68,11 +68,7 @@ class SessionCommand(ABC):
 
 @dataclass
 class SetConfigCommand(SessionCommand):
-    """Exactly one of *computer* or *bundle* must be set."""
-
     computer: Optional["AnalogComputer"] = None
-    bundle: Optional[pb.ConfigBundle] = None
-
 
 @dataclass
 class RunCommand(SessionCommand):
@@ -109,17 +105,30 @@ class Session:
 
     def set_config(self, computer: "AnalogComputer") -> "Session":
         """:returns: ``self`` so calls can be chained."""
-        self._pipeline.append(SetConfigCommand(computer=computer))
+        self._pipeline.append(SetConfigCommand(computer=copy.deepcopy(computer)))
         return self
+    
+    def set_module(self, module: pb.Module) -> "Session":
+        """Deserialize a protobuf Module into the controller's computer model
+        and buffer the resulting config.
 
-    def set_config_bundle(self, bundle: pb.ConfigBundle) -> "Session":
-        """:returns: ``self`` so calls can be chained."""
-        self._pipeline.append(SetConfigCommand(bundle=bundle))
+        :returns: ``self`` so calls can be chained.
+        """
+        computer = copy.deepcopy(self._controller.computer)
+        deserializer = computer.get_deserializer()(computer)
+        deserializer.deserialize(module)
+        self._pipeline.append(SetConfigCommand(computer=computer))
         return self
     
     def calibrate(self, leader: str = "", math: bool = False, gain: bool = True, offset: bool = True) -> "Session":
         """:returns: ``self`` so calls can be chained."""
-        self._pipeline.append(CalibrateCommand(leader=leader, math=math, gain=gain, offset=offset))
+
+        use_leader = leader
+        if len(use_leader) == 0:
+            # no leader given -> use first device in the controller by default
+            use_leader = self.controller.computer.carriers[0].path.to_mac()
+
+        self._pipeline.append(CalibrateCommand(leader=use_leader, math=math, gain=gain, offset=offset))
         return self
 
     def run(
@@ -177,11 +186,6 @@ class Session:
 
         When *leader* is empty, defaults to the first registered carrier path.
         """
-        if self._controller.sync_impl == SyncImplementationType.NATIVE:
-            if not (cmd.math or cmd.gain or cmd.offset):
-                raise NotImplementedError(
-                    "NATIVE sync requires calibration for implicit synchronisation."
-                )
 
         leader = cmd.leader
         if not leader:
@@ -206,28 +210,23 @@ class Session:
         """Upload configuration to all unique device connections.
 
         In proxy mode multiple carrier paths share one DeviceConnection;
-        get_unique_connections collapses those so the bundle is sent exactly
+        get_unique_connections collapses those so the module is sent exactly
         once per physical channel.
         """
-        if cmd.computer is not None:
-            serializer_cls = self._controller.computer.get_serializer_implementation()
-            serializer = serializer_cls()
-            configs = serializer.serialize(cmd.computer)
-            bundle = pb.ConfigBundle(configs=configs)
-        elif cmd.bundle is not None:
-            bundle = cmd.bundle
-        else:
-            logger.warning("SetConfigCommand has neither computer nor bundle; skipping.")
-            return
+    
+        serializer_cls = self._controller.computer.get_serializer()
+        serializer = serializer_cls()
+        module = serializer.serialize(cmd.computer)
 
+        # distribute modules to devices
         unique_conns = self._controller.connection_manager.get_unique_connections()
 
         from google.protobuf.json_format import MessageToJson
         logger.debug(
             "_execute_set_config: sending %d config entries to %d connection(s):\n%s",
-            len(bundle.configs),
+            len(module.items),
             len(unique_conns),
-            MessageToJson(bundle, indent=2),
+            MessageToJson(module, indent=2),
         )
 
         for conn in unique_conns:
@@ -237,14 +236,13 @@ class Session:
                     "(pybrid-computing-native). The control channel is not available "
                     "in this environment."
                 )
-            result = await conn.control.set_config_bundle(bundle)
+            result = await conn.control.set_module(module)
             result.raise_on_error()
 
     async def _execute_run(self, cmd: RunCommand) -> Run:
         """Execute a single run described by *cmd* and return the completed Run."""
         from pybrid.redac.controller import DistributedRunState
         from pybrid.redac.run import RunState
-        from dataclasses import replace
 
         # Default timeout adds headroom for cross-carrier calibration.
         _RUN_TIMEOUT_HEADROOM_SECS = 10.0
@@ -274,12 +272,9 @@ class Session:
         run.sync.group = run.partition.id
 
         # In NATIVE mode the first carrier generates the SYNC pulse.
-        # For USBSPI: no sync master is set; all devices wait for external trigger.
         first_path = involved_paths[0]
-
-        if self._controller.sync_impl == SyncImplementationType.NATIVE:
-            run.sync.enabled = True
-            run.sync.master = first_path
+        run.sync.enabled = True
+        run.sync.master = first_path
 
         run_state = DistributedRunState(run, involved_paths)
 

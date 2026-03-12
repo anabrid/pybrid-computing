@@ -8,7 +8,6 @@ from json import JSONEncoder as BuiltinJSONEncoder
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.computer import REDAC
-from pybrid.base.utils.addressing import Addressing, AddressingMap
 from pybrid.base.proto.io import ProtoVersioning
 
 from pybrid.redac.carrier import ADCChannel, Carrier
@@ -40,51 +39,21 @@ class LegacyConfigJSONParser:
 
 
     @classmethod
-    def parse(cls, config: typing.Dict[str, typing.Any], computer: REDAC, output_virtual_macs: bool = False) -> pb.File:
+    def parse(cls, config: typing.Dict[str, typing.Any], computer: REDAC) -> pb.File:
         """
-        Parses a legacy-style, nested config and exports it in protobuf-Format
+        Parses a legacy-style, nested config and exports it in protobuf format.
 
         Args:
-            config (typing.Dict[str, typing.Any]): Nested dictionary containing a config.
-            computer (AnalogComputer): The computer object used as target to map the config.
-            output_virtual_macs (bool, optional): Whether to convert all enity paths to virtual addresses heuristically. Defaults to False.
+            config: Nested dictionary containing a config keyed by carrier MAC.
+            computer: The computer object used as target to map the config.
 
         Returns:
-            pb.File: A configuration in protobuf format.
+            A configuration in protobuf format.
         """
 
-        # check if source config and computer use virtual mappings
-        source_uses_virtual = True
-        for carrier_id, carrier_config in config.items():
-            source_uses_virtual = source_uses_virtual and (not Addressing.is_physical_mac(carrier_id))
-
-        if not source_uses_virtual:
-            raise Exception("Unable to map legacy JSON using physical addresses!")
-
-        computer_uses_virtual = True
-        for carrier in computer.entities:
-            mac = carrier.path.to_mac()
-            computer_uses_virtual = computer_uses_virtual and (not Addressing.is_physical_mac(mac))
-
-        if not computer_uses_virtual:
-            logger.warning("Computer uses physical addresses; virtual addresses from config are mapped heuristically (LUCIDAC users can ignore this warning)")
-
-        # configure mapping between virtual MACs in source and computer MACs
-        # (may be virtual OR physical)
         carrier_mapping = {}
         for carrier_id in config:
-            
-            if computer_uses_virtual:
-                # both use virtual addresses, can just extract the correct carrier
-                carrier_mapping[carrier_id] = cls.extract_carrier(computer, carrier_id)
-            else:
-                # heuristic mapping: use index into the address array and enumerate
-                # the carriers
-                try:
-                    carrier_ix = AddressingMap.index_of_redac(carrier_id)
-                    carrier_mapping[carrier_id] = computer.entities[carrier_ix]
-                except:
-                    raise Exception(f"Unable to map {carrier_id} heuristically to computer...")
+            carrier_mapping[carrier_id] = cls.extract_carrier(computer, carrier_id)
 
         for carrier_id, carrier_config in config.items():
             carrier = carrier_mapping[carrier_id]
@@ -140,15 +109,10 @@ class LegacyConfigJSONParser:
                 )
 
         # serialize configuration (with Carrier addresses)
-        serializer = computer.get_serializer_implementation()()
-        configs = serializer.serialize(computer)
+        serializer = computer.get_serializer()()
+        module = serializer.serialize(computer)
 
-        output = pb.File(
+        return pb.File(
             version=ProtoVersioning.current(),
-            bundle=pb.ConfigBundle(configs=configs)
+            module=module,
         )
-
-        if output_virtual_macs:
-            output = Addressing.physical_to_virtual(computer, output)
-
-        return output

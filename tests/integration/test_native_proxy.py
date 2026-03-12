@@ -156,7 +156,7 @@ class TestMessageForwarding:
     """Verify that each command type is correctly forwarded through the proxy."""
 
     def test_describe_through_native_proxy(self) -> None:
-        """Describe command is forwarded; response contains the backend DummyDAC carrier MACs."""
+        """Extract command is forwarded; response contains the backend DummyDAC carrier MACs."""
         config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
         ready = threading.Event()
         stop = threading.Event()
@@ -165,8 +165,9 @@ class TestMessageForwarding:
         dac_thread = _start_dummy_dac(config, ready, stop, dac_port_holder)
         _wait_ready(ready)
 
-        # Expected carrier MACs from PHYSICAL mode DummyDAC (REDAC = 2 carriers)
-        expected_macs = {"AB-CD-EF-12-34-56", "AB-CD-EF-12-34-57"}
+        # Expected carrier MACs from PHYSICAL mode DummyDAC (REDAC = 2 carriers).
+        # Entity ids use the firmware wire format with a leading '/'.
+        expected_macs = {"/AB-CD-EF-12-34-56", "/AB-CD-EF-12-34-57"}
 
         proxy = ProxyServer()
         proxy.set_session_timeout(SESSION_TIMEOUT)
@@ -179,10 +180,11 @@ class TestMessageForwarding:
             client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
             client.start()
 
-            entity_bytes = client.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
+            module_bytes = client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
 
+            entity = module.items[0].entity_specification.entity
             carrier_ids = {c.id for c in entity.children}
             assert carrier_ids == expected_macs, (
                 f"Expected carrier MACs {expected_macs}, got {carrier_ids}"
@@ -225,7 +227,7 @@ class TestMessageForwarding:
             dac_thread.join(timeout=SHORT_TIMEOUT)
 
     def test_config_roundtrip_through_native_proxy(self) -> None:
-        """Config set via proxy is stored by the backend and retrievable via get_config."""
+        """Config set via proxy is stored by the backend and retrievable via extract."""
         config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
         ready = threading.Event()
         stop = threading.Event()
@@ -245,16 +247,18 @@ class TestMessageForwarding:
             client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
             client.start()
 
-            # First describe to learn the carrier paths
-            entity_bytes = client.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
+            # First extract to learn the carrier paths
+            module_bytes = client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+            entity = module.items[0].entity_specification.entity
             assert len(entity.children) > 0, "Expected at least one carrier"
 
-            # Build a ConfigBundle targeting the first carrier
-            carrier_path = f"/{entity.children[0].id}"
-            bundle = pb.ConfigBundle()
-            entry = bundle.configs.add()
+            # Build a ConfigBundle targeting the first carrier.
+            # Entity ids already include the leading '/' in firmware wire format.
+            carrier_path = entity.children[0].id
+            module = pb.Module()
+            entry = module.items.add()
             entry.entity.path = carrier_path
             # A minimal but non-trivial config payload (ADC channel config)
             ch = entry.adc_config.channels.add()
@@ -262,15 +266,15 @@ class TestMessageForwarding:
             ch.gain = 1.0
             ch.offset = 0.0
 
-            ok = client.set_config_bundle(bundle.SerializeToString(), timeout=SHORT_TIMEOUT)
-            assert ok, "set_config_bundle() should return True on success"
+            ok = client.set_module(module.SerializeToString(), timeout=SHORT_TIMEOUT)
+            assert ok, "set_module() should return True on success"
 
             # Extract config back — verify the path is present in the response
-            bundle_bytes = client.get_config(carrier_path, recursive=False, timeout=SHORT_TIMEOUT)
-            retrieved = pb.ConfigBundle()
-            retrieved.ParseFromString(bundle_bytes)
+            module_bytes = client.extract(carrier_path, configuration=True, recursive=False, timeout=SHORT_TIMEOUT)
+            retrieved = pb.Module()
+            retrieved.ParseFromString(module_bytes)
             # The proxy must have forwarded both commands without error
-            # (DummyDAC stores the config; presence of bundle_bytes is sufficient)
+            # (DummyDAC stores the config; presence of module_bytes is sufficient)
             assert retrieved is not None
         finally:
             if client is not None:
@@ -440,9 +444,10 @@ class TestMultiBackend:
             client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
             client.start()
 
-            entity_bytes = client.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
+            module_bytes = client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+            entity = module.items[0].entity_specification.entity
 
             # REDAC DummyDAC contributes 2 carriers, LUCIDAC contributes 1 → 3 total
             carrier_count = len(entity.children)
@@ -490,10 +495,10 @@ class TestClientSessionOrdering:
                 ch = ControlChannel.create(LOCALHOST, port, timeout=SHORT_TIMEOUT)
                 ch.start()
                 # This blocks until the session queue grants access
-                entity_bytes = ch.describe(timeout=RUN_TIMEOUT)
-                entity = pb.Entity()
-                entity.ParseFromString(entity_bytes)
-                client2_result.append(entity)
+                module_bytes = ch.extract(recursive=True, specification=True, timeout=RUN_TIMEOUT)
+                module = pb.Module()
+                module.ParseFromString(module_bytes)
+                client2_result.append(module)
             except Exception as exc:
                 client2_error.append(exc)
             finally:
@@ -509,11 +514,12 @@ class TestClientSessionOrdering:
             # Client 1 connects and holds the session
             client1 = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
             client1.start()
-            # First describe — ensures client1 has an active session
-            entity_bytes = client1.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
-            assert len(entity.children) > 0, "First client describe should succeed"
+            # First extract — ensures client1 has an active session
+            module_bytes = client1.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+            entity = module.items[0].entity_specification.entity
+            assert len(entity.children) > 0, "First client extract should succeed"
 
             # Client 2 connects in background — will queue behind client1
             t2 = threading.Thread(target=client2_worker, args=(proxy_port,), daemon=True)
@@ -531,7 +537,7 @@ class TestClientSessionOrdering:
             assert not client2_error, (
                 f"Client2 encountered error: {client2_error}"
             )
-            assert client2_result, "Client2 should have received a describe response"
+            assert client2_result, "Client2 should have received an extract response"
         finally:
             if client1 is not None:
                 client1.stop()
@@ -563,21 +569,22 @@ class TestClientSessionOrdering:
             # Client 1: connect, describe, disconnect
             client1 = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
             client1.start()
-            client1.describe(timeout=SHORT_TIMEOUT)
+            client1.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
             client1.stop()
 
             # Give proxy a moment to process the disconnect and free the session
             time.sleep(0.3)
 
-            # Client 2: should connect and describe without any queue wait
+            # Client 2: should connect and extract without any queue wait
             client2 = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
             client2.start()
-            entity_bytes = client2.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
+            module_bytes = client2.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+            entity = module.items[0].entity_specification.entity
 
             assert len(entity.children) > 0, (
-                "Second client should receive describe response after first disconnects"
+                "Second client should receive extract response after first disconnects"
             )
         finally:
             if client2 is not None:
@@ -705,73 +712,6 @@ class TestErrorHandling:
             dac_thread.join(timeout=SHORT_TIMEOUT)
 
 
-class TestSyncCallback:
-    """Verify the USBSPI sync callback mechanism."""
-
-    def test_sync_callback_invocation(self) -> None:
-        """Python sync callback registered on ProxyServer is invoked at least once during a run."""
-        config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
-        ready = threading.Event()
-        stop = threading.Event()
-        dac_port_holder = [0]
-
-        dac_thread = _start_dummy_dac(config, ready, stop, dac_port_holder)
-        _wait_ready(ready)
-
-        proxy = ProxyServer()
-        proxy.set_session_timeout(SESSION_TIMEOUT)
-        client = None
-
-        sync_called = threading.Event()
-        sync_group_ids: list[int] = []
-        done_event = threading.Event()
-
-        def sync_callback(group_id: int) -> None:
-            """Record the sync callback invocation."""
-            sync_group_ids.append(group_id)
-            sync_called.set()
-
-        def on_state_change(msg_bytes: bytes) -> None:
-            """Signal when the run completes."""
-            msg = pb.MessageV1()
-            msg.ParseFromString(msg_bytes)
-            if msg.run_state_change_message.new_ in (pb.RunState.DONE, pb.RunState.ERROR):
-                done_event.set()
-
-        try:
-            proxy.add_backend(LOCALHOST, dac_port_holder[0])
-            proxy.set_sync_callback(sync_callback)
-            proxy.start(LOCALHOST, 0)
-
-            client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
-            client.start()
-            client.register_callback(
-                pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER,
-                on_state_change,
-            )
-
-            run_id = str(uuid.uuid4())
-            cmd = _build_start_run_command(run_id, op_time_ns=500_000)
-            client.start_run_request(cmd.SerializeToString(), timeout=SHORT_TIMEOUT)
-
-            assert done_event.wait(timeout=RUN_TIMEOUT), (
-                "Run did not reach DONE within timeout"
-            )
-            assert sync_called.is_set(), (
-                "Sync callback was not invoked during run"
-            )
-            # group_id may be 0 (not applicable) but must have been called
-            assert len(sync_group_ids) >= 1, (
-                f"Expected at least one sync callback call, got {sync_group_ids}"
-            )
-        finally:
-            if client is not None:
-                client.stop()
-            proxy.stop()
-            stop.set()
-            dac_thread.join(timeout=SHORT_TIMEOUT)
-
-
 AUTH_ENV_VAR = "PYBRID_AUTHENTICATION"
 AUTH_TOKEN = "test-secret-token-42"
 WRONG_TOKEN = "wrong-token-99"
@@ -815,11 +755,11 @@ class TestAuthentication:
             client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
             client.start()
 
-            # Send describe WITHOUT authenticating — should be rejected.
-            # The ControlChannel.describe() wraps send_and_recv; if the proxy
+            # Send extract WITHOUT authenticating — should be rejected.
+            # The ControlChannel.extract() wraps send_and_recv; if the proxy
             # returns an ErrorMessage, the binding raises RuntimeError.
             with pytest.raises(RuntimeError, match="Authentication required"):
-                client.describe(timeout=SHORT_TIMEOUT)
+                client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
         finally:
             if client is not None:
                 client.stop()
@@ -855,10 +795,11 @@ class TestAuthentication:
             auth_ok = client.authenticate(AUTH_TOKEN, timeout=SHORT_TIMEOUT)
             assert auth_ok, "authenticate() should return True for correct token"
 
-            # Step 2: After auth, describe should succeed.
-            entity_bytes = client.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
+            # Step 2: After auth, extract should succeed.
+            module_bytes = client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+            entity = module.items[0].entity_specification.entity
 
             # Must have at least one carrier from the DummyDAC.
             assert len(entity.children) > 0, (
@@ -902,12 +843,13 @@ class TestAuthentication:
                 "and DummyDAC should accept it"
             )
 
-            # Describe should also work (no auth gating at proxy).
-            entity_bytes = client.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
+            # Extract should also work (no auth gating at proxy).
+            module_bytes = client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+            entity = module.items[0].entity_specification.entity
             assert len(entity.children) > 0, (
-                "Describe should work with requires_auth=False"
+                "Extract should work with requires_auth=False"
             )
         finally:
             if client is not None:
@@ -942,14 +884,15 @@ class TestConcurrentSessions:
         def describe_worker(
             port: int, result_list: list, error_list: list, label: str
         ) -> None:
-            """Connect a client and send describe, storing the result."""
+            """Connect a client and send extract, storing the result."""
             ch = None
             try:
                 ch = ControlChannel.create(LOCALHOST, port, timeout=SHORT_TIMEOUT)
                 ch.start()
-                entity_bytes = ch.describe(timeout=SHORT_TIMEOUT)
-                entity = pb.Entity()
-                entity.ParseFromString(entity_bytes)
+                module_bytes = ch.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+                module = pb.Module()
+                module.ParseFromString(module_bytes)
+                entity = module.items[0].entity_specification.entity
                 result_list.append(entity)
             except Exception as exc:
                 error_list.append(exc)
@@ -982,8 +925,8 @@ class TestConcurrentSessions:
 
             assert not error_a, f"Client A encountered error: {error_a}"
             assert not error_b, f"Client B encountered error: {error_b}"
-            assert result_a, "Client A should have received a describe response"
-            assert result_b, "Client B should have received a describe response"
+            assert result_a, "Client A should have received an extract response"
+            assert result_b, "Client B should have received an extract response"
 
             # Both should have carrier children from the DummyDAC.
             assert len(result_a[0].children) > 0, (
@@ -1117,12 +1060,13 @@ class TestConcurrentSessions:
             client2 = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
             client2.start()
 
-            # First client describe should succeed.
-            entity_bytes = client1.describe(timeout=SHORT_TIMEOUT)
-            entity = pb.Entity()
-            entity.ParseFromString(entity_bytes)
+            # First client extract should succeed.
+            module_bytes = client1.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+            entity = module.items[0].entity_specification.entity
             assert len(entity.children) > 0, (
-                "Client 1 describe should succeed within max_sessions limit"
+                "Client 1 extract should succeed within max_sessions limit"
             )
 
             # Third client should be rejected.
@@ -1131,9 +1075,9 @@ class TestConcurrentSessions:
                 client3 = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
                 client3.start()
 
-                # If connection succeeded, try describe — should get an error.
+                # If connection succeeded, try extract — should get an error.
                 try:
-                    client3.describe(timeout=2.0)
+                    client3.extract(recursive=True, specification=True, timeout=2.0)
                 except RuntimeError:
                     third_rejected = True
                 finally:
@@ -1182,10 +1126,10 @@ class TestBusyWaitPingPolling:
             proxy.start(LOCALHOST, 0)
             proxy_port = proxy.local_port()
 
-            # Client A connects and sends describe — becomes the active session.
+            # Client A connects and sends extract — becomes the active session.
             client_a = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
             client_a.start()
-            client_a.describe(timeout=SHORT_TIMEOUT)
+            client_a.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
 
             # Client B connects while A holds the session.
             client_b = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
@@ -1235,8 +1179,8 @@ class TestBusyWaitPingPolling:
             client_a = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
             client_a.start()
 
-            # A brief describe to establish the active session before pinging.
-            client_a.describe(timeout=SHORT_TIMEOUT)
+            # A brief extract to establish the active session before pinging.
+            client_a.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
 
             # Send a raw PingCommand — should get SuccessMessage.
             req = pb.MessageV1()
@@ -1362,7 +1306,7 @@ class TestBusyWaitPingPolling:
             # Client A: connect, establish active session.
             client_a = ControlChannel.create(LOCALHOST, proxy_port, timeout=SHORT_TIMEOUT)
             client_a.start()
-            client_a.describe(timeout=SHORT_TIMEOUT)
+            client_a.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
 
             # Start client B in a background thread; it will send ResetCommand
             # (getting BusyResponse) then signal client_b_queued.

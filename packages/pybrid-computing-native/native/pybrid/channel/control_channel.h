@@ -62,13 +62,15 @@ public:
     /// @throws std::runtime_error if timeout expires or transport disconnects.
     pb::MessageV1 send_and_recv(const pb::MessageV1& msg, double timeout_secs = 5.0);
 
-    pb::Entity describe(double timeout_secs = 5.0);
-    void calibrate(const std::string& leader, bool math, bool gain, bool offset, double timeout_secs = 5.0);
-    pb::ConfigBundle get_config(
-        const std::string& entity_path,
+    pb::Module extract(
+        const std::string& entity_path = "",
         bool recursive = true,
+        bool specification = false,
+        bool configuration = false,
+        bool calibration = false,
         double timeout_secs = 5.0);
-    bool set_config_bundle(const pb::ConfigBundle& bundle, double timeout_secs = 5.0);
+    void calibrate(const std::string& leader, bool math, bool gain, bool offset, double timeout_secs = 5.0);
+    bool set_module(const pb::Module& module, double timeout_secs = 5.0);
     void start_run_request(
         const pb::StartRunCommand& run_command,
         double timeout_secs = 5.0);
