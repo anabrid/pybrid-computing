@@ -391,12 +391,9 @@ class REDACDeserializer(Deserializer):
                     st1block.location = location.stack()
                 continue
             if path_.id_ == "ST2":
-                # ST2 doubles as both the backplane TBlock and the carrier-side TBlock.
                 st2block = self._spec_function_block(child, path_)
-                st1block = self._spec_function_block(child, path_)
                 if location:
                     st2block.location = location.stack()
-                    st1block.location = location.stack()
                 continue
             if path_.id_ == "FP":
                 result = self._handle_unknown_carrier_child(path_, child)
