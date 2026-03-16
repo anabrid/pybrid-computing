@@ -418,6 +418,71 @@ async def convert(obj, input_file: typing.TextIO, output: tuple[str]):
             else:
                 raise Exception(f"Unknown file extension for output '{output_path}'. Only .json and .apb are supported.")
 
+@cli.command("reset-usb")
+@click.option(
+    "--filter",
+    "-f",
+    "tag_filter",
+    type=str,
+    default="Teensy",
+    show_default=True,
+    help="Only reset boards whose tag contains this string.",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="List matching boards without resetting them.",
+)
+async def reset_usb(tag_filter: str, dry_run: bool):
+    """
+    Hardware-reset USB-connected Teensy boards via tycmd.
+
+    Enumerates all boards known to tycmd, filters by tag, and issues
+    a reset for each match. Requires tycmd to be installed and on PATH.
+    """
+    import shutil
+    import subprocess
+
+    tycmd = shutil.which("tycmd")
+    if tycmd is None:
+        click.echo("Error: tycmd not found on PATH.", err=True)
+        raise SystemExit(1)
+
+    result = subprocess.run(
+        [tycmd, "list", "--output", "json"],
+        capture_output=True, text=True, timeout=10,
+    )
+    if result.returncode != 0:
+        click.echo(f"Error: tycmd list failed: {result.stderr.strip()}", err=True)
+        raise SystemExit(1)
+
+    boards = json.loads(result.stdout) if result.stdout.strip() else []
+    matches = [b for b in boards if tag_filter in b.get("tag", "")]
+
+    if not matches:
+        click.echo(f"No boards matching '{tag_filter}' found.")
+        return
+
+    for board in matches:
+        tag = board["tag"]
+        if dry_run:
+            click.echo(f"[dry-run] Would reset: {tag}")
+        else:
+            click.echo(f"Resetting {tag}...")
+            r = subprocess.run(
+                [tycmd, "reset", "--board", tag],
+                capture_output=True, text=True, timeout=10,
+            )
+            if r.returncode != 0:
+                click.echo(f"  Warning: reset failed for {tag}: {r.stderr.strip()}", err=True)
+            else:
+                click.echo(f"  Done.")
+
+    if not dry_run:
+        click.echo(f"Reset {len(matches)} board(s).")
+
+
 @cli.command()
 @click.pass_obj
 async def detect(obj):
@@ -599,7 +664,7 @@ for name, obj in inspect.getmembers(current_module):
             continue
 
         # Skip top-level commands (already registered with cli group)
-        if name in ['detect', 'dummy', 'proxy']:
+        if name in ['detect', 'dummy', 'proxy', 'reset_usb']:
             continue
 
         # Add the command to both groups
