@@ -129,26 +129,27 @@ class REDAC(AnalogComputer):
                 return carrier.clusters[loc.cluster_id()]
         raise Exception(f"Cluster not found for Loc: {loc.cluster()}")
 
-    def route(self, output: Loc, out_math: int, input: Loc, in_math: int, coefficient: float):
+    def route(self, src_math: int, src_lane: Loc, sink_lane: Loc, sink_math: int, coefficient: float):
         """Route between math elements across carriers, including U/C/I block config.
 
         Args:
-            output: Loc with 4 levels (stack/carrier/cluster/lane)
-                    — the source math element and outgoing lane.
-            input:  Loc with 4 levels — the target math element and incoming lane.
+            src_math: math lane of source
+            src_lane: coef lane of source
+            sink_lane:  i lane of sink
+            sink_math:  math lane of sink
             coefficient: The C-block weight to apply on the source lane.
         """
-        src_cluster = self.find_cluster(output.cluster())
-        tgt_cluster = self.find_cluster(input.cluster())
+        src_cluster = self.find_cluster(src_lane.cluster())
+        tgt_cluster = self.find_cluster(sink_lane.cluster())
 
         # 1. U-block: connect source element to output lane
-        src_cluster.ublock.connect( out_math, output.lane_id())
+        src_cluster.ublock.connect(src_math, src_lane.lane_id())
 
         # 2. C-block: set coefficient on the output lane
-        src_cluster.cblock.elements[output.lane_id()].factor = coefficient
+        src_cluster.cblock.elements[src_lane.lane_id()].factor = coefficient
 
         # 3. T-block: route between carriers (existing logic, uses lane-level Loc)
-        self.router.route(output, input)
+        self.router.route(src_lane, sink_lane)
 
         # 4. I-block: connect incoming lane to target element
-        tgt_cluster.iblock.connect(input.lane_id(), in_math)
+        tgt_cluster.iblock.connect(sink_lane.lane_id(), sink_math)
