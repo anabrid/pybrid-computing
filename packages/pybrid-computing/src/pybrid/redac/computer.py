@@ -11,7 +11,7 @@ from pathlib import Path as FilePath
 from pydantic.json import pydantic_encoder
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.redac.entities import Entity, Path
+from pybrid.redac.entities import Entity, Path, Loc
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.redac.blocks import FunctionBlock
@@ -122,3 +122,33 @@ class REDAC(AnalogComputer):
 
     def get_deserializer(self) -> type:
         return REDACDeserializer
+
+    def find_cluster(self, loc: Loc):
+        for carrier in self.carriers:
+            if loc.carrier() == carrier.location:
+                return carrier.clusters[loc.cluster_id()]
+        raise Exception(f"Cluster not found for Loc: {loc.cluster()}")
+
+    def route(self, output: Loc, out_math: int, input: Loc, in_math: int, coefficient: float):
+        """Route between math elements across carriers, including U/C/I block config.
+
+        Args:
+            output: Loc with 4 levels (stack/carrier/cluster/lane)
+                    — the source math element and outgoing lane.
+            input:  Loc with 4 levels — the target math element and incoming lane.
+            coefficient: The C-block weight to apply on the source lane.
+        """
+        src_cluster = self.find_cluster(output.cluster())
+        tgt_cluster = self.find_cluster(input.cluster())
+
+        # 1. U-block: connect source element to output lane
+        src_cluster.ublock.connect( out_math, output.lane_id())
+
+        # 2. C-block: set coefficient on the output lane
+        src_cluster.cblock.elements[output.lane_id()].factor = coefficient
+
+        # 3. T-block: route between carriers (existing logic, uses lane-level Loc)
+        self.router.route(output, input)
+
+        # 4. I-block: connect incoming lane to target element
+        tgt_cluster.iblock.connect(input.lane_id(), in_math)
