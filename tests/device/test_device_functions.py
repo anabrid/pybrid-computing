@@ -16,7 +16,6 @@ Environment Variables:
 """
 
 import asyncio
-import json
 import math
 from pathlib import Path
 from uuid import uuid4
@@ -24,6 +23,7 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
+import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.proto.io import ProtoIO
 from pybrid.redac.controller import Controller
 from pybrid.redac.run import Run, RunConfig, DAQConfig, RunState
@@ -32,16 +32,17 @@ from pybrid.redac.run import Run, RunConfig, DAQConfig, RunState
 @pytest.fixture
 def harmonic_pb_config():
     """
-    Load harmonic oscillator config in protobuf JSON format.
+    Load harmonic oscillator config in protobuf binary format.
 
     Returns:
         pb.File containing the harmonic oscillator configuration loaded from
-        the test data directory and parsed into protobuf format.
+        the test data directory.
     """
-    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.json"
-    with open(config_path) as f:
-        json_config = json.load(f)
-    return ProtoIO.json_to_pbfile(json_config)
+    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.apb"
+    module = ProtoIO.load_module(str(config_path))
+    pb_file = pb.File()
+    pb_file.module.CopyFrom(module)
+    return pb_file
 
 
 @pytest.mark.device

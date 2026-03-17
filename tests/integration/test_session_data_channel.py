@@ -130,11 +130,12 @@ async def test_session_run_populates_data_via_data_channel():
                 "expected IBuffer blobs to be decoded as OP samples and stored in run.data."
             )
 
-            # Every channel entry in run.data must have at least one sample.
-            for channel_path, samples in run.data.items():
-                assert len(samples) > 0, (
-                    f"run.data[{channel_path}] is empty; expected at least one sample."
-                )
+            # Every probe entry in run.data must have at least one sample.
+            for idx, samples in enumerate(run.data):
+                if samples is not None:
+                    assert len(samples) > 0, (
+                        f"run.data[{idx}] is empty; expected at least one sample."
+                    )
 
 
 @pytest.mark.asyncio

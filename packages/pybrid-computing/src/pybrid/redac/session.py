@@ -34,7 +34,6 @@ from uuid import uuid4
 import numpy as np
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.processing.gap_fill import GapFillMode, ChunkRecord, sort_and_fill_chunks
 from pybrid.redac.run import Run, RunConfig, DAQConfig
 from pybrid.redac.entities import Path
 
@@ -44,10 +43,31 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# DecodedSampleBlobHeader layout: 5 x uint32 LE (20 bytes total).
-_BLOB_HEADER_SIZE = 20
+# DecodedSampleBlobHeader layout: 6 x uint32 LE (24 bytes total).
+_BLOB_HEADER_SIZE = 24
 _SAMPLE_TYPE_OP = 0
 _SAMPLE_TYPE_OP_END = 1
+
+
+@dataclass(frozen=True, slots=True)
+class ChunkRecord:
+    """A single decoded sample chunk with metadata.
+
+    Attributes:
+        chunk_number: Sequence number from the protobuf message.
+        entity_path: Entity path string (e.g. ``"/MAC/Carrier0"``).
+        sample_type: Sample type: 0 = OP, 1 = OP_END.
+        channel_count: Number of channels in the samples array.
+        samples: Decoded samples, shape ``(channel_count, sample_count)``.
+        probe_indices: Per-channel probe index from blob (None if not present).
+    """
+
+    chunk_number: int
+    entity_path: str
+    sample_type: int
+    channel_count: int
+    samples: np.ndarray
+    probe_indices: tuple[int, ...] | None = None
 
 
 def _drain_output_queue(output_queue) -> list[bytes]:
@@ -408,10 +428,7 @@ class Session:
                 except asyncio.CancelledError:
                     pass
 
-                gap_fill_mode = getattr(
-                    self._controller, "gap_fill_mode", GapFillMode.INTERPOLATE,
-                )
-                self._assemble_run_data(chunk_buffer, run, gap_fill_mode)
+                self._assemble_run_data(chunk_buffer, run)
 
                 for listener in self._controller.sample_listeners:
                     try:
@@ -488,11 +505,10 @@ class Session:
             logger.warning("Ignoring sample blob shorter than header (%d bytes).", len(blob))
             return
 
-        # Parse 20-byte header: entity_path_len, sample_count, channel_count,
-        # sample_type, chunk_number.
         (
-            entity_path_len, sample_count, channel_count, sample_type, chunk_number,
-        ) = struct.unpack_from("<IIIII", blob, 0)
+            entity_path_len, sample_count, channel_count,
+            sample_type, chunk_number, has_probes,
+        ) = struct.unpack_from("<IIIIII", blob, 0)
 
         if channel_count == 0 or sample_count == 0:
             return
@@ -501,15 +517,22 @@ class Session:
         path_end = path_start + entity_path_len
         entity_path_str = blob[path_start:path_end].decode("utf-8")
 
-        # Padding to 8-byte alignment after entity path.
-        data_offset = path_end
+        # Read probe indices (channel_count x uint32) if present.
+        probe_indices: tuple[int, ...] | None = None
+        probe_end = path_end
+        if has_probes:
+            probe_bytes = channel_count * 4  # uint32
+            probe_end = path_end + probe_bytes
+            probe_indices = struct.unpack_from(
+                f"<{channel_count}I", blob, path_end,
+            )
+
+        # Padding to 8-byte alignment after entity path + probe indices.
+        data_offset = probe_end
         remainder = data_offset % 8
         if remainder != 0:
             data_offset += 8 - remainder
 
-        # Data is column-major from the wire (each sample point groups all channels):
-        #   [ch0_s0, ch1_s0, ..., ch0_s1, ch1_s1, ...]
-        # Reshape with order="F" for zero-copy: numpy sets strides without moving data.
         num_samples = sample_count * channel_count
         samples_raw = np.frombuffer(
             blob, dtype=np.float64, count=num_samples, offset=data_offset
@@ -522,10 +545,11 @@ class Session:
             sample_type=sample_type,
             channel_count=channel_count,
             samples=samples.copy(),
+            probe_indices=probe_indices,
         ))
 
         if sample_type == _SAMPLE_TYPE_OP:
-            entity_path = Path(entity_path_str.split("/"))
+            entity_path = Path.parse(entity_path_str)
             samples_dict: dict[Path, list[float]] = {}
             for i in range(channel_count):
                 channel_path = entity_path.join(f"ADC{i}")
@@ -538,42 +562,51 @@ class Session:
         self,
         chunk_buffer: list[ChunkRecord],
         run: Run,
-        gap_fill_mode: GapFillMode,
-    ) -> bool:
-        """Sort, fill, and assemble buffered chunks into run.data / run.final_values.
+    ) -> None:
+        """Sort and assemble buffered chunks into run.data / run.final_values.
 
-        Returns ``True`` if any gap was detected.
+        Builds a probe-indexed list: ``run.data[probe_index] = [samples]``.
+        Probe indices come from the decoded blob (embedded by C++ from
+        ``DaqData.channels[i].probe()``).
         """
         from collections import defaultdict
 
         if not chunk_buffer:
-            return False
+            return
 
         groups: dict[tuple[str, int], list[ChunkRecord]] = defaultdict(list)
         for cr in chunk_buffer:
             groups[(cr.entity_path, cr.sample_type)].append(cr)
 
-        any_gap = False
+        probe_data: dict[int, list[float]] = defaultdict(list)
         any_reorder = False
 
         for (entity_path_str, sample_type), group_chunks in groups.items():
-            filled, gap_detected, reordered = sort_and_fill_chunks(
-                group_chunks, gap_fill_mode,
+            sorted_chunks = sorted(group_chunks, key=lambda c: c.chunk_number)
+            reordered = any(
+                a.chunk_number != b.chunk_number
+                for a, b in zip(group_chunks, sorted_chunks)
             )
-            any_gap = any_gap or gap_detected
             any_reorder = any_reorder or reordered
 
-            entity_path = Path(entity_path_str.split("/"))
+            entity_path = Path.parse(entity_path_str)
 
             if sample_type == _SAMPLE_TYPE_OP:
-                for i in range(filled[0].channel_count if filled else 0):
-                    channel_path = entity_path.join(f"ADC{i}")
-                    for cr in filled:
-                        run.data[channel_path].extend(cr.samples[i].tolist())
+                ref_chunk = sorted_chunks[0] if sorted_chunks else None
+                if ref_chunk is None:
+                    continue
+
+                for i in range(ref_chunk.channel_count):
+                    if ref_chunk.probe_indices is None:
+                        raise Exception("Probe index is not set!")
+                    probe_idx = ref_chunk.probe_indices[i]
+                    
+                    for cr in sorted_chunks:
+                        probe_data[probe_idx].extend(cr.samples[i].tolist())
 
             elif sample_type == _SAMPLE_TYPE_OP_END:
-                if filled:
-                    last_cr = filled[-1]
+                if sorted_chunks:
+                    last_cr = sorted_chunks[-1]
                     carrier_path = entity_path.to_root()
                     num_clusters = self._controller._clusters_per_carrier.get(
                         carrier_path, 3,
@@ -591,21 +624,15 @@ class Session:
                                     block_path.join(str(output_idx))
                                 ] = flat[fvi]
 
+        if probe_data:
+            max_probe = max(probe_data.keys())
+            run.data = [None] * (max_probe + 1)
+            for idx, samples in probe_data.items():
+                run.data[idx] = samples
+
         if any_reorder:
             logger.warning(
                 "Sample chunks for run %s arrived out of order — "
                 "reordered during assembly.",
                 run.id_,
             )
-
-        if any_gap:
-            mode_name = gap_fill_mode.name
-            logger.warning(
-                "Data chunk sequence gap detected during run %s — "
-                "missing chunks were filled (%s mode). Check network "
-                "stability or consider using a proxy closer to the device.",
-                run.id_,
-                mode_name,
-            )
-
-        return any_gap

@@ -16,7 +16,6 @@ import asyncclick as click
 import matplotlib.pyplot as plt
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.base.utils.json import LegacyConfigJSONParser
 from pybrid.cli.base import cli
 from pybrid.cli.base.commands import user_program
 from pybrid.cli.dac.backend import expand_args, parse_backend_spec
@@ -144,14 +143,12 @@ async def sim(ctx: click.Context, host: str, port: int, entity: str):
     if bearer is not None:
         logger.info("Using authentication bearer!")
 
-    # read and extract entity specification
-    pb_file = ProtoIO.open_pb_file(entity)
-    entities = [c.entity_specification.entity for c in pb_file.module.items
-        if c.HasField("entity_specification")]
-
     # Generate a controller and add devices
     controller = SimController()
-    await controller.add_device(host, port, specification=entities)
+    await controller.add_device(
+        host, 
+        port, 
+        specification=ProtoIO.load_module(entity))
 
     # Put controller in context and make sure that we clean up after ourselves
     ctx.obj["controller"] = controller
@@ -232,20 +229,16 @@ async def lucidac(ctx: click.Context, hosts: list[str], port: int, reset: bool):
 
 @click.command()
 @click.pass_obj
-@click.option("--export", "-e", type=click.File("w"), default=None, required=False, help="File to export list of entities to.")
-async def display(obj, export: typing.Optional[typing.TextIO]):
+async def display(obj):
     """
     Display the hardware structure of the computer.
     """
     controller: REDACController = obj["controller"]
     click.echo(TreeDisplay().render(controller.computer))
 
-    if export:
-        export.write(json.dumps(controller._raw_entity_dict))
-
 @click.command()
 @click.pass_obj
-@click.option("--export", "-e", type=str, default=None, required=False, help="Export result to JSON or APB file")
+@click.option("--export", "-e", type=str, default=None, required=False, help="Export result to APB file")
 @click.option("--specification/--no-specification", default=True, help="Include entity specifications.")
 @click.option("--configuration/--no-configuration", default=False, help="Include entity configurations.")
 @click.option("--calibration/--no-calibration", default=False, help="Include calibration data.")
@@ -253,8 +246,6 @@ async def extract(obj, export: str, specification: bool, configuration: bool, ca
     """
     Extract device data (specification, configuration, calibration) and optionally store to file.
     """
-    from google.protobuf.json_format import MessageToDict
-
     controller: REDACController = obj["controller"]
     module = await controller.extract()
 
@@ -277,14 +268,11 @@ async def extract(obj, export: str, specification: bool, configuration: bool, ca
         file.module.items.append(pb.Item(entity_specification=pb.EntitySpecification(entity=entity)))
 
     if export:
-        if export.endswith(".json"):
-            with open(export, "w") as f:
-                f.write(json.dumps(MessageToDict(file, preserving_proto_field_name=True), indent=2))
-        elif export.endswith(".apb"):
+        if export.endswith(".apb"):
             with open(export, "wb") as f:
                 f.write(file.SerializeToString())
         else:
-            click.echo("Unknown file format, supporting only .apb and .json format, exiting...")
+            click.echo("Unknown file format, only .apb is supported.")
     else:
         print(file)
 
@@ -332,8 +320,8 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
     session = controller.create_session()
 
     if config_file is not None:
-        pb_file = ProtoIO.open_pb_file(config_file)
-        session.set_module(pb_file.module)
+        pb_module = ProtoIO.load_module(config_file)
+        session.set_module(pb_module)
     else:
         logger.warning("No config file provided, device will replay the last configuration...")
 
@@ -369,8 +357,8 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
     if plot:
         if run_.data:
             plt.figure(figsize=(10, 6))
-            for channel_name, channel_data in run_.data.items():
-                plt.plot(channel_data, label=str(channel_name))
+            for channel_ix, channel_data in enumerate(run_.data):
+                plt.plot(channel_data, label=str(channel_ix))
             plt.xlabel('Sample Index')
             plt.ylabel('Value')
             plt.title('Run Data')
@@ -381,42 +369,6 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
             click.echo("No data available to plot.")
 
 
-@click.command()
-@click.pass_obj
-@click.argument("input_file", type=click.File("r"))
-@click.option("--output", "-o", type=str, multiple=True, required=True, help="Output file(s) for converted config. Can be specified multiple times.")
-async def convert(obj, input_file: typing.TextIO, output: tuple[str]):
-    """
-    Convert a JSON-pb file from an old, nested JSON configuration
-
-    Requires a device in order to parse and check the old config correctly.
-    """
-
-    controller: REDACController = obj["controller"]
-    config_json = json.load(input_file)
-
-    if ProtoIO.json_is_pb_file(config_json):
-        raise Exception("convert() expects legacy-style JSON config files as input.")
-    else:
-        pb_file = LegacyConfigJSONParser.parse(config_json, controller.computer)
-
-        # Write to each output file based on extension
-        for output_path in output:
-            if output_path.endswith(".json"):
-                # Write as JSON
-                output_json = ProtoIO.pbfile_to_json(pb_file)
-                with open(output_path, "w") as f:
-                    f.write(json.dumps(output_json, indent=2))
-                    f.write("\n")
-                click.echo(f"Converted config written to {output_path} (JSON format)")
-
-            elif output_path.endswith(".apb"):
-                # Write as binary protobuf
-                with open(output_path, "wb") as f:
-                    f.write(pb_file.SerializeToString())
-                click.echo(f"Converted config written to {output_path} (APB format)")
-            else:
-                raise Exception(f"Unknown file extension for output '{output_path}'. Only .json and .apb are supported.")
 
 @cli.command("reset-usb")
 @click.option(

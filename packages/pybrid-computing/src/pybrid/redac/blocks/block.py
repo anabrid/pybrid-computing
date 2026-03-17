@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import typing
-import warnings
 from dataclasses import dataclass
 
 from pybrid.base.proto import main_pb2 as pb
@@ -12,15 +11,7 @@ from pybrid.redac.entities import Entity
 
 
 class FunctionBlock(Entity):
-    @classmethod
-    def create_from_entity_type_tree(cls, sub_path, sub_tree: pb.Entity):
-        warnings.warn(
-            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        from pybrid.redac.protocol.serializer import REDACDeserializer
-        return REDACDeserializer().deserialize_specification(sub_tree, sub_path)
+    pass
 
 
 @dataclass(kw_only=True)

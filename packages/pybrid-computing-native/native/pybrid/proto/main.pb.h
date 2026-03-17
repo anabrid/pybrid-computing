@@ -211,14 +211,14 @@ class DaqData;
 struct DaqDataDefaultTypeInternal;
 extern DaqDataDefaultTypeInternal _DaqData_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull DaqData_class_data_;
-class DaqScaling;
-struct DaqScalingDefaultTypeInternal;
-extern DaqScalingDefaultTypeInternal _DaqScaling_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull DaqScaling_class_data_;
 class DataType;
 struct DataTypeDefaultTypeInternal;
 extern DataTypeDefaultTypeInternal _DataType_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull DataType_class_data_;
+class DependencyInfo;
+struct DependencyInfoDefaultTypeInternal;
+extern DependencyInfoDefaultTypeInternal _DependencyInfo_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull DependencyInfo_class_data_;
 class DescribeBundle;
 struct DescribeBundleDefaultTypeInternal;
 extern DescribeBundleDefaultTypeInternal _DescribeBundle_default_instance_;
@@ -315,6 +315,14 @@ class IntegerType;
 struct IntegerTypeDefaultTypeInternal;
 extern IntegerTypeDefaultTypeInternal _IntegerType_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull IntegerType_class_data_;
+class IpLookupTable;
+struct IpLookupTableDefaultTypeInternal;
+extern IpLookupTableDefaultTypeInternal _IpLookupTable_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull IpLookupTable_class_data_;
+class IpLookupTable_Entry;
+struct IpLookupTable_EntryDefaultTypeInternal;
+extern IpLookupTable_EntryDefaultTypeInternal _IpLookupTable_Entry_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull IpLookupTable_Entry_class_data_;
 class Issue;
 struct IssueDefaultTypeInternal;
 extern IssueDefaultTypeInternal _Issue_default_instance_;
@@ -555,18 +563,6 @@ class Trace;
 struct TraceDefaultTypeInternal;
 extern TraceDefaultTypeInternal _Trace_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull Trace_class_data_;
-class TraceConfig;
-struct TraceConfigDefaultTypeInternal;
-extern TraceConfigDefaultTypeInternal _TraceConfig_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull TraceConfig_class_data_;
-class TraceSink;
-struct TraceSinkDefaultTypeInternal;
-extern TraceSinkDefaultTypeInternal _TraceSink_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull TraceSink_class_data_;
-class TraceSource;
-struct TraceSourceDefaultTypeInternal;
-extern TraceSourceDefaultTypeInternal _TraceSource_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull TraceSource_class_data_;
 class UdpDataStreamingCommand;
 struct UdpDataStreamingCommandDefaultTypeInternal;
 extern UdpDataStreamingCommandDefaultTypeInternal _UdpDataStreamingCommand_default_instance_;
@@ -579,14 +575,6 @@ class UpscaleConfig;
 struct UpscaleConfigDefaultTypeInternal;
 extern UpscaleConfigDefaultTypeInternal _UpscaleConfig_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull UpscaleConfig_class_data_;
-class Use;
-struct UseDefaultTypeInternal;
-extern UseDefaultTypeInternal _Use_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull Use_class_data_;
-class UseConfig;
-struct UseConfigDefaultTypeInternal;
-extern UseConfigDefaultTypeInternal _UseConfig_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull UseConfig_class_data_;
 class Vendor;
 struct VendorDefaultTypeInternal;
 extern VendorDefaultTypeInternal _Vendor_default_instance_;
@@ -1321,7 +1309,7 @@ class WriteSystemIdentResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const WriteSystemIdentResponse*>(
         &_WriteSystemIdentResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 96;
+  static constexpr int kIndexInFileMessages = 93;
   friend void swap(WriteSystemIdentResponse& a, WriteSystemIdentResponse& b) { a.Swap(&b); }
   inline void Swap(WriteSystemIdentResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1512,7 +1500,7 @@ class Version final : public ::google::protobuf::Message
     return *reinterpret_cast<const Version*>(
         &_Version_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 66;
+  static constexpr int kIndexInFileMessages = 64;
   friend void swap(Version& a, Version& b) { a.Swap(&b); }
   inline void Swap(Version* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1727,7 +1715,7 @@ class Vendor final : public ::google::protobuf::Message
     return *reinterpret_cast<const Vendor*>(
         &_Vendor_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 95;
+  static constexpr int kIndexInFileMessages = 92;
   friend void swap(Vendor& a, Vendor& b) { a.Swap(&b); }
   inline void Swap(Vendor* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1912,234 +1900,6 @@ class Vendor final : public ::google::protobuf::Message
 };
 
 extern const ::google::protobuf::internal::ClassDataFull Vendor_class_data_;
-// -------------------------------------------------------------------
-
-class Use final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pb.Use) */ {
- public:
-  inline Use() : Use(nullptr) {}
-  ~Use() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(Use* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(Use));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR Use(::google::protobuf::internal::ConstantInitialized);
-
-  inline Use(const Use& from) : Use(nullptr, from) {}
-  inline Use(Use&& from) noexcept
-      : Use(nullptr, ::std::move(from)) {}
-  inline Use& operator=(const Use& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline Use& operator=(Use&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Use& default_instance() {
-    return *reinterpret_cast<const Use*>(
-        &_Use_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 22;
-  friend void swap(Use& a, Use& b) { a.Swap(&b); }
-  inline void Swap(Use* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(Use* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  Use* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<Use>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const Use& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const Use& from) { Use::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(Use* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pb.Use"; }
-
- protected:
-  explicit Use(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  Use(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Use& from);
-  Use(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Use&& from) noexcept
-      : Use(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kIdxFieldNumber = 1,
-    kSourceFieldNumber = 10,
-    kCountFieldNumber = 20,
-    kUpscaledFieldNumber = 21,
-  };
-  // uint32 idx = 1;
-  void clear_idx() ;
-  ::uint32_t idx() const;
-  void set_idx(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_idx() const;
-  void _internal_set_idx(::uint32_t value);
-
-  public:
-  // optional uint32 source = 10;
-  bool has_source() const;
-  void clear_source() ;
-  ::uint32_t source() const;
-  void set_source(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_source() const;
-  void _internal_set_source(::uint32_t value);
-
-  public:
-  // uint32 count = 20;
-  void clear_count() ;
-  ::uint32_t count() const;
-  void set_count(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_count() const;
-  void _internal_set_count(::uint32_t value);
-
-  public:
-  // bool upscaled = 21;
-  void clear_upscaled() ;
-  bool upscaled() const;
-  void set_upscaled(bool value);
-
-  private:
-  bool _internal_upscaled() const;
-  void _internal_set_upscaled(bool value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb.Use)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<3, 4,
-                                   0, 0,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const Use& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::uint32_t idx_;
-    ::uint32_t source_;
-    ::uint32_t count_;
-    bool upscaled_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_main_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull Use_class_data_;
 // -------------------------------------------------------------------
 
 class UpscaleConfig final : public ::google::protobuf::Message
@@ -2400,7 +2160,7 @@ class UdpDataStreamingRefusedResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const UdpDataStreamingRefusedResponse*>(
         &_UdpDataStreamingRefusedResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 56;
+  static constexpr int kIndexInFileMessages = 54;
   friend void swap(UdpDataStreamingRefusedResponse& a, UdpDataStreamingRefusedResponse& b) { a.Swap(&b); }
   inline void Swap(UdpDataStreamingRefusedResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2597,7 +2357,7 @@ class UdpDataStreamingCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const UdpDataStreamingCommand*>(
         &_UdpDataStreamingCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 55;
+  static constexpr int kIndexInFileMessages = 53;
   friend void swap(UdpDataStreamingCommand& a, UdpDataStreamingCommand& b) { a.Swap(&b); }
   inline void Swap(UdpDataStreamingCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2733,30 +2493,30 @@ class UdpDataStreamingCommand final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull UdpDataStreamingCommand_class_data_;
 // -------------------------------------------------------------------
 
-class TraceSource final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pb.TraceSource) */ {
+class Trace final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pb.Trace) */ {
  public:
-  inline TraceSource() : TraceSource(nullptr) {}
-  ~TraceSource() PROTOBUF_FINAL;
+  inline Trace() : Trace(nullptr) {}
+  ~Trace() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(TraceSource* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+  void operator delete(Trace* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(TraceSource));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Trace));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR TraceSource(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR Trace(::google::protobuf::internal::ConstantInitialized);
 
-  inline TraceSource(const TraceSource& from) : TraceSource(nullptr, from) {}
-  inline TraceSource(TraceSource&& from) noexcept
-      : TraceSource(nullptr, ::std::move(from)) {}
-  inline TraceSource& operator=(const TraceSource& from) {
+  inline Trace(const Trace& from) : Trace(nullptr, from) {}
+  inline Trace(Trace&& from) noexcept
+      : Trace(nullptr, ::std::move(from)) {}
+  inline Trace& operator=(const Trace& from) {
     CopyFrom(from);
     return *this;
   }
-  inline TraceSource& operator=(TraceSource&& from) noexcept {
+  inline Trace& operator=(Trace&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -2784,13 +2544,13 @@ class TraceSource final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const TraceSource& default_instance() {
-    return *reinterpret_cast<const TraceSource*>(
-        &_TraceSource_default_instance_);
+  static const Trace& default_instance() {
+    return *reinterpret_cast<const Trace*>(
+        &_Trace_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 24;
-  friend void swap(TraceSource& a, TraceSource& b) { a.Swap(&b); }
-  inline void Swap(TraceSource* PROTOBUF_NONNULL other) {
+  static constexpr int kIndexInFileMessages = 22;
+  friend void swap(Trace& a, Trace& b) { a.Swap(&b); }
+  inline void Swap(Trace* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -2798,7 +2558,7 @@ class TraceSource final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(TraceSource* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(Trace* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -2806,13 +2566,13 @@ class TraceSource final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  TraceSource* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<TraceSource>(arena);
+  Trace* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Trace>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const TraceSource& from);
+  void CopyFrom(const Trace& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const TraceSource& from) { TraceSource::MergeImpl(*this, from); }
+  void MergeFrom(const Trace& from) { Trace::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -2848,18 +2608,18 @@ class TraceSource final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(TraceSource* PROTOBUF_NONNULL other);
+  void InternalSwap(Trace* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pb.TraceSource"; }
+  static ::absl::string_view FullMessageName() { return "pb.Trace"; }
 
  protected:
-  explicit TraceSource(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  TraceSource(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const TraceSource& from);
-  TraceSource(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, TraceSource&& from) noexcept
-      : TraceSource(arena) {
+  explicit Trace(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  Trace(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Trace& from);
+  Trace(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Trace&& from) noexcept
+      : Trace(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -2876,34 +2636,67 @@ class TraceSource final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kEntityIdxFieldNumber = 1,
-    kLaneFieldNumber = 2,
+    kSourceNodeFieldNumber = 1,
+    kSourceLaneFieldNumber = 2,
+    kSinkNodeFieldNumber = 3,
+    kSinkLaneFieldNumber = 4,
+    kSinkUpscaledFieldNumber = 5,
   };
-  // uint32 entity_idx = 1;
-  void clear_entity_idx() ;
-  ::uint32_t entity_idx() const;
-  void set_entity_idx(::uint32_t value);
+  // uint32 source_node = 1;
+  void clear_source_node() ;
+  ::uint32_t source_node() const;
+  void set_source_node(::uint32_t value);
 
   private:
-  ::uint32_t _internal_entity_idx() const;
-  void _internal_set_entity_idx(::uint32_t value);
+  ::uint32_t _internal_source_node() const;
+  void _internal_set_source_node(::uint32_t value);
 
   public:
-  // uint32 lane = 2;
-  void clear_lane() ;
-  ::uint32_t lane() const;
-  void set_lane(::uint32_t value);
+  // uint32 source_lane = 2;
+  void clear_source_lane() ;
+  ::uint32_t source_lane() const;
+  void set_source_lane(::uint32_t value);
 
   private:
-  ::uint32_t _internal_lane() const;
-  void _internal_set_lane(::uint32_t value);
+  ::uint32_t _internal_source_lane() const;
+  void _internal_set_source_lane(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:pb.TraceSource)
+  // uint32 sink_node = 3;
+  void clear_sink_node() ;
+  ::uint32_t sink_node() const;
+  void set_sink_node(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_sink_node() const;
+  void _internal_set_sink_node(::uint32_t value);
+
+  public:
+  // uint32 sink_lane = 4;
+  void clear_sink_lane() ;
+  ::uint32_t sink_lane() const;
+  void set_sink_lane(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_sink_lane() const;
+  void _internal_set_sink_lane(::uint32_t value);
+
+  public:
+  // bool sink_upscaled = 5;
+  void clear_sink_upscaled() ;
+  bool sink_upscaled() const;
+  void set_sink_upscaled(bool value);
+
+  private:
+  bool _internal_sink_upscaled() const;
+  void _internal_set_sink_upscaled(bool value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb.Trace)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<3, 5,
                                    0, 0,
                                    2>
       _table_;
@@ -2922,234 +2715,21 @@ class TraceSource final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const TraceSource& from_msg);
+        const Trace& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::uint32_t entity_idx_;
-    ::uint32_t lane_;
+    ::uint32_t source_node_;
+    ::uint32_t source_lane_;
+    ::uint32_t sink_node_;
+    ::uint32_t sink_lane_;
+    bool sink_upscaled_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_main_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull TraceSource_class_data_;
-// -------------------------------------------------------------------
-
-class TraceSink final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pb.TraceSink) */ {
- public:
-  inline TraceSink() : TraceSink(nullptr) {}
-  ~TraceSink() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(TraceSink* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(TraceSink));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR TraceSink(::google::protobuf::internal::ConstantInitialized);
-
-  inline TraceSink(const TraceSink& from) : TraceSink(nullptr, from) {}
-  inline TraceSink(TraceSink&& from) noexcept
-      : TraceSink(nullptr, ::std::move(from)) {}
-  inline TraceSink& operator=(const TraceSink& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline TraceSink& operator=(TraceSink&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TraceSink& default_instance() {
-    return *reinterpret_cast<const TraceSink*>(
-        &_TraceSink_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 25;
-  friend void swap(TraceSink& a, TraceSink& b) { a.Swap(&b); }
-  inline void Swap(TraceSink* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(TraceSink* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  TraceSink* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<TraceSink>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const TraceSink& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const TraceSink& from) { TraceSink::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(TraceSink* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pb.TraceSink"; }
-
- protected:
-  explicit TraceSink(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  TraceSink(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const TraceSink& from);
-  TraceSink(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, TraceSink&& from) noexcept
-      : TraceSink(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kEntityIdxFieldNumber = 1,
-    kLaneFieldNumber = 2,
-    kUpscaledFieldNumber = 3,
-  };
-  // uint32 entity_idx = 1;
-  void clear_entity_idx() ;
-  ::uint32_t entity_idx() const;
-  void set_entity_idx(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_entity_idx() const;
-  void _internal_set_entity_idx(::uint32_t value);
-
-  public:
-  // uint32 lane = 2;
-  void clear_lane() ;
-  ::uint32_t lane() const;
-  void set_lane(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_lane() const;
-  void _internal_set_lane(::uint32_t value);
-
-  public:
-  // optional bool upscaled = 3;
-  bool has_upscaled() const;
-  void clear_upscaled() ;
-  bool upscaled() const;
-  void set_upscaled(bool value);
-
-  private:
-  bool _internal_upscaled() const;
-  void _internal_set_upscaled(bool value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb.TraceSink)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 0,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const TraceSink& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::uint32_t entity_idx_;
-    ::uint32_t lane_;
-    bool upscaled_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_main_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull TraceSink_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull Trace_class_data_;
 // -------------------------------------------------------------------
 
 class Time final : public ::google::protobuf::Message
@@ -3207,7 +2787,7 @@ class Time final : public ::google::protobuf::Message
     return *reinterpret_cast<const Time*>(
         &_Time_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 49;
+  static constexpr int kIndexInFileMessages = 47;
   friend void swap(Time& a, Time& b) { a.Swap(&b); }
   inline void Swap(Time* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -3410,7 +2990,7 @@ class Temperature final : public ::google::protobuf::Message
     return *reinterpret_cast<const Temperature*>(
         &_Temperature_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 50;
+  static constexpr int kIndexInFileMessages = 48;
   friend void swap(Temperature& a, Temperature& b) { a.Swap(&b); }
   inline void Swap(Temperature* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -3634,7 +3214,7 @@ class SystemStatsCommand final : public ::google::protobuf::internal::ZeroFields
     return *reinterpret_cast<const SystemStatsCommand*>(
         &_SystemStatsCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 65;
+  static constexpr int kIndexInFileMessages = 63;
   friend void swap(SystemStatsCommand& a, SystemStatsCommand& b) { a.Swap(&b); }
   inline void Swap(SystemStatsCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -3770,7 +3350,7 @@ class SyslogResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const SyslogResponse*>(
         &_SyslogResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 87;
+  static constexpr int kIndexInFileMessages = 84;
   friend void swap(SyslogResponse& a, SyslogResponse& b) { a.Swap(&b); }
   inline void Swap(SyslogResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -3996,7 +3576,7 @@ class SyslogCommand final : public ::google::protobuf::internal::ZeroFieldsBase
     return *reinterpret_cast<const SyslogCommand*>(
         &_SyslogCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 64;
+  static constexpr int kIndexInFileMessages = 62;
   friend void swap(SyslogCommand& a, SyslogCommand& b) { a.Swap(&b); }
   inline void Swap(SyslogCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4343,7 +3923,7 @@ class SuccessMessage final : public ::google::protobuf::internal::ZeroFieldsBase
     return *reinterpret_cast<const SuccessMessage*>(
         &_SuccessMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 114;
+  static constexpr int kIndexInFileMessages = 111;
   friend void swap(SuccessMessage& a, SuccessMessage& b) { a.Swap(&b); }
   inline void Swap(SuccessMessage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4478,7 +4058,7 @@ class StopRunCommand final : public ::google::protobuf::internal::ZeroFieldsBase
     return *reinterpret_cast<const StopRunCommand*>(
         &_StopRunCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 58;
+  static constexpr int kIndexInFileMessages = 56;
   friend void swap(StopRunCommand& a, StopRunCommand& b) { a.Swap(&b); }
   inline void Swap(StopRunCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4613,7 +4193,7 @@ class StartRunResponse final : public ::google::protobuf::internal::ZeroFieldsBa
     return *reinterpret_cast<const StartRunResponse*>(
         &_StartRunResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 72;
+  static constexpr int kIndexInFileMessages = 70;
   friend void swap(StartRunResponse& a, StartRunResponse& b) { a.Swap(&b); }
   inline void Swap(StartRunResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4749,7 +4329,7 @@ class StandByCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const StandByCommand*>(
         &_StandByCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 59;
+  static constexpr int kIndexInFileMessages = 57;
   friend void swap(StandByCommand& a, StandByCommand& b) { a.Swap(&b); }
   inline void Swap(StandByCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4952,7 +4532,7 @@ class Source final : public ::google::protobuf::Message
     return *reinterpret_cast<const Source*>(
         &_Source_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 121;
+  static constexpr int kIndexInFileMessages = 118;
   friend void swap(Source& a, Source& b) { a.Swap(&b); }
   inline void Swap(Source* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5180,7 +4760,7 @@ class SignalGeneratorConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const SignalGeneratorConfig*>(
         &_SignalGeneratorConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 30;
+  static constexpr int kIndexInFileMessages = 26;
   friend void swap(SignalGeneratorConfig& a, SignalGeneratorConfig& b) { a.Swap(&b); }
   inline void Swap(SignalGeneratorConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5914,7 +5494,7 @@ class Run final : public ::google::protobuf::Message
     return *reinterpret_cast<const Run*>(
         &_Run_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 79;
+  static constexpr int kIndexInFileMessages = 76;
   friend void swap(Run& a, Run& b) { a.Swap(&b); }
   inline void Swap(Run* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6121,7 +5701,7 @@ class ResetSystemIdentResponse final : public ::google::protobuf::internal::Zero
     return *reinterpret_cast<const ResetSystemIdentResponse*>(
         &_ResetSystemIdentResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 93;
+  static constexpr int kIndexInFileMessages = 90;
   friend void swap(ResetSystemIdentResponse& a, ResetSystemIdentResponse& b) { a.Swap(&b); }
   inline void Swap(ResetSystemIdentResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6257,7 +5837,7 @@ class ResetSystemIdentCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const ResetSystemIdentCommand*>(
         &_ResetSystemIdentCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 92;
+  static constexpr int kIndexInFileMessages = 89;
   friend void swap(ResetSystemIdentCommand& a, ResetSystemIdentCommand& b) { a.Swap(&b); }
   inline void Swap(ResetSystemIdentCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6447,7 +6027,7 @@ class ReadTemperatureCommand final : public ::google::protobuf::internal::ZeroFi
     return *reinterpret_cast<const ReadTemperatureCommand*>(
         &_ReadTemperatureCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 106;
+  static constexpr int kIndexInFileMessages = 103;
   friend void swap(ReadTemperatureCommand& a, ReadTemperatureCommand& b) { a.Swap(&b); }
   inline void Swap(ReadTemperatureCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6582,7 +6162,7 @@ class ReadSystemIdentResponse final : public ::google::protobuf::internal::ZeroF
     return *reinterpret_cast<const ReadSystemIdentResponse*>(
         &_ReadSystemIdentResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 91;
+  static constexpr int kIndexInFileMessages = 88;
   friend void swap(ReadSystemIdentResponse& a, ReadSystemIdentResponse& b) { a.Swap(&b); }
   inline void Swap(ReadSystemIdentResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6718,7 +6298,7 @@ class ReadSystemIdentCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const ReadSystemIdentCommand*>(
         &_ReadSystemIdentCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 90;
+  static constexpr int kIndexInFileMessages = 87;
   friend void swap(ReadSystemIdentCommand& a, ReadSystemIdentCommand& b) { a.Swap(&b); }
   inline void Swap(ReadSystemIdentCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6909,7 +6489,7 @@ class PingResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const PingResponse*>(
         &_PingResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 82;
+  static constexpr int kIndexInFileMessages = 79;
   friend void swap(PingResponse& a, PingResponse& b) { a.Swap(&b); }
   inline void Swap(PingResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -7099,7 +6679,7 @@ class PingCommand final : public ::google::protobuf::internal::ZeroFieldsBase
     return *reinterpret_cast<const PingCommand*>(
         &_PingCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 61;
+  static constexpr int kIndexInFileMessages = 59;
   friend void swap(PingCommand& a, PingCommand& b) { a.Swap(&b); }
   inline void Swap(PingCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -7235,7 +6815,7 @@ class PerformanceCounters final : public ::google::protobuf::Message
     return *reinterpret_cast<const PerformanceCounters*>(
         &_PerformanceCounters_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 88;
+  static constexpr int kIndexInFileMessages = 85;
   friend void swap(PerformanceCounters& a, PerformanceCounters& b) { a.Swap(&b); }
   inline void Swap(PerformanceCounters* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8073,7 +7653,7 @@ class ManualControlCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const ManualControlCommand*>(
         &_ManualControlCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 60;
+  static constexpr int kIndexInFileMessages = 58;
   friend void swap(ManualControlCommand& a, ManualControlCommand& b) { a.Swap(&b); }
   inline void Swap(ManualControlCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8704,7 +8284,7 @@ class Issue final : public ::google::protobuf::Message
     return *reinterpret_cast<const Issue*>(
         &_Issue_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 123;
+  static constexpr int kIndexInFileMessages = 120;
   friend void swap(Issue& a, Issue& b) { a.Swap(&b); }
   inline void Swap(Issue* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8957,7 +8537,7 @@ class IntegerType final : public ::google::protobuf::Message
     return *reinterpret_cast<const IntegerType*>(
         &_IntegerType_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 74;
+  static constexpr int kIndexInFileMessages = 72;
   friend void swap(IntegerType& a, IntegerType& b) { a.Swap(&b); }
   inline void Swap(IntegerType* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9179,7 +8759,7 @@ class GetSystemIdentCommand final : public ::google::protobuf::internal::ZeroFie
     return *reinterpret_cast<const GetSystemIdentCommand*>(
         &_GetSystemIdentCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 97;
+  static constexpr int kIndexInFileMessages = 94;
   friend void swap(GetSystemIdentCommand& a, GetSystemIdentCommand& b) { a.Swap(&b); }
   inline void Swap(GetSystemIdentCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9314,7 +8894,7 @@ class GetOverloadStatusCommand final : public ::google::protobuf::internal::Zero
     return *reinterpret_cast<const GetOverloadStatusCommand*>(
         &_GetOverloadStatusCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 110;
+  static constexpr int kIndexInFileMessages = 107;
   friend void swap(GetOverloadStatusCommand& a, GetOverloadStatusCommand& b) { a.Swap(&b); }
   inline void Swap(GetOverloadStatusCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9450,7 +9030,7 @@ class FrontPanelConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const FrontPanelConfig*>(
         &_FrontPanelConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 31;
+  static constexpr int kIndexInFileMessages = 27;
   friend void swap(FrontPanelConfig& a, FrontPanelConfig& b) { a.Swap(&b); }
   inline void Swap(FrontPanelConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9641,7 +9221,7 @@ class FloatType final : public ::google::protobuf::Message
     return *reinterpret_cast<const FloatType*>(
         &_FloatType_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 75;
+  static constexpr int kIndexInFileMessages = 73;
   friend void swap(FloatType& a, FloatType& b) { a.Swap(&b); }
   inline void Swap(FloatType* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9832,7 +9412,7 @@ class FirmwareImage final : public ::google::protobuf::Message
     return *reinterpret_cast<const FirmwareImage*>(
         &_FirmwareImage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 85;
+  static constexpr int kIndexInFileMessages = 82;
   friend void swap(FirmwareImage& a, FirmwareImage& b) { a.Swap(&b); }
   inline void Swap(FirmwareImage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10079,7 +9659,7 @@ class ErrorMessage final : public ::google::protobuf::Message
     return *reinterpret_cast<const ErrorMessage*>(
         &_ErrorMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 116;
+  static constexpr int kIndexInFileMessages = 113;
   friend void swap(ErrorMessage& a, ErrorMessage& b) { a.Swap(&b); }
   inline void Swap(ErrorMessage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10287,7 +9867,7 @@ class EntityId final : public ::google::protobuf::Message
     return *reinterpret_cast<const EntityId*>(
         &_EntityId_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 37;
+  static constexpr int kIndexInFileMessages = 35;
   friend void swap(EntityId& a, EntityId& b) { a.Swap(&b); }
   inline void Swap(EntityId* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10617,7 +10197,7 @@ class DeviceBusyMessage final : public ::google::protobuf::internal::ZeroFieldsB
     return *reinterpret_cast<const DeviceBusyMessage*>(
         &_DeviceBusyMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 115;
+  static constexpr int kIndexInFileMessages = 112;
   friend void swap(DeviceBusyMessage& a, DeviceBusyMessage& b) { a.Swap(&b); }
   inline void Swap(DeviceBusyMessage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10752,7 +10332,7 @@ class DescribeCommand final : public ::google::protobuf::internal::ZeroFieldsBas
     return *reinterpret_cast<const DescribeCommand*>(
         &_DescribeCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 38;
+  static constexpr int kIndexInFileMessages = 36;
   friend void swap(DescribeCommand& a, DescribeCommand& b) { a.Swap(&b); }
   inline void Swap(DescribeCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10833,221 +10413,6 @@ class DescribeCommand final : public ::google::protobuf::internal::ZeroFieldsBas
 extern const ::google::protobuf::internal::ClassDataFull DescribeCommand_class_data_;
 // -------------------------------------------------------------------
 
-class DaqScaling final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pb.DaqScaling) */ {
- public:
-  inline DaqScaling() : DaqScaling(nullptr) {}
-  ~DaqScaling() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(DaqScaling* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(DaqScaling));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR DaqScaling(::google::protobuf::internal::ConstantInitialized);
-
-  inline DaqScaling(const DaqScaling& from) : DaqScaling(nullptr, from) {}
-  inline DaqScaling(DaqScaling&& from) noexcept
-      : DaqScaling(nullptr, ::std::move(from)) {}
-  inline DaqScaling& operator=(const DaqScaling& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline DaqScaling& operator=(DaqScaling&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const DaqScaling& default_instance() {
-    return *reinterpret_cast<const DaqScaling*>(
-        &_DaqScaling_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 77;
-  friend void swap(DaqScaling& a, DaqScaling& b) { a.Swap(&b); }
-  inline void Swap(DaqScaling* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(DaqScaling* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  DaqScaling* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<DaqScaling>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const DaqScaling& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const DaqScaling& from) { DaqScaling::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(DaqScaling* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pb.DaqScaling"; }
-
- protected:
-  explicit DaqScaling(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  DaqScaling(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const DaqScaling& from);
-  DaqScaling(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, DaqScaling&& from) noexcept
-      : DaqScaling(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kGainFieldNumber = 2,
-    kOffsetFieldNumber = 3,
-    kIdxFieldNumber = 1,
-  };
-  // double gain = 2;
-  void clear_gain() ;
-  double gain() const;
-  void set_gain(double value);
-
-  private:
-  double _internal_gain() const;
-  void _internal_set_gain(double value);
-
-  public:
-  // double offset = 3;
-  void clear_offset() ;
-  double offset() const;
-  void set_offset(double value);
-
-  private:
-  double _internal_offset() const;
-  void _internal_set_offset(double value);
-
-  public:
-  // uint32 idx = 1;
-  void clear_idx() ;
-  ::uint32_t idx() const;
-  void set_idx(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_idx() const;
-  void _internal_set_idx(::uint32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb.DaqScaling)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 0,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const DaqScaling& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    double gain_;
-    double offset_;
-    ::uint32_t idx_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_main_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull DaqScaling_class_data_;
-// -------------------------------------------------------------------
-
 class DaqConfig final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.DaqConfig) */ {
  public:
@@ -11103,7 +10468,7 @@ class DaqConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const DaqConfig*>(
         &_DaqConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 52;
+  static constexpr int kIndexInFileMessages = 50;
   friend void swap(DaqConfig& a, DaqConfig& b) { a.Swap(&b); }
   inline void Swap(DaqConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -11545,7 +10910,7 @@ class CmpConfig final : public ::google::protobuf::internal::ZeroFieldsBase
     return *reinterpret_cast<const CmpConfig*>(
         &_CmpConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 29;
+  static constexpr int kIndexInFileMessages = 25;
   friend void swap(CmpConfig& a, CmpConfig& b) { a.Swap(&b); }
   inline void Swap(CmpConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -11816,7 +11181,7 @@ class CarrierLocationV0 final : public ::google::protobuf::Message
     return *reinterpret_cast<const CarrierLocationV0*>(
         &_CarrierLocationV0_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 67;
+  static constexpr int kIndexInFileMessages = 65;
   friend void swap(CarrierLocationV0& a, CarrierLocationV0& b) { a.Swap(&b); }
   inline void Swap(CarrierLocationV0* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12018,7 +11383,7 @@ class CalibrationResponse final : public ::google::protobuf::internal::ZeroField
     return *reinterpret_cast<const CalibrationResponse*>(
         &_CalibrationResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 99;
+  static constexpr int kIndexInFileMessages = 96;
   friend void swap(CalibrationResponse& a, CalibrationResponse& b) { a.Swap(&b); }
   inline void Swap(CalibrationResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12154,7 +11519,7 @@ class CalibrationData final : public ::google::protobuf::Message
     return *reinterpret_cast<const CalibrationData*>(
         &_CalibrationData_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 104;
+  static constexpr int kIndexInFileMessages = 101;
   friend void swap(CalibrationData& a, CalibrationData& b) { a.Swap(&b); }
   inline void Swap(CalibrationData* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12356,7 +11721,7 @@ class CalibrateOffsetCommand final : public ::google::protobuf::internal::ZeroFi
     return *reinterpret_cast<const CalibrateOffsetCommand*>(
         &_CalibrateOffsetCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 102;
+  static constexpr int kIndexInFileMessages = 99;
   friend void swap(CalibrateOffsetCommand& a, CalibrateOffsetCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateOffsetCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12492,7 +11857,7 @@ class CalibrateLaneCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const CalibrateLaneCommand*>(
         &_CalibrateLaneCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 103;
+  static constexpr int kIndexInFileMessages = 100;
   friend void swap(CalibrateLaneCommand& a, CalibrateLaneCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateLaneCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12682,7 +12047,7 @@ class CalibrateInitCommand final : public ::google::protobuf::internal::ZeroFiel
     return *reinterpret_cast<const CalibrateInitCommand*>(
         &_CalibrateInitCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 100;
+  static constexpr int kIndexInFileMessages = 97;
   friend void swap(CalibrateInitCommand& a, CalibrateInitCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateInitCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12817,7 +12182,7 @@ class CalibrateFinalizeCommand final : public ::google::protobuf::internal::Zero
     return *reinterpret_cast<const CalibrateFinalizeCommand*>(
         &_CalibrateFinalizeCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 101;
+  static constexpr int kIndexInFileMessages = 98;
   friend void swap(CalibrateFinalizeCommand& a, CalibrateFinalizeCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateFinalizeCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12953,7 +12318,7 @@ class BearerAuth final : public ::google::protobuf::Message
     return *reinterpret_cast<const BearerAuth*>(
         &_BearerAuth_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 119;
+  static constexpr int kIndexInFileMessages = 116;
   friend void swap(BearerAuth& a, BearerAuth& b) { a.Swap(&b); }
   inline void Swap(BearerAuth* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -13149,7 +12514,7 @@ class BackpanelConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const BackpanelConfig*>(
         &_BackpanelConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 34;
+  static constexpr int kIndexInFileMessages = 30;
   friend void swap(BackpanelConfig& a, BackpanelConfig& b) { a.Swap(&b); }
   inline void Swap(BackpanelConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -13661,9 +13026,9 @@ class AdcChannel final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kGainFieldNumber = 2,
-    kOffsetFieldNumber = 3,
-    kProbeIdxFieldNumber = 4,
     kIdxFieldNumber = 1,
+    kProbeFieldNumber = 4,
+    kOffsetFieldNumber = 3,
   };
   // double gain = 2;
   void clear_gain() ;
@@ -13675,26 +13040,6 @@ class AdcChannel final : public ::google::protobuf::Message
   void _internal_set_gain(double value);
 
   public:
-  // double offset = 3;
-  void clear_offset() ;
-  double offset() const;
-  void set_offset(double value);
-
-  private:
-  double _internal_offset() const;
-  void _internal_set_offset(double value);
-
-  public:
-  // uint64 probe_idx = 4;
-  void clear_probe_idx() ;
-  ::uint64_t probe_idx() const;
-  void set_probe_idx(::uint64_t value);
-
-  private:
-  ::uint64_t _internal_probe_idx() const;
-  void _internal_set_probe_idx(::uint64_t value);
-
-  public:
   // uint32 idx = 1;
   void clear_idx() ;
   ::uint32_t idx() const;
@@ -13703,6 +13048,26 @@ class AdcChannel final : public ::google::protobuf::Message
   private:
   ::uint32_t _internal_idx() const;
   void _internal_set_idx(::uint32_t value);
+
+  public:
+  // uint32 probe = 4;
+  void clear_probe() ;
+  ::uint32_t probe() const;
+  void set_probe(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_probe() const;
+  void _internal_set_probe(::uint32_t value);
+
+  public:
+  // double offset = 3;
+  void clear_offset() ;
+  double offset() const;
+  void set_offset(double value);
+
+  private:
+  double _internal_offset() const;
+  void _internal_set_offset(double value);
 
   public:
   // @@protoc_insertion_point(class_scope:pb.AdcChannel)
@@ -13732,9 +13097,9 @@ class AdcChannel final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     double gain_;
-    double offset_;
-    ::uint64_t probe_idx_;
     ::uint32_t idx_;
+    ::uint32_t probe_;
+    double offset_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -13799,7 +13164,7 @@ class ACLPlugin final : public ::google::protobuf::Message
     return *reinterpret_cast<const ACLPlugin*>(
         &_ACLPlugin_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 42;
+  static constexpr int kIndexInFileMessages = 40;
   friend void swap(ACLPlugin& a, ACLPlugin& b) { a.Swap(&b); }
   inline void Swap(ACLPlugin* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -14032,7 +13397,7 @@ class ACLPinSignal final : public ::google::protobuf::Message
     return *reinterpret_cast<const ACLPinSignal*>(
         &_ACLPinSignal_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 32;
+  static constexpr int kIndexInFileMessages = 28;
   friend void swap(ACLPinSignal& a, ACLPinSignal& b) { a.Swap(&b); }
   inline void Swap(ACLPinSignal* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -14240,7 +13605,7 @@ class WriteSystemIdentCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const WriteSystemIdentCommand*>(
         &_WriteSystemIdentCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 94;
+  static constexpr int kIndexInFileMessages = 91;
   friend void swap(WriteSystemIdentCommand& a, WriteSystemIdentCommand& b) { a.Swap(&b); }
   inline void Swap(WriteSystemIdentCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -14381,418 +13746,6 @@ class WriteSystemIdentCommand final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull WriteSystemIdentCommand_class_data_;
 // -------------------------------------------------------------------
 
-class UseConfig final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pb.UseConfig) */ {
- public:
-  inline UseConfig() : UseConfig(nullptr) {}
-  ~UseConfig() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(UseConfig* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(UseConfig));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR UseConfig(::google::protobuf::internal::ConstantInitialized);
-
-  inline UseConfig(const UseConfig& from) : UseConfig(nullptr, from) {}
-  inline UseConfig(UseConfig&& from) noexcept
-      : UseConfig(nullptr, ::std::move(from)) {}
-  inline UseConfig& operator=(const UseConfig& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline UseConfig& operator=(UseConfig&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const UseConfig& default_instance() {
-    return *reinterpret_cast<const UseConfig*>(
-        &_UseConfig_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 23;
-  friend void swap(UseConfig& a, UseConfig& b) { a.Swap(&b); }
-  inline void Swap(UseConfig* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(UseConfig* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  UseConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<UseConfig>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const UseConfig& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const UseConfig& from) { UseConfig::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(UseConfig* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pb.UseConfig"; }
-
- protected:
-  explicit UseConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  UseConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const UseConfig& from);
-  UseConfig(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, UseConfig&& from) noexcept
-      : UseConfig(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kUsesFieldNumber = 1,
-  };
-  // repeated .pb.Use uses = 1;
-  int uses_size() const;
-  private:
-  int _internal_uses_size() const;
-
-  public:
-  void clear_uses() ;
-  ::pb::Use* PROTOBUF_NONNULL mutable_uses(int index);
-  ::google::protobuf::RepeatedPtrField<::pb::Use>* PROTOBUF_NONNULL mutable_uses();
-
-  private:
-  const ::google::protobuf::RepeatedPtrField<::pb::Use>& _internal_uses() const;
-  ::google::protobuf::RepeatedPtrField<::pb::Use>* PROTOBUF_NONNULL _internal_mutable_uses();
-  public:
-  const ::pb::Use& uses(int index) const;
-  ::pb::Use* PROTOBUF_NONNULL add_uses();
-  const ::google::protobuf::RepeatedPtrField<::pb::Use>& uses() const;
-  // @@protoc_insertion_point(class_scope:pb.UseConfig)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
-                                   1, 0,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const UseConfig& from_msg);
-    ::google::protobuf::RepeatedPtrField< ::pb::Use > uses_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_main_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull UseConfig_class_data_;
-// -------------------------------------------------------------------
-
-class Trace final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pb.Trace) */ {
- public:
-  inline Trace() : Trace(nullptr) {}
-  ~Trace() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(Trace* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(Trace));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR Trace(::google::protobuf::internal::ConstantInitialized);
-
-  inline Trace(const Trace& from) : Trace(nullptr, from) {}
-  inline Trace(Trace&& from) noexcept
-      : Trace(nullptr, ::std::move(from)) {}
-  inline Trace& operator=(const Trace& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline Trace& operator=(Trace&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Trace& default_instance() {
-    return *reinterpret_cast<const Trace*>(
-        &_Trace_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 26;
-  friend void swap(Trace& a, Trace& b) { a.Swap(&b); }
-  inline void Swap(Trace* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(Trace* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  Trace* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<Trace>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const Trace& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const Trace& from) { Trace::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(Trace* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pb.Trace"; }
-
- protected:
-  explicit Trace(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  Trace(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Trace& from);
-  Trace(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Trace&& from) noexcept
-      : Trace(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kSinksFieldNumber = 2,
-    kSourceFieldNumber = 1,
-  };
-  // repeated .pb.TraceSink sinks = 2;
-  int sinks_size() const;
-  private:
-  int _internal_sinks_size() const;
-
-  public:
-  void clear_sinks() ;
-  ::pb::TraceSink* PROTOBUF_NONNULL mutable_sinks(int index);
-  ::google::protobuf::RepeatedPtrField<::pb::TraceSink>* PROTOBUF_NONNULL mutable_sinks();
-
-  private:
-  const ::google::protobuf::RepeatedPtrField<::pb::TraceSink>& _internal_sinks() const;
-  ::google::protobuf::RepeatedPtrField<::pb::TraceSink>* PROTOBUF_NONNULL _internal_mutable_sinks();
-  public:
-  const ::pb::TraceSink& sinks(int index) const;
-  ::pb::TraceSink* PROTOBUF_NONNULL add_sinks();
-  const ::google::protobuf::RepeatedPtrField<::pb::TraceSink>& sinks() const;
-  // .pb.TraceSource source = 1;
-  bool has_source() const;
-  void clear_source() ;
-  const ::pb::TraceSource& source() const;
-  [[nodiscard]] ::pb::TraceSource* PROTOBUF_NULLABLE release_source();
-  ::pb::TraceSource* PROTOBUF_NONNULL mutable_source();
-  void set_allocated_source(::pb::TraceSource* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_source(::pb::TraceSource* PROTOBUF_NULLABLE value);
-  ::pb::TraceSource* PROTOBUF_NULLABLE unsafe_arena_release_source();
-
-  private:
-  const ::pb::TraceSource& _internal_source() const;
-  ::pb::TraceSource* PROTOBUF_NONNULL _internal_mutable_source();
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb.Trace)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
-                                   2, 0,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const Trace& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::RepeatedPtrField< ::pb::TraceSink > sinks_;
-    ::pb::TraceSource* PROTOBUF_NULLABLE source_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_main_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull Trace_class_data_;
-// -------------------------------------------------------------------
-
 class TemperatureMeasurement final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.TemperatureMeasurement) */ {
  public:
@@ -14848,7 +13801,7 @@ class TemperatureMeasurement final : public ::google::protobuf::Message
     return *reinterpret_cast<const TemperatureMeasurement*>(
         &_TemperatureMeasurement_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 107;
+  static constexpr int kIndexInFileMessages = 104;
   friend void swap(TemperatureMeasurement& a, TemperatureMeasurement& b) { a.Swap(&b); }
   inline void Swap(TemperatureMeasurement* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -15061,7 +14014,7 @@ class SystemStatsResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const SystemStatsResponse*>(
         &_SystemStatsResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 89;
+  static constexpr int kIndexInFileMessages = 86;
   friend void swap(SystemStatsResponse& a, SystemStatsResponse& b) { a.Swap(&b); }
   inline void Swap(SystemStatsResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -15257,7 +14210,7 @@ class SyncConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const SyncConfig*>(
         &_SyncConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 53;
+  static constexpr int kIndexInFileMessages = 51;
   friend void swap(SyncConfig& a, SyncConfig& b) { a.Swap(&b); }
   inline void Swap(SyncConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -16153,7 +15106,7 @@ class RunStateChangeMessage final : public ::google::protobuf::Message
     return *reinterpret_cast<const RunStateChangeMessage*>(
         &_RunStateChangeMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 73;
+  static constexpr int kIndexInFileMessages = 71;
   friend void swap(RunStateChangeMessage& a, RunStateChangeMessage& b) { a.Swap(&b); }
   inline void Swap(RunStateChangeMessage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -16424,7 +15377,7 @@ class RunConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const RunConfig*>(
         &_RunConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 51;
+  static constexpr int kIndexInFileMessages = 49;
   friend void swap(RunConfig& a, RunConfig& b) { a.Swap(&b); }
   inline void Swap(RunConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -16689,7 +15642,7 @@ class ResetResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const ResetResponse*>(
         &_ResetResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 69;
+  static constexpr int kIndexInFileMessages = 67;
   friend void swap(ResetResponse& a, ResetResponse& b) { a.Swap(&b); }
   inline void Swap(ResetResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -16885,7 +15838,7 @@ class ResetCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const ResetCommand*>(
         &_ResetCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 39;
+  static constexpr int kIndexInFileMessages = 37;
   friend void swap(ResetCommand& a, ResetCommand& b) { a.Swap(&b); }
   inline void Swap(ResetCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -17168,7 +16121,7 @@ class PortConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const PortConfig*>(
         &_PortConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 33;
+  static constexpr int kIndexInFileMessages = 29;
   friend void swap(PortConfig& a, PortConfig& b) { a.Swap(&b); }
   inline void Swap(PortConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -17426,7 +16379,7 @@ class OverloadStatus_Element final : public ::google::protobuf::Message
     return *reinterpret_cast<const OverloadStatus_Element*>(
         &_OverloadStatus_Element_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 111;
+  static constexpr int kIndexInFileMessages = 108;
   friend void swap(OverloadStatus_Element& a, OverloadStatus_Element& b) { a.Swap(&b); }
   inline void Swap(OverloadStatus_Element* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -18042,7 +16995,7 @@ class JitCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const JitCommand*>(
         &_JitCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 122;
+  static constexpr int kIndexInFileMessages = 119;
   friend void swap(JitCommand& a, JitCommand& b) { a.Swap(&b); }
   inline void Swap(JitCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -18381,6 +17334,219 @@ class ItorConfig final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull ItorConfig_class_data_;
 // -------------------------------------------------------------------
 
+class IpLookupTable_Entry final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pb.IpLookupTable.Entry) */ {
+ public:
+  inline IpLookupTable_Entry() : IpLookupTable_Entry(nullptr) {}
+  ~IpLookupTable_Entry() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(IpLookupTable_Entry* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(IpLookupTable_Entry));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR IpLookupTable_Entry(::google::protobuf::internal::ConstantInitialized);
+
+  inline IpLookupTable_Entry(const IpLookupTable_Entry& from) : IpLookupTable_Entry(nullptr, from) {}
+  inline IpLookupTable_Entry(IpLookupTable_Entry&& from) noexcept
+      : IpLookupTable_Entry(nullptr, ::std::move(from)) {}
+  inline IpLookupTable_Entry& operator=(const IpLookupTable_Entry& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline IpLookupTable_Entry& operator=(IpLookupTable_Entry&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const IpLookupTable_Entry& default_instance() {
+    return *reinterpret_cast<const IpLookupTable_Entry*>(
+        &_IpLookupTable_Entry_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 31;
+  friend void swap(IpLookupTable_Entry& a, IpLookupTable_Entry& b) { a.Swap(&b); }
+  inline void Swap(IpLookupTable_Entry* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(IpLookupTable_Entry* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  IpLookupTable_Entry* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<IpLookupTable_Entry>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const IpLookupTable_Entry& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const IpLookupTable_Entry& from) { IpLookupTable_Entry::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(IpLookupTable_Entry* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "pb.IpLookupTable.Entry"; }
+
+ protected:
+  explicit IpLookupTable_Entry(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  IpLookupTable_Entry(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const IpLookupTable_Entry& from);
+  IpLookupTable_Entry(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, IpLookupTable_Entry&& from) noexcept
+      : IpLookupTable_Entry(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kEntityIdFieldNumber = 1,
+    kAddressFieldNumber = 2,
+  };
+  // .pb.EntityId entity_id = 1;
+  bool has_entity_id() const;
+  void clear_entity_id() ;
+  const ::pb::EntityId& entity_id() const;
+  [[nodiscard]] ::pb::EntityId* PROTOBUF_NULLABLE release_entity_id();
+  ::pb::EntityId* PROTOBUF_NONNULL mutable_entity_id();
+  void set_allocated_entity_id(::pb::EntityId* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_entity_id(::pb::EntityId* PROTOBUF_NULLABLE value);
+  ::pb::EntityId* PROTOBUF_NULLABLE unsafe_arena_release_entity_id();
+
+  private:
+  const ::pb::EntityId& _internal_entity_id() const;
+  ::pb::EntityId* PROTOBUF_NONNULL _internal_mutable_entity_id();
+
+  public:
+  // .pb.Address address = 2;
+  bool has_address() const;
+  void clear_address() ;
+  const ::pb::Address& address() const;
+  [[nodiscard]] ::pb::Address* PROTOBUF_NULLABLE release_address();
+  ::pb::Address* PROTOBUF_NONNULL mutable_address();
+  void set_allocated_address(::pb::Address* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_address(::pb::Address* PROTOBUF_NULLABLE value);
+  ::pb::Address* PROTOBUF_NULLABLE unsafe_arena_release_address();
+
+  private:
+  const ::pb::Address& _internal_address() const;
+  ::pb::Address* PROTOBUF_NONNULL _internal_mutable_address();
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb.IpLookupTable.Entry)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   2, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const IpLookupTable_Entry& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::pb::EntityId* PROTOBUF_NULLABLE entity_id_;
+    ::pb::Address* PROTOBUF_NULLABLE address_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_main_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull IpLookupTable_Entry_class_data_;
+// -------------------------------------------------------------------
+
 class GenericMessage final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.GenericMessage) */ {
  public:
@@ -18441,7 +17607,7 @@ class GenericMessage final : public ::google::protobuf::Message
     kPingResponse = 101,
     KIND_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 118;
+  static constexpr int kIndexInFileMessages = 115;
   friend void swap(GenericMessage& a, GenericMessage& b) { a.Swap(&b); }
   inline void Swap(GenericMessage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -18672,7 +17838,7 @@ class FirmwareBuild final : public ::google::protobuf::Message
     return *reinterpret_cast<const FirmwareBuild*>(
         &_FirmwareBuild_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 84;
+  static constexpr int kIndexInFileMessages = 81;
   friend void swap(FirmwareBuild& a, FirmwareBuild& b) { a.Swap(&b); }
   inline void Swap(FirmwareBuild* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -18870,7 +18036,7 @@ class ExtractCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const ExtractCommand*>(
         &_ExtractCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 40;
+  static constexpr int kIndexInFileMessages = 38;
   friend void swap(ExtractCommand& a, ExtractCommand& b) { a.Swap(&b); }
   inline void Swap(ExtractCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -19118,7 +18284,7 @@ class Entity final : public ::google::protobuf::Message
     kLocationV0 = 100,
     LOCATION_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 68;
+  static constexpr int kIndexInFileMessages = 66;
   friend void swap(Entity& a, Entity& b) { a.Swap(&b); }
   inline void Swap(Entity* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -19466,7 +18632,7 @@ class Diagnosis final : public ::google::protobuf::Message
     return *reinterpret_cast<const Diagnosis*>(
         &_Diagnosis_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 124;
+  static constexpr int kIndexInFileMessages = 121;
   friend void swap(Diagnosis& a, Diagnosis& b) { a.Swap(&b); }
   inline void Swap(Diagnosis* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -19608,6 +18774,222 @@ class Diagnosis final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull Diagnosis_class_data_;
 // -------------------------------------------------------------------
 
+class DependencyInfo final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pb.DependencyInfo) */ {
+ public:
+  inline DependencyInfo() : DependencyInfo(nullptr) {}
+  ~DependencyInfo() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(DependencyInfo* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(DependencyInfo));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR DependencyInfo(::google::protobuf::internal::ConstantInitialized);
+
+  inline DependencyInfo(const DependencyInfo& from) : DependencyInfo(nullptr, from) {}
+  inline DependencyInfo(DependencyInfo&& from) noexcept
+      : DependencyInfo(nullptr, ::std::move(from)) {}
+  inline DependencyInfo& operator=(const DependencyInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline DependencyInfo& operator=(DependencyInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const DependencyInfo& default_instance() {
+    return *reinterpret_cast<const DependencyInfo*>(
+        &_DependencyInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 23;
+  friend void swap(DependencyInfo& a, DependencyInfo& b) { a.Swap(&b); }
+  inline void Swap(DependencyInfo* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(DependencyInfo* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  DependencyInfo* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<DependencyInfo>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const DependencyInfo& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const DependencyInfo& from) { DependencyInfo::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(DependencyInfo* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "pb.DependencyInfo"; }
+
+ protected:
+  explicit DependencyInfo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  DependencyInfo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const DependencyInfo& from);
+  DependencyInfo(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, DependencyInfo&& from) noexcept
+      : DependencyInfo(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kEntityIdsFieldNumber = 1,
+    kTracesFieldNumber = 2,
+  };
+  // repeated .pb.EntityId entity_ids = 1;
+  int entity_ids_size() const;
+  private:
+  int _internal_entity_ids_size() const;
+
+  public:
+  void clear_entity_ids() ;
+  ::pb::EntityId* PROTOBUF_NONNULL mutable_entity_ids(int index);
+  ::google::protobuf::RepeatedPtrField<::pb::EntityId>* PROTOBUF_NONNULL mutable_entity_ids();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pb::EntityId>& _internal_entity_ids() const;
+  ::google::protobuf::RepeatedPtrField<::pb::EntityId>* PROTOBUF_NONNULL _internal_mutable_entity_ids();
+  public:
+  const ::pb::EntityId& entity_ids(int index) const;
+  ::pb::EntityId* PROTOBUF_NONNULL add_entity_ids();
+  const ::google::protobuf::RepeatedPtrField<::pb::EntityId>& entity_ids() const;
+  // repeated .pb.Trace traces = 2;
+  int traces_size() const;
+  private:
+  int _internal_traces_size() const;
+
+  public:
+  void clear_traces() ;
+  ::pb::Trace* PROTOBUF_NONNULL mutable_traces(int index);
+  ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL mutable_traces();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pb::Trace>& _internal_traces() const;
+  ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL _internal_mutable_traces();
+  public:
+  const ::pb::Trace& traces(int index) const;
+  ::pb::Trace* PROTOBUF_NONNULL add_traces();
+  const ::google::protobuf::RepeatedPtrField<::pb::Trace>& traces() const;
+  // @@protoc_insertion_point(class_scope:pb.DependencyInfo)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   2, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const DependencyInfo& from_msg);
+    ::google::protobuf::RepeatedPtrField< ::pb::EntityId > entity_ids_;
+    ::google::protobuf::RepeatedPtrField< ::pb::Trace > traces_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_main_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull DependencyInfo_class_data_;
+// -------------------------------------------------------------------
+
 class DataType final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.DataType) */ {
  public:
@@ -19668,7 +19050,7 @@ class DataType final : public ::google::protobuf::Message
     kInteger = 2,
     KIND_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 76;
+  static constexpr int kIndexInFileMessages = 74;
   friend void swap(DataType& a, DataType& b) { a.Swap(&b); }
   inline void Swap(DataType* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -19899,7 +19281,7 @@ class ConfigResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const ConfigResponse*>(
         &_ConfigResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 71;
+  static constexpr int kIndexInFileMessages = 69;
   friend void swap(ConfigResponse& a, ConfigResponse& b) { a.Swap(&b); }
   inline void Swap(ConfigResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -20293,7 +19675,7 @@ class CalibrationConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const CalibrationConfig*>(
         &_CalibrationConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 54;
+  static constexpr int kIndexInFileMessages = 52;
   friend void swap(CalibrationConfig& a, CalibrationConfig& b) { a.Swap(&b); }
   inline void Swap(CalibrationConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -20545,7 +19927,7 @@ class CalibrateDataCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const CalibrateDataCommand*>(
         &_CalibrateDataCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 105;
+  static constexpr int kIndexInFileMessages = 102;
   friend void swap(CalibrateDataCommand& a, CalibrateDataCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrateDataCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -20741,7 +20123,7 @@ class BPLSwitchConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const BPLSwitchConfig*>(
         &_BPLSwitchConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 28;
+  static constexpr int kIndexInFileMessages = 24;
   friend void swap(BPLSwitchConfig& a, BPLSwitchConfig& b) { a.Swap(&b); }
   inline void Swap(BPLSwitchConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -20942,7 +20324,7 @@ class AuthRequest final : public ::google::protobuf::Message
     kBearer = 1,
     KIND_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 120;
+  static constexpr int kIndexInFileMessages = 117;
   friend void swap(AuthRequest& a, AuthRequest& b) { a.Swap(&b); }
   inline void Swap(AuthRequest* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -21348,7 +20730,7 @@ class ACLPlug final : public ::google::protobuf::Message
     return *reinterpret_cast<const ACLPlug*>(
         &_ACLPlug_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 44;
+  static constexpr int kIndexInFileMessages = 42;
   friend void swap(ACLPlug& a, ACLPlug& b) { a.Swap(&b); }
   inline void Swap(ACLPlug* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -21521,222 +20903,6 @@ class ACLPlug final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull ACLPlug_class_data_;
 // -------------------------------------------------------------------
 
-class TraceConfig final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pb.TraceConfig) */ {
- public:
-  inline TraceConfig() : TraceConfig(nullptr) {}
-  ~TraceConfig() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(TraceConfig* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(TraceConfig));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR TraceConfig(::google::protobuf::internal::ConstantInitialized);
-
-  inline TraceConfig(const TraceConfig& from) : TraceConfig(nullptr, from) {}
-  inline TraceConfig(TraceConfig&& from) noexcept
-      : TraceConfig(nullptr, ::std::move(from)) {}
-  inline TraceConfig& operator=(const TraceConfig& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline TraceConfig& operator=(TraceConfig&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const TraceConfig& default_instance() {
-    return *reinterpret_cast<const TraceConfig*>(
-        &_TraceConfig_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 27;
-  friend void swap(TraceConfig& a, TraceConfig& b) { a.Swap(&b); }
-  inline void Swap(TraceConfig* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(TraceConfig* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  TraceConfig* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<TraceConfig>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const TraceConfig& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const TraceConfig& from) { TraceConfig::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(TraceConfig* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pb.TraceConfig"; }
-
- protected:
-  explicit TraceConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  TraceConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const TraceConfig& from);
-  TraceConfig(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, TraceConfig&& from) noexcept
-      : TraceConfig(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kEntityIdsFieldNumber = 1,
-    kTracesFieldNumber = 2,
-  };
-  // repeated .pb.EntityId entity_ids = 1;
-  int entity_ids_size() const;
-  private:
-  int _internal_entity_ids_size() const;
-
-  public:
-  void clear_entity_ids() ;
-  ::pb::EntityId* PROTOBUF_NONNULL mutable_entity_ids(int index);
-  ::google::protobuf::RepeatedPtrField<::pb::EntityId>* PROTOBUF_NONNULL mutable_entity_ids();
-
-  private:
-  const ::google::protobuf::RepeatedPtrField<::pb::EntityId>& _internal_entity_ids() const;
-  ::google::protobuf::RepeatedPtrField<::pb::EntityId>* PROTOBUF_NONNULL _internal_mutable_entity_ids();
-  public:
-  const ::pb::EntityId& entity_ids(int index) const;
-  ::pb::EntityId* PROTOBUF_NONNULL add_entity_ids();
-  const ::google::protobuf::RepeatedPtrField<::pb::EntityId>& entity_ids() const;
-  // repeated .pb.Trace traces = 2;
-  int traces_size() const;
-  private:
-  int _internal_traces_size() const;
-
-  public:
-  void clear_traces() ;
-  ::pb::Trace* PROTOBUF_NONNULL mutable_traces(int index);
-  ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL mutable_traces();
-
-  private:
-  const ::google::protobuf::RepeatedPtrField<::pb::Trace>& _internal_traces() const;
-  ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL _internal_mutable_traces();
-  public:
-  const ::pb::Trace& traces(int index) const;
-  ::pb::Trace* PROTOBUF_NONNULL add_traces();
-  const ::google::protobuf::RepeatedPtrField<::pb::Trace>& traces() const;
-  // @@protoc_insertion_point(class_scope:pb.TraceConfig)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
-                                   2, 0,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const TraceConfig& from_msg);
-    ::google::protobuf::RepeatedPtrField< ::pb::EntityId > entity_ids_;
-    ::google::protobuf::RepeatedPtrField< ::pb::Trace > traces_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_main_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull TraceConfig_class_data_;
-// -------------------------------------------------------------------
-
 class TemperatureDataset final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.TemperatureDataset) */ {
  public:
@@ -21792,7 +20958,7 @@ class TemperatureDataset final : public ::google::protobuf::Message
     return *reinterpret_cast<const TemperatureDataset*>(
         &_TemperatureDataset_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 108;
+  static constexpr int kIndexInFileMessages = 105;
   friend void swap(TemperatureDataset& a, TemperatureDataset& b) { a.Swap(&b); }
   inline void Swap(TemperatureDataset* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -21989,7 +21155,7 @@ class StartRunCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const StartRunCommand*>(
         &_StartRunCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 57;
+  static constexpr int kIndexInFileMessages = 55;
   friend void swap(StartRunCommand& a, StartRunCommand& b) { a.Swap(&b); }
   inline void Swap(StartRunCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -22260,7 +21426,7 @@ class RegisterExternalEntitiesCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const RegisterExternalEntitiesCommand*>(
         &_RegisterExternalEntitiesCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 63;
+  static constexpr int kIndexInFileMessages = 61;
   friend void swap(RegisterExternalEntitiesCommand& a, RegisterExternalEntitiesCommand& b) { a.Swap(&b); }
   inline void Swap(RegisterExternalEntitiesCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -22458,7 +21624,7 @@ class OverloadStatus final : public ::google::protobuf::Message
     return *reinterpret_cast<const OverloadStatus*>(
         &_OverloadStatus_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 112;
+  static constexpr int kIndexInFileMessages = 109;
   friend void swap(OverloadStatus& a, OverloadStatus& b) { a.Swap(&b); }
   inline void Swap(OverloadStatus* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -22669,7 +21835,7 @@ class JitResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const JitResponse*>(
         &_JitResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 125;
+  static constexpr int kIndexInFileMessages = 122;
   friend void swap(JitResponse& a, JitResponse& b) { a.Swap(&b); }
   inline void Swap(JitResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -22822,6 +21988,204 @@ class JitResponse final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull JitResponse_class_data_;
 // -------------------------------------------------------------------
 
+class IpLookupTable final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pb.IpLookupTable) */ {
+ public:
+  inline IpLookupTable() : IpLookupTable(nullptr) {}
+  ~IpLookupTable() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(IpLookupTable* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(IpLookupTable));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR IpLookupTable(::google::protobuf::internal::ConstantInitialized);
+
+  inline IpLookupTable(const IpLookupTable& from) : IpLookupTable(nullptr, from) {}
+  inline IpLookupTable(IpLookupTable&& from) noexcept
+      : IpLookupTable(nullptr, ::std::move(from)) {}
+  inline IpLookupTable& operator=(const IpLookupTable& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline IpLookupTable& operator=(IpLookupTable&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const IpLookupTable& default_instance() {
+    return *reinterpret_cast<const IpLookupTable*>(
+        &_IpLookupTable_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 32;
+  friend void swap(IpLookupTable& a, IpLookupTable& b) { a.Swap(&b); }
+  inline void Swap(IpLookupTable* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(IpLookupTable* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  IpLookupTable* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<IpLookupTable>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const IpLookupTable& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const IpLookupTable& from) { IpLookupTable::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(IpLookupTable* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "pb.IpLookupTable"; }
+
+ protected:
+  explicit IpLookupTable(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  IpLookupTable(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const IpLookupTable& from);
+  IpLookupTable(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, IpLookupTable&& from) noexcept
+      : IpLookupTable(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+  using Entry = IpLookupTable_Entry;
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kEntriesFieldNumber = 1,
+  };
+  // repeated .pb.IpLookupTable.Entry entries = 1;
+  int entries_size() const;
+  private:
+  int _internal_entries_size() const;
+
+  public:
+  void clear_entries() ;
+  ::pb::IpLookupTable_Entry* PROTOBUF_NONNULL mutable_entries(int index);
+  ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>* PROTOBUF_NONNULL mutable_entries();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>& _internal_entries() const;
+  ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>* PROTOBUF_NONNULL _internal_mutable_entries();
+  public:
+  const ::pb::IpLookupTable_Entry& entries(int index) const;
+  ::pb::IpLookupTable_Entry* PROTOBUF_NONNULL add_entries();
+  const ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>& entries() const;
+  // @@protoc_insertion_point(class_scope:pb.IpLookupTable)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   1, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const IpLookupTable& from_msg);
+    ::google::protobuf::RepeatedPtrField< ::pb::IpLookupTable_Entry > entries_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_main_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull IpLookupTable_class_data_;
+// -------------------------------------------------------------------
+
 class GetSystemIdentResponse final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pb.GetSystemIdentResponse) */ {
  public:
@@ -22877,7 +22241,7 @@ class GetSystemIdentResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const GetSystemIdentResponse*>(
         &_GetSystemIdentResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 86;
+  static constexpr int kIndexInFileMessages = 83;
   friend void swap(GetSystemIdentResponse& a, GetSystemIdentResponse& b) { a.Swap(&b); }
   inline void Swap(GetSystemIdentResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -23107,7 +22471,7 @@ class EntitySpecification final : public ::google::protobuf::Message
     return *reinterpret_cast<const EntitySpecification*>(
         &_EntitySpecification_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 35;
+  static constexpr int kIndexInFileMessages = 33;
   friend void swap(EntitySpecification& a, EntitySpecification& b) { a.Swap(&b); }
   inline void Swap(EntitySpecification* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -23303,7 +22667,7 @@ class DaqData final : public ::google::protobuf::Message
     return *reinterpret_cast<const DaqData*>(
         &_DaqData_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 78;
+  static constexpr int kIndexInFileMessages = 75;
   friend void swap(DaqData& a, DaqData& b) { a.Swap(&b); }
   inline void Swap(DaqData* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -23391,29 +22755,29 @@ class DaqData final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kScalingFieldNumber = 5,
+    kChannelsFieldNumber = 5,
     kDataFieldNumber = 1,
     kTypeFieldNumber = 4,
     kSampleCountFieldNumber = 6,
     kChannelCountFieldNumber = 7,
   };
-  // repeated .pb.DaqScaling scaling = 5;
-  int scaling_size() const;
+  // repeated .pb.AdcChannel channels = 5;
+  int channels_size() const;
   private:
-  int _internal_scaling_size() const;
+  int _internal_channels_size() const;
 
   public:
-  void clear_scaling() ;
-  ::pb::DaqScaling* PROTOBUF_NONNULL mutable_scaling(int index);
-  ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>* PROTOBUF_NONNULL mutable_scaling();
+  void clear_channels() ;
+  ::pb::AdcChannel* PROTOBUF_NONNULL mutable_channels(int index);
+  ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>* PROTOBUF_NONNULL mutable_channels();
 
   private:
-  const ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>& _internal_scaling() const;
-  ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>* PROTOBUF_NONNULL _internal_mutable_scaling();
+  const ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>& _internal_channels() const;
+  ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>* PROTOBUF_NONNULL _internal_mutable_channels();
   public:
-  const ::pb::DaqScaling& scaling(int index) const;
-  ::pb::DaqScaling* PROTOBUF_NONNULL add_scaling();
-  const ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>& scaling() const;
+  const ::pb::AdcChannel& channels(int index) const;
+  ::pb::AdcChannel* PROTOBUF_NONNULL add_channels();
+  const ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>& channels() const;
   // bytes data = 1;
   void clear_data() ;
   const ::std::string& data() const;
@@ -23490,7 +22854,7 @@ class DaqData final : public ::google::protobuf::Message
         const DaqData& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::RepeatedPtrField< ::pb::DaqScaling > scaling_;
+    ::google::protobuf::RepeatedPtrField< ::pb::AdcChannel > channels_;
     ::google::protobuf::internal::ArenaStringPtr data_;
     ::pb::DataType* PROTOBUF_NULLABLE type_;
     ::uint32_t sample_count_;
@@ -23559,7 +22923,7 @@ class CalibrationCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const CalibrationCommand*>(
         &_CalibrationCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 98;
+  static constexpr int kIndexInFileMessages = 95;
   friend void swap(CalibrationCommand& a, CalibrationCommand& b) { a.Swap(&b); }
   inline void Swap(CalibrationCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -23755,7 +23119,7 @@ class ACLWire final : public ::google::protobuf::Message
     return *reinterpret_cast<const ACLWire*>(
         &_ACLWire_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 43;
+  static constexpr int kIndexInFileMessages = 41;
   friend void swap(ACLWire& a, ACLWire& b) { a.Swap(&b); }
   inline void Swap(ACLWire* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -23968,7 +23332,7 @@ class RunDataMessage final : public ::google::protobuf::Message
     return *reinterpret_cast<const RunDataMessage*>(
         &_RunDataMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 80;
+  static constexpr int kIndexInFileMessages = 77;
   friend void swap(RunDataMessage& a, RunDataMessage& b) { a.Swap(&b); }
   inline void Swap(RunDataMessage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -24198,7 +23562,7 @@ class RunDataEndMessage final : public ::google::protobuf::Message
     return *reinterpret_cast<const RunDataEndMessage*>(
         &_RunDataEndMessage_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 81;
+  static constexpr int kIndexInFileMessages = 78;
   friend void swap(RunDataEndMessage& a, RunDataEndMessage& b) { a.Swap(&b); }
   inline void Swap(RunDataEndMessage* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -24428,7 +23792,7 @@ class ReadTemperatureResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const ReadTemperatureResponse*>(
         &_ReadTemperatureResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 109;
+  static constexpr int kIndexInFileMessages = 106;
   friend void swap(ReadTemperatureResponse& a, ReadTemperatureResponse& b) { a.Swap(&b); }
   inline void Swap(ReadTemperatureResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -24624,7 +23988,7 @@ class GetOverloadStatusResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const GetOverloadStatusResponse*>(
         &_GetOverloadStatusResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 113;
+  static constexpr int kIndexInFileMessages = 110;
   friend void swap(GetOverloadStatusResponse& a, GetOverloadStatusResponse& b) { a.Swap(&b); }
   inline void Swap(GetOverloadStatusResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -24820,7 +24184,7 @@ class ACLConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const ACLConfig*>(
         &_ACLConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 45;
+  static constexpr int kIndexInFileMessages = 43;
   friend void swap(ACLConfig& a, ACLConfig& b) { a.Swap(&b); }
   inline void Swap(ACLConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -25036,7 +24400,7 @@ class SimConfig final : public ::google::protobuf::Message
     return *reinterpret_cast<const SimConfig*>(
         &_SimConfig_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 46;
+  static constexpr int kIndexInFileMessages = 44;
   friend void swap(SimConfig& a, SimConfig& b) { a.Swap(&b); }
   inline void Swap(SimConfig* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -25284,16 +24648,16 @@ class Item final : public ::google::protobuf::Message
     kFrontPanelConfig = 21,
     kSignalGeneratorConfig = 22,
     kPortConfig = 23,
-    kUseConfig = 24,
     kBackpanelConfig = 25,
     kBplSwitchConfig = 26,
     kCmpConfig = 27,
     kEntitySpecification = 28,
-    kTraceConfig = 29,
+    kDependencyInfo = 29,
+    kIpLookupTable = 30,
     kSimConfig = 1000,
     KIND_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 36;
+  static constexpr int kIndexInFileMessages = 34;
   friend void swap(Item& a, Item& b) { a.Swap(&b); }
   inline void Swap(Item* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -25396,12 +24760,12 @@ class Item final : public ::google::protobuf::Message
     kFrontPanelConfigFieldNumber = 21,
     kSignalGeneratorConfigFieldNumber = 22,
     kPortConfigFieldNumber = 23,
-    kUseConfigFieldNumber = 24,
     kBackpanelConfigFieldNumber = 25,
     kBplSwitchConfigFieldNumber = 26,
     kCmpConfigFieldNumber = 27,
     kEntitySpecificationFieldNumber = 28,
-    kTraceConfigFieldNumber = 29,
+    kDependencyInfoFieldNumber = 29,
+    kIpLookupTableFieldNumber = 30,
     kSimConfigFieldNumber = 1000,
   };
   // .pb.EntityId entity = 1;
@@ -25685,25 +25049,6 @@ class Item final : public ::google::protobuf::Message
   ::pb::PortConfig* PROTOBUF_NONNULL _internal_mutable_port_config();
 
   public:
-  // .pb.UseConfig use_config = 24;
-  bool has_use_config() const;
-  private:
-  bool _internal_has_use_config() const;
-
-  public:
-  void clear_use_config() ;
-  const ::pb::UseConfig& use_config() const;
-  [[nodiscard]] ::pb::UseConfig* PROTOBUF_NULLABLE release_use_config();
-  ::pb::UseConfig* PROTOBUF_NONNULL mutable_use_config();
-  void set_allocated_use_config(::pb::UseConfig* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_use_config(::pb::UseConfig* PROTOBUF_NULLABLE value);
-  ::pb::UseConfig* PROTOBUF_NULLABLE unsafe_arena_release_use_config();
-
-  private:
-  const ::pb::UseConfig& _internal_use_config() const;
-  ::pb::UseConfig* PROTOBUF_NONNULL _internal_mutable_use_config();
-
-  public:
   // .pb.BackpanelConfig backpanel_config = 25;
   bool has_backpanel_config() const;
   private:
@@ -25780,23 +25125,42 @@ class Item final : public ::google::protobuf::Message
   ::pb::EntitySpecification* PROTOBUF_NONNULL _internal_mutable_entity_specification();
 
   public:
-  // .pb.TraceConfig trace_config = 29;
-  bool has_trace_config() const;
+  // .pb.DependencyInfo dependency_info = 29;
+  bool has_dependency_info() const;
   private:
-  bool _internal_has_trace_config() const;
+  bool _internal_has_dependency_info() const;
 
   public:
-  void clear_trace_config() ;
-  const ::pb::TraceConfig& trace_config() const;
-  [[nodiscard]] ::pb::TraceConfig* PROTOBUF_NULLABLE release_trace_config();
-  ::pb::TraceConfig* PROTOBUF_NONNULL mutable_trace_config();
-  void set_allocated_trace_config(::pb::TraceConfig* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_trace_config(::pb::TraceConfig* PROTOBUF_NULLABLE value);
-  ::pb::TraceConfig* PROTOBUF_NULLABLE unsafe_arena_release_trace_config();
+  void clear_dependency_info() ;
+  const ::pb::DependencyInfo& dependency_info() const;
+  [[nodiscard]] ::pb::DependencyInfo* PROTOBUF_NULLABLE release_dependency_info();
+  ::pb::DependencyInfo* PROTOBUF_NONNULL mutable_dependency_info();
+  void set_allocated_dependency_info(::pb::DependencyInfo* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_dependency_info(::pb::DependencyInfo* PROTOBUF_NULLABLE value);
+  ::pb::DependencyInfo* PROTOBUF_NULLABLE unsafe_arena_release_dependency_info();
 
   private:
-  const ::pb::TraceConfig& _internal_trace_config() const;
-  ::pb::TraceConfig* PROTOBUF_NONNULL _internal_mutable_trace_config();
+  const ::pb::DependencyInfo& _internal_dependency_info() const;
+  ::pb::DependencyInfo* PROTOBUF_NONNULL _internal_mutable_dependency_info();
+
+  public:
+  // .pb.IpLookupTable ip_lookup_table = 30;
+  bool has_ip_lookup_table() const;
+  private:
+  bool _internal_has_ip_lookup_table() const;
+
+  public:
+  void clear_ip_lookup_table() ;
+  const ::pb::IpLookupTable& ip_lookup_table() const;
+  [[nodiscard]] ::pb::IpLookupTable* PROTOBUF_NULLABLE release_ip_lookup_table();
+  ::pb::IpLookupTable* PROTOBUF_NONNULL mutable_ip_lookup_table();
+  void set_allocated_ip_lookup_table(::pb::IpLookupTable* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_ip_lookup_table(::pb::IpLookupTable* PROTOBUF_NULLABLE value);
+  ::pb::IpLookupTable* PROTOBUF_NULLABLE unsafe_arena_release_ip_lookup_table();
+
+  private:
+  const ::pb::IpLookupTable& _internal_ip_lookup_table() const;
+  ::pb::IpLookupTable* PROTOBUF_NONNULL _internal_mutable_ip_lookup_table();
 
   public:
   // .pb.SimConfig sim_config = 1000;
@@ -25837,12 +25201,12 @@ class Item final : public ::google::protobuf::Message
   void set_has_front_panel_config();
   void set_has_signal_generator_config();
   void set_has_port_config();
-  void set_has_use_config();
   void set_has_backpanel_config();
   void set_has_bpl_switch_config();
   void set_has_cmp_config();
   void set_has_entity_specification();
-  void set_has_trace_config();
+  void set_has_dependency_info();
+  void set_has_ip_lookup_table();
   void set_has_sim_config();
   inline bool has_kind() const;
   inline void clear_has_kind();
@@ -25887,12 +25251,12 @@ class Item final : public ::google::protobuf::Message
       ::google::protobuf::Message* PROTOBUF_NULLABLE front_panel_config_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE signal_generator_config_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE port_config_;
-      ::google::protobuf::Message* PROTOBUF_NULLABLE use_config_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE backpanel_config_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE bpl_switch_config_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE cmp_config_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE entity_specification_;
-      ::google::protobuf::Message* PROTOBUF_NULLABLE trace_config_;
+      ::google::protobuf::Message* PROTOBUF_NULLABLE dependency_info_;
+      ::google::protobuf::Message* PROTOBUF_NULLABLE ip_lookup_table_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE sim_config_;
     } kind_;
     ::uint32_t _oneof_case_[1];
@@ -25960,7 +25324,7 @@ class Module final : public ::google::protobuf::Message
     return *reinterpret_cast<const Module*>(
         &_Module_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 47;
+  static constexpr int kIndexInFileMessages = 45;
   friend void swap(Module& a, Module& b) { a.Swap(&b); }
   inline void Swap(Module* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -26157,7 +25521,7 @@ class File final : public ::google::protobuf::Message
     return *reinterpret_cast<const File*>(
         &_File_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 127;
+  static constexpr int kIndexInFileMessages = 124;
   friend void swap(File& a, File& b) { a.Swap(&b); }
   inline void Swap(File* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -26370,7 +25734,7 @@ class ExtractResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const ExtractResponse*>(
         &_ExtractResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 70;
+  static constexpr int kIndexInFileMessages = 68;
   friend void swap(ExtractResponse& a, ExtractResponse& b) { a.Swap(&b); }
   inline void Swap(ExtractResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -26566,7 +25930,7 @@ class DescribeBundle final : public ::google::protobuf::Message
     return *reinterpret_cast<const DescribeBundle*>(
         &_DescribeBundle_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 48;
+  static constexpr int kIndexInFileMessages = 46;
   friend void swap(DescribeBundle& a, DescribeBundle& b) { a.Swap(&b); }
   inline void Swap(DescribeBundle* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -26763,7 +26127,7 @@ class ConfigCommand final : public ::google::protobuf::Message
     return *reinterpret_cast<const ConfigCommand*>(
         &_ConfigCommand_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 41;
+  static constexpr int kIndexInFileMessages = 39;
   friend void swap(ConfigCommand& a, ConfigCommand& b) { a.Swap(&b); }
   inline void Swap(ConfigCommand* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -27033,7 +26397,7 @@ class MessageV1 final : public ::google::protobuf::Message
     kJitResponse = 505,
     KIND_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 126;
+  static constexpr int kIndexInFileMessages = 123;
   friend void swap(MessageV1& a, MessageV1& b) { a.Swap(&b); }
   inline void Swap(MessageV1* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -28278,7 +27642,7 @@ class Envelope final : public ::google::protobuf::Message
     kMessageV1 = 101,
     KIND_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 117;
+  static constexpr int kIndexInFileMessages = 114;
   friend void swap(Envelope& a, Envelope& b) { a.Swap(&b); }
   inline void Swap(Envelope* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -28527,7 +27891,7 @@ inline void OptionalLane::_internal_set_idx(::uint32_t value) {
 inline void AdcChannel::clear_idx() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.idx_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008U;
+  _impl_._has_bits_[0] &= ~0x00000002U;
 }
 inline ::uint32_t AdcChannel::idx() const {
   // @@protoc_insertion_point(field_get:pb.AdcChannel.idx)
@@ -28535,7 +27899,7 @@ inline ::uint32_t AdcChannel::idx() const {
 }
 inline void AdcChannel::set_idx(::uint32_t value) {
   _internal_set_idx(value);
-  _impl_._has_bits_[0] |= 0x00000008U;
+  _impl_._has_bits_[0] |= 0x00000002U;
   // @@protoc_insertion_point(field_set:pb.AdcChannel.idx)
 }
 inline ::uint32_t AdcChannel::_internal_idx() const {
@@ -28575,7 +27939,7 @@ inline void AdcChannel::_internal_set_gain(double value) {
 inline void AdcChannel::clear_offset() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offset_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002U;
+  _impl_._has_bits_[0] &= ~0x00000008U;
 }
 inline double AdcChannel::offset() const {
   // @@protoc_insertion_point(field_get:pb.AdcChannel.offset)
@@ -28583,7 +27947,7 @@ inline double AdcChannel::offset() const {
 }
 inline void AdcChannel::set_offset(double value) {
   _internal_set_offset(value);
-  _impl_._has_bits_[0] |= 0x00000002U;
+  _impl_._has_bits_[0] |= 0x00000008U;
   // @@protoc_insertion_point(field_set:pb.AdcChannel.offset)
 }
 inline double AdcChannel::_internal_offset() const {
@@ -28595,28 +27959,28 @@ inline void AdcChannel::_internal_set_offset(double value) {
   _impl_.offset_ = value;
 }
 
-// uint64 probe_idx = 4;
-inline void AdcChannel::clear_probe_idx() {
+// uint32 probe = 4;
+inline void AdcChannel::clear_probe() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.probe_idx_ = ::uint64_t{0u};
+  _impl_.probe_ = 0u;
   _impl_._has_bits_[0] &= ~0x00000004U;
 }
-inline ::uint64_t AdcChannel::probe_idx() const {
-  // @@protoc_insertion_point(field_get:pb.AdcChannel.probe_idx)
-  return _internal_probe_idx();
+inline ::uint32_t AdcChannel::probe() const {
+  // @@protoc_insertion_point(field_get:pb.AdcChannel.probe)
+  return _internal_probe();
 }
-inline void AdcChannel::set_probe_idx(::uint64_t value) {
-  _internal_set_probe_idx(value);
+inline void AdcChannel::set_probe(::uint32_t value) {
+  _internal_set_probe(value);
   _impl_._has_bits_[0] |= 0x00000004U;
-  // @@protoc_insertion_point(field_set:pb.AdcChannel.probe_idx)
+  // @@protoc_insertion_point(field_set:pb.AdcChannel.probe)
 }
-inline ::uint64_t AdcChannel::_internal_probe_idx() const {
+inline ::uint32_t AdcChannel::_internal_probe() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.probe_idx_;
+  return _impl_.probe_;
 }
-inline void AdcChannel::_internal_set_probe_idx(::uint64_t value) {
+inline void AdcChannel::_internal_set_probe(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.probe_idx_ = value;
+  _impl_.probe_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -29770,546 +29134,228 @@ SwitchConfig::_internal_mutable_muxes() {
 
 // -------------------------------------------------------------------
 
-// Use
-
-// uint32 idx = 1;
-inline void Use::clear_idx() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.idx_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001U;
-}
-inline ::uint32_t Use::idx() const {
-  // @@protoc_insertion_point(field_get:pb.Use.idx)
-  return _internal_idx();
-}
-inline void Use::set_idx(::uint32_t value) {
-  _internal_set_idx(value);
-  _impl_._has_bits_[0] |= 0x00000001U;
-  // @@protoc_insertion_point(field_set:pb.Use.idx)
-}
-inline ::uint32_t Use::_internal_idx() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.idx_;
-}
-inline void Use::_internal_set_idx(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.idx_ = value;
-}
-
-// optional uint32 source = 10;
-inline bool Use::has_source() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002U) != 0;
-  return value;
-}
-inline void Use::clear_source() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.source_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002U;
-}
-inline ::uint32_t Use::source() const {
-  // @@protoc_insertion_point(field_get:pb.Use.source)
-  return _internal_source();
-}
-inline void Use::set_source(::uint32_t value) {
-  _internal_set_source(value);
-  _impl_._has_bits_[0] |= 0x00000002U;
-  // @@protoc_insertion_point(field_set:pb.Use.source)
-}
-inline ::uint32_t Use::_internal_source() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.source_;
-}
-inline void Use::_internal_set_source(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.source_ = value;
-}
-
-// uint32 count = 20;
-inline void Use::clear_count() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.count_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004U;
-}
-inline ::uint32_t Use::count() const {
-  // @@protoc_insertion_point(field_get:pb.Use.count)
-  return _internal_count();
-}
-inline void Use::set_count(::uint32_t value) {
-  _internal_set_count(value);
-  _impl_._has_bits_[0] |= 0x00000004U;
-  // @@protoc_insertion_point(field_set:pb.Use.count)
-}
-inline ::uint32_t Use::_internal_count() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.count_;
-}
-inline void Use::_internal_set_count(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.count_ = value;
-}
-
-// bool upscaled = 21;
-inline void Use::clear_upscaled() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.upscaled_ = false;
-  _impl_._has_bits_[0] &= ~0x00000008U;
-}
-inline bool Use::upscaled() const {
-  // @@protoc_insertion_point(field_get:pb.Use.upscaled)
-  return _internal_upscaled();
-}
-inline void Use::set_upscaled(bool value) {
-  _internal_set_upscaled(value);
-  _impl_._has_bits_[0] |= 0x00000008U;
-  // @@protoc_insertion_point(field_set:pb.Use.upscaled)
-}
-inline bool Use::_internal_upscaled() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.upscaled_;
-}
-inline void Use::_internal_set_upscaled(bool value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.upscaled_ = value;
-}
-
-// -------------------------------------------------------------------
-
-// UseConfig
-
-// repeated .pb.Use uses = 1;
-inline int UseConfig::_internal_uses_size() const {
-  return _internal_uses().size();
-}
-inline int UseConfig::uses_size() const {
-  return _internal_uses_size();
-}
-inline void UseConfig::clear_uses() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.uses_.Clear();
-}
-inline ::pb::Use* PROTOBUF_NONNULL UseConfig::mutable_uses(int index)
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:pb.UseConfig.uses)
-  return _internal_mutable_uses()->Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField<::pb::Use>* PROTOBUF_NONNULL UseConfig::mutable_uses()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:pb.UseConfig.uses)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_uses();
-}
-inline const ::pb::Use& UseConfig::uses(int index) const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.UseConfig.uses)
-  return _internal_uses().Get(index);
-}
-inline ::pb::Use* PROTOBUF_NONNULL UseConfig::add_uses()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::pb::Use* _add = _internal_mutable_uses()->Add();
-  // @@protoc_insertion_point(field_add:pb.UseConfig.uses)
-  return _add;
-}
-inline const ::google::protobuf::RepeatedPtrField<::pb::Use>& UseConfig::uses() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:pb.UseConfig.uses)
-  return _internal_uses();
-}
-inline const ::google::protobuf::RepeatedPtrField<::pb::Use>&
-UseConfig::_internal_uses() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.uses_;
-}
-inline ::google::protobuf::RepeatedPtrField<::pb::Use>* PROTOBUF_NONNULL
-UseConfig::_internal_mutable_uses() {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.uses_;
-}
-
-// -------------------------------------------------------------------
-
-// TraceSource
-
-// uint32 entity_idx = 1;
-inline void TraceSource::clear_entity_idx() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.entity_idx_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001U;
-}
-inline ::uint32_t TraceSource::entity_idx() const {
-  // @@protoc_insertion_point(field_get:pb.TraceSource.entity_idx)
-  return _internal_entity_idx();
-}
-inline void TraceSource::set_entity_idx(::uint32_t value) {
-  _internal_set_entity_idx(value);
-  _impl_._has_bits_[0] |= 0x00000001U;
-  // @@protoc_insertion_point(field_set:pb.TraceSource.entity_idx)
-}
-inline ::uint32_t TraceSource::_internal_entity_idx() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.entity_idx_;
-}
-inline void TraceSource::_internal_set_entity_idx(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.entity_idx_ = value;
-}
-
-// uint32 lane = 2;
-inline void TraceSource::clear_lane() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.lane_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002U;
-}
-inline ::uint32_t TraceSource::lane() const {
-  // @@protoc_insertion_point(field_get:pb.TraceSource.lane)
-  return _internal_lane();
-}
-inline void TraceSource::set_lane(::uint32_t value) {
-  _internal_set_lane(value);
-  _impl_._has_bits_[0] |= 0x00000002U;
-  // @@protoc_insertion_point(field_set:pb.TraceSource.lane)
-}
-inline ::uint32_t TraceSource::_internal_lane() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.lane_;
-}
-inline void TraceSource::_internal_set_lane(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.lane_ = value;
-}
-
-// -------------------------------------------------------------------
-
-// TraceSink
-
-// uint32 entity_idx = 1;
-inline void TraceSink::clear_entity_idx() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.entity_idx_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001U;
-}
-inline ::uint32_t TraceSink::entity_idx() const {
-  // @@protoc_insertion_point(field_get:pb.TraceSink.entity_idx)
-  return _internal_entity_idx();
-}
-inline void TraceSink::set_entity_idx(::uint32_t value) {
-  _internal_set_entity_idx(value);
-  _impl_._has_bits_[0] |= 0x00000001U;
-  // @@protoc_insertion_point(field_set:pb.TraceSink.entity_idx)
-}
-inline ::uint32_t TraceSink::_internal_entity_idx() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.entity_idx_;
-}
-inline void TraceSink::_internal_set_entity_idx(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.entity_idx_ = value;
-}
-
-// uint32 lane = 2;
-inline void TraceSink::clear_lane() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.lane_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002U;
-}
-inline ::uint32_t TraceSink::lane() const {
-  // @@protoc_insertion_point(field_get:pb.TraceSink.lane)
-  return _internal_lane();
-}
-inline void TraceSink::set_lane(::uint32_t value) {
-  _internal_set_lane(value);
-  _impl_._has_bits_[0] |= 0x00000002U;
-  // @@protoc_insertion_point(field_set:pb.TraceSink.lane)
-}
-inline ::uint32_t TraceSink::_internal_lane() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.lane_;
-}
-inline void TraceSink::_internal_set_lane(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.lane_ = value;
-}
-
-// optional bool upscaled = 3;
-inline bool TraceSink::has_upscaled() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004U) != 0;
-  return value;
-}
-inline void TraceSink::clear_upscaled() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.upscaled_ = false;
-  _impl_._has_bits_[0] &= ~0x00000004U;
-}
-inline bool TraceSink::upscaled() const {
-  // @@protoc_insertion_point(field_get:pb.TraceSink.upscaled)
-  return _internal_upscaled();
-}
-inline void TraceSink::set_upscaled(bool value) {
-  _internal_set_upscaled(value);
-  _impl_._has_bits_[0] |= 0x00000004U;
-  // @@protoc_insertion_point(field_set:pb.TraceSink.upscaled)
-}
-inline bool TraceSink::_internal_upscaled() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.upscaled_;
-}
-inline void TraceSink::_internal_set_upscaled(bool value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.upscaled_ = value;
-}
-
-// -------------------------------------------------------------------
-
 // Trace
 
-// .pb.TraceSource source = 1;
-inline bool Trace::has_source() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001U) != 0;
-  PROTOBUF_ASSUME(!value || _impl_.source_ != nullptr);
-  return value;
-}
-inline void Trace::clear_source() {
+// uint32 source_node = 1;
+inline void Trace::clear_source_node() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.source_ != nullptr) _impl_.source_->Clear();
+  _impl_.source_node_ = 0u;
   _impl_._has_bits_[0] &= ~0x00000001U;
 }
-inline const ::pb::TraceSource& Trace::_internal_source() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::pb::TraceSource* p = _impl_.source_;
-  return p != nullptr ? *p : reinterpret_cast<const ::pb::TraceSource&>(::pb::_TraceSource_default_instance_);
+inline ::uint32_t Trace::source_node() const {
+  // @@protoc_insertion_point(field_get:pb.Trace.source_node)
+  return _internal_source_node();
 }
-inline const ::pb::TraceSource& Trace::source() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.Trace.source)
-  return _internal_source();
-}
-inline void Trace::unsafe_arena_set_allocated_source(
-    ::pb::TraceSource* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.source_);
-  }
-  _impl_.source_ = reinterpret_cast<::pb::TraceSource*>(value);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001U;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001U;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.Trace.source)
-}
-inline ::pb::TraceSource* PROTOBUF_NULLABLE Trace::release_source() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-
-  _impl_._has_bits_[0] &= ~0x00000001U;
-  ::pb::TraceSource* released = _impl_.source_;
-  _impl_.source_ = nullptr;
-  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
-    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
-    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-    if (GetArena() == nullptr) {
-      delete old;
-    }
-  } else {
-    if (GetArena() != nullptr) {
-      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-    }
-  }
-  return released;
-}
-inline ::pb::TraceSource* PROTOBUF_NULLABLE Trace::unsafe_arena_release_source() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:pb.Trace.source)
-
-  _impl_._has_bits_[0] &= ~0x00000001U;
-  ::pb::TraceSource* temp = _impl_.source_;
-  _impl_.source_ = nullptr;
-  return temp;
-}
-inline ::pb::TraceSource* PROTOBUF_NONNULL Trace::_internal_mutable_source() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.source_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::pb::TraceSource>(GetArena());
-    _impl_.source_ = reinterpret_cast<::pb::TraceSource*>(p);
-  }
-  return _impl_.source_;
-}
-inline ::pb::TraceSource* PROTOBUF_NONNULL Trace::mutable_source()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline void Trace::set_source_node(::uint32_t value) {
+  _internal_set_source_node(value);
   _impl_._has_bits_[0] |= 0x00000001U;
-  ::pb::TraceSource* _msg = _internal_mutable_source();
-  // @@protoc_insertion_point(field_mutable:pb.Trace.source)
-  return _msg;
+  // @@protoc_insertion_point(field_set:pb.Trace.source_node)
 }
-inline void Trace::set_allocated_source(::pb::TraceSource* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::Arena* message_arena = GetArena();
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (message_arena == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.source_);
-  }
-
-  if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = value->GetArena();
-    if (message_arena != submessage_arena) {
-      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
-    }
-    _impl_._has_bits_[0] |= 0x00000001U;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001U;
-  }
-
-  _impl_.source_ = reinterpret_cast<::pb::TraceSource*>(value);
-  // @@protoc_insertion_point(field_set_allocated:pb.Trace.source)
-}
-
-// repeated .pb.TraceSink sinks = 2;
-inline int Trace::_internal_sinks_size() const {
-  return _internal_sinks().size();
-}
-inline int Trace::sinks_size() const {
-  return _internal_sinks_size();
-}
-inline void Trace::clear_sinks() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.sinks_.Clear();
-}
-inline ::pb::TraceSink* PROTOBUF_NONNULL Trace::mutable_sinks(int index)
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:pb.Trace.sinks)
-  return _internal_mutable_sinks()->Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField<::pb::TraceSink>* PROTOBUF_NONNULL Trace::mutable_sinks()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:pb.Trace.sinks)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_sinks();
-}
-inline const ::pb::TraceSink& Trace::sinks(int index) const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.Trace.sinks)
-  return _internal_sinks().Get(index);
-}
-inline ::pb::TraceSink* PROTOBUF_NONNULL Trace::add_sinks()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::pb::TraceSink* _add = _internal_mutable_sinks()->Add();
-  // @@protoc_insertion_point(field_add:pb.Trace.sinks)
-  return _add;
-}
-inline const ::google::protobuf::RepeatedPtrField<::pb::TraceSink>& Trace::sinks() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:pb.Trace.sinks)
-  return _internal_sinks();
-}
-inline const ::google::protobuf::RepeatedPtrField<::pb::TraceSink>&
-Trace::_internal_sinks() const {
+inline ::uint32_t Trace::_internal_source_node() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.sinks_;
+  return _impl_.source_node_;
 }
-inline ::google::protobuf::RepeatedPtrField<::pb::TraceSink>* PROTOBUF_NONNULL
-Trace::_internal_mutable_sinks() {
+inline void Trace::_internal_set_source_node(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.source_node_ = value;
+}
+
+// uint32 source_lane = 2;
+inline void Trace::clear_source_lane() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.source_lane_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000002U;
+}
+inline ::uint32_t Trace::source_lane() const {
+  // @@protoc_insertion_point(field_get:pb.Trace.source_lane)
+  return _internal_source_lane();
+}
+inline void Trace::set_source_lane(::uint32_t value) {
+  _internal_set_source_lane(value);
+  _impl_._has_bits_[0] |= 0x00000002U;
+  // @@protoc_insertion_point(field_set:pb.Trace.source_lane)
+}
+inline ::uint32_t Trace::_internal_source_lane() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.sinks_;
+  return _impl_.source_lane_;
+}
+inline void Trace::_internal_set_source_lane(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.source_lane_ = value;
+}
+
+// uint32 sink_node = 3;
+inline void Trace::clear_sink_node() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.sink_node_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000004U;
+}
+inline ::uint32_t Trace::sink_node() const {
+  // @@protoc_insertion_point(field_get:pb.Trace.sink_node)
+  return _internal_sink_node();
+}
+inline void Trace::set_sink_node(::uint32_t value) {
+  _internal_set_sink_node(value);
+  _impl_._has_bits_[0] |= 0x00000004U;
+  // @@protoc_insertion_point(field_set:pb.Trace.sink_node)
+}
+inline ::uint32_t Trace::_internal_sink_node() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.sink_node_;
+}
+inline void Trace::_internal_set_sink_node(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.sink_node_ = value;
+}
+
+// uint32 sink_lane = 4;
+inline void Trace::clear_sink_lane() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.sink_lane_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000008U;
+}
+inline ::uint32_t Trace::sink_lane() const {
+  // @@protoc_insertion_point(field_get:pb.Trace.sink_lane)
+  return _internal_sink_lane();
+}
+inline void Trace::set_sink_lane(::uint32_t value) {
+  _internal_set_sink_lane(value);
+  _impl_._has_bits_[0] |= 0x00000008U;
+  // @@protoc_insertion_point(field_set:pb.Trace.sink_lane)
+}
+inline ::uint32_t Trace::_internal_sink_lane() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.sink_lane_;
+}
+inline void Trace::_internal_set_sink_lane(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.sink_lane_ = value;
+}
+
+// bool sink_upscaled = 5;
+inline void Trace::clear_sink_upscaled() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.sink_upscaled_ = false;
+  _impl_._has_bits_[0] &= ~0x00000010U;
+}
+inline bool Trace::sink_upscaled() const {
+  // @@protoc_insertion_point(field_get:pb.Trace.sink_upscaled)
+  return _internal_sink_upscaled();
+}
+inline void Trace::set_sink_upscaled(bool value) {
+  _internal_set_sink_upscaled(value);
+  _impl_._has_bits_[0] |= 0x00000010U;
+  // @@protoc_insertion_point(field_set:pb.Trace.sink_upscaled)
+}
+inline bool Trace::_internal_sink_upscaled() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.sink_upscaled_;
+}
+inline void Trace::_internal_set_sink_upscaled(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.sink_upscaled_ = value;
 }
 
 // -------------------------------------------------------------------
 
-// TraceConfig
+// DependencyInfo
 
 // repeated .pb.EntityId entity_ids = 1;
-inline int TraceConfig::_internal_entity_ids_size() const {
+inline int DependencyInfo::_internal_entity_ids_size() const {
   return _internal_entity_ids().size();
 }
-inline int TraceConfig::entity_ids_size() const {
+inline int DependencyInfo::entity_ids_size() const {
   return _internal_entity_ids_size();
 }
-inline void TraceConfig::clear_entity_ids() {
+inline void DependencyInfo::clear_entity_ids() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.entity_ids_.Clear();
 }
-inline ::pb::EntityId* PROTOBUF_NONNULL TraceConfig::mutable_entity_ids(int index)
+inline ::pb::EntityId* PROTOBUF_NONNULL DependencyInfo::mutable_entity_ids(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:pb.TraceConfig.entity_ids)
+  // @@protoc_insertion_point(field_mutable:pb.DependencyInfo.entity_ids)
   return _internal_mutable_entity_ids()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::pb::EntityId>* PROTOBUF_NONNULL TraceConfig::mutable_entity_ids()
+inline ::google::protobuf::RepeatedPtrField<::pb::EntityId>* PROTOBUF_NONNULL DependencyInfo::mutable_entity_ids()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:pb.TraceConfig.entity_ids)
+  // @@protoc_insertion_point(field_mutable_list:pb.DependencyInfo.entity_ids)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_entity_ids();
 }
-inline const ::pb::EntityId& TraceConfig::entity_ids(int index) const
+inline const ::pb::EntityId& DependencyInfo::entity_ids(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.TraceConfig.entity_ids)
+  // @@protoc_insertion_point(field_get:pb.DependencyInfo.entity_ids)
   return _internal_entity_ids().Get(index);
 }
-inline ::pb::EntityId* PROTOBUF_NONNULL TraceConfig::add_entity_ids()
+inline ::pb::EntityId* PROTOBUF_NONNULL DependencyInfo::add_entity_ids()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::pb::EntityId* _add = _internal_mutable_entity_ids()->Add();
-  // @@protoc_insertion_point(field_add:pb.TraceConfig.entity_ids)
+  // @@protoc_insertion_point(field_add:pb.DependencyInfo.entity_ids)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::pb::EntityId>& TraceConfig::entity_ids() const
+inline const ::google::protobuf::RepeatedPtrField<::pb::EntityId>& DependencyInfo::entity_ids() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:pb.TraceConfig.entity_ids)
+  // @@protoc_insertion_point(field_list:pb.DependencyInfo.entity_ids)
   return _internal_entity_ids();
 }
 inline const ::google::protobuf::RepeatedPtrField<::pb::EntityId>&
-TraceConfig::_internal_entity_ids() const {
+DependencyInfo::_internal_entity_ids() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.entity_ids_;
 }
 inline ::google::protobuf::RepeatedPtrField<::pb::EntityId>* PROTOBUF_NONNULL
-TraceConfig::_internal_mutable_entity_ids() {
+DependencyInfo::_internal_mutable_entity_ids() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.entity_ids_;
 }
 
 // repeated .pb.Trace traces = 2;
-inline int TraceConfig::_internal_traces_size() const {
+inline int DependencyInfo::_internal_traces_size() const {
   return _internal_traces().size();
 }
-inline int TraceConfig::traces_size() const {
+inline int DependencyInfo::traces_size() const {
   return _internal_traces_size();
 }
-inline void TraceConfig::clear_traces() {
+inline void DependencyInfo::clear_traces() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.traces_.Clear();
 }
-inline ::pb::Trace* PROTOBUF_NONNULL TraceConfig::mutable_traces(int index)
+inline ::pb::Trace* PROTOBUF_NONNULL DependencyInfo::mutable_traces(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:pb.TraceConfig.traces)
+  // @@protoc_insertion_point(field_mutable:pb.DependencyInfo.traces)
   return _internal_mutable_traces()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL TraceConfig::mutable_traces()
+inline ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL DependencyInfo::mutable_traces()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:pb.TraceConfig.traces)
+  // @@protoc_insertion_point(field_mutable_list:pb.DependencyInfo.traces)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_traces();
 }
-inline const ::pb::Trace& TraceConfig::traces(int index) const
+inline const ::pb::Trace& DependencyInfo::traces(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.TraceConfig.traces)
+  // @@protoc_insertion_point(field_get:pb.DependencyInfo.traces)
   return _internal_traces().Get(index);
 }
-inline ::pb::Trace* PROTOBUF_NONNULL TraceConfig::add_traces()
+inline ::pb::Trace* PROTOBUF_NONNULL DependencyInfo::add_traces()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::pb::Trace* _add = _internal_mutable_traces()->Add();
-  // @@protoc_insertion_point(field_add:pb.TraceConfig.traces)
+  // @@protoc_insertion_point(field_add:pb.DependencyInfo.traces)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::pb::Trace>& TraceConfig::traces() const
+inline const ::google::protobuf::RepeatedPtrField<::pb::Trace>& DependencyInfo::traces() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:pb.TraceConfig.traces)
+  // @@protoc_insertion_point(field_list:pb.DependencyInfo.traces)
   return _internal_traces();
 }
 inline const ::google::protobuf::RepeatedPtrField<::pb::Trace>&
-TraceConfig::_internal_traces() const {
+DependencyInfo::_internal_traces() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.traces_;
 }
 inline ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL
-TraceConfig::_internal_mutable_traces() {
+DependencyInfo::_internal_mutable_traces() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.traces_;
 }
@@ -30983,6 +30029,260 @@ inline bool BackpanelConfig::_internal_is_isolated() const {
 inline void BackpanelConfig::_internal_set_is_isolated(bool value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.is_isolated_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// IpLookupTable_Entry
+
+// .pb.EntityId entity_id = 1;
+inline bool IpLookupTable_Entry::has_entity_id() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001U) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.entity_id_ != nullptr);
+  return value;
+}
+inline void IpLookupTable_Entry::clear_entity_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.entity_id_ != nullptr) _impl_.entity_id_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001U;
+}
+inline const ::pb::EntityId& IpLookupTable_Entry::_internal_entity_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  const ::pb::EntityId* p = _impl_.entity_id_;
+  return p != nullptr ? *p : reinterpret_cast<const ::pb::EntityId&>(::pb::_EntityId_default_instance_);
+}
+inline const ::pb::EntityId& IpLookupTable_Entry::entity_id() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.IpLookupTable.Entry.entity_id)
+  return _internal_entity_id();
+}
+inline void IpLookupTable_Entry::unsafe_arena_set_allocated_entity_id(
+    ::pb::EntityId* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.entity_id_);
+  }
+  _impl_.entity_id_ = reinterpret_cast<::pb::EntityId*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001U;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001U;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.IpLookupTable.Entry.entity_id)
+}
+inline ::pb::EntityId* PROTOBUF_NULLABLE IpLookupTable_Entry::release_entity_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+  _impl_._has_bits_[0] &= ~0x00000001U;
+  ::pb::EntityId* released = _impl_.entity_id_;
+  _impl_.entity_id_ = nullptr;
+  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
+    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    if (GetArena() == nullptr) {
+      delete old;
+    }
+  } else {
+    if (GetArena() != nullptr) {
+      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    }
+  }
+  return released;
+}
+inline ::pb::EntityId* PROTOBUF_NULLABLE IpLookupTable_Entry::unsafe_arena_release_entity_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:pb.IpLookupTable.Entry.entity_id)
+
+  _impl_._has_bits_[0] &= ~0x00000001U;
+  ::pb::EntityId* temp = _impl_.entity_id_;
+  _impl_.entity_id_ = nullptr;
+  return temp;
+}
+inline ::pb::EntityId* PROTOBUF_NONNULL IpLookupTable_Entry::_internal_mutable_entity_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.entity_id_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::pb::EntityId>(GetArena());
+    _impl_.entity_id_ = reinterpret_cast<::pb::EntityId*>(p);
+  }
+  return _impl_.entity_id_;
+}
+inline ::pb::EntityId* PROTOBUF_NONNULL IpLookupTable_Entry::mutable_entity_id()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  _impl_._has_bits_[0] |= 0x00000001U;
+  ::pb::EntityId* _msg = _internal_mutable_entity_id();
+  // @@protoc_insertion_point(field_mutable:pb.IpLookupTable.Entry.entity_id)
+  return _msg;
+}
+inline void IpLookupTable_Entry::set_allocated_entity_id(::pb::EntityId* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.entity_id_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001U;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001U;
+  }
+
+  _impl_.entity_id_ = reinterpret_cast<::pb::EntityId*>(value);
+  // @@protoc_insertion_point(field_set_allocated:pb.IpLookupTable.Entry.entity_id)
+}
+
+// .pb.Address address = 2;
+inline bool IpLookupTable_Entry::has_address() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002U) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.address_ != nullptr);
+  return value;
+}
+inline void IpLookupTable_Entry::clear_address() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.address_ != nullptr) _impl_.address_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000002U;
+}
+inline const ::pb::Address& IpLookupTable_Entry::_internal_address() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  const ::pb::Address* p = _impl_.address_;
+  return p != nullptr ? *p : reinterpret_cast<const ::pb::Address&>(::pb::_Address_default_instance_);
+}
+inline const ::pb::Address& IpLookupTable_Entry::address() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.IpLookupTable.Entry.address)
+  return _internal_address();
+}
+inline void IpLookupTable_Entry::unsafe_arena_set_allocated_address(
+    ::pb::Address* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.address_);
+  }
+  _impl_.address_ = reinterpret_cast<::pb::Address*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000002U;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000002U;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.IpLookupTable.Entry.address)
+}
+inline ::pb::Address* PROTOBUF_NULLABLE IpLookupTable_Entry::release_address() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+  _impl_._has_bits_[0] &= ~0x00000002U;
+  ::pb::Address* released = _impl_.address_;
+  _impl_.address_ = nullptr;
+  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
+    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    if (GetArena() == nullptr) {
+      delete old;
+    }
+  } else {
+    if (GetArena() != nullptr) {
+      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    }
+  }
+  return released;
+}
+inline ::pb::Address* PROTOBUF_NULLABLE IpLookupTable_Entry::unsafe_arena_release_address() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:pb.IpLookupTable.Entry.address)
+
+  _impl_._has_bits_[0] &= ~0x00000002U;
+  ::pb::Address* temp = _impl_.address_;
+  _impl_.address_ = nullptr;
+  return temp;
+}
+inline ::pb::Address* PROTOBUF_NONNULL IpLookupTable_Entry::_internal_mutable_address() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.address_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::pb::Address>(GetArena());
+    _impl_.address_ = reinterpret_cast<::pb::Address*>(p);
+  }
+  return _impl_.address_;
+}
+inline ::pb::Address* PROTOBUF_NONNULL IpLookupTable_Entry::mutable_address()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  _impl_._has_bits_[0] |= 0x00000002U;
+  ::pb::Address* _msg = _internal_mutable_address();
+  // @@protoc_insertion_point(field_mutable:pb.IpLookupTable.Entry.address)
+  return _msg;
+}
+inline void IpLookupTable_Entry::set_allocated_address(::pb::Address* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.address_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000002U;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000002U;
+  }
+
+  _impl_.address_ = reinterpret_cast<::pb::Address*>(value);
+  // @@protoc_insertion_point(field_set_allocated:pb.IpLookupTable.Entry.address)
+}
+
+// -------------------------------------------------------------------
+
+// IpLookupTable
+
+// repeated .pb.IpLookupTable.Entry entries = 1;
+inline int IpLookupTable::_internal_entries_size() const {
+  return _internal_entries().size();
+}
+inline int IpLookupTable::entries_size() const {
+  return _internal_entries_size();
+}
+inline void IpLookupTable::clear_entries() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.entries_.Clear();
+}
+inline ::pb::IpLookupTable_Entry* PROTOBUF_NONNULL IpLookupTable::mutable_entries(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:pb.IpLookupTable.entries)
+  return _internal_mutable_entries()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>* PROTOBUF_NONNULL IpLookupTable::mutable_entries()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:pb.IpLookupTable.entries)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_entries();
+}
+inline const ::pb::IpLookupTable_Entry& IpLookupTable::entries(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.IpLookupTable.entries)
+  return _internal_entries().Get(index);
+}
+inline ::pb::IpLookupTable_Entry* PROTOBUF_NONNULL IpLookupTable::add_entries()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::pb::IpLookupTable_Entry* _add = _internal_mutable_entries()->Add();
+  // @@protoc_insertion_point(field_add:pb.IpLookupTable.entries)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>& IpLookupTable::entries() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pb.IpLookupTable.entries)
+  return _internal_entries();
+}
+inline const ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>&
+IpLookupTable::_internal_entries() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.entries_;
+}
+inline ::google::protobuf::RepeatedPtrField<::pb::IpLookupTable_Entry>* PROTOBUF_NONNULL
+IpLookupTable::_internal_mutable_entries() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.entries_;
 }
 
 // -------------------------------------------------------------------
@@ -32323,87 +31623,6 @@ inline ::pb::PortConfig* PROTOBUF_NONNULL Item::mutable_port_config()
   return _msg;
 }
 
-// .pb.UseConfig use_config = 24;
-inline bool Item::has_use_config() const {
-  return kind_case() == kUseConfig;
-}
-inline bool Item::_internal_has_use_config() const {
-  return kind_case() == kUseConfig;
-}
-inline void Item::set_has_use_config() {
-  _impl_._oneof_case_[0] = kUseConfig;
-}
-inline void Item::clear_use_config() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (kind_case() == kUseConfig) {
-    if (GetArena() == nullptr) {
-      delete _impl_.kind_.use_config_;
-    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
-      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.use_config_);
-    }
-    clear_has_kind();
-  }
-}
-inline ::pb::UseConfig* PROTOBUF_NULLABLE Item::release_use_config() {
-  // @@protoc_insertion_point(field_release:pb.Item.use_config)
-  if (kind_case() == kUseConfig) {
-    clear_has_kind();
-    auto* temp = reinterpret_cast<::pb::UseConfig*>(_impl_.kind_.use_config_);
-    if (GetArena() != nullptr) {
-      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
-    }
-    _impl_.kind_.use_config_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::pb::UseConfig& Item::_internal_use_config() const {
-  return kind_case() == kUseConfig ? *reinterpret_cast<::pb::UseConfig*>(_impl_.kind_.use_config_) : reinterpret_cast<::pb::UseConfig&>(::pb::_UseConfig_default_instance_);
-}
-inline const ::pb::UseConfig& Item::use_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.Item.use_config)
-  return _internal_use_config();
-}
-inline ::pb::UseConfig* PROTOBUF_NULLABLE Item::unsafe_arena_release_use_config() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:pb.Item.use_config)
-  if (kind_case() == kUseConfig) {
-    clear_has_kind();
-    auto* temp = reinterpret_cast<::pb::UseConfig*>(_impl_.kind_.use_config_);
-    _impl_.kind_.use_config_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline void Item::unsafe_arena_set_allocated_use_config(
-    ::pb::UseConfig* PROTOBUF_NULLABLE value) {
-  // We rely on the oneof clear method to free the earlier contents
-  // of this oneof. We can directly use the pointer we're given to
-  // set the new value.
-  clear_kind();
-  if (value) {
-    set_has_use_config();
-    _impl_.kind_.use_config_ = reinterpret_cast<::google::protobuf::Message*>(value);
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.Item.use_config)
-}
-inline ::pb::UseConfig* PROTOBUF_NONNULL Item::_internal_mutable_use_config() {
-  if (kind_case() != kUseConfig) {
-    clear_kind();
-    set_has_use_config();
-    _impl_.kind_.use_config_ = reinterpret_cast<::google::protobuf::Message*>(
-        ::google::protobuf::Message::DefaultConstruct<::pb::UseConfig>(GetArena()));
-  }
-  return reinterpret_cast<::pb::UseConfig*>(_impl_.kind_.use_config_);
-}
-inline ::pb::UseConfig* PROTOBUF_NONNULL Item::mutable_use_config()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::pb::UseConfig* _msg = _internal_mutable_use_config();
-  // @@protoc_insertion_point(field_mutable:pb.Item.use_config)
-  return _msg;
-}
-
 // .pb.BackpanelConfig backpanel_config = 25;
 inline bool Item::has_backpanel_config() const {
   return kind_case() == kBackpanelConfig;
@@ -32728,84 +31947,165 @@ inline ::pb::EntitySpecification* PROTOBUF_NONNULL Item::mutable_entity_specific
   return _msg;
 }
 
-// .pb.TraceConfig trace_config = 29;
-inline bool Item::has_trace_config() const {
-  return kind_case() == kTraceConfig;
+// .pb.DependencyInfo dependency_info = 29;
+inline bool Item::has_dependency_info() const {
+  return kind_case() == kDependencyInfo;
 }
-inline bool Item::_internal_has_trace_config() const {
-  return kind_case() == kTraceConfig;
+inline bool Item::_internal_has_dependency_info() const {
+  return kind_case() == kDependencyInfo;
 }
-inline void Item::set_has_trace_config() {
-  _impl_._oneof_case_[0] = kTraceConfig;
+inline void Item::set_has_dependency_info() {
+  _impl_._oneof_case_[0] = kDependencyInfo;
 }
-inline void Item::clear_trace_config() {
+inline void Item::clear_dependency_info() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (kind_case() == kTraceConfig) {
+  if (kind_case() == kDependencyInfo) {
     if (GetArena() == nullptr) {
-      delete _impl_.kind_.trace_config_;
+      delete _impl_.kind_.dependency_info_;
     } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
-      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.trace_config_);
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.dependency_info_);
     }
     clear_has_kind();
   }
 }
-inline ::pb::TraceConfig* PROTOBUF_NULLABLE Item::release_trace_config() {
-  // @@protoc_insertion_point(field_release:pb.Item.trace_config)
-  if (kind_case() == kTraceConfig) {
+inline ::pb::DependencyInfo* PROTOBUF_NULLABLE Item::release_dependency_info() {
+  // @@protoc_insertion_point(field_release:pb.Item.dependency_info)
+  if (kind_case() == kDependencyInfo) {
     clear_has_kind();
-    auto* temp = reinterpret_cast<::pb::TraceConfig*>(_impl_.kind_.trace_config_);
+    auto* temp = reinterpret_cast<::pb::DependencyInfo*>(_impl_.kind_.dependency_info_);
     if (GetArena() != nullptr) {
       temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
     }
-    _impl_.kind_.trace_config_ = nullptr;
+    _impl_.kind_.dependency_info_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline const ::pb::TraceConfig& Item::_internal_trace_config() const {
-  return kind_case() == kTraceConfig ? *reinterpret_cast<::pb::TraceConfig*>(_impl_.kind_.trace_config_) : reinterpret_cast<::pb::TraceConfig&>(::pb::_TraceConfig_default_instance_);
+inline const ::pb::DependencyInfo& Item::_internal_dependency_info() const {
+  return kind_case() == kDependencyInfo ? *reinterpret_cast<::pb::DependencyInfo*>(_impl_.kind_.dependency_info_) : reinterpret_cast<::pb::DependencyInfo&>(::pb::_DependencyInfo_default_instance_);
 }
-inline const ::pb::TraceConfig& Item::trace_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.Item.trace_config)
-  return _internal_trace_config();
+inline const ::pb::DependencyInfo& Item::dependency_info() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.Item.dependency_info)
+  return _internal_dependency_info();
 }
-inline ::pb::TraceConfig* PROTOBUF_NULLABLE Item::unsafe_arena_release_trace_config() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:pb.Item.trace_config)
-  if (kind_case() == kTraceConfig) {
+inline ::pb::DependencyInfo* PROTOBUF_NULLABLE Item::unsafe_arena_release_dependency_info() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pb.Item.dependency_info)
+  if (kind_case() == kDependencyInfo) {
     clear_has_kind();
-    auto* temp = reinterpret_cast<::pb::TraceConfig*>(_impl_.kind_.trace_config_);
-    _impl_.kind_.trace_config_ = nullptr;
+    auto* temp = reinterpret_cast<::pb::DependencyInfo*>(_impl_.kind_.dependency_info_);
+    _impl_.kind_.dependency_info_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline void Item::unsafe_arena_set_allocated_trace_config(
-    ::pb::TraceConfig* PROTOBUF_NULLABLE value) {
+inline void Item::unsafe_arena_set_allocated_dependency_info(
+    ::pb::DependencyInfo* PROTOBUF_NULLABLE value) {
   // We rely on the oneof clear method to free the earlier contents
   // of this oneof. We can directly use the pointer we're given to
   // set the new value.
   clear_kind();
   if (value) {
-    set_has_trace_config();
-    _impl_.kind_.trace_config_ = reinterpret_cast<::google::protobuf::Message*>(value);
+    set_has_dependency_info();
+    _impl_.kind_.dependency_info_ = reinterpret_cast<::google::protobuf::Message*>(value);
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.Item.trace_config)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.Item.dependency_info)
 }
-inline ::pb::TraceConfig* PROTOBUF_NONNULL Item::_internal_mutable_trace_config() {
-  if (kind_case() != kTraceConfig) {
+inline ::pb::DependencyInfo* PROTOBUF_NONNULL Item::_internal_mutable_dependency_info() {
+  if (kind_case() != kDependencyInfo) {
     clear_kind();
-    set_has_trace_config();
-    _impl_.kind_.trace_config_ = reinterpret_cast<::google::protobuf::Message*>(
-        ::google::protobuf::Message::DefaultConstruct<::pb::TraceConfig>(GetArena()));
+    set_has_dependency_info();
+    _impl_.kind_.dependency_info_ = reinterpret_cast<::google::protobuf::Message*>(
+        ::google::protobuf::Message::DefaultConstruct<::pb::DependencyInfo>(GetArena()));
   }
-  return reinterpret_cast<::pb::TraceConfig*>(_impl_.kind_.trace_config_);
+  return reinterpret_cast<::pb::DependencyInfo*>(_impl_.kind_.dependency_info_);
 }
-inline ::pb::TraceConfig* PROTOBUF_NONNULL Item::mutable_trace_config()
+inline ::pb::DependencyInfo* PROTOBUF_NONNULL Item::mutable_dependency_info()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::pb::TraceConfig* _msg = _internal_mutable_trace_config();
-  // @@protoc_insertion_point(field_mutable:pb.Item.trace_config)
+  ::pb::DependencyInfo* _msg = _internal_mutable_dependency_info();
+  // @@protoc_insertion_point(field_mutable:pb.Item.dependency_info)
+  return _msg;
+}
+
+// .pb.IpLookupTable ip_lookup_table = 30;
+inline bool Item::has_ip_lookup_table() const {
+  return kind_case() == kIpLookupTable;
+}
+inline bool Item::_internal_has_ip_lookup_table() const {
+  return kind_case() == kIpLookupTable;
+}
+inline void Item::set_has_ip_lookup_table() {
+  _impl_._oneof_case_[0] = kIpLookupTable;
+}
+inline void Item::clear_ip_lookup_table() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (kind_case() == kIpLookupTable) {
+    if (GetArena() == nullptr) {
+      delete _impl_.kind_.ip_lookup_table_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.ip_lookup_table_);
+    }
+    clear_has_kind();
+  }
+}
+inline ::pb::IpLookupTable* PROTOBUF_NULLABLE Item::release_ip_lookup_table() {
+  // @@protoc_insertion_point(field_release:pb.Item.ip_lookup_table)
+  if (kind_case() == kIpLookupTable) {
+    clear_has_kind();
+    auto* temp = reinterpret_cast<::pb::IpLookupTable*>(_impl_.kind_.ip_lookup_table_);
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.kind_.ip_lookup_table_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::pb::IpLookupTable& Item::_internal_ip_lookup_table() const {
+  return kind_case() == kIpLookupTable ? *reinterpret_cast<::pb::IpLookupTable*>(_impl_.kind_.ip_lookup_table_) : reinterpret_cast<::pb::IpLookupTable&>(::pb::_IpLookupTable_default_instance_);
+}
+inline const ::pb::IpLookupTable& Item::ip_lookup_table() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.Item.ip_lookup_table)
+  return _internal_ip_lookup_table();
+}
+inline ::pb::IpLookupTable* PROTOBUF_NULLABLE Item::unsafe_arena_release_ip_lookup_table() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pb.Item.ip_lookup_table)
+  if (kind_case() == kIpLookupTable) {
+    clear_has_kind();
+    auto* temp = reinterpret_cast<::pb::IpLookupTable*>(_impl_.kind_.ip_lookup_table_);
+    _impl_.kind_.ip_lookup_table_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Item::unsafe_arena_set_allocated_ip_lookup_table(
+    ::pb::IpLookupTable* PROTOBUF_NULLABLE value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_kind();
+  if (value) {
+    set_has_ip_lookup_table();
+    _impl_.kind_.ip_lookup_table_ = reinterpret_cast<::google::protobuf::Message*>(value);
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.Item.ip_lookup_table)
+}
+inline ::pb::IpLookupTable* PROTOBUF_NONNULL Item::_internal_mutable_ip_lookup_table() {
+  if (kind_case() != kIpLookupTable) {
+    clear_kind();
+    set_has_ip_lookup_table();
+    _impl_.kind_.ip_lookup_table_ = reinterpret_cast<::google::protobuf::Message*>(
+        ::google::protobuf::Message::DefaultConstruct<::pb::IpLookupTable>(GetArena()));
+  }
+  return reinterpret_cast<::pb::IpLookupTable*>(_impl_.kind_.ip_lookup_table_);
+}
+inline ::pb::IpLookupTable* PROTOBUF_NONNULL Item::mutable_ip_lookup_table()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::pb::IpLookupTable* _msg = _internal_mutable_ip_lookup_table();
+  // @@protoc_insertion_point(field_mutable:pb.Item.ip_lookup_table)
   return _msg;
 }
 
@@ -37480,82 +36780,6 @@ inline DataType::KindCase DataType::kind_case() const {
 }
 // -------------------------------------------------------------------
 
-// DaqScaling
-
-// uint32 idx = 1;
-inline void DaqScaling::clear_idx() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.idx_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004U;
-}
-inline ::uint32_t DaqScaling::idx() const {
-  // @@protoc_insertion_point(field_get:pb.DaqScaling.idx)
-  return _internal_idx();
-}
-inline void DaqScaling::set_idx(::uint32_t value) {
-  _internal_set_idx(value);
-  _impl_._has_bits_[0] |= 0x00000004U;
-  // @@protoc_insertion_point(field_set:pb.DaqScaling.idx)
-}
-inline ::uint32_t DaqScaling::_internal_idx() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.idx_;
-}
-inline void DaqScaling::_internal_set_idx(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.idx_ = value;
-}
-
-// double gain = 2;
-inline void DaqScaling::clear_gain() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.gain_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000001U;
-}
-inline double DaqScaling::gain() const {
-  // @@protoc_insertion_point(field_get:pb.DaqScaling.gain)
-  return _internal_gain();
-}
-inline void DaqScaling::set_gain(double value) {
-  _internal_set_gain(value);
-  _impl_._has_bits_[0] |= 0x00000001U;
-  // @@protoc_insertion_point(field_set:pb.DaqScaling.gain)
-}
-inline double DaqScaling::_internal_gain() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.gain_;
-}
-inline void DaqScaling::_internal_set_gain(double value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.gain_ = value;
-}
-
-// double offset = 3;
-inline void DaqScaling::clear_offset() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.offset_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002U;
-}
-inline double DaqScaling::offset() const {
-  // @@protoc_insertion_point(field_get:pb.DaqScaling.offset)
-  return _internal_offset();
-}
-inline void DaqScaling::set_offset(double value) {
-  _internal_set_offset(value);
-  _impl_._has_bits_[0] |= 0x00000002U;
-  // @@protoc_insertion_point(field_set:pb.DaqScaling.offset)
-}
-inline double DaqScaling::_internal_offset() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.offset_;
-}
-inline void DaqScaling::_internal_set_offset(double value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.offset_ = value;
-}
-
-// -------------------------------------------------------------------
-
 // DaqData
 
 // bytes data = 1;
@@ -37721,54 +36945,54 @@ inline void DaqData::set_allocated_type(::pb::DataType* PROTOBUF_NULLABLE value)
   // @@protoc_insertion_point(field_set_allocated:pb.DaqData.type)
 }
 
-// repeated .pb.DaqScaling scaling = 5;
-inline int DaqData::_internal_scaling_size() const {
-  return _internal_scaling().size();
+// repeated .pb.AdcChannel channels = 5;
+inline int DaqData::_internal_channels_size() const {
+  return _internal_channels().size();
 }
-inline int DaqData::scaling_size() const {
-  return _internal_scaling_size();
+inline int DaqData::channels_size() const {
+  return _internal_channels_size();
 }
-inline void DaqData::clear_scaling() {
+inline void DaqData::clear_channels() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.scaling_.Clear();
+  _impl_.channels_.Clear();
 }
-inline ::pb::DaqScaling* PROTOBUF_NONNULL DaqData::mutable_scaling(int index)
+inline ::pb::AdcChannel* PROTOBUF_NONNULL DaqData::mutable_channels(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:pb.DaqData.scaling)
-  return _internal_mutable_scaling()->Mutable(index);
+  // @@protoc_insertion_point(field_mutable:pb.DaqData.channels)
+  return _internal_mutable_channels()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>* PROTOBUF_NONNULL DaqData::mutable_scaling()
+inline ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>* PROTOBUF_NONNULL DaqData::mutable_channels()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:pb.DaqData.scaling)
+  // @@protoc_insertion_point(field_mutable_list:pb.DaqData.channels)
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_scaling();
+  return _internal_mutable_channels();
 }
-inline const ::pb::DaqScaling& DaqData::scaling(int index) const
+inline const ::pb::AdcChannel& DaqData::channels(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pb.DaqData.scaling)
-  return _internal_scaling().Get(index);
+  // @@protoc_insertion_point(field_get:pb.DaqData.channels)
+  return _internal_channels().Get(index);
 }
-inline ::pb::DaqScaling* PROTOBUF_NONNULL DaqData::add_scaling()
+inline ::pb::AdcChannel* PROTOBUF_NONNULL DaqData::add_channels()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::pb::DaqScaling* _add = _internal_mutable_scaling()->Add();
-  // @@protoc_insertion_point(field_add:pb.DaqData.scaling)
+  ::pb::AdcChannel* _add = _internal_mutable_channels()->Add();
+  // @@protoc_insertion_point(field_add:pb.DaqData.channels)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>& DaqData::scaling() const
+inline const ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>& DaqData::channels() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:pb.DaqData.scaling)
-  return _internal_scaling();
+  // @@protoc_insertion_point(field_list:pb.DaqData.channels)
+  return _internal_channels();
 }
-inline const ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>&
-DaqData::_internal_scaling() const {
+inline const ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>&
+DaqData::_internal_channels() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.scaling_;
+  return _impl_.channels_;
 }
-inline ::google::protobuf::RepeatedPtrField<::pb::DaqScaling>* PROTOBUF_NONNULL
-DaqData::_internal_mutable_scaling() {
+inline ::google::protobuf::RepeatedPtrField<::pb::AdcChannel>* PROTOBUF_NONNULL
+DaqData::_internal_mutable_channels() {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.scaling_;
+  return &_impl_.channels_;
 }
 
 // uint32 sample_count = 6;

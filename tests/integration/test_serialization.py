@@ -342,10 +342,10 @@ class TestADCChannelsPreserved:
 
         # Add multiple ADC channels with various configurations
         carrier.adc_config = [
-            ADCChannel(index=0, gain=1.0, offset=0.0),
-            ADCChannel(index=1, gain=2.0, offset=0.5),
-            ADCChannel(index=2, gain=0.5, offset=-0.25),
-            ADCChannel(index=3, gain=1.5, offset=0.1),
+            ADCChannel(index=0, gain=1.0, offset=0.0, probe=0),
+            ADCChannel(index=1, gain=2.0, offset=0.5, probe=1),
+            ADCChannel(index=2, gain=0.5, offset=-0.25, probe=2),
+            ADCChannel(index=3, gain=1.5, offset=0.1, probe=3),
         ]
 
         restored = serialize_roundtrip(computer)
@@ -469,8 +469,8 @@ class TestComplexConfigRoundtrip:
 
         # ADC channels
         carrier.adc_config = [
-            ADCChannel(index=0, gain=1.0, offset=0.0),
-            ADCChannel(index=8, gain=2.0, offset=0.5),
+            ADCChannel(index=0, gain=1.0, offset=0.0, probe=0),
+            ADCChannel(index=8, gain=2.0, offset=0.5, probe=1),
         ]
 
         # Perform roundtrip

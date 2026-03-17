@@ -31,7 +31,6 @@ import warnings
 
 # for protobuf export
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.base.proto.io import ProtoIO
 from pybrid.redac.carrier import ADCChannel
 
 from pybrid.lucipy._compat import deprecated
@@ -87,6 +86,9 @@ class Circuit:
 
         # ADC channel tracking — stored directly on the carrier
         self._carrier.adc_config = [None] * 8  # None = free, ADCChannel = occupied
+
+        # Probe index counter — auto-incremented by _probe_adc()
+        self._next_probe_index: int = 0
 
         # Initialize IBlock outputs properly (each output needs its own independent set)
         self._cluster.iblock.outputs = [set() for _ in range(16)]
@@ -426,7 +428,9 @@ class Circuit:
             raise ValueError(f"ADC channel {adc_channel} is already occupied.")
 
         source_lane = source.source_output_lane()
-        adc_config[adc_channel] = ADCChannel(index=source_lane)
+        probe_index = self._next_probe_index
+        self._next_probe_index += 1
+        adc_config[adc_channel] = ADCChannel(index=source_lane, probe=probe_index)
         return adc_channel
 
     def to_computer(self):
@@ -457,15 +461,14 @@ class Circuit:
             return carrier.front_plane.signal_generator
         return None
 
-    def to_config(self):
+    def to_config(self) -> pb.File:
         """
         Convert the circuit to protobuf format suitable for sending to LUCIDAC.
 
         Serializes the internal pybrid LUCIDAC via the LUCIDAC serializer and
-        wraps the result in a ``pb.File``.  The returned tuple matches the
-        format expected by :class:`LUCIStack`.
+        wraps the result in a ``pb.File``.
 
-        :returns: Tuple of (config_json_dict, pb.File)
+        :returns: pb.File containing the serialized circuit configuration.
         """
         from pybrid.lucidac.protocol.serializer import LUCIDACSerializer
         from pybrid.base.proto.versioning import ProtoVersioning
@@ -473,106 +476,10 @@ class Circuit:
         serializer = LUCIDACSerializer()
         module = serializer.serialize(self._lucidac)
 
-        pb_file = pb.File(
+        return pb.File(
             version=ProtoVersioning.current(),
             module=module,
         )
-
-        config_json = ProtoIO.pbfile_to_json(pb_file)
-        return config_json, pb_file
-
-    @deprecated("generate() is deprecated and returns legacy JSON format. "
-                "Use to_config() for protobuf format instead.")
-    def generate(self, skip=None, sanity_check=True):
-        """
-        Generate JSON configuration in the legacy format.
-
-        Returns a dict keyed by MAC address containing the carrier-level
-        configuration in the old JSON protocol format expected by examples
-        such as ``decay.py``.
-
-        :param skip: Optional substring; any cluster sub-block whose key
-            contains this string will be omitted from the output.
-        :param sanity_check: Unused; kept for API compatibility.
-        :returns: Dict of ``{"00-00-00-00-00-00": carrier_config}``.
-        """
-        cluster = self._cluster
-
-        # -- U block: output-centric format (list of 32 entries) ----
-        u_outputs = list(cluster.ublock.outputs)
-
-        # -- C block: 32 coefficient values -------------------------
-        c_elements = [
-            cluster.cblock.elements[lane].computation.factor
-            for lane in range(32)
-        ]
-
-        # -- Upscaling: list of 32 booleans -------------------------
-        upscaling = list(cluster.iblock.upscaling)
-
-        # Legacy format stores raw CBlock values; upscaling flag is separate
-        scaled_c = list(c_elements)
-
-        # -- I block: convert output-centric sets to output-centric lists
-        i_outputs = [
-            sorted(list(s)) for s in cluster.iblock.outputs
-        ]
-
-        # -- M0 block: integrator config ----------------------------
-        m0_elements = []
-        for elem in cluster.m0block.elements:
-            m0_elements.append({
-                "k": elem.computation.k,
-                "ic": elem.computation.ic,
-            })
-
-        # -- Build cluster config -----------------------------------
-        cluster_config = {
-            "/U": {"outputs": u_outputs, "constant": cluster.ublock.constant},
-            "/C": {"elements": scaled_c},
-            "/I": {"outputs": i_outputs, "upscaling": upscaling},
-            "/M0": {"elements": m0_elements},
-            "/M1": {},
-        }
-
-        if skip:
-            cluster_config = {
-                k: v for k, v in cluster_config.items() if skip not in k
-            }
-
-        # -- Build carrier config -----------------------------------
-        carrier_config = {"/0": cluster_config}
-
-        # ADC channels — derive lane indices from carrier's adc_config
-        adc_channels = [
-            ch.index if ch is not None else None
-            for ch in self._carrier.adc_config
-        ]
-        if any(ch is not None for ch in adc_channels):
-            carrier_config["adc_channels"] = adc_channels
-
-        # Analog I/O
-        carrier_config["acl_select"] = [
-            ("EXTERNAL" if self._acl_in_used[port] or self._acl_out_used[port] else "INTERNAL")
-            for port in range(8)
-        ]
-
-        # Front panel (default/empty config)
-        carrier_config["/FP"] = {
-            "leds": 0,
-            "frequency": 10,
-            "phase": 0.0,
-            "wave_form": 1,
-            "amplitude": 0,
-            "square_voltage_low": 0,
-            "square_voltage_high": 0,
-            "offset": 0,
-            "sleep": True,
-            "dac_outputs": [0, 0],
-        }
-
-        mac = self._carrier.path.to_mac()
-        return {mac: carrier_config}
 
     @deprecated("measure() is deprecated, use probe() instead")
     def measure(self, source, adc_channel=None) -> int:

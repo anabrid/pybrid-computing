@@ -2,13 +2,8 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-import json
 import logging
-from typing import List, TextIO
-import warnings
-from pathlib import Path as FilePath
-
-from pydantic.json import pydantic_encoder
+from typing import List
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.entities import Entity, Path, Loc
@@ -30,12 +25,15 @@ class DAQ:
 
     def __init__(self, computer):
         self.computer = computer
+        self._next_probe_index: int = 0
 
     def capture(self, *entities, gain=1.0, offset=0.0):
         for entity in entities:
             # TODO: entities should have a pybrid.redac.entities.path object with to_carrier() function
             carrier: Carrier = self.computer.get_entity(entity.path.to_root())
-            adc_channel = ADCChannel(index=carrier.resolve_signal(entity), gain=gain, offset=offset)
+            probe_index = self._next_probe_index
+            self._next_probe_index += 1
+            adc_channel = ADCChannel(index=carrier.resolve_signal(entity), gain=gain, offset=offset, probe=probe_index)
             carrier.adc_config.append(adc_channel)
 
 
@@ -72,45 +70,6 @@ class REDAC(AnalogComputer):
         self._entities_by_path.update(build_entity_path_dict([carrier]))
         self.router.add_carrier(carrier)
 
-    @classmethod
-    def create_from_entity_type_tree(cls, type_tree):
-        warnings.warn(
-            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        deserializer = REDACDeserializer()
-        carriers = []
-        for sub_path, sub_tree in type_tree.items():
-            carrier = deserializer.deserialize_specification(sub_tree, Path.parse(sub_path))
-            carriers.append(carrier)
-        return cls(entities=carriers)
-
-    @classmethod
-    def create_from(cls, data):
-        """Create a computer instance from a given hardware structure.
-
-        Accepts a dict entity type tree, a path to a JSON file, or a file descriptor.
-        """
-        warnings.warn(
-            "create_from is deprecated. Use REDACDeserializer instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        if isinstance(data, dict):
-            entity_tree = data
-        elif isinstance(data, TextIO):
-            entity_tree = json.load(data)
-        elif isinstance(data, str | FilePath):
-            with open(data) as fs:
-                entity_tree = json.load(fs)
-        deserializer = REDACDeserializer()
-        carriers = []
-        for sub_path, sub_tree in entity_tree.items():
-            carrier = deserializer.deserialize_specification(sub_tree, Path.parse(sub_path))
-            carriers.append(carrier)
-        return cls(entities=carriers)
-    
     def get_config_entities(self) -> List[Entity]:
         return self.entities
 

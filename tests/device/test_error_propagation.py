@@ -17,7 +17,6 @@ Environment Variables:
 
 import asyncio
 import gc
-import json
 import logging
 from pathlib import Path
 from uuid import uuid4
@@ -309,15 +308,16 @@ class TestErrorPropagation:
 @pytest.fixture
 def harmonic_pb_config():
     """
-    Load harmonic oscillator config from harmonic_pb.json.
+    Load harmonic oscillator config from harmonic_pb.apb.
 
     Returns:
         pb.File containing the harmonic oscillator configuration.
     """
-    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.json"
-    with open(config_path) as f:
-        json_config = json.load(f)
-    return ProtoIO.json_to_pbfile(json_config)
+    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.apb"
+    module = ProtoIO.load_module(str(config_path))
+    pb_file = pb.File()
+    pb_file.module.CopyFrom(module)
+    return pb_file
 
 
 @pytest.fixture
@@ -325,17 +325,17 @@ def harmonic_pb_config_with_portconfig():
     """
     Load harmonic oscillator config and add a PortConfig for unavailable hardware.
 
-    Loads harmonic_pb.json, removes any existing portConfig entries, and adds
+    Loads harmonic_pb.apb, removes any existing portConfig entries, and adds
     a new PortConfig for entity "00-00-00-00-00-00/T" which is not present
     on devices without Port hardware.
 
     Returns:
         pb.File containing the harmonic oscillator configuration with added PortConfig.
     """
-    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.json"
-    with open(config_path) as f:
-        json_config = json.load(f)
-    pb_file = ProtoIO.json_to_pbfile(json_config)
+    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.apb"
+    module = ProtoIO.load_module(str(config_path))
+    pb_file = pb.File()
+    pb_file.module.CopyFrom(module)
 
     # Add a PortConfig for entity "00-00-00-00-00-00" (unavailable hardware)
     port_config = pb.Item(
@@ -363,17 +363,17 @@ def harmonic_pb_config_with_switchconfig():
     """
     Load harmonic oscillator config and add a SwitchConfig for unavailable hardware.
 
-    Loads harmonic_pb.json and adds a new SwitchConfig for entity "00-00-00-00-00-00/T"
+    Loads harmonic_pb.apb and adds a new SwitchConfig for entity "00-00-00-00-00-00/T"
     which is not present on LUCIDAC devices (they don't have switch/routing hardware
     at T-block).
 
     Returns:
         pb.File containing the harmonic oscillator configuration with added SwitchConfig.
     """
-    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.json"
-    with open(config_path) as f:
-        json_config = json.load(f)
-    pb_file = ProtoIO.json_to_pbfile(json_config)
+    config_path = Path(__file__).parent.parent / "data" / "harmonic_pb.apb"
+    module = ProtoIO.load_module(str(config_path))
+    pb_file = pb.File()
+    pb_file.module.CopyFrom(module)
 
     # Add a SwitchConfig for entity "00-00-00-00-00-00/T" (unavailable hardware on LUCIDAC)
     switch_config = pb.Item(

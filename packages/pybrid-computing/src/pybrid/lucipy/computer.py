@@ -228,9 +228,6 @@ class LucipyWrapper:
         session.run(config=self._run_config, daq=daq_config)
         runs = await session.execute()
 
-        if runs:
-            self._controller.validate_sample_counts(runs[0])
-
         return runs[0] if runs else None
 
     async def _ensure_controller(self):

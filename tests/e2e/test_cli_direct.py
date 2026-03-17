@@ -116,10 +116,10 @@ class TestCLIRunDirect:
     """Tests for the run command against DummyDAC."""
 
     def test_run_with_config_file(self):
-        config_path = TEST_DATA_DIR / "harmonic_pb.json"
+        config_path = TEST_DATA_DIR / "harmonic_pb.apb"
 
         if not config_path.exists():
-            pytest.skip("harmonic_pb.json not found in test data")
+            pytest.skip("harmonic_pb.apb not found in test data")
 
         with subprocess_dummy_dac() as port:
             result = subprocess.run(

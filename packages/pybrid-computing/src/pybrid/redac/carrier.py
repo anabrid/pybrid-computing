@@ -29,6 +29,8 @@ class ADCChannel:
     gain: float = 1.0
     #: ADC offset - pybrid internally adds this offset to this ADCs' output
     offset: float = 0.0
+    #: Probe: relates this ADC channel to an input function (e.g. a problem description, such as an ODE)
+    probe: int = -1
 
 @dataclass(kw_only=True)
 class Carrier(Entity):
@@ -81,16 +83,6 @@ class Carrier(Entity):
             yield self.st2block
         if self.front_plane:
             yield self.front_plane
-
-    @classmethod
-    def create_from_entity_type_tree(cls, path, tree: pb.Entity):
-        warnings.warn(
-            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        from pybrid.redac.protocol.serializer import REDACDeserializer
-        return REDACDeserializer().deserialize_specification(tree, path)
 
     def resolve_signal(self, entity: "Entity"):
         # TODO: This should be extended to a general approach to defining inputs and outputs of elements

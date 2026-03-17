@@ -44,10 +44,15 @@ class DatExporter(BaseExporter):
             self._write_line("# No data.")
             return
 
-        data_header = "# idx\t" + "\t".join(map(str, run.data.keys()))
+        active = [(i, v) for i, v in enumerate(run.data) if v is not None]
+        if not active:
+            self._write_line("# No data.")
+            return
+
+        data_header = "# idx\t" + "\t".join(f"probe_{i}" for i, _ in active)
         self._write_line(data_header)
 
-        for idx, data_pkg in enumerate(zip_longest(*run.data.values(), fillvalue=None)):
+        for idx, data_pkg in enumerate(zip_longest(*(v for _, v in active), fillvalue=None)):
             self._write_data_line(idx, data_pkg)
 
     def export(self, run : Run, **kwargs):

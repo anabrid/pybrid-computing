@@ -114,6 +114,42 @@ class TestMeasureDeprecated:
         assert circuit._carrier.adc_config[2].index == integrator.lane
 
 
+class TestProbeAutoAssignsProbeIndex:
+    """Test that probe() auto-assigns sequential probe indices starting from 0."""
+
+    def test_probe_adc_assigns_sequential_probe_index(self):
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
+        int0 = circuit.int()
+
+        circuit.probe(int0)
+
+        adc = circuit._carrier.adc_config[0]
+        assert adc.probe == 0
+
+    def test_probe_adc_with_explicit_channel_still_assigns_probe(self):
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
+        int0 = circuit.int()
+
+        circuit.probe(int0, adc_channel=5)
+
+        adc = circuit._carrier.adc_config[5]
+        assert adc.probe == 0
+
+    def test_multiple_probes_incrementing(self):
+        circuit = Circuit("AA-BB-CC-DD-EE-FF")
+        int0 = circuit.int()
+        int1 = circuit.int()
+        int2 = circuit.int()
+
+        circuit.probe(int0)
+        circuit.probe(int1)
+        circuit.probe(int2)
+
+        assert circuit._carrier.adc_config[0].probe == 0
+        assert circuit._carrier.adc_config[1].probe == 1
+        assert circuit._carrier.adc_config[2].probe == 2
+
+
 class TestFrontPanelPropertyDeprecated:
     """Test front_panel property deprecation (kept for sine-extra.py)."""
 

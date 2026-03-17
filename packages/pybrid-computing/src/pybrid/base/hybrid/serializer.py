@@ -9,9 +9,16 @@ from abc import ABC, abstractmethod
 from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.base.hybrid.entities import Entity, Path
+from pybrid.base.hybrid.validators import ConfigValidator
 
 class Serializer(ABC):
     """Unified serializer for both entity-tree specification and operational configuration."""
+
+    def __init__(self):
+        self.validators: list = []
+
+    def add_validator(self, validator: ConfigValidator):
+        self.validators.append(validator)
 
     class ConfigCollector:
         configs: List[pb.Item]
@@ -30,14 +37,32 @@ class Serializer(ABC):
         def pop_config(self) -> pb.Item:
             return self.items.pop()
 
-    def serialize(self, computer: AnalogComputer) -> pb.Module:
+    def serialize(self, computer: AnalogComputer, skip_validation: bool = False) -> pb.Module:
         """Produce a full module: specification entries first, then configuration entries."""
+
+        if not skip_validation:
+            all_errors: list[str] = []
+
+            for v in self.validators:
+                result = v.validate(computer)
+                if not result.ok:
+                    all_errors.append(result.error)
+                    
+            if all_errors:
+                raise ValueError(
+                    f"Validation failed with {len(all_errors)} error(s):\n"
+                    + "\n".join(f"  - {e}" for e in all_errors)
+                )
+            
+        # serialize specification and configuration in mixed mode
         items = []
+
         for entity in computer.entities:
             pb_entity = self.serialize_specification(entity)
             config = pb.Item(entity=pb.EntityId(path=str(entity.path)))
             config.entity_specification.entity.CopyFrom(pb_entity)
             items.append(config)
+
         items.extend(self.serialize_configuration(computer))
         return pb.Module(items=items)
 

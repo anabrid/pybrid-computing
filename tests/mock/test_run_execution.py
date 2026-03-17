@@ -198,6 +198,6 @@ async def test_run_data_end_uses_config_channel_count():
                 assert msg.data.channel_count == requested_channels, (
                     f"Expected channel_count={requested_channels}, got {msg.data.channel_count}"
                 )
-                assert len(msg.data.scaling) == requested_channels
+                assert len(msg.data.channels) == requested_channels
         finally:
             await channel.stop()

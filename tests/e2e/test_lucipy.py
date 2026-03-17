@@ -8,7 +8,6 @@ Tests the lucipy high-level circuit definition API, circuit export to
 protobuf format, and connection to LUCIDAC via DummyDAC.
 """
 
-import json
 import logging
 import warnings
 
@@ -167,65 +166,16 @@ class TestCircuitDefinition:
 class TestCircuitExport:
     """Tests for circuit export to configuration formats."""
 
-    def test_generate_json_config(self):
-        """generate() produces a nested dict with U, C, I, and M0 block configurations per cluster."""
-        circuit = Circuit("00-00-00-00-00-00")
-        i0 = circuit.int(ic=0.5)
-        circuit.connect(i0, i0, weight=-0.5)
-
-        # Generate JSON config (legacy format)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            config = circuit.generate(sanity_check=False)
-
-        # Verify structure
-        assert "00-00-00-00-00-00" in config, "Should have carrier config"
-        carrier = config["00-00-00-00-00-00"]
-        assert "/0" in carrier, "Should have cluster 0"
-        cluster = carrier["/0"]
-        assert "/U" in cluster, "Should have U block"
-        assert "/C" in cluster, "Should have C block"
-        assert "/I" in cluster, "Should have I block"
-        assert "/M0" in cluster, "Should have M0 block"
-
-    def test_generate_json_is_serializable(self):
-        """generate() output is JSON-serializable (pattern used by examples/lucipy/decay.py)."""
-        circuit = Circuit("00-00-00-00-00-00")
-        i0 = circuit.int(ic=-0.8, slow=True)
-        circuit.connect(i0, i0, weight=0.3)
-        circuit.measure(i0, adc_channel=0)
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            config = circuit.generate()
-
-        # Must not raise
-        json_str = json.dumps(config, indent=2, default=str)
-        assert len(json_str) > 0, "JSON output should not be empty"
-
-        # Verify key structure survives roundtrip
-        parsed = json.loads(json_str)
-        assert "00-00-00-00-00-00" in parsed
-
     def test_to_protobuf_config(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
         i0 = circuit.int(ic=0.3)
         circuit.connect(i0, i0, weight=-1.0)
 
-        # Export to protobuf
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            config_json, pb_file = circuit.to_config()
+        pb_file = circuit.to_config()
 
-        # Verify pb_file exists and has content
         assert pb_file is not None, "Should create pb.File"
         assert pb_file.module is not None, "pb.File should have module"
-
-        # Verify JSON representation
-        assert config_json is not None, "Should have JSON config"
-        assert "module" in config_json and "items" in config_json["module"], (
-            "JSON should have expected format"
-        )
+        assert len(pb_file.module.items) > 0, "pb.File module should have items"
 
 
 class TestLUCIDACWrapper:
@@ -367,11 +317,7 @@ class TestLorenz96Pattern:
                 f"Integrator {i} should be slow mode (k=100)"
             )
 
-        # Verify to_config() produces valid protobuf
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            config_json, pb_file = circuit.to_config()
+        pb_file = circuit.to_config()
 
         assert pb_file is not None, "to_config() should produce a pb.File"
         assert pb_file.module is not None, "pb.File should have a config module"
-        assert config_json is not None, "to_config() should produce JSON config"
