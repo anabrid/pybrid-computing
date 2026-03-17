@@ -6,8 +6,8 @@
 Unit tests for FrontPlane integration on the Carrier level.
 
 These tests verify that:
-- Carrier.create_from_entity_type_tree() correctly parses /FP children
-  from the protobuf entity tree (as reported by LUCIDAC hardware).
+- REDACDeserializer correctly parses /FP children from the protobuf
+  entity tree (as reported by LUCIDAC hardware).
 - Carrier.children yields the FrontPlane when present.
 - Carriers without a /FP child (e.g. REDAC simulator) have front_plane=None.
 - LUCIStack exposes FrontPlane via carrier access (lucistack.entities[0].front_plane).
@@ -139,7 +139,7 @@ def _make_minimal_carrier(mac: str, with_fp: bool = False) -> Carrier:
     """
     Create a minimal Carrier Python object directly (not via protobuf parsing).
 
-    Used in tests that do not exercise create_from_entity_type_tree but need
+    Used in tests that do not exercise protobuf deserialization but need
     a Carrier instance with or without a FrontPlane.
 
     Args:

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import typing
-from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from uuid import UUID, uuid4
@@ -168,8 +167,8 @@ class Run(BaseRun):
 
     #: The configuration of the data acquisition for this run.
     daq: DAQConfig = field(default_factory=DAQConfig)
-    #: Data captured for this run.
-    data: dict[Path | str, list[float]] = field(default_factory=lambda: defaultdict(list))
+    #: Data captured for this run, indexed by probe index.
+    data: list[typing.Optional[list[float]]] = field(default_factory=list)
     #: Value of signals at end of computation, only available if daq.sample_op_end is set
     final_values: dict[Path | str, float] = field(default_factory=dict)
 

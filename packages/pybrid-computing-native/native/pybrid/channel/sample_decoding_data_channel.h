@@ -18,8 +18,9 @@ namespace anabrid::pybrid::native
  * Placed at the start of every decoded sample blob.
  *
  * Layout:
- * - [DecodedSampleBlobHeader] - This fixed-size header (20 bytes)
+ * - [DecodedSampleBlobHeader] - This fixed-size header (24 bytes)
  * - [entity_path_chars] - Variable-length entity path string (no null terminator)
+ * - [probe_indices] - channel_count x uint32_t probe indices
  * - [padding] - 0-7 bytes to align samples to 8-byte boundary
  * - [samples_double] - Decoded samples as double array (column-major, same as wire format)
  */
@@ -29,6 +30,7 @@ struct DecodedSampleBlobHeader {
     uint32_t channel_count;    ///< Number of channels
     uint32_t sample_type;      ///< Sample type: 0 = OP, 1 = OP_END
     uint32_t chunk_number;     ///< Chunk sequence number from the protobuf message
+    uint32_t has_probes;       ///< 1 if probe_indices section is present, 0 otherwise
 };
 
 /// Binary blob format optimized for zero-copy numpy array wrapping on the Python side.
@@ -45,13 +47,17 @@ public:
         const std::vector<double>& samples,
         uint32_t channel_count,
         uint32_t sample_type = SAMPLE_TYPE_OP,
-        uint32_t chunk_number = 0
+        uint32_t chunk_number = 0,
+        const std::vector<uint32_t>& probe_indices = {}
     );
 
     static const DecodedSampleBlobHeader* header(const uint8_t* data);
 
     /// @return String view of entity path (no null terminator)
     static std::string_view entity_path(const uint8_t* data);
+
+    /// @return Pointer to probe indices array (channel_count x uint32_t), or nullptr if has_probes == 0
+    static const uint32_t* probe_indices(const uint8_t* data);
 
     /// @return Pointer to first sample (double array, column-major, same as wire format)
     static const double* samples(const uint8_t* data);
@@ -69,8 +75,9 @@ protected:
     void handle_data_message(pb::MessageV1& message) override;
 
     struct DecodedDaqResult {
-        std::vector<double> samples;   ///< Decoded sample values (column-major)
-        uint32_t channel_count;        ///< Effective channel count
+        std::vector<double> samples;         ///< Decoded sample values (column-major)
+        uint32_t channel_count;              ///< Effective channel count
+        std::vector<uint32_t> probe_indices; ///< Probe index per channel (from AdcChannel.probe)
     };
 
     DecodedDaqResult decode_daq_data(const pb::DaqData& daq_data);

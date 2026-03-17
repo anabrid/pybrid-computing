@@ -262,7 +262,7 @@ class StartRunHandler(BaseHandler):
                 type=pb.DataType(float_=pb.FloatType(bitwidth=32)),
                 sample_count=1,
                 channel_count=num_channels,
-                scaling=[pb.DaqScaling(idx=i, gain=1.0, offset=0.0) for i in range(num_channels)]
+                channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)]
             )
             msg = ClientConnection.new_message(
                 pb.RunDataEndMessage(
@@ -399,7 +399,7 @@ class StartRunHandler(BaseHandler):
                 type=pb.DataType(float_=pb.FloatType(bitwidth=32)),
                 sample_count=end - start,
                 channel_count=num_channels,
-                scaling=[pb.DaqScaling(idx=i, gain=1.0, offset=0.0) for i in range(num_channels)]
+                channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)]
             )
 
             msg = pb.RunDataMessage(

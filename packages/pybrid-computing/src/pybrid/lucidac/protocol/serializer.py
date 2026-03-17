@@ -2,10 +2,11 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+from functools import singledispatchmethod
+
 from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
-from pybrid.base.hybrid.serializer import Serializer, Deserializer
 from pybrid.lucidac.front_plane import FrontPlane, SignalGenerator
-from pybrid.redac.entities import Path
+from pybrid.redac.entities import Entity, Path
 from pybrid.base.proto import main_pb2 as pb
 
 
@@ -14,7 +15,11 @@ class LUCIDACSerializer(REDACSerializer):
     def __init__(self):
         super().__init__()
 
-    @Serializer._serialize_specification.register
+    @singledispatchmethod
+    def _serialize_specification(self, entity: Entity) -> pb.Entity:
+        return super()._serialize_specification(entity)
+
+    @_serialize_specification.register
     def _(self, entity: FrontPlane) -> pb.Entity:
         """Serialize a FrontPlane as a FRONTPANEL-class pb.Entity leaf node."""
         from pybrid.redac.entities import EntityType
@@ -30,7 +35,11 @@ class LUCIDACSerializer(REDACSerializer):
             version=version,
         )
 
-    @Serializer._serialize_configuration.register
+    @singledispatchmethod
+    def _serialize_configuration(self, entity: Entity):
+        return super()._serialize_configuration(entity)
+
+    @_serialize_configuration.register
     def _(self, entity: FrontPlane):
         fp_config = self.cc.new_config(entity).front_panel_config
         fp_config.leds = entity.leds
@@ -65,14 +74,18 @@ class LUCIDACDeserializer(REDACDeserializer):
             return (front_plane, acl_select)
         return super()._handle_unknown_carrier_child(path, child)
 
-    @Deserializer._deserialize_configuration.register
+    @singledispatchmethod
+    def _deserialize_configuration(self, config):
+        return super()._deserialize_configuration(config)
+
+    @_deserialize_configuration.register
     def _(self, config: pb.FrontPanelConfig):
         """Deserialize front panel LED configuration and apply to FrontPanel."""
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity = self.computer.get_entity(entity_path)
         entity.leds = config.leds
 
-    @Deserializer._deserialize_configuration.register
+    @_deserialize_configuration.register
     def _(self, config: pb.SignalGeneratorConfig):
         """Deserialize signal generator configuration and apply to FrontPanel."""
         entity_path = Path.parse(self._current_full_config.entity.path)

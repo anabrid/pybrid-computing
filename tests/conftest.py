@@ -299,7 +299,7 @@ def make_daq_data(values: list, dtype: str, channel_count: int, sample_count: in
     if scaling is None:
         scaling = [(i, 1.0, 0.0) for i in range(channel_count)]
     for idx, gain, offset in scaling:
-        s = data_pb.scaling.add()
+        s = data_pb.channels.add()
         s.idx = idx
         s.gain = gain
         s.offset = offset
@@ -461,17 +461,3 @@ def device_endpoint(request):
     return endpoint
 
 
-@pytest.fixture
-def harmonic_config():
-    """
-    Load minimal harmonic oscillator config for testing.
-
-    Returns:
-        Dict containing the harmonic oscillator configuration loaded from
-        the test data directory.
-    """
-    import json
-
-    config_path = TEST_DATA_DIR / "harmonic_legacy.json"
-    with open(config_path) as f:
-        return json.load(f)

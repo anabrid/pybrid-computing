@@ -72,31 +72,32 @@ async def test_calibrated_run_scales_sample_data():
     assert run_uncal.data, "Uncalibrated run produced no sample data"
     assert run_cal.data, "Calibrated run produced no sample data"
 
-    # Both runs must have the same channel paths.
-    assert set(run_uncal.data.keys()) == set(run_cal.data.keys()), (
-        "Channel paths differ between calibrated and uncalibrated runs"
+    # Both runs must have the same number of probes.
+    assert len(run_uncal.data) == len(run_cal.data), (
+        "Probe count differs between calibrated and uncalibrated runs"
     )
 
     from pybrid.mock.handler.start_run import StartRunHandler
     expected_scale = StartRunHandler.CALIBRATION_SCALE
 
-    for path in run_uncal.data:
-        uncal_arr = np.array(run_uncal.data[path], dtype=np.float64)
-        cal_arr = np.array(run_cal.data[path], dtype=np.float64)
+    for idx, (uncal_samples, cal_samples) in enumerate(zip(run_uncal.data, run_cal.data)):
+        if uncal_samples is None or cal_samples is None:
+            continue
+        uncal_arr = np.array(uncal_samples, dtype=np.float64)
+        cal_arr = np.array(cal_samples, dtype=np.float64)
         assert len(uncal_arr) == len(cal_arr), (
-            f"Sample count mismatch for {path}: {len(uncal_arr)} vs {len(cal_arr)}"
+            f"Sample count mismatch for probe {idx}: {len(uncal_arr)} vs {len(cal_arr)}"
         )
 
-        # Skip channels that are all-zero (no signal to compare).
         if np.allclose(uncal_arr, 0, atol=1e-6):
             continue
 
         ratio = cal_arr / np.where(np.abs(uncal_arr) > 1e-9, uncal_arr, np.nan)
         valid = ~np.isnan(ratio)
-        assert valid.any(), f"No non-zero samples to compare for {path}"
+        assert valid.any(), f"No non-zero samples to compare for probe {idx}"
         np.testing.assert_allclose(
             ratio[valid], expected_scale, atol=1e-4,
-            err_msg=f"Calibrated/uncalibrated ratio for {path} should be {expected_scale}",
+            err_msg=f"Calibrated/uncalibrated ratio for probe {idx} should be {expected_scale}",
         )
 
 
@@ -171,15 +172,15 @@ async def test_reset_without_keep_calibration_clears_state():
 
             # Reference uncalibrated run (fresh state after the reset).
             # Compare the two: they should match.
-            for path in run_after.data:
-                after_arr = np.array(run_after.data[path], dtype=np.float64)
-                if path in run_cal.data:
-                    cal_arr = np.array(run_cal.data[path], dtype=np.float64)
+            for idx, after_samples in enumerate(run_after.data):
+                if after_samples is None:
+                    continue
+                after_arr = np.array(after_samples, dtype=np.float64)
+                if idx < len(run_cal.data) and run_cal.data[idx] is not None:
+                    cal_arr = np.array(run_cal.data[idx], dtype=np.float64)
                     min_len = min(len(after_arr), len(cal_arr))
                     if min_len > 0 and not np.allclose(after_arr[:min_len], 0, atol=1e-6):
-                        # After-reset samples should NOT match the calibrated ones
-                        # (calibrated are scaled by 0.5).
                         assert not np.allclose(after_arr[:min_len], cal_arr[:min_len], atol=1e-4), (
-                            f"Samples for {path} after reset(keep_calibration=False) still "
+                            f"Samples for probe {idx} after reset(keep_calibration=False) still "
                             "match calibrated output — calibration state was not cleared."
                         )

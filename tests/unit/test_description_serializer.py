@@ -28,16 +28,16 @@ _REDAC_APB = os.path.join(_FIXTURES_DIR, "redac.apb")
 def _read_apb_carrier_entities(apb_path: str) -> list:
     """Read carrier ``pb.Entity`` objects from an ``.apb`` file.
 
-    Uses :meth:`ProtoIO.open_pb_file` to load the file, then extracts
+    Uses :meth:`ProtoIO.load_module` to load the module, then extracts
     entities from ``module.items[].entity_specification.entity``.
 
     :raises FileNotFoundError: If *apb_path* does not exist.
     :raises ValueError: If no carrier entities can be extracted.
     """
-    pb_file = ProtoIO.open_pb_file(apb_path)
+    pb_module = ProtoIO.load_module(apb_path)
     entities = [
         cfg.entity_specification.entity
-        for cfg in pb_file.module.items
+        for cfg in pb_module.items
         if cfg.HasField("entity_specification")
     ]
     if not entities:
@@ -572,43 +572,3 @@ class TestLUCIDACDescriptionSerializer:
 
         # At least one config entry must be present (UBlock or CBlock config).
         assert len(module.items) > 0
-
-
-class TestDeprecationWrappers:
-    """Tests verifying that create_from_entity_type_tree emits DeprecationWarning and
-    produces results equivalent to REDACDeserializer."""
-
-    @pytest.fixture(scope="class")
-    def first_carrier_entity(self):
-        """Return the first carrier pb.Entity from the redac-tobias.apb file."""
-        return _read_apb_carrier_entities(_REDAC_APB)[0]
-
-    def test_carrier_create_from_entity_type_tree_emits_deprecation(self, first_carrier_entity):
-        """Carrier.create_from_entity_type_tree() must emit a DeprecationWarning."""
-        path = Path.parse(first_carrier_entity.id)
-        with pytest.warns(DeprecationWarning):
-            Carrier.create_from_entity_type_tree(path, first_carrier_entity)
-
-    def test_deprecated_wrapper_equivalent_to_deserializer(self, first_carrier_entity):
-        """The deprecated factory and the new deserializer must produce structurally
-        equivalent results (same cluster count, same block types per cluster)."""
-        import warnings
-        from pybrid.redac.protocol.serializer import REDACDeserializer
-
-        path = Path.parse(first_carrier_entity.id)
-
-        deserializer = REDACDeserializer()
-        new_carrier = deserializer.deserialize_specification(first_carrier_entity, path)
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("always")
-            old_carrier = Carrier.create_from_entity_type_tree(path, first_carrier_entity)
-
-        assert len(old_carrier.clusters) == len(new_carrier.clusters)
-
-        for old_cluster, new_cluster in zip(old_carrier.clusters, new_carrier.clusters):
-            assert type(old_cluster.ublock) is type(new_cluster.ublock)
-            assert type(old_cluster.cblock) is type(new_cluster.cblock)
-            assert type(old_cluster.iblock) is type(new_cluster.iblock)
-            assert type(old_cluster.m0block) is type(new_cluster.m0block)
-            assert type(old_cluster.m1block) is type(new_cluster.m1block)

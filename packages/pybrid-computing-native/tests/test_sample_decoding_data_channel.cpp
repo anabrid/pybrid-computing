@@ -13,8 +13,10 @@
  * ## Blob Format
  *
  * The decoded sample blob has the following layout:
- * - [DecodedSampleBlobHeader] - Fixed-size header with metadata
+ * - [DecodedSampleBlobHeader] - Fixed-size header (24 bytes, 6 x uint32)
  * - [entity_path_chars] - Variable-length entity path string (no null terminator)
+ * - [probe_indices] - channel_count x uint32 probe indices (when has_probes == 1)
+ * - [padding] - 0-7 bytes to align to 8-byte boundary
  * - [samples_double] - Decoded samples as double array (column-major, same as wire format)
  */
 
@@ -414,6 +416,48 @@ TEST_F(DecodedSampleBlobTest, BlobSizeIsCorrect) {
 }
 
 /**
+ * @brief Test that probe indices are stored and retrieved correctly.
+ */
+TEST_F(DecodedSampleBlobTest, ProbeIndicesStoredAndRetrieved) {
+    std::string entity_path = "/MAC/ADC";
+    std::vector<double> samples = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+    std::vector<uint32_t> probes = {5, 3, 7};
+
+    auto blob = DecodedSampleBlob::build(entity_path, samples, 3,
+        DecodedSampleBlob::SAMPLE_TYPE_OP, 0, probes);
+    const auto* hdr = DecodedSampleBlob::header(blob.data());
+
+    EXPECT_EQ(hdr->has_probes, 1u);
+    EXPECT_EQ(hdr->channel_count, 3u);
+
+    const uint32_t* retrieved_probes = DecodedSampleBlob::probe_indices(blob.data());
+    ASSERT_NE(retrieved_probes, nullptr);
+    EXPECT_EQ(retrieved_probes[0], 5u);
+    EXPECT_EQ(retrieved_probes[1], 3u);
+    EXPECT_EQ(retrieved_probes[2], 7u);
+
+    // Samples must still be accessible and correct
+    const double* retrieved_samples = DecodedSampleBlob::samples(blob.data());
+    for (size_t i = 0; i < samples.size(); ++i) {
+        EXPECT_DOUBLE_EQ(retrieved_samples[i], samples[i]);
+    }
+}
+
+/**
+ * @brief Test that probe_indices returns nullptr when has_probes == 0.
+ */
+TEST_F(DecodedSampleBlobTest, ProbeIndicesNullWhenNotSet) {
+    std::string entity_path = "/MAC/ADC";
+    std::vector<double> samples = {1.0, 2.0};
+
+    auto blob = DecodedSampleBlob::build(entity_path, samples, 1);
+    const auto* hdr = DecodedSampleBlob::header(blob.data());
+
+    EXPECT_EQ(hdr->has_probes, 0u);
+    EXPECT_EQ(DecodedSampleBlob::probe_indices(blob.data()), nullptr);
+}
+
+/**
  * @brief Test that sample_type is correctly stored in header.
  */
 TEST_F(DecodedSampleBlobTest, SampleTypeStoredInHeader) {
@@ -493,12 +537,13 @@ protected:
         auto* float_type = data_type->mutable_float_();
         float_type->set_bitwidth(32);
 
-        // Set scaling for all channels (use same scaling)
-        for (uint32_t ch = 0; ch < channel_count; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gain);
-            scaling->set_offset(offset);
+        // Set channel entries (use same gain/offset)
+        for (uint32_t c = 0; c < channel_count; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gain);
+            ch->set_offset(offset);
+            ch->set_probe(c);
         }
 
         // Set counts
@@ -552,12 +597,13 @@ protected:
         integer_type->set_signess(pb::IntegerType::Signed);
         integer_type->set_bitwidth(16);
 
-        // Set scaling for all channels
-        for (uint32_t ch = 0; ch < channel_count; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gain);
-            scaling->set_offset(offset);
+        // Set channel entries
+        for (uint32_t c = 0; c < channel_count; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gain);
+            ch->set_offset(offset);
+            ch->set_probe(c);
         }
 
         uint32_t sample_count = samples.size() / channel_count;
@@ -610,12 +656,13 @@ protected:
         integer_type->set_signess(pb::IntegerType::Unsigned);
         integer_type->set_bitwidth(16);
 
-        // Set scaling for all channels
-        for (uint32_t ch = 0; ch < channel_count; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gain);
-            scaling->set_offset(offset);
+        // Set channel entries
+        for (uint32_t c = 0; c < channel_count; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gain);
+            ch->set_offset(offset);
+            ch->set_probe(c);
         }
 
         uint32_t sample_count = samples.size() / channel_count;
@@ -663,7 +710,7 @@ protected:
         auto* float_type = data_type->mutable_float_();
         float_type->set_bitwidth(32);
 
-        // NO scaling information set
+        // NO channel entries set
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
@@ -714,12 +761,13 @@ protected:
         auto* float_type = data_type->mutable_float_();
         float_type->set_bitwidth(64);
 
-        // Set scaling for all channels
-        for (uint32_t ch = 0; ch < channel_count; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gain);
-            scaling->set_offset(offset);
+        // Set channel entries
+        for (uint32_t c = 0; c < channel_count; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gain);
+            ch->set_offset(offset);
+            ch->set_probe(c);
         }
 
         uint32_t sample_count = samples.size() / channel_count;
@@ -771,12 +819,13 @@ protected:
         auto* float_type = data_type->mutable_float_();
         float_type->set_bitwidth(32);
 
-        // Set per-channel scaling
-        for (uint32_t ch = 0; ch < channel_count; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gains[ch]);
-            scaling->set_offset(offsets[ch]);
+        // Set per-channel gain/offset
+        for (uint32_t c = 0; c < channel_count; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gains[c]);
+            ch->set_offset(offsets[c]);
+            ch->set_probe(c);
         }
 
         uint32_t sample_count = samples.size() / channel_count;
@@ -846,12 +895,13 @@ protected:
         auto* float_type = data_type->mutable_float_();
         float_type->set_bitwidth(32);
 
-        // Only add scaling entries for the meaningful channels.
-        for (uint32_t ch = 0; ch < scaling_channels; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gains[ch]);
-            scaling->set_offset(offsets[ch]);
+        // Only add channel entries for the meaningful channels.
+        for (uint32_t c = 0; c < scaling_channels; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gains[c]);
+            ch->set_offset(offsets[c]);
+            ch->set_probe(c);
         }
 
         daq_data->set_sample_count(sample_count);
@@ -907,11 +957,12 @@ protected:
         auto* float_type = data_type->mutable_float_();
         float_type->set_bitwidth(32);
 
-        for (uint32_t ch = 0; ch < channel_count; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gain);
-            scaling->set_offset(offset);
+        for (uint32_t c = 0; c < channel_count; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gain);
+            ch->set_offset(offset);
+            ch->set_probe(c);
         }
 
         uint32_t sample_count = samples.size() / channel_count;
@@ -965,11 +1016,12 @@ protected:
         auto* float_type = data_type->mutable_float_();
         float_type->set_bitwidth(32);
 
-        for (uint32_t ch = 0; ch < channel_count; ++ch) {
-            auto* scaling = daq_data->add_scaling();
-            scaling->set_idx(ch);
-            scaling->set_gain(gain);
-            scaling->set_offset(offset);
+        for (uint32_t c = 0; c < channel_count; ++c) {
+            auto* ch = daq_data->add_channels();
+            ch->set_idx(c);
+            ch->set_gain(gain);
+            ch->set_offset(offset);
+            ch->set_probe(c);
         }
 
         uint32_t sample_count = samples.size() / channel_count;
@@ -1219,9 +1271,11 @@ TEST_F(SampleDecodingDataChannelTest, HandlesEmptyDataGracefully) {
 }
 
 /**
- * @brief Test that missing scaling uses default values (gain=1.0, offset=0.0).
+ * @brief Test that missing channels entries causes the message to be silently
+ *        dropped (the runtime_error is caught by TestableSampleDecodingDataChannel
+ *        which ignores parse failures).
  */
-TEST_F(SampleDecodingDataChannelTest, HandlesMissingScalingWithDefaults) {
+TEST_F(SampleDecodingDataChannelTest, RejectsMissingChannelsEntries) {
     TestableSampleDecodingDataChannel channel;
     channel.set_output_queue(mock_buffer.get());
 
@@ -1229,18 +1283,14 @@ TEST_F(SampleDecodingDataChannelTest, HandlesMissingScalingWithDefaults) {
     std::vector<uint8_t> message = create_run_data_message_no_scaling(
         "/MAC/ADC", samples, 1);
 
-    channel.test_handle_data_message(message.data(), message.size());
+    // decode_daq_data now throws when channels_size() == 0;
+    // handle_data_message does not catch, so we expect the exception to propagate.
+    EXPECT_THROW(
+        channel.test_handle_data_message(message.data(), message.size()),
+        std::runtime_error
+    );
 
-    ASSERT_EQ(mock_buffer->push_count(), 1u);
-
-    const auto& blob = mock_buffer->last_item();
-    const double* decoded_samples = DecodedSampleBlob::samples(blob.data());
-
-    // With default scaling (gain=1.0, offset=0.0), samples should be unchanged
-    EXPECT_DOUBLE_EQ(decoded_samples[0], 1.0);
-    EXPECT_DOUBLE_EQ(decoded_samples[1], 2.0);
-    EXPECT_DOUBLE_EQ(decoded_samples[2], 3.0);
-    EXPECT_DOUBLE_EQ(decoded_samples[3], 4.0);
+    EXPECT_EQ(mock_buffer->push_count(), 0u);
 }
 
 /**
@@ -1429,10 +1479,11 @@ TEST_F(SampleDecodingDataChannelTest, DecodesRunDataEndMessageWithOpEndType) {
     auto* float_type = data_type->mutable_float_();
     float_type->set_bitwidth(32);
 
-    auto* scaling = daq_data->add_scaling();
-    scaling->set_idx(0);
-    scaling->set_gain(1.0);
-    scaling->set_offset(0.0);
+    auto* ch = daq_data->add_channels();
+    ch->set_idx(0);
+    ch->set_gain(1.0);
+    ch->set_offset(0.0);
+    ch->set_probe(0);
 
     daq_data->set_sample_count(2);
     daq_data->set_channel_count(1);
@@ -1450,6 +1501,41 @@ TEST_F(SampleDecodingDataChannelTest, DecodesRunDataEndMessageWithOpEndType) {
 
     // Verify sample_type is OP_END
     EXPECT_EQ(header->sample_type, DecodedSampleBlob::SAMPLE_TYPE_OP_END);
+}
+
+/**
+ * @brief Test that probe indices from DaqData.channels are embedded in the output blob.
+ */
+TEST_F(SampleDecodingDataChannelTest, ProbeIndicesEmbeddedInOutputBlob) {
+    TestableSampleDecodingDataChannel channel;
+    channel.set_output_queue(mock_buffer.get());
+
+    // 2 channels, 2 samples each
+    std::vector<float> samples = {1.0f, 2.0f, 3.0f, 4.0f};
+    std::vector<uint8_t> message = create_float32_run_data_message(
+        "/MAC/ADC", samples, 2);
+
+    channel.test_handle_data_message(message.data(), message.size());
+
+    ASSERT_EQ(mock_buffer->push_count(), 1u);
+
+    const auto& blob = mock_buffer->last_item();
+    const auto* header = DecodedSampleBlob::header(blob.data());
+
+    EXPECT_EQ(header->has_probes, 1u);
+
+    const uint32_t* probes = DecodedSampleBlob::probe_indices(blob.data());
+    ASSERT_NE(probes, nullptr);
+    // create_float32_run_data_message sets ch->set_probe(c) for c in [0, channel_count)
+    EXPECT_EQ(probes[0], 0u);
+    EXPECT_EQ(probes[1], 1u);
+
+    // Samples must still be correct
+    const double* decoded_samples = DecodedSampleBlob::samples(blob.data());
+    EXPECT_DOUBLE_EQ(decoded_samples[0], 1.0);
+    EXPECT_DOUBLE_EQ(decoded_samples[1], 2.0);
+    EXPECT_DOUBLE_EQ(decoded_samples[2], 3.0);
+    EXPECT_DOUBLE_EQ(decoded_samples[3], 4.0);
 }
 
 /**

@@ -60,16 +60,6 @@ class Cluster(Entity):
         """
         return self.m0block, self.m1block, self.ublock, self.cblock, self.iblock
 
-    @classmethod
-    def create_from_entity_type_tree(cls, path, tree: pb.Entity):
-        warnings.warn(
-            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        from pybrid.redac.protocol.serializer import REDACDeserializer
-        return REDACDeserializer().deserialize_specification(tree, path)
-
     def set_constant(self, value: bool | float):
         self.ublock.set_constant(value)
 

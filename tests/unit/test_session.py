@@ -29,6 +29,9 @@ from pybrid.redac.run import Run, RunConfig, RunState
 from pybrid.redac.entities import Path
 from pybrid.redac.channel import DeviceConnection
 from pybrid.redac.connection import ConnectionManager
+from pybrid.redac.carrier import Carrier, ADCChannel
+from pybrid.redac.cluster import Cluster
+from pybrid.redac.blocks import UBlock, CBlock, IBlock
 from pybrid.base.hybrid.controller import BaseController
 from pybrid.base.result import Result
 
@@ -54,13 +57,38 @@ def _make_mock_device_connection() -> MagicMock:
     return conn
 
 
+def _make_carrier_with_adc(mac: str, num_adc_channels: int = 2) -> Carrier:
+    """Build a minimal Carrier with ADC channels that have probe indices."""
+    carrier_path = Path.parse(mac)
+    cluster_path = carrier_path / "0"
+    cluster = Cluster(
+        path=cluster_path,
+        ublock=UBlock(path=cluster_path / "U"),
+        cblock=CBlock(path=cluster_path / "C"),
+        iblock=IBlock(path=cluster_path / "I"),
+        shblock=None,
+    )
+    adc_config = [
+        ADCChannel(index=i, probe=i)
+        for i in range(num_adc_channels)
+    ]
+    return Carrier(
+        path=carrier_path,
+        clusters=[cluster],
+        tblock=None,
+        adc_config=adc_config,
+    )
+
+
 def _make_mock_controller(
-    paths: list[str] | None = None) -> MagicMock:
+    paths: list[str] | None = None,
+    num_adc_channels: int = 2,
+) -> MagicMock:
     """
     Build a mock BaseController with populated connection_manager and an asyncio.Lock.
 
     :param paths: MAC strings for the mock carrier connections.
-    :param sync_impl: Synchronisation strategy.
+    :param num_adc_channels: Number of ADC channels per carrier (with sequential probe indices).
     :returns: A MagicMock that quacks like BaseController.
     """
     paths = paths or ["AA-BB-CC-DD-EE-01"]
@@ -84,8 +112,21 @@ def _make_mock_controller(
     mock_serializer_instance.serialize.return_value = pb.Module()
     mock_serializer_cls = MagicMock(return_value=mock_serializer_instance)
 
+    # Build a mock computer with real carriers so _assemble_run_data can
+    # resolve probe indices from ADC config.
     mock_computer = MagicMock()
     mock_computer.get_serializer.return_value = mock_serializer_cls
+    probe_offset = 0
+    carriers = []
+    for mac in paths:
+        carrier = _make_carrier_with_adc(mac, num_adc_channels)
+        # Offset probe indices for multi-carrier setups
+        for ch in carrier.adc_config:
+            if ch is not None:
+                ch.probe = probe_offset
+                probe_offset += 1
+        carriers.append(carrier)
+    mock_computer.carriers = carriers
     ctrl.computer = mock_computer
 
     return ctrl
@@ -403,7 +444,7 @@ class TestSampleListenerForwarding:
 
         fake_data = {Path.parse("AA-BB-CC-DD-EE-01"): [1.0, 2.0, 3.0]}
         captured_run = Run()
-        captured_run.data.update(fake_data)
+        captured_run.data = [[1.0, 2.0, 3.0]]
 
         async def fake_run(cmd):
             # Simulate notifying listeners as the run produces data
@@ -513,44 +554,41 @@ def _make_op_blob(
     channel_count: int,
     sample_count: int,
     values: list[list[float]],
+    probe_indices: list[int] | None = None,
 ) -> bytes:
     """Build a raw OP blob matching the format parsed by _parse_sample_blob.
 
     The blob layout is:
-    - 20-byte header: 5 x uint32 LE (entity_path_len, sample_count, channel_count, sample_type, chunk_number)
+    - 24-byte header: 6 x uint32 LE (entity_path_len, sample_count, channel_count,
+      sample_type, chunk_number, has_probes)
     - entity path bytes (UTF-8)
-    - padding to 8-byte alignment (based on absolute offset = 20 + path_len)
+    - probe_indices: channel_count x uint32 LE (if has_probes == 1)
+    - padding to 8-byte alignment
     - float64 data in column-major order (shape: channel_count x sample_count with order='F')
-
-    Args:
-        entity_path:   UTF-8 string used as the entity path in the blob.
-        channel_count: Number of ADC channels in the blob.
-        sample_count:  Number of samples per channel.
-        values:        List of ``channel_count`` lists, each containing
-                       ``sample_count`` float values.  ``values[i]`` is the
-                       data for channel ``i``.
-
-    Returns:
-        Raw bytes of the OP blob.
     """
     path_bytes = entity_path.encode("utf-8")
     path_len = len(path_bytes)
 
-    header = struct.pack("<IIIII", path_len, sample_count, channel_count, 0, 0)  # sample_type=0 (OP), chunk_number=0
+    if probe_indices is None:
+        probe_indices = list(range(channel_count))
 
-    # Calculate padding: absolute offset after header + path must be 8-byte aligned.
-    path_end = 20 + path_len  # 20 = _BLOB_HEADER_SIZE
-    remainder = path_end % 8
+    has_probes = 1
+    header = struct.pack(
+        "<IIIIII", path_len, sample_count, channel_count, 0, 0, has_probes,
+    )
+
+    probe_bytes = struct.pack(f"<{channel_count}I", *probe_indices)
+
+    # Padding: absolute offset after header + path + probes must be 8-byte aligned.
+    var_end = 24 + path_len + len(probe_bytes)
+    remainder = var_end % 8
     pad_len = (8 - remainder) if remainder != 0 else 0
     padding = b"\x00" * pad_len
 
-    # Column-major float64 array: shape (channel_count, sample_count), order='F'
-    # This means the flat buffer is: [ch0_s0, ch1_s0, ..., ch0_s1, ch1_s1, ...]
-    arr = np.array(values, dtype=np.float64)  # shape: (channel_count, sample_count)
-    # Store in Fortran (column-major) order so that numpy reads it back correctly
+    arr = np.array(values, dtype=np.float64)
     data_bytes = np.asfortranarray(arr).tobytes(order="F")
 
-    return header + path_bytes + padding + data_bytes
+    return header + path_bytes + probe_bytes + padding + data_bytes
 
 
 def _make_mock_output_queue(blobs: list[bytes]) -> MagicMock:
@@ -610,7 +648,7 @@ class TestContinuousDrain:
         from pybrid.redac.controller import DistributedRunState
         from pybrid.base.hybrid.listeners import SampleListener
 
-        ENTITY_PATH = "AA-BB-CC-DD-EE-01"
+        ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         blob = _make_op_blob(ENTITY_PATH, channel_count=2, sample_count=3, values=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
 
         # The queue delivers 2 blobs immediately, then is empty until drain_stop,
@@ -675,7 +713,7 @@ class TestContinuousDrain:
         assert len(runs) == 1
         run = runs[0]
         assert len(run.data) == 0, (
-            f"Expected empty run.data for an empty queue, got {dict(run.data)}"
+            f"Expected empty run.data for an empty queue, got {run.data}"
         )
 
     @pytest.mark.asyncio
@@ -684,13 +722,9 @@ class TestContinuousDrain:
         from pybrid.redac.controller import DistributedRunState
         from pybrid.base.hybrid.listeners import SampleListener
 
-        ENTITY_PATH = "AA-BB-CC-DD-EE-01"
+        ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         blob = _make_op_blob(ENTITY_PATH, channel_count=1, sample_count=2, values=[[7.0, 8.0]])
 
-        # Queue delivers 0 on all calls during the run, then one blob at teardown.
-        # We model "during the run" as: output_queue.get always returns 0 in the
-        # current sequential implementation (there is no concurrent drain to poll),
-        # and the single post-DONE drain gets the blob.
         output_queue = _make_mock_output_queue([blob])
         session, ctrl = _make_session_with_queue(output_queue)
 
@@ -709,12 +743,12 @@ class TestContinuousDrain:
         assert len(runs) == 1
         run = runs[0]
 
-        channel_path = Path(["AA-BB-CC-DD-EE-01", "ADC0"])
-        assert channel_path in run.data, (
-            f"Expected {channel_path} in run.data after final sweep; got keys: {list(run.data.keys())}"
+        # ADC channel 0 on carrier AA-BB-CC-DD-EE-01 → probe 0
+        assert len(run.data) >= 1, (
+            f"Expected at least 1 probe in run.data after final sweep; got {run.data}"
         )
-        assert run.data[channel_path] == [7.0, 8.0], (
-            f"Unexpected values: {run.data[channel_path]}"
+        assert run.data[0] == [7.0, 8.0], (
+            f"Unexpected values at probe 0: {run.data[0]}"
         )
         assert len(received_data) >= 1, "FakeListener must have received the final blob"
 
@@ -724,7 +758,7 @@ class TestContinuousDrain:
         import logging
         from pybrid.redac.controller import DistributedRunState
 
-        ENTITY_PATH = "AA-BB-CC-DD-EE-01"
+        ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         corrupted_blob = b"\x00\x01\x02"  # only 3 bytes, shorter than the 20-byte header
         valid_blob = _make_op_blob(ENTITY_PATH, channel_count=1, sample_count=2, values=[[9.0, 10.0]])
 
@@ -750,12 +784,11 @@ class TestContinuousDrain:
         assert len(runs) == 1
         run = runs[0]
 
-        # Valid blob data must still be present
-        channel_path = Path(["AA-BB-CC-DD-EE-01", "ADC0"])
-        assert channel_path in run.data, (
-            f"Valid blob data missing from run.data; keys: {list(run.data.keys())}"
+        # Valid blob data must still be present at probe 0
+        assert len(run.data) >= 1, (
+            f"Valid blob data missing from run.data; got {run.data}"
         )
-        assert run.data[channel_path] == [9.0, 10.0]
+        assert run.data[0] == [9.0, 10.0]
 
         # Warning must have been logged for the corrupted blob
         assert warning_logged, (
@@ -767,7 +800,7 @@ class TestContinuousDrain:
         """run.data must contain exact, ordered data from all N blobs — no data lost, duplicated, or mis-ordered."""
         from pybrid.redac.controller import DistributedRunState
 
-        ENTITY_PATH = "AA-BB-CC-DD-EE-01"
+        ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         N_BLOBS = 4
         # Each blob has 1 channel with 3 samples; values are distinct per blob
         blobs = [
@@ -790,16 +823,80 @@ class TestContinuousDrain:
         assert len(runs) == 1
         run = runs[0]
 
-        channel_path = Path(["AA-BB-CC-DD-EE-01", "ADC0"])
-        assert channel_path in run.data, (
-            f"Expected {channel_path} in run.data; got keys: {list(run.data.keys())}"
+        # ADC channel 0 on carrier AA-BB-CC-DD-EE-01 → probe 0
+        assert len(run.data) >= 1, (
+            f"Expected at least 1 probe in run.data; got {run.data}"
         )
 
         expected_values = [float(i * 3 + j) for i in range(N_BLOBS) for j in range(3)]
-        actual_values = run.data[channel_path]
+        actual_values = run.data[0]
 
         assert actual_values == expected_values, (
             f"Data mismatch!\n"
             f"  Expected: {expected_values}\n"
             f"  Got:      {actual_values}"
         )
+
+    @pytest.mark.asyncio
+    async def test_all_probes_receive_data_not_just_probe_zero(self):
+        """All ADC channels (probes 0, 1, …) must receive their data, not only probe 0."""
+        from pybrid.redac.controller import DistributedRunState
+
+        NUM_CHANNELS = 4
+        ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
+        per_channel = [[float(ch * 10 + s) for s in range(3)] for ch in range(NUM_CHANNELS)]
+        blob = _make_op_blob(
+            ENTITY_PATH, channel_count=NUM_CHANNELS, sample_count=3,
+            values=per_channel, probe_indices=list(range(NUM_CHANNELS)),
+        )
+
+        output_queue = _make_mock_output_queue([blob])
+        session, ctrl = _make_session_with_queue(
+            output_queue, paths=["AA-BB-CC-DD-EE-01"],
+        )
+
+        with patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)):
+            session.run(RunConfig())
+            runs = await session.execute()
+
+        run = runs[0]
+        assert len(run.data) == NUM_CHANNELS, (
+            f"Expected {NUM_CHANNELS} probes in run.data, got {len(run.data)}: {run.data}"
+        )
+        for probe_idx in range(NUM_CHANNELS):
+            assert run.data[probe_idx] is not None, (
+                f"run.data[{probe_idx}] is None — probe {probe_idx} received no data"
+            )
+            assert run.data[probe_idx] == per_channel[probe_idx], (
+                f"Probe {probe_idx}: expected {per_channel[probe_idx]}, got {run.data[probe_idx]}"
+            )
+
+    @pytest.mark.asyncio
+    async def test_empty_controller_adc_config_uses_blob_probes(self):
+        """Probe indices come from the blob, not the controller's computer.
+        Even with empty ADC config on the controller, data routes correctly."""
+        from pybrid.redac.controller import DistributedRunState
+
+        NUM_CHANNELS = 2
+        ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
+        per_channel = [[1.0, 2.0], [3.0, 4.0]]
+        blob = _make_op_blob(
+            ENTITY_PATH, channel_count=NUM_CHANNELS, sample_count=2,
+            values=per_channel, probe_indices=[0, 1],
+        )
+
+        # Controller has EMPTY adc_config (state right after add_device).
+        ctrl = _make_mock_controller(paths=["AA-BB-CC-DD-EE-01"], num_adc_channels=0)
+        conn = list(ctrl.connection_manager.get_unique_connections())[0]
+        conn.output_queue = _make_mock_output_queue([blob])
+
+        session = Session(ctrl)
+
+        with patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)):
+            session.run(RunConfig())
+            runs = await session.execute()
+
+        run = runs[0]
+        assert len(run.data) == NUM_CHANNELS
+        assert run.data[0] == [1.0, 2.0]
+        assert run.data[1] == [3.0, 4.0]

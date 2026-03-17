@@ -293,16 +293,6 @@ class Entity(BaseEntity):
     #: Unique path to this entity.
     path: Path
 
-    @classmethod
-    def create_from_entity_type_tree(cls, sub_path, sub_tree):
-        warnings.warn(
-            "create_from_entity_type_tree is deprecated. Use REDACDeserializer instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        from pybrid.redac.protocol.serializer import REDACDeserializer
-        return REDACDeserializer().deserialize_specification(sub_tree, sub_path)
-
     def generate_partial_configuration(self, attribute):
         if self.__dataclass_fields__.get(attribute, None):
             return {attribute: getattr(self, attribute)}

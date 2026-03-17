@@ -24,8 +24,10 @@ c.connect(N, N, weight = _lambda)       # Need to use _lambda without the (-1) a
 
 c.measure(N, adc_channel=0)
 
-import json
-print(json.dumps(c.generate(), indent=2))
+from pybrid.base.proto.io import ProtoIO
+pb_file = c.to_config()
+ProtoIO.store_module(pb_file.module, "decay.apb")
+print("Config written to decay.apb")
 
 ###
 # Settings for sampling and circuit execution
