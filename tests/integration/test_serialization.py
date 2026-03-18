@@ -15,7 +15,7 @@ from pybrid.redac.computer import REDAC
 from pybrid.redac.carrier import Carrier, ADCChannel
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
-from pybrid.redac.entities import Path
+from pybrid.redac.entities import Path, Loc
 from pybrid.base.utils.addressing import AddressingMap
 
 
@@ -37,6 +37,7 @@ def make_test_redac_with_mblock(num_carriers: int = 1):
         cluster_path = carrier_path / "0"
         cluster = Cluster(
             path=cluster_path,
+            location=Loc.new_cluster(0,0, 0),
             m0block=MIntBlock(path=cluster_path / "M0"),
             ublock=UBlock(path=cluster_path / "U"),
             cblock=CBlock(path=cluster_path / "C"),
@@ -46,6 +47,7 @@ def make_test_redac_with_mblock(num_carriers: int = 1):
 
         carrier = Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None
         )
@@ -69,6 +71,7 @@ def make_test_lucidac():
     cluster_path = carrier_path / "0"
     cluster = Cluster(
         path=cluster_path,
+        location=Loc.new_cluster(0, 0, 0),
         m0block=MIntBlock(path=cluster_path / "M0"),
         ublock=UBlock(path=cluster_path / "U"),
         cblock=CBlock(path=cluster_path / "C"),
@@ -78,6 +81,7 @@ def make_test_lucidac():
 
     carrier = Carrier(
         path=carrier_path,
+        location=Loc.new_carrier(0, 0),
         clusters=[cluster],
         tblock=None
     )
@@ -100,6 +104,7 @@ def make_test_simulator():
     cluster_path = carrier_path / "0"
     cluster = Cluster(
         path=cluster_path,
+        location=Loc.new_cluster(0, 0, 0),
         m0block=MIntBlock(path=cluster_path / "M0"),
         ublock=UBlock(path=cluster_path / "U"),
         cblock=CBlock(path=cluster_path / "C"),
@@ -109,6 +114,7 @@ def make_test_simulator():
 
     carrier = Carrier(
         path=carrier_path,
+        location=Loc.new_carrier(0, 0),
         clusters=[cluster],
         tblock=None
     )

@@ -6,7 +6,7 @@ constant output selection, and LUCIDAC construction.
 """
 
 from typing import List, Optional
-
+from pybrid.redac.entities import Loc
 
 class Helpers:
     """Collection of static helper methods for Circuit internals."""
@@ -65,6 +65,7 @@ class Helpers:
 
         cluster = Cluster(
             path=cluster_path,
+            location=Loc.new_cluster(0, 0, 0),
             m0block=MIntBlock(path=cluster_path / "M0"),
             m1block=MMulBlock(path=cluster_path / "M1"),
             ublock=UBlock(path=cluster_path / "U"),
@@ -75,6 +76,7 @@ class Helpers:
 
         carrier = Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None,
             front_plane=PybridFrontPlane(carrier_path / "FP"),

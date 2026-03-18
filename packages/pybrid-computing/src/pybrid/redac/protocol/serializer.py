@@ -403,21 +403,20 @@ class REDACDeserializer(Deserializer):
 
         if entity.HasField("location_v0"):
             location = Loc.new_carrier(entity.location_v0.stack, entity.location_v0.carrier)
-        elif location is None:
-            location = Loc.new_carrier(0, 0)
 
+        stack_loc = location.stack() if location is not None else None
         for child in entity.children:
             path_: Path = path / Path.parse(child.id)
             if not path_.id_:
                 logger.warning("Reported entities include nameless entity at %s: %s", path_, child)
             elif path_.id_ == "T":
-                tblock = self._spec_function_block(child, path_, location.stack())
+                tblock = self._spec_function_block(child, path_, stack_loc)
             elif path_.id_ == "ST0":
-                st0block = self._spec_function_block(child, path_, location.stack())
+                st0block = self._spec_function_block(child, path_, stack_loc)
             elif path_.id_ == "ST1":
-                st1block = self._spec_function_block(child, path_, location.stack())
+                st1block = self._spec_function_block(child, path_, stack_loc)
             elif path_.id_ == "ST2":
-                st2block = self._spec_function_block(child, path_, location.stack())
+                st2block = self._spec_function_block(child, path_, stack_loc)
             elif path_.id_ == "FP":
                 result = self._handle_unknown_carrier_child(path_, child)
                 if result is not None:
@@ -426,7 +425,7 @@ class REDACDeserializer(Deserializer):
                 clusters.append(self.deserialize_specification(
                     child,
                     path_,
-                    location / int(path_.id_)
+                    location / int(path_.id_) if location is not None else None
                 ))
 
         return Carrier(

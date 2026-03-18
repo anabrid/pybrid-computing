@@ -10,7 +10,7 @@ from pybrid.redac.carrier import Carrier, ADCChannel
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.blocks import UBlock, CBlock, IBlock
 from pybrid.redac.computer import REDAC
-from pybrid.redac.entities import Path
+from pybrid.redac.entities import Path, Loc
 from pybrid.base.result import Result
 from pybrid.base.hybrid.validators import ConfigValidator
 from pybrid.redac.protocol.validators import AdcProbeValidator
@@ -22,6 +22,7 @@ def _make_carrier(mac: str, adc_channels: list) -> Carrier:
     cluster_path = carrier_path / "0"
     cluster = Cluster(
         path=cluster_path,
+        location=Loc.new_cluster(0, 0, 0),
         ublock=UBlock(path=cluster_path / "U"),
         cblock=CBlock(path=cluster_path / "C"),
         iblock=IBlock(path=cluster_path / "I"),
@@ -29,6 +30,7 @@ def _make_carrier(mac: str, adc_channels: list) -> Carrier:
     )
     return Carrier(
         path=carrier_path,
+        location=Loc.new_carrier(0, 0),
         clusters=[cluster],
         tblock=None,
         adc_config=adc_channels,

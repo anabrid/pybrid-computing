@@ -324,7 +324,7 @@ def make_test_redac(num_carriers: int = 2):
     from pybrid.redac.carrier import Carrier
     from pybrid.redac.cluster import Cluster
     from pybrid.redac.blocks import UBlock, CBlock, IBlock
-    from pybrid.redac.entities import Path
+    from pybrid.redac.entities import Path, Loc
     from pybrid.base.utils.addressing import AddressingMap
 
     carriers = []
@@ -336,6 +336,7 @@ def make_test_redac(num_carriers: int = 2):
         cluster_path = carrier_path / "0"
         cluster = Cluster(
             path=cluster_path,
+            location=Loc.new_cluster(0, 0, 0),
             ublock=UBlock(path=cluster_path / "U"),
             cblock=CBlock(path=cluster_path / "C"),
             iblock=IBlock(path=cluster_path / "I"),
@@ -344,6 +345,7 @@ def make_test_redac(num_carriers: int = 2):
 
         carrier = Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None
         )

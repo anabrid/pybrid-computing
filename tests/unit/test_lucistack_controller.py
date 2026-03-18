@@ -14,6 +14,7 @@ from unittest.mock import AsyncMock, patch
 
 from pybrid.lucidac.controller import Controller as LUCIStackController
 from pybrid.redac.computer import REDAC
+from pybrid.redac.entities import Loc
 
 # Try importing the new name; fall back to old name so tests fail (not crash)
 try:
@@ -41,6 +42,7 @@ class TestSetComputerBugFix:
         cluster_path = carrier_path / "0"
         cluster = Cluster(
             path=cluster_path,
+            location=Loc.new_cluster(0, 0, 0),
             ublock=UBlock(path=cluster_path / "U"),
             cblock=CBlock(path=cluster_path / "C"),
             iblock=IBlock(path=cluster_path / "I"),
@@ -48,6 +50,7 @@ class TestSetComputerBugFix:
         )
         carrier = Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None,
         )
