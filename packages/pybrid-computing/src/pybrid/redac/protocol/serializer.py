@@ -505,6 +505,18 @@ class REDACDeserializer(Deserializer):
             entity.muxes = muxes
 
     @_deserialize_configuration.register
+    def _(self, config: pb.BPLSwitchConfig):
+        """Deserialize switch configuration and apply to TBlock."""
+        entity_path = Path.parse(self._current_full_config.entity.path)
+        entity = self.computer.get_entity(entity_path)
+
+        muxes = []
+        for mux in config.muxes:
+            muxes.append(mux.state)
+        if muxes:
+            entity.muxes = muxes
+
+    @_deserialize_configuration.register
     def _(self, config: pb.PortConfig):
         """Deserialize port configuration and apply to Carrier."""
         entity_path = Path.parse(self._current_full_config.entity.path)
