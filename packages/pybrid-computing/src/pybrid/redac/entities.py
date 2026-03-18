@@ -293,6 +293,13 @@ class Entity(BaseEntity):
     #: Unique path to this entity.
     path: Path
 
+    location: typing.Optional[Loc] = None
+
+    def loc(self) -> Loc:
+        if self.location is None:
+            raise Exception("Location value is not present!")
+        return self.location
+
     def generate_partial_configuration(self, attribute):
         if self.__dataclass_fields__.get(attribute, None):
             return {attribute: getattr(self, attribute)}

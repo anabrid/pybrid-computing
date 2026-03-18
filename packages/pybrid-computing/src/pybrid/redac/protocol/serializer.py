@@ -7,6 +7,7 @@ import typing
 from functools import singledispatchmethod
 from typing import List, Any, Dict
 
+from pybrid.redac.router import Tracer
 from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.hybrid.entities import Entity
 from pybrid.base.proto import main_pb2 as pb
@@ -30,11 +31,9 @@ class REDACSerializer(Serializer):
 
     def __init__(self):
         super().__init__()
-        self.computer = None
-
         from pybrid.redac.protocol.validators import AdcProbeValidator
         self.validators.append(AdcProbeValidator())
-    
+
     ###
     # Configuration
     ###
@@ -163,7 +162,7 @@ class REDACSerializer(Serializer):
     def _entity_id(entity) -> str:
         """Return the wire-format entity ID with leading '/'."""
         return "/" + str(entity.path.id_)
-    
+
     ###
     # Specification
     ###
@@ -274,8 +273,88 @@ class REDACSerializer(Serializer):
         except NotImplementedError:
             return self._serialize_specification_function_block(entity)
 
-    def serialize_additional(self):
-        pass
+    def serialize_dependency_info(self, computer: AnalogComputer):
+        from pybrid.redac import REDAC
+        if not isinstance(computer, REDAC):
+            return
+        tracer = Tracer()
+
+        traces = []
+        cluster2node_map: typing.Dict[Loc, pb.Node] = dict()
+
+        def cluster2node(loc: Loc):
+            if loc in cluster2node_map:
+                node = cluster2node_map[loc]
+            else:
+                node = cluster2node_map[loc] = len(cluster2node_map)
+            return node
+
+        for carrier in computer.carriers:
+            for cluster in carrier.clusters:
+                cluster2node(cluster.loc())
+                tracer.add_carrier(carrier)
+
+        def add_sink(src_loc: Loc, sink_loc: Loc, upscaled: bool):
+            traces.append(pb.Trace(
+                source_node=cluster2node(src_loc.cluster()),
+                source_lane=src_loc.lane_id(),
+                sink_node=cluster2node(sink_loc.cluster()),
+                sink_lane=sink_loc.lane_id(),
+                sink_upscaled=upscaled
+            ))
+
+        for carrier in computer.carriers:
+            for cluster in carrier.clusters:
+                for lane_idx in range(0, 32):
+                    target_loc = cluster.loc() / lane_idx
+                    source_loc = tracer.find_coef(target_loc)
+
+                    if source_loc is None:
+                        continue
+
+                    src_carrier = computer.carriers[source_loc.carrier_id()]
+                    if src_carrier is None:
+                        continue
+                    src_cluster = src_carrier.clusters[source_loc.cluster_id()]
+                    if src_cluster is None:
+                        continue
+                    coef = src_cluster.cblock.elements[source_loc.lane_id()]
+                    if coef.factor == 0.0:
+                        continue
+
+                    upscaled = cluster.iblock.upscaling[target_loc.lane_id()]
+                    add_sink(source_loc, target_loc, upscaled)
+
+        dependency_info = pb.DependencyInfo()
+        for carrier in computer.carriers:
+            for cluster in carrier.clusters:
+                dependency_info.entity_ids.append(pb.EntityId(path=str(cluster.path)))
+
+        for carrier in computer.carriers:
+            for cluster in carrier.clusters:
+                config = self.cc.new_config(carrier).dependency_info
+                config.CopyFrom(dependency_info)
+                cluster_node = cluster2node(cluster.loc())
+
+                for trace in traces:
+                    if cluster_node in (trace.source_node, trace.sink_node):
+                        config.traces.append(trace)
+
+    def serialize_ip_lookup_table(self):
+        from pybrid.redac import REDAC
+        if not isinstance(computer, REDAC):
+            return
+        for carrier in computer.carriers:
+            config = self.cc.new_config(carrier).ip_lookup_table
+
+            config.entries.append(pb.IpLookupTable.Entry(
+                entity_id=pb.EntityId(path=str(carrier.path)),
+                address=carrier.ip_address,
+            ))
+
+    def serialize_additional(self, computer: AnalogComputer):
+        self.serialize_dependency_info(computer)
+        #self.serialize_ip_lookup_table()
 
 
 class REDACDeserializer(Deserializer):
@@ -292,23 +371,24 @@ class REDACDeserializer(Deserializer):
     def __init__(self, computer=None):
         super().__init__(computer)
 
-    def deserialize_specification(self, entity: pb.Entity, path: Path) -> Entity:
+    def deserialize_specification(self, entity: pb.Entity, path: Path, location: Loc = None) -> Entity:
         """Resolve handler by EntityClass, fall back to generic function-block handler."""
         class_ = EntityClass(entity.class_)
         handler_name = self._spec_handlers.get(class_)
         if handler_name is not None:
-            return getattr(self, handler_name)(entity, path)
-        return self._spec_function_block(entity, path)
+            return getattr(self, handler_name)(entity, path, location)
+        return self._spec_function_block(entity, path, location)
 
-    def _spec_device(self, entity: pb.Entity, path: Path) -> Device:
+    def _spec_device(self, entity: pb.Entity, path: Path, location: Loc) -> Device:
         """Deserialize DEVICE: iterate carrier children via dispatch."""
+        assert location is None
         carriers = []
         for child in entity.children:
             carrier_path = Path.parse(child.id)
             carriers.append(self.deserialize_specification(child, carrier_path))
         return Device(backplane=None, carriers=carriers, path=path)
 
-    def _spec_carrier(self, entity: pb.Entity, path: Path) -> Carrier:
+    def _spec_carrier(self, entity: pb.Entity, path: Path, location: Loc = None) -> Carrier:
         """Deserialize CARRIER: collect clusters/T-blocks/FP via dispatch, construct all-at-once."""
         this_entity_type = EntityType.pop_from_dict(entity)
         assert this_entity_type.class_ is EntityClass.CARRIER
@@ -321,44 +401,33 @@ class REDACDeserializer(Deserializer):
         front_plane = None
         acl_select = None
 
-        location = None
         if entity.HasField("location_v0"):
             location = Loc.new_carrier(entity.location_v0.stack, entity.location_v0.carrier)
+        elif location is None:
+            location = Loc.new_carrier(0, 0)
 
         for child in entity.children:
             path_: Path = path / Path.parse(child.id)
             if not path_.id_:
                 logger.warning("Reported entities include nameless entity at %s: %s", path_, child)
-                continue
-            if path_.id_ == "T":
-                tblock = self._spec_function_block(child, path_)
-                if location:
-                    tblock.location = location.carrier()
-                continue
-            if path_.id_ == "ST0":
-                st0block = self._spec_function_block(child, path_)
-                if location:
-                    st0block.location = location.stack()
-                continue
-            if path_.id_ == "ST1":
-                st1block = self._spec_function_block(child, path_)
-                if location:
-                    st1block.location = location.stack()
-                continue
-            if path_.id_ == "ST2":
-                st2block = self._spec_function_block(child, path_)
-                if location:
-                    st2block.location = location.stack()
-                continue
-            if path_.id_ == "FP":
+            elif path_.id_ == "T":
+                tblock = self._spec_function_block(child, path_, location.stack())
+            elif path_.id_ == "ST0":
+                st0block = self._spec_function_block(child, path_, location.stack())
+            elif path_.id_ == "ST1":
+                st1block = self._spec_function_block(child, path_, location.stack())
+            elif path_.id_ == "ST2":
+                st2block = self._spec_function_block(child, path_, location.stack())
+            elif path_.id_ == "FP":
                 result = self._handle_unknown_carrier_child(path_, child)
                 if result is not None:
                     front_plane, acl_select = result
-                continue
-            if path_.id_ in string.digits:
-                cluster = self.deserialize_specification(child, path_)
-                clusters.append(cluster)
-                continue
+            elif path_.id_ in string.digits:
+                clusters.append(self.deserialize_specification(
+                    child,
+                    path_,
+                    location / int(path_.id_)
+                ))
 
         return Carrier(
             path=path,
@@ -373,7 +442,7 @@ class REDACDeserializer(Deserializer):
             entity_type=this_entity_type,
         )
 
-    def _spec_cluster(self, entity: pb.Entity, path: Path) -> Cluster:
+    def _spec_cluster(self, entity: pb.Entity, path: Path, location: Loc) -> Cluster:
         """Deserialize CLUSTER: collect block children, construct with all required fields."""
         this_entity_type = EntityType.pop_from_dict(entity)
         assert this_entity_type.class_ is EntityClass.CLUSTER
@@ -381,7 +450,7 @@ class REDACDeserializer(Deserializer):
         blocks = dict()
         for child in entity.children:
             path_ = path / Path.parse(child.id)
-            block = self._spec_function_block(child, path_)
+            block = self._spec_function_block(child, path_, location)
             blocks[f"{path_.id_.lower()}block"] = block
 
         # Optional blocks default to None when absent from the serialized entity tree.
@@ -389,13 +458,18 @@ class REDACDeserializer(Deserializer):
         blocks.setdefault("m1block", None)
         blocks.setdefault("shblock", None)
 
-        return Cluster(path=path, entity_type=this_entity_type, **blocks)
+        return Cluster(
+            path=path,
+            location=location,
+            entity_type=this_entity_type,
+            **blocks
+        )
 
-    def _spec_function_block(self, entity: pb.Entity, path: Path):
+    def _spec_function_block(self, entity: pb.Entity, path: Path, location: Loc):
         """Default: use EntityType registry for concrete class lookup."""
         this_entity_type = EntityType.pop_from_dict(entity)
         entity_class = EntityType.lookup(this_entity_type, decay=True)
-        block = entity_class(path=path)
+        block = entity_class(path=path, location=location)
         block.entity_type = this_entity_type
         return block
 
@@ -499,8 +573,7 @@ class REDACDeserializer(Deserializer):
 
         muxes = []
         for mux in config.muxes:
-            if mux.HasField('state'):
-                muxes.append(mux.state)
+            muxes.append(mux.state)
         if muxes:
             entity.muxes = muxes
 

@@ -12,12 +12,12 @@ from pybrid.redac.entities import EntityClass, EntityType, Loc
 @EntityType.register(EntityClass.TBLOCK)
 @dataclass
 class TBlock(FunctionBlock):
-    muxes: list[int] = field(default_factory=lambda: [0, 1, 2, 3] * 24)
-
-    location: Loc = field(default_factory=lambda : Loc(args=[]))
+    muxes: list[int | None] = field(default_factory=lambda: [None] * 24 * 4)
 
     @staticmethod
     def index(dst_sector: int, sector_lane: int):
+        assert 0 <= dst_sector < 4
+        assert 0 <= sector_lane < 24
         return sector_lane * 4 + dst_sector
 
     def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
@@ -39,4 +39,4 @@ class TBlock(FunctionBlock):
         return self.location
 
     def reset(self):
-        self.muxes = [0, 1, 2, 3] * 24
+        self.muxes = [None] * (24 * 4)

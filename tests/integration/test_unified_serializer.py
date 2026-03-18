@@ -40,9 +40,9 @@ class TestFullBundleRoundtrip:
 
     def test_full_module_contains_spec_and_config_entries(self):
         computer = _make_lucidac_with_config()
-        serializer = computer.get_serializer()()
+        serializer = computer.get_serializer()(computer)
 
-        module = Serializer.serialize(serializer, computer)
+        module = Serializer.serialize(serializer)
 
         spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
         config_entries = [c for c in module.items if c.WhichOneof('kind') != 'entity_specification']
@@ -52,9 +52,9 @@ class TestFullBundleRoundtrip:
 
     def test_full_module_spec_paths_match_entities(self):
         computer = _make_lucidac_with_config()
-        serializer = computer.get_serializer()()
+        serializer = computer.get_serializer()(computer)
 
-        module = Serializer.serialize(serializer, computer)
+        module = Serializer.serialize(serializer)
         spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
 
         # Each computer.entities entry should produce one spec entry
@@ -64,11 +64,11 @@ class TestFullBundleRoundtrip:
 
     def test_roundtrip_cblock_factors_preserved(self):
         computer = _make_lucidac_with_config()
-        serializer = computer.get_serializer()()
+        serializer = computer.get_serializer()(computer)
         deserializer_cls = computer.get_deserializer()
 
         # Produce full module (spec + config)
-        module = Serializer.serialize(serializer, computer)
+        module = Serializer.serialize(serializer)
 
         # Separate spec from config entries
         spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
@@ -102,10 +102,10 @@ class TestFullBundleRoundtrip:
 
     def test_roundtrip_iblock_connections_preserved(self):
         computer = _make_lucidac_with_config()
-        serializer = computer.get_serializer()()
+        serializer = computer.get_serializer()(computer)
         deserializer_cls = computer.get_deserializer()
 
-        module = Serializer.serialize(serializer, computer)
+        module = Serializer.serialize(serializer)
         spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
         config_entries = [c for c in module.items if c.WhichOneof('kind') != 'entity_specification']
 
@@ -130,10 +130,10 @@ class TestFullBundleRoundtrip:
 
     def test_roundtrip_entity_structure_preserved(self):
         computer = _make_lucidac_with_config()
-        serializer = computer.get_serializer()()
+        serializer = computer.get_serializer()(computer)
         deserializer_cls = computer.get_deserializer()
 
-        module = Serializer.serialize(serializer, computer)
+        module = Serializer.serialize(serializer)
         spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
 
         deser = deserializer_cls()
@@ -199,12 +199,12 @@ class TestSpecificationOnlyIndependence:
 
     def test_config_serialization_reflects_changes(self):
         computer = make_test_lucidac()
-        serializer = computer.get_serializer()()
+        serializer = computer.get_serializer()(computer)
 
         computer.carriers[0].clusters[0].cblock.elements[0].computation.factor = 0.42
         computer.carriers[0].clusters[0].ublock.outputs[0] = 3
 
-        configs = serializer.serialize_configuration(computer)
+        configs = serializer.serialize_configuration()
         assert len(configs) > 0, "Configuration serialization must produce entries after state changes"
 
 
@@ -218,8 +218,8 @@ class TestConfigurationOnlyDeserialize:
         cluster.cblock.elements[0].computation.factor = 0.75
         cluster.cblock.elements[2].computation.factor = -0.33
 
-        serializer = computer.get_serializer()()
-        configs = serializer.serialize_configuration(computer)
+        serializer = computer.get_serializer()(computer)
+        configs = serializer.serialize_configuration()
 
         fresh_computer = make_test_redac_with_mblock()
         deser = computer.get_deserializer()(fresh_computer)
@@ -236,8 +236,8 @@ class TestConfigurationOnlyDeserialize:
         cluster.ublock.outputs[5] = 7
         cluster.ublock.outputs[20] = 14
 
-        serializer = computer.get_serializer()()
-        configs = serializer.serialize_configuration(computer)
+        serializer = computer.get_serializer()(computer)
+        configs = serializer.serialize_configuration()
 
         fresh_computer = make_test_redac_with_mblock()
         deser = computer.get_deserializer()(fresh_computer)
@@ -271,8 +271,8 @@ class TestMixedBundleOrdering:
 
     def _make_interleaved_module(self, computer):
         """Build a pb.Item list with spec and config entries interleaved."""
-        serializer = computer.get_serializer()()
-        module = Serializer.serialize(serializer, computer)
+        serializer = computer.get_serializer()(computer)
+        module = serializer.serialize()
 
         spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
         config_entries = [c for c in module.items if c.WhichOneof('kind') != 'entity_specification']

@@ -119,6 +119,9 @@ class Tracer(Routing):
 
         visited = set()
 
+        if loc.lane_id() < 8:
+            return loc
+
         # only here we bump cluster_id because we need 0 for backplane
         loc = loc.carrier() / (loc.cluster_id() + 1) / loc.lane_id()
 
@@ -135,12 +138,17 @@ class Tracer(Routing):
             # source is either the result of coef or from bpl t block
             tblock_lane = loc.lane_id() - 8
             source = carrier_t_block.source(loc.cluster_id(), tblock_lane)
+            if source is None or not (0 <= source < 4):
+                return None
+
             if source != 0:
                 return loc.carrier() / (source - 1) / loc.lane_id()
 
             # here source is from backpanel
             bpl_t_block = self.find_bpl_t_block(loc, tblock_lane // 8)
             prev_carrier_id = bpl_t_block.source(loc.carrier_id(), tblock_lane % 8)
+            if prev_carrier_id is None:
+                return None
 
             if 0 <= prev_carrier_id <= 6:
                 # 0 because backpanel here!

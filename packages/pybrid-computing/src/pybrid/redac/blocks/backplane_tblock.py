@@ -12,21 +12,23 @@ from pybrid.redac.entities import EntityClass, EntityType, Loc
 @EntityType.register(EntityClass.T_BLOCK_BPL)
 @dataclass
 class BackplaneTBlock(FunctionBlock):
-    muxes: list[int] = field(default_factory=lambda: [0, 1, 2, 3, 4, 5, 6, 7] * 9)
+    muxes: list[int | None] = field(default_factory=lambda: [None] * 8 * 9)
 
-    location: Loc = field(default_factory=lambda : Loc(args=[]))
-
-    def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
-        assert 0 <= src_sector < 9
-        self.muxes[self.index(dst_sector, sector_lane)] = src_sector
-
-    def source(self, dst_sector: int, sector_lane: int) -> int:
-        return self.muxes[self.index(dst_sector, sector_lane)]
-
-    def index(self, dst_sector: int, sector_lane: int) -> int:
+    @staticmethod
+    def index(dst_sector: int, sector_lane: int) -> int:
         assert 0 <= sector_lane < 8
         assert 0 <= dst_sector < 9
         return dst_sector + sector_lane * 9
+
+    def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
+        assert 0 <= src_sector < 9
+        self.muxes[BackplaneTBlock.index(dst_sector, sector_lane)] = src_sector
+
+    def source(self, dst_sector: int, sector_lane: int) -> int:
+        return self.muxes[BackplaneTBlock.index(dst_sector, sector_lane)]
+
+    def reset(self):
+        self.muxes = [None] * 8 * 9
 
     def loc(self) -> "Loc":
         return self.location
