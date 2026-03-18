@@ -274,6 +274,10 @@ class REDACSerializer(Serializer):
             return self._serialize_specification_function_block(entity)
 
     def serialize_dependency_info(self, computer: AnalogComputer):
+        """
+        Serialize dependency information used for beyond carrier calibration.
+        It constains information where a signal is coming from and where it is going to.
+        """
         from pybrid.redac import REDAC
         if not isinstance(computer, REDAC):
             return
@@ -339,18 +343,6 @@ class REDACSerializer(Serializer):
                 for trace in traces:
                     if cluster_node in (trace.source_node, trace.sink_node):
                         config.traces.append(trace)
-
-    def serialize_ip_lookup_table(self):
-        from pybrid.redac import REDAC
-        if not isinstance(computer, REDAC):
-            return
-        for carrier in computer.carriers:
-            config = self.cc.new_config(carrier).ip_lookup_table
-
-            config.entries.append(pb.IpLookupTable.Entry(
-                entity_id=pb.EntityId(path=str(carrier.path)),
-                address=carrier.ip_address,
-            ))
 
     def serialize_additional(self, computer: AnalogComputer):
         self.serialize_dependency_info(computer)
