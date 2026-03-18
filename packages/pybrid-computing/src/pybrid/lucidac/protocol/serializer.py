@@ -57,9 +57,6 @@ class LUCIDACSerializer(REDACSerializer):
         for val in entity.signal_generator.dac_outputs:
             sg_config.dac_outputs.append(val)
 
-    def serialize_additional(self):
-        pass
-
 
 class LUCIDACDeserializer(REDACDeserializer):
 

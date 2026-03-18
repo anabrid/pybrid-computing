@@ -38,10 +38,6 @@ class Cluster(Entity):
     #: Used by the description serializer to reproduce the exact entity type fields.
     entity_type: typing.Optional[EntityType] = None
 
-    def loc(self) -> "Loc":
-        elems = self.path.root.split("-")
-        return Loc.new_carrier(int(elems[0], base=16), int(elems[5], base=16)) / int(self.path[1])
-
     @property
     def children(self):
         """

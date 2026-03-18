@@ -81,11 +81,12 @@ class Serializer(ABC):
                 for child in entity.children:
                     traversal.put(child)
                 self._serialize_configuration(entity)
+        self.serialize_additional(computer)
         return self.cc.items
 
-    @abstractmethod
-    def serialize_additional(self):
+    def serialize_additional(self, computer: AnalogComputer):
         """Hook for cross-entity objects (e.g. UseConfig)."""
+        pass
 
     @singledispatchmethod
     def _serialize_specification(self, entity: Entity) -> pb.Entity:

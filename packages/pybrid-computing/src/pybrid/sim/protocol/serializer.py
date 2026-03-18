@@ -81,9 +81,6 @@ class SimulatorSerializer(REDACSerializer):
             )
             pb_sim_config.acl_config.CopyFrom(acl_config)
 
-    def serialize_additional(self):
-        pass
-
 class SimulatorDeserializer(REDACDeserializer):
     """
     See :class:`REDACDeserializer`.

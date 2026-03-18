@@ -149,38 +149,6 @@ class DummyDAC:
                 # Fixed MAC addresses for deterministic behavior
                 return ["AB-CD-EF-12-34-56", "AB-CD-EF-12-34-57"]
 
-    def _dict_to_pb_entity(self, id_: str, data: dict) -> pb.Entity:
-        """
-        Convert a dictionary representation to a protobuf Entity.
-
-        :param id_: The entity ID string.
-        :param data: Dictionary containing entity attributes and children.
-        :return: A protobuf Entity instance.
-        """
-        version = pb.Version(
-            major=data["version"][0],
-            minor=data["version"][1],
-            patch=data["version"][2]
-        )
-
-        # Preserve the leading '/' so that entity IDs match the firmware wire format.
-        entity = pb.Entity(
-            id=id_,
-            class_=data["class"],
-            type=data["type"],
-            variant=data["variant"],
-            version=version,
-            eui=data["eui"]
-        )
-
-        # Recursively add children
-        for key, value in data.items():
-            if key.startswith('/'):
-                child_entity = self._dict_to_pb_entity(key, value)
-                entity.children.append(child_entity)
-
-        return entity
-
     def _build_entity_tree(self) -> pb.Entity:
         """
         Build the entity tree for the DummyDAC.
@@ -201,92 +169,54 @@ class DummyDAC:
         root_id = f"/{self._carrier_macs[0]}" if self._carrier_macs else ""
         root = pb.Entity(id=root_id, class_=pb.Entity.DEVICE)
 
-        for mac in self._carrier_macs:
-            carrier_dict = {
-                "class": 1,  # CARRIER
-                "type": 1,
-                "variant": 1,
-                "version": [1, 0, 0],
-                "eui": "00-00-00-00-00-00-00",
-                "/0": {
-                    "class": 2,  # CLUSTER
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-00-00-00-00-00-00",
-                    "/M0": {
-                        "class": 3,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-92-1B",
-                    },
-                    "/M1": {
-                        "class": 3,
-                        "type": 2,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-7D-6D",
-                    },
-                    "/U": {
-                        "class": 4,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-15-76-7A",
-                    },
-                    "/C": {
-                        "class": 5,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "FF-FF-D8-47-8F-3F-8E-F5",
-                    },
-                    "/I": {
-                        "class": 6,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-15-3D-F5",
-                    },
-                    "/SH": {
-                        "class": 7,
-                        "type": 1,
-                        "variant": 1,
-                        "version": [1, 0, 0],
-                        "eui": "00-04-A3-0B-00-16-94-9F",
-                    },
-                },
-                "/CTRL": {
-                    "class": 9,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-04-A3-0B-00-16-7E-05",
-                },
-            }
+        for idx, mac in enumerate(self._carrier_macs):
+            version = pb.Version(major=1, minor=0, patch=0)
+            carrier_entity = pb.Entity(
+                id=f"/{mac}",
+                class_=pb.Entity.Class.CARRIER,
+                type=1,
+                variant=1,
+                version=version,
+                eui="00-00-00-00-00-00-00",
+                location_v0=pb.CarrierLocationV0(stack=0, carrier=idx),
+                children=[
+                    pb.Entity(
+                        id="/0",
+                        class_=pb.Entity.Class.CLUSTER,
+                        type=1,
+                        variant=1,
+                        version=version,
+                        eui="00-00-00-00-00-00-00",
+                        children=[
+                            pb.Entity(id="/M0", class_=pb.Entity.Class.M_BLOCK, type=1, variant=1, version=version,
+                                      eui="00-04-A3-0B-00-16-92-1B"),
+                            pb.Entity(id="/M1", class_=pb.Entity.Class.M_BLOCK, type=2, variant=1, version=version,
+                                      eui="00-04-A3-0B-00-16-7D-6D"),
+                            pb.Entity(id="/U", class_=pb.Entity.Class.U_BLOCK, type=1, variant=1, version=version,
+                                      eui="00-04-A3-0B-00-15-76-7A"),
+                            pb.Entity(id="/C", class_=pb.Entity.Class.C_BLOCK, type=1, variant=1, version=version,
+                                      eui="FF-FF-D8-47-8F-3F-8E-F5"),
+                            pb.Entity(id="/I", class_=pb.Entity.Class.I_BLOCK, type=1, variant=1, version=version,
+                                      eui="00-04-A3-0B-00-15-3D-F5"),
+                            pb.Entity(id="/SH", class_=pb.Entity.Class.SH_BLOCK, type=1, variant=1, version=version,
+                                      eui="00-04-A3-0B-00-16-94-9F"),
+                        ],
+                    ),
+                    pb.Entity(id="/CTRL", class_=pb.Entity.Class.CTRL_BLOCK, type=1, variant=1, version=version,
+                              eui="00-04-A3-0B-00-16-7E-05"),
+                    *(
+                        [pb.Entity(id="/T", class_=pb.Entity.Class.T_BLOCK, type=1, variant=1, version=version,
+                                   eui="00-04-A3-0B-00-16-7E-10")]
+                        if not self.config.lucidac_mode else []
+                    ),
+                    *(
+                        [pb.Entity(id="/FP", class_=pb.Entity.Class.FRONT_PANEL, type=1, variant=1, version=version,
+                                   eui="00-00-00-00-00-00-00")]
+                        if self.config.lucidac_mode else []
+                    ),
+                ],
+            )
 
-            # Add T-block only in REDAC mode (LUCIDAC doesn't have T-block)
-            if not self.config.lucidac_mode:
-                carrier_dict["/T"] = {
-                    "class": 10,
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-04-A3-0B-00-16-7E-10",
-                }
-
-            # Add FrontPanel entity in LUCIDAC mode
-            if self.config.lucidac_mode:
-                carrier_dict["/FP"] = {
-                    "class": 0,  # UNKNOWN (as per firmware behavior)
-                    "type": 1,
-                    "variant": 1,
-                    "version": [1, 0, 0],
-                    "eui": "00-00-00-00-00-00-00",
-                }
-
-            carrier_entity = self._dict_to_pb_entity(f"/{mac}", carrier_dict)
             root.children.append(carrier_entity)
 
         return root

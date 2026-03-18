@@ -14,7 +14,7 @@ import warnings
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.blocks import UBlock, CBlock, IBlock
-from pybrid.redac.entities import Path
+from pybrid.redac.entities import Path, Loc
 from pybrid.base.utils.addressing import AddressingMap
 
 # Import FrontPanel/FrontPlane with fallback so tests don't crash
@@ -37,6 +37,7 @@ def _make_carrier_with_fp(mac: str) -> Carrier:
     cluster_path = carrier_path / "0"
     cluster = Cluster(
         path=cluster_path,
+        location=Loc.new_cluster(0, 0, 0),
         m0block=None,
         ublock=UBlock(path=cluster_path / "U"),
         cblock=CBlock(path=cluster_path / "C"),
@@ -49,6 +50,7 @@ def _make_carrier_with_fp(mac: str) -> Carrier:
     try:
         return Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None,
             front_plane=fp,
@@ -57,6 +59,7 @@ def _make_carrier_with_fp(mac: str) -> Carrier:
         # Fall back to old keyword name for backward compatibility
         return Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None,
             front_panel=fp,

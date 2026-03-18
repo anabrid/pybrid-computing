@@ -23,7 +23,7 @@ import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
-from pybrid.redac.entities import Path, EntityClass
+from pybrid.redac.entities import Path, Loc
 from pybrid.base.utils.addressing import AddressingMap
 from pybrid.redac.protocol.serializer import REDACDeserializer
 
@@ -153,6 +153,7 @@ def _make_minimal_carrier(mac: str, with_fp: bool = False) -> Carrier:
     cluster_path = carrier_path / "0"
     cluster = Cluster(
         path=cluster_path,
+        location=Loc.new_cluster(0, 0, 0),
         m0block=MIntBlock(path=cluster_path / "M0"),
         ublock=UBlock(path=cluster_path / "U"),
         cblock=CBlock(path=cluster_path / "C"),
@@ -168,6 +169,7 @@ def _make_minimal_carrier(mac: str, with_fp: bool = False) -> Carrier:
     try:
         return Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None,
             front_plane=fp,
@@ -175,6 +177,7 @@ def _make_minimal_carrier(mac: str, with_fp: bool = False) -> Carrier:
     except TypeError:
         return Carrier(
             path=carrier_path,
+            location=Loc.new_carrier(0, 0),
             clusters=[cluster],
             tblock=None,
             front_panel=fp,

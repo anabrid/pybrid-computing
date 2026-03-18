@@ -9,7 +9,7 @@ from google.protobuf.json_format import MessageToDict
 
 from pybrid.base.proto.io import ProtoIO
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.redac.entities import EntityType, EntityClass, UnknownEntityTypeError, Path
+from pybrid.redac.entities import EntityType, EntityClass, UnknownEntityTypeError, Path, Loc
 from pybrid.redac.blocks.ublock import UBlock
 from pybrid.redac.blocks.cblock import CBlock
 from pybrid.redac.blocks.iblock import IBlock
@@ -533,13 +533,19 @@ class TestLUCIDACDescriptionSerializer:
         cluster_path = carrier_path / "0"
         cluster = Cluster(
             path=cluster_path,
+            location=Loc.new_cluster(0, 0, 0),
             m0block=MIntBlock(path=cluster_path / "M0"),
             ublock=UBlock(path=cluster_path / "U"),
             cblock=CBlock(path=cluster_path / "C"),
             iblock=IBlock(path=cluster_path / "I"),
             shblock=None,
         )
-        carrier = Carrier(path=carrier_path, clusters=[cluster], tblock=None)
+        carrier = Carrier(
+            path=carrier_path,
+            location=Loc.new_carrier(0, 0),
+            clusters=[cluster],
+            tblock=None
+        )
         computer = LUCIDAC(entities=[carrier])
 
         desc_ser = LUCIDACSerializer()

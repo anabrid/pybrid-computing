@@ -62,9 +62,6 @@ class Carrier(Entity):
     #: Optional front plane, currently only available on LUCIDAC carriers.
     front_plane: Optional[FrontPlane] = None
 
-    #: Physical location of this carrier in the REDAC rack, if known.
-    location: Optional[Loc] = None
-
     #: Protobuf entity metadata preserved from deserialization (class, type, variant, version).
     #: Used by the description serializer to reproduce the exact entity type fields.
     entity_type: Optional[EntityType] = None
@@ -97,11 +94,6 @@ class Carrier(Entity):
         m_slot = int(entity.path[2].strip("M"))
         element_idx = int(entity.path.id_)
         return cluster_idx * 16 + m_slot * 8 + element_idx
-
-    def loc(self) -> Loc:
-        if self.location is None:
-            raise Exception("Location value must be set for carrier before routing is possible!")
-        return self.location
 
     @property
     def front_panel(self):
