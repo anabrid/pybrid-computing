@@ -36,6 +36,8 @@ class DAQ:
             adc_channel = ADCChannel(index=carrier.resolve_signal(entity), gain=gain, offset=offset, probe=probe_index)
             carrier.adc_config.append(adc_channel)
 
+    def reset(self):
+        self._next_probe_index: int = 0
 
 class REDAC(AnalogComputer):
     """
@@ -56,6 +58,10 @@ class REDAC(AnalogComputer):
     @property
     def name(self) -> str:
         return "REDAC"
+
+    def reset(self):
+        super().reset()
+        self.daq.reset()
 
     @property
     def carriers(self) -> list[Carrier]:
