@@ -97,7 +97,7 @@ class TestLUCIStackMultiDevice:
 
             circuit = Circuit("AA-BB-CC-DD-EE-FF")
             i0 = circuit.int(ic=0.77)
-            circuit.measure(i0)
+            circuit.probe(i0)
 
             # Broadcast set_circuit to all 3 devices
             luci.set_circuit(circuit)

@@ -62,7 +62,7 @@ class TestLUCIStackSingleDevice:
             # Create a simple circuit
             circuit = Circuit("AA-BB-CC-DD-EE-FF")
             i0 = circuit.int(ic=1.0)
-            out0 = circuit.measure(i0)  # Greedy assignment
+            out0 = circuit.probe(i0)  # Greedy assignment
 
             # Set circuit
             luci.set_circuit(circuit)
@@ -89,7 +89,7 @@ class TestLUCIStackSingleDevice:
     @pytest.mark.asyncio
     @_requires_native
     async def test_lucistack_num_channels_deduced(self):
-        """Circuit with 3 measure() calls causes LUCIStack to auto-deduce 3 DAQ channels."""
+        """Circuit with 3 probe() calls causes LUCIStack to auto-deduce 3 DAQ channels."""
         config = DummyDACConfig(lucidac_mode=True)
         port = get_test_port(4)
 
@@ -105,9 +105,9 @@ class TestLUCIStackSingleDevice:
             i1 = circuit.int(ic=0.5)
             i2 = circuit.int(ic=0.25)
 
-            out0 = circuit.measure(i0)  # Channel 0
-            out1 = circuit.measure(i1)  # Channel 1
-            out2 = circuit.measure(i2)  # Channel 2
+            out0 = circuit.probe(i0)  # Channel 0
+            out1 = circuit.probe(i1)  # Channel 1
+            out2 = circuit.probe(i2)  # Channel 2
 
             # Set circuit (should auto-detect 3 channels)
             luci.set_circuit(circuit)
