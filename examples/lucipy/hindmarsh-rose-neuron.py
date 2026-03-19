@@ -57,9 +57,9 @@ hr.connect( x, z, weight = -0.4)        # Slow adaptation current
 hr.connect( c, z, weight = +0.32)
 hr.connect( z, z, weight = +0.1)
 
-hr.measure(x, adc_channel=0)            # Connect integrators to ADC
-hr.measure(y, adc_channel=1)            # to sample data
-hr.measure(z, adc_channel=2)
+hr.probe(x, adc_channel=0)              # Connect integrators to ADC
+hr.probe(y, adc_channel=1)              # to sample data
+hr.probe(z, adc_channel=2)
 
 ###
 # Settings for sampling and circuit execution
@@ -78,11 +78,9 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-for adc_key, values in run.data.items():
-    if adc_key[1] != "ADC0":
-        continue
+for ix, values in enumerate(run.data):
     x = time_series(sample_rate, len(values))
-    plt.plot(x, values if adc_key[1] != "ADC0" else [-t for t in values], label=adc_key[-1])
+    plt.plot(x, [-t for t in values], label=f"Probe {ix}")
 plt.xlabel("time / s")
 plt.legend()
 plt.grid()

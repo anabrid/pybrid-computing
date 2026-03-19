@@ -6,7 +6,8 @@ from functools import singledispatchmethod
 
 from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
 from pybrid.lucidac.front_plane import FrontPlane, SignalGenerator
-from pybrid.redac.entities import Entity, Path
+from pybrid.redac.entities import Entity, Loc, Path
+from pybrid.redac.carrier import Carrier
 from pybrid.base.proto import main_pb2 as pb
 
 
@@ -62,6 +63,13 @@ class LUCIDACDeserializer(REDACDeserializer):
 
     def __init__(self, computer=None):
         super().__init__(computer)
+        self._carrier_counter = 0
+
+    def _spec_carrier(self, entity: pb.Entity, path: Path, location: Loc = None) -> Carrier:
+        if location is None and not entity.HasField("location_v0"):
+            location = Loc.new_carrier(0, self._carrier_counter)
+            self._carrier_counter += 1
+        return super()._spec_carrier(entity, path, location)
 
     def _handle_unknown_carrier_child(self, path: Path, child: pb.Entity):
         """Detect FrontPlane by path name, since firmware reports class_=UNKNOWN(0)."""

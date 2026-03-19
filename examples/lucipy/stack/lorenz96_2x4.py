@@ -33,7 +33,7 @@ K = 4   # variables per device
 
 # Generate stack of two LUCIDACs - enter IP addresses here or leave empty
 # to use auto-discover.
-stack = LUCIDAC("192.168.150.15", "192.168.150.57")
+stack = LUCIDAC()
 
 l = [stack.create_circuit(d) for d in range(2)]
 c = [l[0].const(), l[1].const()]
@@ -120,9 +120,7 @@ stack.set_run(op_time=500_000_000)
 run = stack.run()
 
 # Plotting
-signal_names = list(run.data.keys())
-signal_values = list(run.data.values())
-n_signals = len(signal_names)
+n_signals = len(run.data)
 
 fig = plt.figure(figsize=(14, 16))
 fig.canvas.manager.set_window_title("Lorenz96 N=8 (2 LUCIDACs)")
@@ -130,9 +128,9 @@ gs = fig.add_gridspec(3, 2, hspace=0.15, wspace=0.05)
 
 # Row 1: line plot of all signals, spanning both columns
 ax_line = fig.add_subplot(gs[0, :])
-for i, (name, values) in enumerate(run.data.items()):
+for i, values in enumerate(run.data):
     t = time_series(sample_rate, len(values))
-    ax_line.plot(t, values, label=f"({i}) {name}")
+    ax_line.plot(t, values, label=f"Probe {i}")
 ax_line.set_xlabel("time / s")
 ax_line.set_ylabel("amplitude")
 ax_line.grid()
@@ -144,7 +142,7 @@ for row, col in [(1, 0), (1, 1), (2, 0), (2, 1)]:
     sel = random.sample(range(n_signals), 3)
     ax3d = fig.add_subplot(gs[row, col], projection='3d')
     ax3d.plot(
-        signal_values[sel[0]], signal_values[sel[1]], signal_values[sel[2]],
+        run.data[sel[0]], run.data[sel[1]], run.data[sel[2]],
         ls="-", marker="+", markersize=1.5,
     )
     ax3d.set_xlabel("")

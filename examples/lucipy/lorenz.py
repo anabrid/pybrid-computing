@@ -56,10 +56,10 @@ l.connect(my, my, weight = .1)
 l.connect(xy, mz, weight = 2.5)
 l.connect(mz, mz, weight = c)
 
-l.measure(mx, adc_channel = 0)          # Connect multiplier/integrator to ADC
+l.probe(mx, adc_channel = 0)            # Connect multiplier/integrator to ADC
                                         # to sample data
-l.measure(my, adc_channel = 1)
-l.measure(mz, adc_channel = 2)
+l.probe(my, adc_channel = 1)
+l.probe(mz, adc_channel = 2)
 
 # Analog output: uncomment to output the x, y, z signals on Analog Outputs
 # 0, 1, 2
@@ -84,10 +84,8 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-samples = list(run.data.values())
-
 ax = plt.figure().add_subplot(projection='3d')
-ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
+ax.plot(*np.array(run.data), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_zlabel("Z")

@@ -41,8 +41,8 @@ for i in range(N):
     l.connect(x[i-2], m[i].b, weight=+1.)
     l.connect(x[i-3], m[i].b, weight=-1.)
 
-    l.connect(m[i], x[i], weight=-.666*3+0.1)
-    l.connect(F, x[i], weight=-.10)
+    l.connect(m[i], x[i], weight=-2)
+    l.connect(F, x[i], weight=-.05)
     l.probe(x[i], adc_channel=i)
 
 ###
@@ -62,10 +62,8 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-samples = list(run.data.values())
-
 ax = plt.figure().add_subplot(projection='3d')
-ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
+ax.plot(*np.array(run.data), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_zlabel("Z")

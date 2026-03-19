@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 # generate stack of two LUCIDACs - enter IP addresses here or leave empty
 # to use auto-discover
-stack = LUCIDAC("192.168.150.15", "192.168.150.57")
+stack = LUCIDAC()
 
 # first LUCIDAC; ACL 0 out (1.0), ACL 0 in
 l0 = stack.create_circuit(0)
@@ -61,9 +61,9 @@ stack.set_run(op_time=10_000_000)
 
 run = stack.run()
 
-for adc_key, values in run.data.items():
+for ix, values in enumerate(run.data):
     x = time_series(sample_rate, len(values))
-    plt.plot(x, values, label=adc_key)
+    plt.plot(x, values, label=f"Probe {ix}")
 plt.xlabel("time / s")
 plt.legend()
 plt.grid()

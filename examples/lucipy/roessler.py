@@ -42,9 +42,9 @@ r.connect(z, m.a, weight = -1)          # Compute nonlinear term
 r.connect(x, m.b)
 r.connect(c, m.b, weight = -0.3796)
 
-r.measure(x, adc_channel=0)             # Connect integrators to ADC
-r.measure(y, adc_channel=1)             # to sample data
-r.measure(z, adc_channel=2)
+r.probe(x, adc_channel=0)               # Connect integrators to ADC
+r.probe(y, adc_channel=1)               # to sample data
+r.probe(z, adc_channel=2)
 
 ###
 # Settings for sampling and circuit execution
@@ -63,10 +63,8 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-samples = list(run.data.values())
-
 ax = plt.figure().add_subplot(projection='3d')
-ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
+ax.plot(*np.array(run.data), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_ylabel("Z")
