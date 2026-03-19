@@ -138,6 +138,168 @@ struct UpscaleConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpscaleConfigDefaultTypeInternal _UpscaleConfig_default_instance_;
 
+inline constexpr UpdateWrite::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        data_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        offset_{::uint64_t{0u}} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR UpdateWrite::UpdateWrite(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(UpdateWrite_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct UpdateWriteDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateWriteDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateWriteDefaultTypeInternal() {}
+  union {
+    UpdateWrite _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateWriteDefaultTypeInternal _UpdateWrite_default_instance_;
+template <typename>
+PROTOBUF_CONSTEXPR UpdateSuccess::UpdateSuccess(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(UpdateSuccess_class_data_.base()){}
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase() {
+}
+#endif  // PROTOBUF_CUSTOM_VTABLE
+struct UpdateSuccessDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateSuccessDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateSuccessDefaultTypeInternal() {}
+  union {
+    UpdateSuccess _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateSuccessDefaultTypeInternal _UpdateSuccess_default_instance_;
+
+inline constexpr UpdateFailure::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        reason_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()) {}
+
+template <typename>
+PROTOBUF_CONSTEXPR UpdateFailure::UpdateFailure(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(UpdateFailure_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct UpdateFailureDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateFailureDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateFailureDefaultTypeInternal() {}
+  union {
+    UpdateFailure _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateFailureDefaultTypeInternal _UpdateFailure_default_instance_;
+template <typename>
+PROTOBUF_CONSTEXPR UpdateCommit::UpdateCommit(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(UpdateCommit_class_data_.base()){}
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase() {
+}
+#endif  // PROTOBUF_CUSTOM_VTABLE
+struct UpdateCommitDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateCommitDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateCommitDefaultTypeInternal() {}
+  union {
+    UpdateCommit _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateCommitDefaultTypeInternal _UpdateCommit_default_instance_;
+
+inline constexpr UpdateBegin::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        hash_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        size_{::uint64_t{0u}} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR UpdateBegin::UpdateBegin(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(UpdateBegin_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct UpdateBeginDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateBeginDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateBeginDefaultTypeInternal() {}
+  union {
+    UpdateBegin _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateBeginDefaultTypeInternal _UpdateBegin_default_instance_;
+
+inline constexpr UpdateAck::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        chunk_size_{::uint64_t{0u}} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR UpdateAck::UpdateAck(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(UpdateAck_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct UpdateAckDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateAckDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateAckDefaultTypeInternal() {}
+  union {
+    UpdateAck _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateAckDefaultTypeInternal _UpdateAck_default_instance_;
+template <typename>
+PROTOBUF_CONSTEXPR UpdateAbort::UpdateAbort(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(UpdateAbort_class_data_.base()){}
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase() {
+}
+#endif  // PROTOBUF_CUSTOM_VTABLE
+struct UpdateAbortDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateAbortDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateAbortDefaultTypeInternal() {}
+  union {
+    UpdateAbort _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateAbortDefaultTypeInternal _UpdateAbort_default_instance_;
+
 inline constexpr UdpDataStreamingRefusedResponse::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
@@ -1004,6 +1166,32 @@ struct GetOverloadStatusCommandDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetOverloadStatusCommandDefaultTypeInternal _GetOverloadStatusCommand_default_instance_;
 
+inline constexpr FrontPanelIOConfig::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : io_modes_{},
+        _io_modes_cached_byte_size_{0},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR FrontPanelIOConfig::FrontPanelIOConfig(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(FrontPanelIOConfig_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct FrontPanelIOConfigDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR FrontPanelIOConfigDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~FrontPanelIOConfigDefaultTypeInternal() {}
+  union {
+    FrontPanelIOConfig _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 FrontPanelIOConfigDefaultTypeInternal _FrontPanelIOConfig_default_instance_;
+
 inline constexpr FrontPanelConfig::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
@@ -1642,6 +1830,58 @@ struct WriteSystemIdentCommandDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 WriteSystemIdentCommandDefaultTypeInternal _WriteSystemIdentCommand_default_instance_;
+
+inline constexpr UpdateResponse::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : kind_{},
+        _cached_size_{0},
+        _oneof_case_{} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR UpdateResponse::UpdateResponse(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(UpdateResponse_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct UpdateResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateResponseDefaultTypeInternal() {}
+  union {
+    UpdateResponse _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateResponseDefaultTypeInternal _UpdateResponse_default_instance_;
+
+inline constexpr UpdateCommand::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : kind_{},
+        _cached_size_{0},
+        _oneof_case_{} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR UpdateCommand::UpdateCommand(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(UpdateCommand_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct UpdateCommandDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateCommandDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateCommandDefaultTypeInternal() {}
+  union {
+    UpdateCommand _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateCommandDefaultTypeInternal _UpdateCommand_default_instance_;
 
 inline constexpr TemperatureMeasurement::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -2733,7 +2973,7 @@ inline constexpr DaqData::Impl_::Impl_(
             ::_pbi::ConstantInitialized()),
         type_{nullptr},
         sample_count_{0u},
-        channel_count_{0u} {}
+        channel_stride_{0u} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR DaqData::DaqData(::_pbi::ConstantInitialized)
@@ -3176,7 +3416,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 EnvelopeDefaultTypeInternal _Envelope_default_instance_;
 }  // namespace pb
 static const ::_pb::EnumDescriptor* PROTOBUF_NONNULL
-    file_level_enum_descriptors_main_2eproto[16];
+    file_level_enum_descriptors_main_2eproto[17];
 static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_main_2eproto = nullptr;
 const ::uint32_t
@@ -3341,6 +3581,8 @@ const ::uint32_t
         4, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::pb::FrontPanelConfig, _impl_.leds_),
         0,
+        0x000, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::FrontPanelIOConfig, _impl_.io_modes_),
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::ACLPinSignal, _impl_._has_bits_),
         5, // hasbit index offset
@@ -3380,7 +3622,7 @@ const ::uint32_t
         0x085, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_._oneof_case_[0]),
-        27, // hasbit index offset
+        28, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.entity_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
@@ -3404,7 +3646,9 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         0,
+        ~0u,
         ~0u,
         ~0u,
         ~0u,
@@ -3710,7 +3954,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pb::DaqData, _impl_.type_),
         PROTOBUF_FIELD_OFFSET(::pb::DaqData, _impl_.channels_),
         PROTOBUF_FIELD_OFFSET(::pb::DaqData, _impl_.sample_count_),
-        PROTOBUF_FIELD_OFFSET(::pb::DaqData, _impl_.channel_count_),
+        PROTOBUF_FIELD_OFFSET(::pb::DaqData, _impl_.channel_stride_),
         0,
         1,
         ~0u,
@@ -3959,10 +4203,50 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pb::JitResponse, _impl_.diag_),
         1,
         0,
+        0x004, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_._oneof_case_[0]),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
+        0x004, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_._oneof_case_[0]),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_.kind_),
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateBegin, _impl_._has_bits_),
+        5, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateBegin, _impl_.size_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateBegin, _impl_.hash_),
+        1,
+        0,
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateWrite, _impl_._has_bits_),
+        5, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateWrite, _impl_.data_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateWrite, _impl_.offset_),
+        0,
+        1,
+        0x000, // bitmap
+        0x000, // bitmap
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateAck, _impl_._has_bits_),
+        4, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateAck, _impl_.chunk_size_),
+        0,
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateFailure, _impl_._has_bits_),
+        4, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateFailure, _impl_.reason_),
+        0,
+        0x000, // bitmap
         0x085, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_._oneof_case_[0]),
-        53, // hasbit index offset
+        55, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.id_),
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.kind_),
@@ -4012,7 +4296,11 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::MessageV1, _impl_.kind_),
         0,
+        ~0u,
+        ~0u,
         ~0u,
         ~0u,
         ~0u,
@@ -4099,103 +4387,113 @@ static const ::_pbi::MigrationSchema
         {132, sizeof(::pb::CmpConfig)},
         {133, sizeof(::pb::SignalGeneratorConfig)},
         {154, sizeof(::pb::FrontPanelConfig)},
-        {159, sizeof(::pb::ACLPinSignal)},
-        {166, sizeof(::pb::PortConfig)},
-        {170, sizeof(::pb::BackpanelConfig)},
-        {181, sizeof(::pb::IpLookupTable_Entry)},
-        {188, sizeof(::pb::IpLookupTable)},
-        {190, sizeof(::pb::EntitySpecification)},
-        {195, sizeof(::pb::Item)},
-        {244, sizeof(::pb::EntityId)},
-        {249, sizeof(::pb::DescribeCommand)},
-        {250, sizeof(::pb::ResetCommand)},
-        {263, sizeof(::pb::ExtractCommand)},
-        {276, sizeof(::pb::ConfigCommand)},
-        {285, sizeof(::pb::ACLPlugin)},
-        {294, sizeof(::pb::ACLWire)},
-        {301, sizeof(::pb::ACLPlug)},
-        {308, sizeof(::pb::ACLConfig)},
-        {311, sizeof(::pb::SimConfig)},
-        {322, sizeof(::pb::Module)},
-        {324, sizeof(::pb::DescribeBundle)},
-        {326, sizeof(::pb::Time)},
-        {333, sizeof(::pb::Temperature)},
-        {340, sizeof(::pb::RunConfig)},
-        {355, sizeof(::pb::DaqConfig)},
-        {366, sizeof(::pb::SyncConfig)},
-        {375, sizeof(::pb::CalibrationConfig)},
-        {386, sizeof(::pb::UdpDataStreamingCommand)},
-        {391, sizeof(::pb::UdpDataStreamingRefusedResponse)},
-        {396, sizeof(::pb::StartRunCommand)},
-        {411, sizeof(::pb::StopRunCommand)},
-        {412, sizeof(::pb::StandByCommand)},
-        {419, sizeof(::pb::ManualControlCommand)},
-        {424, sizeof(::pb::PingCommand)},
-        {425, sizeof(::pb::RegisterExternalEntitiesCommand_EntitiesEntry_DoNotUse)},
-        {432, sizeof(::pb::RegisterExternalEntitiesCommand)},
-        {434, sizeof(::pb::SyslogCommand)},
-        {435, sizeof(::pb::SystemStatsCommand)},
-        {436, sizeof(::pb::Version)},
-        {445, sizeof(::pb::CarrierLocationV0)},
-        {452, sizeof(::pb::Entity)},
-        {473, sizeof(::pb::ResetResponse)},
-        {478, sizeof(::pb::ExtractResponse)},
-        {483, sizeof(::pb::ConfigResponse)},
-        {488, sizeof(::pb::StartRunResponse)},
-        {489, sizeof(::pb::RunStateChangeMessage)},
-        {504, sizeof(::pb::IntegerType)},
-        {511, sizeof(::pb::FloatType)},
-        {516, sizeof(::pb::DataType)},
-        {521, sizeof(::pb::DaqData)},
-        {534, sizeof(::pb::Run)},
-        {541, sizeof(::pb::RunDataMessage)},
-        {550, sizeof(::pb::RunDataEndMessage)},
-        {559, sizeof(::pb::PingResponse)},
-        {564, sizeof(::pb::FirmwareBuild_EntriesEntry_DoNotUse)},
-        {571, sizeof(::pb::FirmwareBuild)},
-        {573, sizeof(::pb::FirmwareImage)},
-        {580, sizeof(::pb::GetSystemIdentResponse)},
-        {589, sizeof(::pb::SyslogResponse)},
-        {598, sizeof(::pb::PerformanceCounters)},
-        {609, sizeof(::pb::SystemStatsResponse)},
-        {614, sizeof(::pb::ReadSystemIdentCommand)},
-        {619, sizeof(::pb::ReadSystemIdentResponse)},
-        {620, sizeof(::pb::ResetSystemIdentCommand)},
-        {625, sizeof(::pb::ResetSystemIdentResponse)},
-        {626, sizeof(::pb::WriteSystemIdentCommand)},
-        {631, sizeof(::pb::Vendor)},
-        {642, sizeof(::pb::WriteSystemIdentResponse)},
-        {647, sizeof(::pb::GetSystemIdentCommand)},
-        {648, sizeof(::pb::CalibrationCommand)},
-        {653, sizeof(::pb::CalibrationResponse)},
-        {654, sizeof(::pb::CalibrateInitCommand)},
-        {655, sizeof(::pb::CalibrateFinalizeCommand)},
-        {656, sizeof(::pb::CalibrateOffsetCommand)},
-        {657, sizeof(::pb::CalibrateLaneCommand)},
-        {662, sizeof(::pb::CalibrationData)},
-        {669, sizeof(::pb::CalibrateDataCommand)},
-        {674, sizeof(::pb::ReadTemperatureCommand)},
-        {675, sizeof(::pb::TemperatureMeasurement)},
-        {682, sizeof(::pb::TemperatureDataset)},
-        {684, sizeof(::pb::ReadTemperatureResponse)},
-        {689, sizeof(::pb::GetOverloadStatusCommand)},
-        {690, sizeof(::pb::OverloadStatus_Element)},
-        {699, sizeof(::pb::OverloadStatus)},
-        {706, sizeof(::pb::GetOverloadStatusResponse)},
-        {711, sizeof(::pb::SuccessMessage)},
-        {712, sizeof(::pb::DeviceBusyMessage)},
-        {713, sizeof(::pb::ErrorMessage)},
-        {720, sizeof(::pb::Envelope)},
-        {731, sizeof(::pb::GenericMessage)},
-        {736, sizeof(::pb::BearerAuth)},
-        {741, sizeof(::pb::AuthRequest)},
-        {745, sizeof(::pb::Source)},
-        {752, sizeof(::pb::JitCommand)},
-        {757, sizeof(::pb::Issue)},
-        {768, sizeof(::pb::Diagnosis)},
-        {770, sizeof(::pb::JitResponse)},
-        {777, sizeof(::pb::MessageV1)},
-        {878, sizeof(::pb::File)},
+        {159, sizeof(::pb::FrontPanelIOConfig)},
+        {161, sizeof(::pb::ACLPinSignal)},
+        {168, sizeof(::pb::PortConfig)},
+        {172, sizeof(::pb::BackpanelConfig)},
+        {183, sizeof(::pb::IpLookupTable_Entry)},
+        {190, sizeof(::pb::IpLookupTable)},
+        {192, sizeof(::pb::EntitySpecification)},
+        {197, sizeof(::pb::Item)},
+        {248, sizeof(::pb::EntityId)},
+        {253, sizeof(::pb::DescribeCommand)},
+        {254, sizeof(::pb::ResetCommand)},
+        {267, sizeof(::pb::ExtractCommand)},
+        {280, sizeof(::pb::ConfigCommand)},
+        {289, sizeof(::pb::ACLPlugin)},
+        {298, sizeof(::pb::ACLWire)},
+        {305, sizeof(::pb::ACLPlug)},
+        {312, sizeof(::pb::ACLConfig)},
+        {315, sizeof(::pb::SimConfig)},
+        {326, sizeof(::pb::Module)},
+        {328, sizeof(::pb::DescribeBundle)},
+        {330, sizeof(::pb::Time)},
+        {337, sizeof(::pb::Temperature)},
+        {344, sizeof(::pb::RunConfig)},
+        {359, sizeof(::pb::DaqConfig)},
+        {370, sizeof(::pb::SyncConfig)},
+        {379, sizeof(::pb::CalibrationConfig)},
+        {390, sizeof(::pb::UdpDataStreamingCommand)},
+        {395, sizeof(::pb::UdpDataStreamingRefusedResponse)},
+        {400, sizeof(::pb::StartRunCommand)},
+        {415, sizeof(::pb::StopRunCommand)},
+        {416, sizeof(::pb::StandByCommand)},
+        {423, sizeof(::pb::ManualControlCommand)},
+        {428, sizeof(::pb::PingCommand)},
+        {429, sizeof(::pb::RegisterExternalEntitiesCommand_EntitiesEntry_DoNotUse)},
+        {436, sizeof(::pb::RegisterExternalEntitiesCommand)},
+        {438, sizeof(::pb::SyslogCommand)},
+        {439, sizeof(::pb::SystemStatsCommand)},
+        {440, sizeof(::pb::Version)},
+        {449, sizeof(::pb::CarrierLocationV0)},
+        {456, sizeof(::pb::Entity)},
+        {477, sizeof(::pb::ResetResponse)},
+        {482, sizeof(::pb::ExtractResponse)},
+        {487, sizeof(::pb::ConfigResponse)},
+        {492, sizeof(::pb::StartRunResponse)},
+        {493, sizeof(::pb::RunStateChangeMessage)},
+        {508, sizeof(::pb::IntegerType)},
+        {515, sizeof(::pb::FloatType)},
+        {520, sizeof(::pb::DataType)},
+        {525, sizeof(::pb::DaqData)},
+        {538, sizeof(::pb::Run)},
+        {545, sizeof(::pb::RunDataMessage)},
+        {554, sizeof(::pb::RunDataEndMessage)},
+        {563, sizeof(::pb::PingResponse)},
+        {568, sizeof(::pb::FirmwareBuild_EntriesEntry_DoNotUse)},
+        {575, sizeof(::pb::FirmwareBuild)},
+        {577, sizeof(::pb::FirmwareImage)},
+        {584, sizeof(::pb::GetSystemIdentResponse)},
+        {593, sizeof(::pb::SyslogResponse)},
+        {602, sizeof(::pb::PerformanceCounters)},
+        {613, sizeof(::pb::SystemStatsResponse)},
+        {618, sizeof(::pb::ReadSystemIdentCommand)},
+        {623, sizeof(::pb::ReadSystemIdentResponse)},
+        {624, sizeof(::pb::ResetSystemIdentCommand)},
+        {629, sizeof(::pb::ResetSystemIdentResponse)},
+        {630, sizeof(::pb::WriteSystemIdentCommand)},
+        {635, sizeof(::pb::Vendor)},
+        {646, sizeof(::pb::WriteSystemIdentResponse)},
+        {651, sizeof(::pb::GetSystemIdentCommand)},
+        {652, sizeof(::pb::CalibrationCommand)},
+        {657, sizeof(::pb::CalibrationResponse)},
+        {658, sizeof(::pb::CalibrateInitCommand)},
+        {659, sizeof(::pb::CalibrateFinalizeCommand)},
+        {660, sizeof(::pb::CalibrateOffsetCommand)},
+        {661, sizeof(::pb::CalibrateLaneCommand)},
+        {666, sizeof(::pb::CalibrationData)},
+        {673, sizeof(::pb::CalibrateDataCommand)},
+        {678, sizeof(::pb::ReadTemperatureCommand)},
+        {679, sizeof(::pb::TemperatureMeasurement)},
+        {686, sizeof(::pb::TemperatureDataset)},
+        {688, sizeof(::pb::ReadTemperatureResponse)},
+        {693, sizeof(::pb::GetOverloadStatusCommand)},
+        {694, sizeof(::pb::OverloadStatus_Element)},
+        {703, sizeof(::pb::OverloadStatus)},
+        {710, sizeof(::pb::GetOverloadStatusResponse)},
+        {715, sizeof(::pb::SuccessMessage)},
+        {716, sizeof(::pb::DeviceBusyMessage)},
+        {717, sizeof(::pb::ErrorMessage)},
+        {724, sizeof(::pb::Envelope)},
+        {735, sizeof(::pb::GenericMessage)},
+        {740, sizeof(::pb::BearerAuth)},
+        {745, sizeof(::pb::AuthRequest)},
+        {749, sizeof(::pb::Source)},
+        {756, sizeof(::pb::JitCommand)},
+        {761, sizeof(::pb::Issue)},
+        {772, sizeof(::pb::Diagnosis)},
+        {774, sizeof(::pb::JitResponse)},
+        {781, sizeof(::pb::UpdateCommand)},
+        {788, sizeof(::pb::UpdateResponse)},
+        {794, sizeof(::pb::UpdateBegin)},
+        {801, sizeof(::pb::UpdateWrite)},
+        {808, sizeof(::pb::UpdateCommit)},
+        {809, sizeof(::pb::UpdateAbort)},
+        {810, sizeof(::pb::UpdateAck)},
+        {815, sizeof(::pb::UpdateFailure)},
+        {820, sizeof(::pb::UpdateSuccess)},
+        {821, sizeof(::pb::MessageV1)},
+        {926, sizeof(::pb::File)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_OptionalLane_default_instance_._instance,
@@ -4226,6 +4524,7 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_CmpConfig_default_instance_._instance,
     &::pb::_SignalGeneratorConfig_default_instance_._instance,
     &::pb::_FrontPanelConfig_default_instance_._instance,
+    &::pb::_FrontPanelIOConfig_default_instance_._instance,
     &::pb::_ACLPinSignal_default_instance_._instance,
     &::pb::_PortConfig_default_instance_._instance,
     &::pb::_BackpanelConfig_default_instance_._instance,
@@ -4321,6 +4620,15 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_Issue_default_instance_._instance,
     &::pb::_Diagnosis_default_instance_._instance,
     &::pb::_JitResponse_default_instance_._instance,
+    &::pb::_UpdateCommand_default_instance_._instance,
+    &::pb::_UpdateResponse_default_instance_._instance,
+    &::pb::_UpdateBegin_default_instance_._instance,
+    &::pb::_UpdateWrite_default_instance_._instance,
+    &::pb::_UpdateCommit_default_instance_._instance,
+    &::pb::_UpdateAbort_default_instance_._instance,
+    &::pb::_UpdateAck_default_instance_._instance,
+    &::pb::_UpdateFailure_default_instance_._instance,
+    &::pb::_UpdateSuccess_default_instance_._instance,
     &::pb::_MessageV1_default_instance_._instance,
     &::pb::_File_default_instance_._instance,
 };
@@ -4378,299 +4686,320 @@ const char descriptor_table_protodef_main_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     "leep\030\010 \001(\010\022\023\n\013dac_outputs\030\t \003(\002\"7\n\010WaveF"
     "orm\022\010\n\004SINE\020\000\022\023\n\017SINE_AND_SQUARE\020\001\022\014\n\010TR"
     "IANGLE\020\002\" \n\020FrontPanelConfig\022\014\n\004leds\030\001 \001"
-    "(\r\"+\n\014ACLPinSignal\022\016\n\006signal\030\001 \001(\t\022\013\n\003pi"
-    "n\030\002 \001(\r\"\242\001\n\nPortConfig\022\'\n\006states\030\001 \003(\0162\027"
-    ".pb.PortConfig.AclState\022 \n\006inputs\030\002 \003(\0132"
-    "\020.pb.ACLPinSignal\022!\n\007outputs\030\003 \003(\0132\020.pb."
-    "ACLPinSignal\"&\n\010AclState\022\014\n\010INTERNAL\020\000\022\014"
-    "\n\010EXTERNAL\020\001\"f\n\017BackpanelConfig\022\024\n\014backp"
-    "anel_id\030\001 \001(\r\022\026\n\016backpanel_slot\030\002 \001(\r\022\020\n"
-    "\010is_valid\030\003 \001(\010\022\023\n\013is_isolated\030\004 \001(\010\"\201\001\n"
-    "\rIpLookupTable\022(\n\007entries\030\001 \003(\0132\027.pb.IpL"
-    "ookupTable.Entry\032F\n\005Entry\022\037\n\tentity_id\030\001"
-    " \001(\0132\014.pb.EntityId\022\034\n\007address\030\002 \001(\0132\013.pb"
-    ".Address\"1\n\023EntitySpecification\022\032\n\006entit"
-    "y\030\001 \001(\0132\n.pb.Entity\"\331\007\n\004Item\022\034\n\006entity\030\001"
-    " \001(\0132\014.pb.EntityId\022#\n\nadc_config\030\n \001(\0132\r"
-    ".pb.AdcConfigH\000\022+\n\016cluster_config\030\013 \001(\0132"
-    "\021.pb.ClusterConfigH\000\022#\n\nmul_config\030\014 \001(\013"
-    "2\r.pb.MulConfigH\000\0220\n\021shift_hold_config\030\r"
-    " \001(\0132\023.pb.ShiftHoldConfigH\000\022%\n\013coef_conf"
-    "ig\030\016 \001(\0132\016.pb.CoefConfigH\000\022%\n\013itor_confi"
-    "g\030\017 \001(\0132\016.pb.ItorConfigH\000\022)\n\rselect_conf"
-    "ig\030\020 \001(\0132\020.pb.SelectConfigH\000\022#\n\nsum_conf"
-    "ig\030\021 \001(\0132\r.pb.SumConfigH\000\022)\n\rswitch_conf"
-    "ig\030\022 \001(\0132\020.pb.SwitchConfigH\000\022)\n\rdevice_c"
-    "onfig\030\023 \001(\0132\020.pb.DeviceConfigH\000\022+\n\016limit"
-    "er_config\030\024 \001(\0132\021.pb.LimiterConfigH\000\0222\n\022"
-    "front_panel_config\030\025 \001(\0132\024.pb.FrontPanel"
-    "ConfigH\000\022<\n\027signal_generator_config\030\026 \001("
-    "\0132\031.pb.SignalGeneratorConfigH\000\022%\n\013port_c"
-    "onfig\030\027 \001(\0132\016.pb.PortConfigH\000\022/\n\020backpan"
-    "el_config\030\031 \001(\0132\023.pb.BackpanelConfigH\000\0220"
-    "\n\021bpl_switch_config\030\032 \001(\0132\023.pb.BPLSwitch"
-    "ConfigH\000\022#\n\ncmp_config\030\033 \001(\0132\r.pb.CmpCon"
-    "figH\000\0227\n\024entity_specification\030\034 \001(\0132\027.pb"
-    ".EntitySpecificationH\000\022-\n\017dependency_inf"
-    "o\030\035 \001(\0132\022.pb.DependencyInfoH\000\022,\n\017ip_look"
-    "up_table\030\036 \001(\0132\021.pb.IpLookupTableH\000\022$\n\ns"
-    "im_config\030\350\007 \001(\0132\r.pb.SimConfigH\000B\006\n\004kin"
-    "dJ\004\010\030\020\031\"\030\n\010EntityId\022\014\n\004path\030\001 \001(\t\"\021\n\017Des"
-    "cribeCommand\"\223\001\n\014ResetCommand\022!\n\006entity\030"
-    "\001 \001(\0132\014.pb.EntityIdH\000\210\001\001\022\030\n\020keep_calibra"
-    "tion\030\002 \001(\010\022\026\n\016overload_reset\030\003 \001(\010\022\025\n\rci"
-    "rcuit_reset\030\004 \001(\010\022\014\n\004sync\030\005 \001(\010B\t\n\007_enti"
-    "ty\"\224\001\n\016ExtractCommand\022!\n\006entity\030\001 \001(\0132\014."
-    "pb.EntityIdH\000\210\001\001\022\021\n\trecursive\030\002 \001(\010\022\025\n\rs"
-    "pecification\030\003 \001(\010\022\025\n\rconfiguration\030\004 \001("
-    "\010\022\023\n\013calibration\030\005 \001(\010B\t\n\007_entity\"f\n\rCon"
-    "figCommand\022\032\n\006module\030\001 \001(\0132\n.pb.Module\022\024"
-    "\n\014reset_before\030\002 \001(\010\022\021\n\tsh_kludge\030\003 \001(\010J"
-    "\004\010\004\020\005J\004\010\005\020\006J\004\010\006\020\007\">\n\tACLPlugin\022\016\n\006plugin"
-    "\030\001 \001(\t\022\r\n\005label\030\002 \001(\t\022\022\n\nparameters\030\003 \003("
-    "\002\"C\n\007ACLWire\022\033\n\006source\030\001 \001(\0132\013.pb.ACLPlu"
-    "g\022\033\n\006target\030\002 \001(\0132\013.pb.ACLPlug\"j\n\007ACLPlu"
-    "g\022\037\n\tentity_id\030\001 \001(\0132\014.pb.EntityId\022\036\n\004ki"
-    "nd\030\002 \001(\0162\020.pb.ACLPlug.Kind\"\036\n\004Kind\022\n\n\006De"
-    "vice\020\000\022\n\n\006Plugin\020\001\"G\n\tACLConfig\022\036\n\007plugi"
-    "ns\030\001 \003(\0132\r.pb.ACLPlugin\022\032\n\005wires\030\004 \003(\0132\013"
-    ".pb.ACLWire\"\212\001\n\tSimConfig\022\017\n\002k0\030\001 \001(\rH\000\210"
-    "\001\001\022\023\n\013with_limits\030\002 \001(\010\022\031\n\021only_module_s"
-    "inks\030\003 \001(\010\022&\n\nacl_config\030\004 \001(\0132\r.pb.ACLC"
-    "onfigH\001\210\001\001B\005\n\003_k0B\r\n\013_acl_config\"!\n\006Modu"
-    "le\022\027\n\005items\030\001 \003(\0132\010.pb.Item\".\n\016DescribeB"
-    "undle\022\034\n\010entities\030\001 \003(\0132\n.pb.Module\"1\n\004T"
-    "ime\022\r\n\005value\030\001 \001(\004\022\032\n\006prefix\030\002 \001(\0162\n.pb."
-    "Prefix\"{\n\013Temperature\022\r\n\005value\030\001 \001(\002\022\"\n\004"
-    "unit\030\002 \001(\0162\024.pb.Temperature.Unit\"9\n\004Unit"
-    "\022\010\n\004NONE\020\000\022\013\n\007CELSIUS\020\001\022\016\n\nFAHRENHEIT\020\002\022"
-    "\n\n\006KELVIN\020\003\"\205\002\n\tRunConfig\022\031\n\007ic_time\030\001 \001"
-    "(\0132\010.pb.Time\022\031\n\007op_time\030\002 \001(\0132\010.pb.Time\022"
-    "\035\n\020halt_on_overload\030\003 \001(\010H\000\210\001\001\022\026\n\tstream"
-    "ing\030\004 \001(\010H\001\210\001\001\022\027\n\nrepetitive\030\005 \001(\010H\002\210\001\001\022"
-    "$\n\027write_run_state_changes\030\006 \001(\010H\003\210\001\001B\023\n"
-    "\021_halt_on_overloadB\014\n\n_streamingB\r\n\013_rep"
-    "etitiveB\032\n\030_write_run_state_changes\"`\n\tD"
-    "aqConfig\022\024\n\014num_channels\030\001 \001(\r\022\023\n\013sample"
-    "_rate\030\002 \001(\r\022\021\n\tsample_op\030\003 \001(\010\022\025\n\rsample"
-    "_op_end\030\004 \001(\010\"Z\n\nSyncConfig\022\017\n\007enabled\030\001"
-    " \001(\010\022!\n\006master\030\002 \001(\0132\014.pb.EntityIdH\000\210\001\001\022"
-    "\r\n\005group\030\003 \001(\rB\t\n\007_master\"\344\001\n\021Calibratio"
-    "nConfig\022!\n\006leader\030\001 \001(\0132\014.pb.EntityIdH\000\210"
-    "\001\001\022(\n\004math\030\002 \001(\0162\032.pb.CalibrationConfig."
-    "Kind\022(\n\004gain\030\003 \001(\0162\032.pb.CalibrationConfi"
-    "g.Kind\022*\n\006offset\030\004 \001(\0162\032.pb.CalibrationC"
-    "onfig.Kind\"!\n\004Kind\022\014\n\010Disabled\020\000\022\013\n\007Enab"
-    "led\020\001B\t\n\007_leader\"\'\n\027UdpDataStreamingComm"
-    "and\022\014\n\004port\030\001 \001(\007\"A\n\037UdpDataStreamingRef"
-    "usedResponse\022\023\n\006reason\030\001 \001(\tH\000\210\001\001B\t\n\007_re"
-    "ason\"\305\001\n\017StartRunCommand\022\024\n\003run\030\001 \001(\0132\007."
-    "pb.Run\022!\n\nrun_config\030\002 \001(\0132\r.pb.RunConfi"
-    "g\022!\n\ndaq_config\030\003 \001(\0132\r.pb.DaqConfig\022#\n\013"
-    "sync_config\030\004 \001(\0132\016.pb.SyncConfig\022\026\n\016end"
-    "_repetitive\030\006 \001(\010\022\023\n\013clear_queue\030\007 \001(\010J\004"
-    "\010\005\020\006\"\020\n\016StopRunCommand\"8\n\016StandByCommand"
-    "\022\017\n\007standby\030\001 \001(\010\022\025\n\rhack_pwm_ramp\030\002 \001(\010"
-    "\"q\n\024ManualControlCommand\022*\n\002to\030\001 \001(\0162\036.p"
-    "b.ManualControlCommand.State\"-\n\005State\022\006\n"
-    "\002IC\020\000\022\006\n\002OP\020\001\022\010\n\004HALT\020\002\022\n\n\006MINION\020\003\"\r\n\013P"
-    "ingCommand\"\244\001\n\037RegisterExternalEntitiesC"
-    "ommand\022C\n\010entities\030\001 \003(\01321.pb.RegisterEx"
-    "ternalEntitiesCommand.EntitiesEntry\032<\n\rE"
-    "ntitiesEntry\022\013\n\003key\030\001 \001(\t\022\032\n\005value\030\002 \001(\013"
-    "2\013.pb.Address:\0028\001\"\017\n\rSyslogCommand\"\024\n\022Sy"
-    "stemStatsCommand\"6\n\007Version\022\r\n\005major\030\001 \001"
-    "(\r\022\r\n\005minor\030\002 \001(\r\022\r\n\005patch\030\003 \001(\r\"3\n\021Carr"
-    "ierLocationV0\022\r\n\005stack\030\001 \001(\r\022\017\n\007carrier\030"
-    "\002 \001(\r\"\255\003\n\006Entity\022\n\n\002id\030\001 \001(\t\022 \n\006class_\030\002"
-    " \001(\0162\020.pb.Entity.Class\022\014\n\004type\030\003 \001(\r\022\017\n\007"
-    "variant\030\004 \001(\r\022\034\n\007version\030\005 \001(\0132\013.pb.Vers"
-    "ion\022\013\n\003eui\030\006 \001(\t\022\034\n\010children\030\007 \003(\0132\n.pb."
-    "Entity\022,\n\013location_v0\030d \001(\0132\025.pb.Carrier"
-    "LocationV0H\000\"\322\001\n\005Class\022\013\n\007UNKNOWN\020\000\022\013\n\007C"
-    "ARRIER\020\001\022\013\n\007CLUSTER\020\002\022\013\n\007M_BLOCK\020\003\022\013\n\007U_"
-    "BLOCK\020\004\022\013\n\007C_BLOCK\020\005\022\013\n\007I_BLOCK\020\006\022\014\n\010SH_"
-    "BLOCK\020\007\022\017\n\013FRONT_PANEL\020\010\022\016\n\nCTRL_BLOCK\020\t"
-    "\022\013\n\007T_BLOCK\020\n\022\016\n\nBACK_PANEL\020\013\022\026\n\022BACK_PA"
-    "NEL_T_BLOCK\020\014\022\n\n\006DEVICE\020\036B\n\n\010location\"-\n"
-    "\rResetResponse\022\034\n\006entity\030\001 \001(\0132\014.pb.Enti"
-    "tyId\"-\n\017ExtractResponse\022\032\n\006module\030\001 \001(\0132"
-    "\n.pb.Module\">\n\016ConfigResponse\022!\n\006entity\030"
-    "\001 \001(\0132\014.pb.EntityIdH\000\210\001\001B\t\n\007_entity\"\022\n\020S"
-    "tartRunResponse\"\272\001\n\025RunStateChangeMessag"
-    "e\022\024\n\003run\030\001 \001(\0132\007.pb.Run\022\031\n\003old\030\002 \001(\0162\014.p"
-    "b.RunState\022\032\n\004new_\030\003 \001(\0162\014.pb.RunState\022\026"
-    "\n\004time\030\004 \001(\0132\010.pb.Time\022\016\n\006reason\030\005 \001(\t\022!"
-    "\n\006entity\030\006 \001(\0132\014.pb.EntityIdH\000\210\001\001B\t\n\007_en"
-    "tity\"t\n\013IntegerType\022+\n\007signess\030\001 \001(\0162\032.p"
-    "b.IntegerType.Signedness\022\020\n\010bitwidth\030\002 \001"
-    "(\r\"&\n\nSignedness\022\n\n\006Signed\020\000\022\014\n\010Unsigned"
-    "\020\001\"\035\n\tFloatType\022\020\n\010bitwidth\030\002 \001(\r\"W\n\010Dat"
-    "aType\022\037\n\006float_\030\001 \001(\0132\r.pb.FloatTypeH\000\022\""
-    "\n\007integer\030\002 \001(\0132\017.pb.IntegerTypeH\000B\006\n\004ki"
-    "nd\"\216\001\n\007DaqData\022\014\n\004data\030\001 \001(\014\022\032\n\004type\030\004 \001"
-    "(\0132\014.pb.DataType\022 \n\010channels\030\005 \003(\0132\016.pb."
-    "AdcChannel\022\024\n\014sample_count\030\006 \001(\r\022\025\n\rchan"
-    "nel_count\030\007 \001(\rJ\004\010\002\020\003J\004\010\003\020\004\" \n\003Run\022\n\n\002id"
-    "\030\001 \001(\t\022\r\n\005chunk\030\002 \001(\r\"_\n\016RunDataMessage\022"
-    "\024\n\003run\030\001 \001(\0132\007.pb.Run\022\034\n\006entity\030\002 \001(\0132\014."
-    "pb.EntityId\022\031\n\004data\030\003 \001(\0132\013.pb.DaqData\"b"
-    "\n\021RunDataEndMessage\022\024\n\003run\030\001 \001(\0132\007.pb.Ru"
-    "n\022\034\n\006entity\030\002 \001(\0132\014.pb.EntityId\022\031\n\004data\030"
-    "\003 \001(\0132\013.pb.DaqData\"\036\n\014PingResponse\022\016\n\006mi"
-    "cros\030\001 \001(\004\"p\n\rFirmwareBuild\022/\n\007entries\030\001"
-    " \003(\0132\036.pb.FirmwareBuild.EntriesEntry\032.\n\014"
-    "EntriesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t"
-    ":\0028\001\"0\n\rFirmwareImage\022\014\n\004size\030\001 \001(\004\022\021\n\ts"
-    "ha256sum\030\002 \001(\t\"o\n\026GetSystemIdentResponse"
-    "\022\013\n\003mac\030\001 \001(\t\022#\n\010fw_build\030\002 \001(\0132\021.pb.Fir"
-    "mwareBuild\022#\n\010fw_image\030\003 \001(\0132\021.pb.Firmwa"
-    "reImage\"F\n\016SyslogResponse\022\021\n\tis_active\030\001"
-    " \001(\010\022\020\n\010max_size\030\002 \001(\004\022\017\n\007entries\030\003 \003(\t\""
-    "\203\001\n\023PerformanceCounters\022\030\n\020total_ic_time"
-    "_us\030\001 \001(\004\022\030\n\020total_op_time_us\030\002 \001(\004\022\032\n\022t"
-    "otal_halt_time_us\030\003 \001(\004\022\034\n\024total_number_"
-    "of_runs\030\004 \001(\004\"E\n\023SystemStatsResponse\022.\n\r"
-    "perf_counters\030\001 \001(\0132\027.pb.PerformanceCoun"
-    "ters\"2\n\026ReadSystemIdentCommand\022\030\n\020read_f"
-    "rom_eeprom\030\001 \001(\010\"\031\n\027ReadSystemIdentRespo"
-    "nse\"4\n\027ResetSystemIdentCommand\022\031\n\021write_"
-    "to_hardware\030\001 \001(\010\"\032\n\030ResetSystemIdentRes"
-    "ponse\"5\n\027WriteSystemIdentCommand\022\032\n\006vend"
-    "or\030\001 \001(\0132\n.pb.Vendor\"s\n\006Vendor\022\025\n\rserial"
-    "_number\030\001 \001(\007\022\023\n\013serial_uuid\030\002 \001(\t\022\036\n\026de"
-    "fault_admin_password\030\003 \001(\t\022\035\n\025default_us"
-    "er_password\030\004 \001(\t\")\n\030WriteSystemIdentRes"
-    "ponse\022\r\n\005valid\030\001 \001(\010\"\027\n\025GetSystemIdentCo"
-    "mmand\";\n\022CalibrationCommand\022%\n\006config\030\001 "
-    "\001(\0132\025.pb.CalibrationConfig\"\025\n\023Calibratio"
-    "nResponse\"\026\n\024CalibrateInitCommand\"\032\n\030Cal"
-    "ibrateFinalizeCommand\"\030\n\026CalibrateOffset"
-    "Command\"$\n\024CalibrateLaneCommand\022\014\n\004lane\030"
-    "\001 \001(\r\"8\n\017CalibrationData\022\014\n\004lane\030\001 \001(\r\022\027"
-    "\n\017gain_correction\030\002 \001(\002\"9\n\024CalibrateData"
-    "Command\022!\n\004data\030\001 \001(\0132\023.pb.CalibrationDa"
-    "ta\"\030\n\026ReadTemperatureCommand\"\\\n\026Temperat"
-    "ureMeasurement\022\034\n\006entity\030\001 \001(\0132\014.pb.Enti"
-    "tyId\022$\n\013temperature\030\002 \001(\0132\017.pb.Temperatu"
-    "re\"F\n\022TemperatureDataset\0220\n\014measurements"
-    "\030\001 \003(\0132\032.pb.TemperatureMeasurement\"B\n\027Re"
-    "adTemperatureResponse\022\'\n\007dataset\030\001 \001(\0132\026"
-    ".pb.TemperatureDataset\"\032\n\030GetOverloadSta"
-    "tusCommand\"\237\001\n\016OverloadStatus\022\027\n\017global_"
-    "overload\030\001 \001(\010\022,\n\010elements\030\002 \003(\0132\032.pb.Ov"
-    "erloadStatus.Element\032F\n\007Element\022\034\n\006entit"
-    "y\030\001 \001(\0132\014.pb.EntityId\022\013\n\003idx\030\002 \001(\r\022\020\n\010ov"
-    "erload\030\003 \001(\010\"\?\n\031GetOverloadStatusRespons"
-    "e\022\"\n\006status\030\001 \001(\0132\022.pb.OverloadStatus\"\020\n"
-    "\016SuccessMessage\"\023\n\021DeviceBusyMessage\"@\n\014"
-    "ErrorMessage\022\033\n\004code\030\001 \001(\0162\r.pb.ErrorCod"
-    "e\022\023\n\013description\030\002 \001(\t\"|\n\010Envelope\022\034\n\007ve"
-    "rsion\030\001 \001(\0132\013.pb.Version\022%\n\007generic\030d \001("
-    "\0132\022.pb.GenericMessageH\000\022#\n\nmessage_v1\030e "
-    "\001(\0132\r.pb.MessageV1H\000B\006\n\004kind\"l\n\016GenericM"
-    "essage\022\'\n\014ping_command\030d \001(\0132\017.pb.PingCo"
-    "mmandH\000\022)\n\rping_response\030e \001(\0132\020.pb.Ping"
-    "ResponseH\000B\006\n\004kind\"\033\n\nBearerAuth\022\r\n\005toke"
-    "n\030\001 \001(\t\"7\n\013AuthRequest\022 \n\006bearer\030\001 \001(\0132\016"
-    ".pb.BearerAuthH\000B\006\n\004kind\"P\n\006Source\022\035\n\004ki"
-    "nd\030\001 \001(\0162\017.pb.Source.Kind\022\014\n\004text\030\002 \001(\t\""
-    "\031\n\004Kind\022\010\n\004MLIR\020\000\022\007\n\003ANA\020\001\"(\n\nJitCommand"
-    "\022\032\n\006source\030\001 \001(\0132\n.pb.Source\"z\n\005Issue\022\034\n"
-    "\004kind\030\001 \001(\0162\016.pb.Issue.Kind\022\014\n\004lane\030\002 \001("
-    "\r\022\013\n\003col\030\003 \001(\r\022\016\n\006reason\030\004 \001(\t\"(\n\004Kind\022\010"
-    "\n\004INFO\020\000\022\013\n\007WARNING\020\001\022\t\n\005ERROR\020\002\"&\n\tDiag"
-    "nosis\022\031\n\006issues\030\001 \003(\0132\t.pb.Issue\";\n\013JitR"
-    "esponse\022\017\n\007success\030\001 \001(\010\022\033\n\004diag\030\002 \001(\0132\r"
-    ".pb.Diagnosis\"\332\025\n\tMessageV1\022\017\n\002id\030\001 \001(\tH"
-    "\001\210\001\001\022-\n\017success_message\030d \001(\0132\022.pb.Succe"
-    "ssMessageH\000\022)\n\rerror_message\030e \001(\0132\020.pb."
-    "ErrorMessageH\000\022/\n\020stand_by_command\030\310\001 \001("
-    "\0132\022.pb.StandByCommandH\000\022*\n\rreset_command"
-    "\030\312\001 \001(\0132\020.pb.ResetCommandH\000\022.\n\017extract_c"
-    "ommand\030\313\001 \001(\0132\022.pb.ExtractCommandH\000\022,\n\016c"
-    "onfig_command\030\314\001 \001(\0132\021.pb.ConfigCommandH"
-    "\000\0221\n\021start_run_command\030\315\001 \001(\0132\023.pb.Start"
-    "RunCommandH\000\022/\n\020stop_run_command\030\316\001 \001(\0132"
-    "\022.pb.StopRunCommandH\000\022;\n\026manual_control_"
-    "command\030\317\001 \001(\0132\030.pb.ManualControlCommand"
-    "H\000\022R\n\"register_external_entities_command"
-    "\030\320\001 \001(\0132#.pb.RegisterExternalEntitiesCom"
-    "mandH\000\022>\n\030get_system_ident_command\030\321\001 \001("
-    "\0132\031.pb.GetSystemIdentCommandH\000\022,\n\016syslog"
-    "_command\030\322\001 \001(\0132\021.pb.SyslogCommandH\000\0227\n\024"
-    "system_stats_command\030\323\001 \001(\0132\026.pb.SystemS"
-    "tatsCommandH\000\022@\n\031read_system_ident_comma"
-    "nd\030\324\001 \001(\0132\032.pb.ReadSystemIdentCommandH\000\022"
-    "B\n\032reset_system_ident_command\030\325\001 \001(\0132\033.p"
-    "b.ResetSystemIdentCommandH\000\022B\n\032write_sys"
-    "tem_ident_command\030\326\001 \001(\0132\033.pb.WriteSyste"
-    "mIdentCommandH\000\022B\n\032udp_data_streaming_co"
-    "mmand\030\327\001 \001(\0132\033.pb.UdpDataStreamingComman"
-    "dH\000\022\?\n\030read_temperature_command\030\330\001 \001(\0132\032"
-    ".pb.ReadTemperatureCommandH\000\022D\n\033get_over"
-    "load_status_command\030\331\001 \001(\0132\034.pb.GetOverl"
-    "oadStatusCommandH\000\0226\n\023calibration_comman"
-    "d\030\332\001 \001(\0132\026.pb.CalibrationCommandH\000\0220\n\020ex"
-    "tract_response\030\255\002 \001(\0132\023.pb.ExtractRespon"
-    "seH\000\022.\n\017config_response\030\256\002 \001(\0132\022.pb.Conf"
-    "igResponseH\000\022,\n\016reset_response\030\257\002 \001(\0132\021."
-    "pb.ResetResponseH\000\0223\n\022start_run_response"
-    "\030\260\002 \001(\0132\024.pb.StartRunResponseH\000\022>\n\030run_s"
-    "tate_change_message\030\261\002 \001(\0132\031.pb.RunState"
-    "ChangeMessageH\000\022/\n\020run_data_message\030\262\002 \001"
-    "(\0132\022.pb.RunDataMessageH\000\0226\n\024run_data_end"
-    "_message\030\263\002 \001(\0132\025.pb.RunDataEndMessageH\000"
-    "\022@\n\031get_system_ident_response\030\264\002 \001(\0132\032.p"
-    "b.GetSystemIdentResponseH\000\022.\n\017syslog_res"
-    "ponse\030\265\002 \001(\0132\022.pb.SyslogResponseH\000\0229\n\025sy"
-    "stem_stats_response\030\266\002 \001(\0132\027.pb.SystemSt"
-    "atsResponseH\000\022B\n\032read_system_ident_respo"
-    "nse\030\267\002 \001(\0132\033.pb.ReadSystemIdentResponseH"
-    "\000\022D\n\033reset_system_ident_response\030\270\002 \001(\0132"
-    "\034.pb.ResetSystemIdentResponseH\000\022D\n\033write"
-    "_system_ident_response\030\271\002 \001(\0132\034.pb.Write"
-    "SystemIdentResponseH\000\022A\n\031read_temperatur"
-    "e_response\030\272\002 \001(\0132\033.pb.ReadTemperatureRe"
-    "sponseH\000\022F\n\034get_overload_status_response"
-    "\030\273\002 \001(\0132\035.pb.GetOverloadStatusResponseH\000"
-    "\022S\n#udp_data_streaming_refused_response\030"
-    "\274\002 \001(\0132#.pb.UdpDataStreamingRefusedRespo"
-    "nseH\000\0228\n\024calibration_response\030\275\002 \001(\0132\027.p"
-    "b.CalibrationResponseH\000\022;\n\026calibrate_ini"
-    "t_command\030\220\003 \001(\0132\030.pb.CalibrateInitComma"
-    "ndH\000\022;\n\026calibrate_lane_command\030\221\003 \001(\0132\030."
-    "pb.CalibrateLaneCommandH\000\022\?\n\030calibrate_o"
-    "ffset_command\030\222\003 \001(\0132\032.pb.CalibrateOffse"
-    "tCommandH\000\022C\n\032calibrate_finalize_command"
-    "\030\223\003 \001(\0132\034.pb.CalibrateFinalizeCommandH\000\022"
-    ";\n\026calibrate_data_command\030\224\003 \001(\0132\030.pb.Ca"
-    "librateDataCommandH\000\022(\n\014auth_request\030\365\003 "
-    "\001(\0132\017.pb.AuthRequestH\000\022/\n\rbusy_response\030"
-    "\366\003 \001(\0132\025.pb.DeviceBusyMessageH\000\022(\n\014ping_"
-    "command\030\367\003 \001(\0132\017.pb.PingCommandH\000\022&\n\013jit"
-    "_command\030\370\003 \001(\0132\016.pb.JitCommandH\000\022(\n\014jit"
-    "_response\030\371\003 \001(\0132\017.pb.JitResponseH\000B\006\n\004k"
-    "indB\005\n\003_idJ\006\010\311\001\020\312\001J\006\010\254\002\020\255\002J\006\010\364\003\020\365\003\"V\n\004Fi"
-    "le\022\034\n\007version\030\001 \001(\0132\013.pb.Version\022\037\n\006modu"
-    "le\030\002 \001(\0132\n.pb.ModuleH\000\210\001\001B\t\n\007_moduleJ\004\010\003"
-    "\020\004*2\n\006Prefix\022\010\n\004NONE\020\000\022\t\n\005MILLI\020\001\022\t\n\005MIC"
-    "RO\020\002\022\010\n\004NANO\020\003*l\n\010RunState\022\007\n\003NEW\020\000\022\t\n\005E"
-    "RROR\020\001\022\010\n\004DONE\020\002\022\n\n\006QUEUED\020\003\022\014\n\010TAKE_OFF"
-    "\020\004\022\006\n\002IC\020\005\022\006\n\002OP\020\006\022\n\n\006OP_END\020\007\022\014\n\010TMP_HA"
-    "LT\020\010*\025\n\tErrorCode\022\010\n\004None\020\000b\006proto3"
+    "(\r\"\243\001\n\022FrontPanelIOConfig\0229\n\010io_modes\030\001 "
+    "\003(\0162\'.pb.FrontPanelIOConfig.FrontPanelIO"
+    "Mode\"R\n\020FrontPanelIOMode\022\016\n\nANALOG_OUT\020\000"
+    "\022\r\n\tANALOG_IN\020\001\022\017\n\013DIGITAL_OUT\020\002\022\016\n\nDIGI"
+    "TAL_IN\020\003\"+\n\014ACLPinSignal\022\016\n\006signal\030\001 \001(\t"
+    "\022\013\n\003pin\030\002 \001(\r\"\242\001\n\nPortConfig\022\'\n\006states\030\001"
+    " \003(\0162\027.pb.PortConfig.AclState\022 \n\006inputs\030"
+    "\002 \003(\0132\020.pb.ACLPinSignal\022!\n\007outputs\030\003 \003(\013"
+    "2\020.pb.ACLPinSignal\"&\n\010AclState\022\014\n\010INTERN"
+    "AL\020\000\022\014\n\010EXTERNAL\020\001\"f\n\017BackpanelConfig\022\024\n"
+    "\014backpanel_id\030\001 \001(\r\022\026\n\016backpanel_slot\030\002 "
+    "\001(\r\022\020\n\010is_valid\030\003 \001(\010\022\023\n\013is_isolated\030\004 \001"
+    "(\010\"\201\001\n\rIpLookupTable\022(\n\007entries\030\001 \003(\0132\027."
+    "pb.IpLookupTable.Entry\032F\n\005Entry\022\037\n\tentit"
+    "y_id\030\001 \001(\0132\014.pb.EntityId\022\034\n\007address\030\002 \001("
+    "\0132\013.pb.Address\"1\n\023EntitySpecification\022\032\n"
+    "\006entity\030\001 \001(\0132\n.pb.Entity\"\222\010\n\004Item\022\034\n\006en"
+    "tity\030\001 \001(\0132\014.pb.EntityId\022#\n\nadc_config\030\n"
+    " \001(\0132\r.pb.AdcConfigH\000\022+\n\016cluster_config\030"
+    "\013 \001(\0132\021.pb.ClusterConfigH\000\022#\n\nmul_config"
+    "\030\014 \001(\0132\r.pb.MulConfigH\000\0220\n\021shift_hold_co"
+    "nfig\030\r \001(\0132\023.pb.ShiftHoldConfigH\000\022%\n\013coe"
+    "f_config\030\016 \001(\0132\016.pb.CoefConfigH\000\022%\n\013itor"
+    "_config\030\017 \001(\0132\016.pb.ItorConfigH\000\022)\n\rselec"
+    "t_config\030\020 \001(\0132\020.pb.SelectConfigH\000\022#\n\nsu"
+    "m_config\030\021 \001(\0132\r.pb.SumConfigH\000\022)\n\rswitc"
+    "h_config\030\022 \001(\0132\020.pb.SwitchConfigH\000\022)\n\rde"
+    "vice_config\030\023 \001(\0132\020.pb.DeviceConfigH\000\022+\n"
+    "\016limiter_config\030\024 \001(\0132\021.pb.LimiterConfig"
+    "H\000\0222\n\022front_panel_config\030\025 \001(\0132\024.pb.Fron"
+    "tPanelConfigH\000\022<\n\027signal_generator_confi"
+    "g\030\026 \001(\0132\031.pb.SignalGeneratorConfigH\000\022%\n\013"
+    "port_config\030\027 \001(\0132\016.pb.PortConfigH\000\022/\n\020b"
+    "ackpanel_config\030\031 \001(\0132\023.pb.BackpanelConf"
+    "igH\000\0220\n\021bpl_switch_config\030\032 \001(\0132\023.pb.BPL"
+    "SwitchConfigH\000\022#\n\ncmp_config\030\033 \001(\0132\r.pb."
+    "CmpConfigH\000\0227\n\024entity_specification\030\034 \001("
+    "\0132\027.pb.EntitySpecificationH\000\022-\n\017dependen"
+    "cy_info\030\035 \001(\0132\022.pb.DependencyInfoH\000\022,\n\017i"
+    "p_lookup_table\030\036 \001(\0132\021.pb.IpLookupTableH"
+    "\000\0227\n\025front_panel_io_config\030\037 \001(\0132\026.pb.Fr"
+    "ontPanelIOConfigH\000\022$\n\nsim_config\030\350\007 \001(\0132"
+    "\r.pb.SimConfigH\000B\006\n\004kindJ\004\010\030\020\031\"\030\n\010Entity"
+    "Id\022\014\n\004path\030\001 \001(\t\"\021\n\017DescribeCommand\"\223\001\n\014"
+    "ResetCommand\022!\n\006entity\030\001 \001(\0132\014.pb.Entity"
+    "IdH\000\210\001\001\022\030\n\020keep_calibration\030\002 \001(\010\022\026\n\016ove"
+    "rload_reset\030\003 \001(\010\022\025\n\rcircuit_reset\030\004 \001(\010"
+    "\022\014\n\004sync\030\005 \001(\010B\t\n\007_entity\"\224\001\n\016ExtractCom"
+    "mand\022!\n\006entity\030\001 \001(\0132\014.pb.EntityIdH\000\210\001\001\022"
+    "\021\n\trecursive\030\002 \001(\010\022\025\n\rspecification\030\003 \001("
+    "\010\022\025\n\rconfiguration\030\004 \001(\010\022\023\n\013calibration\030"
+    "\005 \001(\010B\t\n\007_entity\"f\n\rConfigCommand\022\032\n\006mod"
+    "ule\030\001 \001(\0132\n.pb.Module\022\024\n\014reset_before\030\002 "
+    "\001(\010\022\021\n\tsh_kludge\030\003 \001(\010J\004\010\004\020\005J\004\010\005\020\006J\004\010\006\020\007"
+    "\">\n\tACLPlugin\022\016\n\006plugin\030\001 \001(\t\022\r\n\005label\030\002"
+    " \001(\t\022\022\n\nparameters\030\003 \003(\002\"C\n\007ACLWire\022\033\n\006s"
+    "ource\030\001 \001(\0132\013.pb.ACLPlug\022\033\n\006target\030\002 \001(\013"
+    "2\013.pb.ACLPlug\"j\n\007ACLPlug\022\037\n\tentity_id\030\001 "
+    "\001(\0132\014.pb.EntityId\022\036\n\004kind\030\002 \001(\0162\020.pb.ACL"
+    "Plug.Kind\"\036\n\004Kind\022\n\n\006Device\020\000\022\n\n\006Plugin\020"
+    "\001\"G\n\tACLConfig\022\036\n\007plugins\030\001 \003(\0132\r.pb.ACL"
+    "Plugin\022\032\n\005wires\030\004 \003(\0132\013.pb.ACLWire\"\212\001\n\tS"
+    "imConfig\022\017\n\002k0\030\001 \001(\rH\000\210\001\001\022\023\n\013with_limits"
+    "\030\002 \001(\010\022\031\n\021only_module_sinks\030\003 \001(\010\022&\n\nacl"
+    "_config\030\004 \001(\0132\r.pb.ACLConfigH\001\210\001\001B\005\n\003_k0"
+    "B\r\n\013_acl_config\"!\n\006Module\022\027\n\005items\030\001 \003(\013"
+    "2\010.pb.Item\".\n\016DescribeBundle\022\034\n\010entities"
+    "\030\001 \003(\0132\n.pb.Module\"1\n\004Time\022\r\n\005value\030\001 \001("
+    "\004\022\032\n\006prefix\030\002 \001(\0162\n.pb.Prefix\"{\n\013Tempera"
+    "ture\022\r\n\005value\030\001 \001(\002\022\"\n\004unit\030\002 \001(\0162\024.pb.T"
+    "emperature.Unit\"9\n\004Unit\022\010\n\004NONE\020\000\022\013\n\007CEL"
+    "SIUS\020\001\022\016\n\nFAHRENHEIT\020\002\022\n\n\006KELVIN\020\003\"\205\002\n\tR"
+    "unConfig\022\031\n\007ic_time\030\001 \001(\0132\010.pb.Time\022\031\n\007o"
+    "p_time\030\002 \001(\0132\010.pb.Time\022\035\n\020halt_on_overlo"
+    "ad\030\003 \001(\010H\000\210\001\001\022\026\n\tstreaming\030\004 \001(\010H\001\210\001\001\022\027\n"
+    "\nrepetitive\030\005 \001(\010H\002\210\001\001\022$\n\027write_run_stat"
+    "e_changes\030\006 \001(\010H\003\210\001\001B\023\n\021_halt_on_overloa"
+    "dB\014\n\n_streamingB\r\n\013_repetitiveB\032\n\030_write"
+    "_run_state_changes\"`\n\tDaqConfig\022\024\n\014num_c"
+    "hannels\030\001 \001(\r\022\023\n\013sample_rate\030\002 \001(\r\022\021\n\tsa"
+    "mple_op\030\003 \001(\010\022\025\n\rsample_op_end\030\004 \001(\010\"Z\n\n"
+    "SyncConfig\022\017\n\007enabled\030\001 \001(\010\022!\n\006master\030\002 "
+    "\001(\0132\014.pb.EntityIdH\000\210\001\001\022\r\n\005group\030\003 \001(\rB\t\n"
+    "\007_master\"\344\001\n\021CalibrationConfig\022!\n\006leader"
+    "\030\001 \001(\0132\014.pb.EntityIdH\000\210\001\001\022(\n\004math\030\002 \001(\0162"
+    "\032.pb.CalibrationConfig.Kind\022(\n\004gain\030\003 \001("
+    "\0162\032.pb.CalibrationConfig.Kind\022*\n\006offset\030"
+    "\004 \001(\0162\032.pb.CalibrationConfig.Kind\"!\n\004Kin"
+    "d\022\014\n\010Disabled\020\000\022\013\n\007Enabled\020\001B\t\n\007_leader\""
+    "\'\n\027UdpDataStreamingCommand\022\014\n\004port\030\001 \001(\007"
+    "\"A\n\037UdpDataStreamingRefusedResponse\022\023\n\006r"
+    "eason\030\001 \001(\tH\000\210\001\001B\t\n\007_reason\"\305\001\n\017StartRun"
+    "Command\022\024\n\003run\030\001 \001(\0132\007.pb.Run\022!\n\nrun_con"
+    "fig\030\002 \001(\0132\r.pb.RunConfig\022!\n\ndaq_config\030\003"
+    " \001(\0132\r.pb.DaqConfig\022#\n\013sync_config\030\004 \001(\013"
+    "2\016.pb.SyncConfig\022\026\n\016end_repetitive\030\006 \001(\010"
+    "\022\023\n\013clear_queue\030\007 \001(\010J\004\010\005\020\006\"\020\n\016StopRunCo"
+    "mmand\"8\n\016StandByCommand\022\017\n\007standby\030\001 \001(\010"
+    "\022\025\n\rhack_pwm_ramp\030\002 \001(\010\"q\n\024ManualControl"
+    "Command\022*\n\002to\030\001 \001(\0162\036.pb.ManualControlCo"
+    "mmand.State\"-\n\005State\022\006\n\002IC\020\000\022\006\n\002OP\020\001\022\010\n\004"
+    "HALT\020\002\022\n\n\006MINION\020\003\"\r\n\013PingCommand\"\244\001\n\037Re"
+    "gisterExternalEntitiesCommand\022C\n\010entitie"
+    "s\030\001 \003(\01321.pb.RegisterExternalEntitiesCom"
+    "mand.EntitiesEntry\032<\n\rEntitiesEntry\022\013\n\003k"
+    "ey\030\001 \001(\t\022\032\n\005value\030\002 \001(\0132\013.pb.Address:\0028\001"
+    "\"\017\n\rSyslogCommand\"\024\n\022SystemStatsCommand\""
+    "6\n\007Version\022\r\n\005major\030\001 \001(\r\022\r\n\005minor\030\002 \001(\r"
+    "\022\r\n\005patch\030\003 \001(\r\"3\n\021CarrierLocationV0\022\r\n\005"
+    "stack\030\001 \001(\r\022\017\n\007carrier\030\002 \001(\r\"\255\003\n\006Entity\022"
+    "\n\n\002id\030\001 \001(\t\022 \n\006class_\030\002 \001(\0162\020.pb.Entity."
+    "Class\022\014\n\004type\030\003 \001(\r\022\017\n\007variant\030\004 \001(\r\022\034\n\007"
+    "version\030\005 \001(\0132\013.pb.Version\022\013\n\003eui\030\006 \001(\t\022"
+    "\034\n\010children\030\007 \003(\0132\n.pb.Entity\022,\n\013locatio"
+    "n_v0\030d \001(\0132\025.pb.CarrierLocationV0H\000\"\322\001\n\005"
+    "Class\022\013\n\007UNKNOWN\020\000\022\013\n\007CARRIER\020\001\022\013\n\007CLUST"
+    "ER\020\002\022\013\n\007M_BLOCK\020\003\022\013\n\007U_BLOCK\020\004\022\013\n\007C_BLOC"
+    "K\020\005\022\013\n\007I_BLOCK\020\006\022\014\n\010SH_BLOCK\020\007\022\017\n\013FRONT_"
+    "PANEL\020\010\022\016\n\nCTRL_BLOCK\020\t\022\013\n\007T_BLOCK\020\n\022\016\n\n"
+    "BACK_PANEL\020\013\022\026\n\022BACK_PANEL_T_BLOCK\020\014\022\n\n\006"
+    "DEVICE\020\036B\n\n\010location\"-\n\rResetResponse\022\034\n"
+    "\006entity\030\001 \001(\0132\014.pb.EntityId\"-\n\017ExtractRe"
+    "sponse\022\032\n\006module\030\001 \001(\0132\n.pb.Module\">\n\016Co"
+    "nfigResponse\022!\n\006entity\030\001 \001(\0132\014.pb.Entity"
+    "IdH\000\210\001\001B\t\n\007_entity\"\022\n\020StartRunResponse\"\272"
+    "\001\n\025RunStateChangeMessage\022\024\n\003run\030\001 \001(\0132\007."
+    "pb.Run\022\031\n\003old\030\002 \001(\0162\014.pb.RunState\022\032\n\004new"
+    "_\030\003 \001(\0162\014.pb.RunState\022\026\n\004time\030\004 \001(\0132\010.pb"
+    ".Time\022\016\n\006reason\030\005 \001(\t\022!\n\006entity\030\006 \001(\0132\014."
+    "pb.EntityIdH\000\210\001\001B\t\n\007_entity\"t\n\013IntegerTy"
+    "pe\022+\n\007signess\030\001 \001(\0162\032.pb.IntegerType.Sig"
+    "nedness\022\020\n\010bitwidth\030\002 \001(\r\"&\n\nSignedness\022"
+    "\n\n\006Signed\020\000\022\014\n\010Unsigned\020\001\"\035\n\tFloatType\022\020"
+    "\n\010bitwidth\030\002 \001(\r\"W\n\010DataType\022\037\n\006float_\030\001"
+    " \001(\0132\r.pb.FloatTypeH\000\022\"\n\007integer\030\002 \001(\0132\017"
+    ".pb.IntegerTypeH\000B\006\n\004kind\"\217\001\n\007DaqData\022\014\n"
+    "\004data\030\001 \001(\014\022\032\n\004type\030\004 \001(\0132\014.pb.DataType\022"
+    " \n\010channels\030\005 \003(\0132\016.pb.AdcChannel\022\024\n\014sam"
+    "ple_count\030\006 \001(\r\022\026\n\016channel_stride\030\007 \001(\rJ"
+    "\004\010\002\020\003J\004\010\003\020\004\" \n\003Run\022\n\n\002id\030\001 \001(\t\022\r\n\005chunk\030"
+    "\002 \001(\r\"_\n\016RunDataMessage\022\024\n\003run\030\001 \001(\0132\007.p"
+    "b.Run\022\034\n\006entity\030\002 \001(\0132\014.pb.EntityId\022\031\n\004d"
+    "ata\030\003 \001(\0132\013.pb.DaqData\"b\n\021RunDataEndMess"
+    "age\022\024\n\003run\030\001 \001(\0132\007.pb.Run\022\034\n\006entity\030\002 \001("
+    "\0132\014.pb.EntityId\022\031\n\004data\030\003 \001(\0132\013.pb.DaqDa"
+    "ta\"\036\n\014PingResponse\022\016\n\006micros\030\001 \001(\004\"p\n\rFi"
+    "rmwareBuild\022/\n\007entries\030\001 \003(\0132\036.pb.Firmwa"
+    "reBuild.EntriesEntry\032.\n\014EntriesEntry\022\013\n\003"
+    "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"0\n\rFirmware"
+    "Image\022\014\n\004size\030\001 \001(\004\022\021\n\tsha256sum\030\002 \001(\t\"o"
+    "\n\026GetSystemIdentResponse\022\013\n\003mac\030\001 \001(\t\022#\n"
+    "\010fw_build\030\002 \001(\0132\021.pb.FirmwareBuild\022#\n\010fw"
+    "_image\030\003 \001(\0132\021.pb.FirmwareImage\"F\n\016Syslo"
+    "gResponse\022\021\n\tis_active\030\001 \001(\010\022\020\n\010max_size"
+    "\030\002 \001(\004\022\017\n\007entries\030\003 \003(\t\"\203\001\n\023PerformanceC"
+    "ounters\022\030\n\020total_ic_time_us\030\001 \001(\004\022\030\n\020tot"
+    "al_op_time_us\030\002 \001(\004\022\032\n\022total_halt_time_u"
+    "s\030\003 \001(\004\022\034\n\024total_number_of_runs\030\004 \001(\004\"E\n"
+    "\023SystemStatsResponse\022.\n\rperf_counters\030\001 "
+    "\001(\0132\027.pb.PerformanceCounters\"2\n\026ReadSyst"
+    "emIdentCommand\022\030\n\020read_from_eeprom\030\001 \001(\010"
+    "\"\031\n\027ReadSystemIdentResponse\"4\n\027ResetSyst"
+    "emIdentCommand\022\031\n\021write_to_hardware\030\001 \001("
+    "\010\"\032\n\030ResetSystemIdentResponse\"5\n\027WriteSy"
+    "stemIdentCommand\022\032\n\006vendor\030\001 \001(\0132\n.pb.Ve"
+    "ndor\"s\n\006Vendor\022\025\n\rserial_number\030\001 \001(\007\022\023\n"
+    "\013serial_uuid\030\002 \001(\t\022\036\n\026default_admin_pass"
+    "word\030\003 \001(\t\022\035\n\025default_user_password\030\004 \001("
+    "\t\")\n\030WriteSystemIdentResponse\022\r\n\005valid\030\001"
+    " \001(\010\"\027\n\025GetSystemIdentCommand\";\n\022Calibra"
+    "tionCommand\022%\n\006config\030\001 \001(\0132\025.pb.Calibra"
+    "tionConfig\"\025\n\023CalibrationResponse\"\026\n\024Cal"
+    "ibrateInitCommand\"\032\n\030CalibrateFinalizeCo"
+    "mmand\"\030\n\026CalibrateOffsetCommand\"$\n\024Calib"
+    "rateLaneCommand\022\014\n\004lane\030\001 \001(\r\"8\n\017Calibra"
+    "tionData\022\014\n\004lane\030\001 \001(\r\022\027\n\017gain_correctio"
+    "n\030\002 \001(\002\"9\n\024CalibrateDataCommand\022!\n\004data\030"
+    "\001 \001(\0132\023.pb.CalibrationData\"\030\n\026ReadTemper"
+    "atureCommand\"\\\n\026TemperatureMeasurement\022\034"
+    "\n\006entity\030\001 \001(\0132\014.pb.EntityId\022$\n\013temperat"
+    "ure\030\002 \001(\0132\017.pb.Temperature\"F\n\022Temperatur"
+    "eDataset\0220\n\014measurements\030\001 \003(\0132\032.pb.Temp"
+    "eratureMeasurement\"B\n\027ReadTemperatureRes"
+    "ponse\022\'\n\007dataset\030\001 \001(\0132\026.pb.TemperatureD"
+    "ataset\"\032\n\030GetOverloadStatusCommand\"\237\001\n\016O"
+    "verloadStatus\022\027\n\017global_overload\030\001 \001(\010\022,"
+    "\n\010elements\030\002 \003(\0132\032.pb.OverloadStatus.Ele"
+    "ment\032F\n\007Element\022\034\n\006entity\030\001 \001(\0132\014.pb.Ent"
+    "ityId\022\013\n\003idx\030\002 \001(\r\022\020\n\010overload\030\003 \001(\010\"\?\n\031"
+    "GetOverloadStatusResponse\022\"\n\006status\030\001 \001("
+    "\0132\022.pb.OverloadStatus\"\020\n\016SuccessMessage\""
+    "\023\n\021DeviceBusyMessage\"@\n\014ErrorMessage\022\033\n\004"
+    "code\030\001 \001(\0162\r.pb.ErrorCode\022\023\n\013description"
+    "\030\002 \001(\t\"|\n\010Envelope\022\034\n\007version\030\001 \001(\0132\013.pb"
+    ".Version\022%\n\007generic\030d \001(\0132\022.pb.GenericMe"
+    "ssageH\000\022#\n\nmessage_v1\030e \001(\0132\r.pb.Message"
+    "V1H\000B\006\n\004kind\"l\n\016GenericMessage\022\'\n\014ping_c"
+    "ommand\030d \001(\0132\017.pb.PingCommandH\000\022)\n\rping_"
+    "response\030e \001(\0132\020.pb.PingResponseH\000B\006\n\004ki"
+    "nd\"\033\n\nBearerAuth\022\r\n\005token\030\001 \001(\t\"7\n\013AuthR"
+    "equest\022 \n\006bearer\030\001 \001(\0132\016.pb.BearerAuthH\000"
+    "B\006\n\004kind\"P\n\006Source\022\035\n\004kind\030\001 \001(\0162\017.pb.So"
+    "urce.Kind\022\014\n\004text\030\002 \001(\t\"\031\n\004Kind\022\010\n\004MLIR\020"
+    "\000\022\007\n\003ANA\020\001\"(\n\nJitCommand\022\032\n\006source\030\001 \001(\013"
+    "2\n.pb.Source\"z\n\005Issue\022\034\n\004kind\030\001 \001(\0162\016.pb"
+    ".Issue.Kind\022\014\n\004lane\030\002 \001(\r\022\013\n\003col\030\003 \001(\r\022\016"
+    "\n\006reason\030\004 \001(\t\"(\n\004Kind\022\010\n\004INFO\020\000\022\013\n\007WARN"
+    "ING\020\001\022\t\n\005ERROR\020\002\"&\n\tDiagnosis\022\031\n\006issues\030"
+    "\001 \003(\0132\t.pb.Issue\";\n\013JitResponse\022\017\n\007succe"
+    "ss\030\001 \001(\010\022\033\n\004diag\030\002 \001(\0132\r.pb.Diagnosis\"\241\001"
+    "\n\rUpdateCommand\022 \n\005begin\030\n \001(\0132\017.pb.Upda"
+    "teBeginH\000\022 \n\005write\030\013 \001(\0132\017.pb.UpdateWrit"
+    "eH\000\022\"\n\006commit\030\014 \001(\0132\020.pb.UpdateCommitH\000\022"
+    " \n\005abort\030\r \001(\0132\017.pb.UpdateAbortH\000B\006\n\004kin"
+    "d\"\202\001\n\016UpdateResponse\022\034\n\003ack\030\n \001(\0132\r.pb.U"
+    "pdateAckH\000\022$\n\007failure\030\013 \001(\0132\021.pb.UpdateF"
+    "ailureH\000\022$\n\007success\030\014 \001(\0132\021.pb.UpdateSuc"
+    "cessH\000B\006\n\004kind\")\n\013UpdateBegin\022\014\n\004size\030\001 "
+    "\001(\004\022\014\n\004hash\030\002 \001(\014\"+\n\013UpdateWrite\022\014\n\004data"
+    "\030\001 \001(\014\022\016\n\006offset\030\002 \001(\004\"\016\n\014UpdateCommit\"\r"
+    "\n\013UpdateAbort\"\037\n\tUpdateAck\022\022\n\nchunk_size"
+    "\030\001 \001(\004\"\037\n\rUpdateFailure\022\016\n\006reason\030\001 \001(\t\""
+    "\017\n\rUpdateSuccess\"\270\026\n\tMessageV1\022\017\n\002id\030\001 \001"
+    "(\tH\001\210\001\001\022-\n\017success_message\030d \001(\0132\022.pb.Su"
+    "ccessMessageH\000\022)\n\rerror_message\030e \001(\0132\020."
+    "pb.ErrorMessageH\000\022/\n\020stand_by_command\030\310\001"
+    " \001(\0132\022.pb.StandByCommandH\000\022*\n\rreset_comm"
+    "and\030\312\001 \001(\0132\020.pb.ResetCommandH\000\022.\n\017extrac"
+    "t_command\030\313\001 \001(\0132\022.pb.ExtractCommandH\000\022,"
+    "\n\016config_command\030\314\001 \001(\0132\021.pb.ConfigComma"
+    "ndH\000\0221\n\021start_run_command\030\315\001 \001(\0132\023.pb.St"
+    "artRunCommandH\000\022/\n\020stop_run_command\030\316\001 \001"
+    "(\0132\022.pb.StopRunCommandH\000\022;\n\026manual_contr"
+    "ol_command\030\317\001 \001(\0132\030.pb.ManualControlComm"
+    "andH\000\022R\n\"register_external_entities_comm"
+    "and\030\320\001 \001(\0132#.pb.RegisterExternalEntities"
+    "CommandH\000\022>\n\030get_system_ident_command\030\321\001"
+    " \001(\0132\031.pb.GetSystemIdentCommandH\000\022,\n\016sys"
+    "log_command\030\322\001 \001(\0132\021.pb.SyslogCommandH\000\022"
+    "7\n\024system_stats_command\030\323\001 \001(\0132\026.pb.Syst"
+    "emStatsCommandH\000\022@\n\031read_system_ident_co"
+    "mmand\030\324\001 \001(\0132\032.pb.ReadSystemIdentCommand"
+    "H\000\022B\n\032reset_system_ident_command\030\325\001 \001(\0132"
+    "\033.pb.ResetSystemIdentCommandH\000\022B\n\032write_"
+    "system_ident_command\030\326\001 \001(\0132\033.pb.WriteSy"
+    "stemIdentCommandH\000\022B\n\032udp_data_streaming"
+    "_command\030\327\001 \001(\0132\033.pb.UdpDataStreamingCom"
+    "mandH\000\022\?\n\030read_temperature_command\030\330\001 \001("
+    "\0132\032.pb.ReadTemperatureCommandH\000\022D\n\033get_o"
+    "verload_status_command\030\331\001 \001(\0132\034.pb.GetOv"
+    "erloadStatusCommandH\000\0226\n\023calibration_com"
+    "mand\030\332\001 \001(\0132\026.pb.CalibrationCommandH\000\022,\n"
+    "\016update_command\030\333\001 \001(\0132\021.pb.UpdateComman"
+    "dH\000\0220\n\020extract_response\030\255\002 \001(\0132\023.pb.Extr"
+    "actResponseH\000\022.\n\017config_response\030\256\002 \001(\0132"
+    "\022.pb.ConfigResponseH\000\022,\n\016reset_response\030"
+    "\257\002 \001(\0132\021.pb.ResetResponseH\000\0223\n\022start_run"
+    "_response\030\260\002 \001(\0132\024.pb.StartRunResponseH\000"
+    "\022>\n\030run_state_change_message\030\261\002 \001(\0132\031.pb"
+    ".RunStateChangeMessageH\000\022/\n\020run_data_mes"
+    "sage\030\262\002 \001(\0132\022.pb.RunDataMessageH\000\0226\n\024run"
+    "_data_end_message\030\263\002 \001(\0132\025.pb.RunDataEnd"
+    "MessageH\000\022@\n\031get_system_ident_response\030\264"
+    "\002 \001(\0132\032.pb.GetSystemIdentResponseH\000\022.\n\017s"
+    "yslog_response\030\265\002 \001(\0132\022.pb.SyslogRespons"
+    "eH\000\0229\n\025system_stats_response\030\266\002 \001(\0132\027.pb"
+    ".SystemStatsResponseH\000\022B\n\032read_system_id"
+    "ent_response\030\267\002 \001(\0132\033.pb.ReadSystemIdent"
+    "ResponseH\000\022D\n\033reset_system_ident_respons"
+    "e\030\270\002 \001(\0132\034.pb.ResetSystemIdentResponseH\000"
+    "\022D\n\033write_system_ident_response\030\271\002 \001(\0132\034"
+    ".pb.WriteSystemIdentResponseH\000\022A\n\031read_t"
+    "emperature_response\030\272\002 \001(\0132\033.pb.ReadTemp"
+    "eratureResponseH\000\022F\n\034get_overload_status"
+    "_response\030\273\002 \001(\0132\035.pb.GetOverloadStatusR"
+    "esponseH\000\022S\n#udp_data_streaming_refused_"
+    "response\030\274\002 \001(\0132#.pb.UdpDataStreamingRef"
+    "usedResponseH\000\0228\n\024calibration_response\030\275"
+    "\002 \001(\0132\027.pb.CalibrationResponseH\000\022.\n\017upda"
+    "te_response\030\276\002 \001(\0132\022.pb.UpdateResponseH\000"
+    "\022;\n\026calibrate_init_command\030\220\003 \001(\0132\030.pb.C"
+    "alibrateInitCommandH\000\022;\n\026calibrate_lane_"
+    "command\030\221\003 \001(\0132\030.pb.CalibrateLaneCommand"
+    "H\000\022\?\n\030calibrate_offset_command\030\222\003 \001(\0132\032."
+    "pb.CalibrateOffsetCommandH\000\022C\n\032calibrate"
+    "_finalize_command\030\223\003 \001(\0132\034.pb.CalibrateF"
+    "inalizeCommandH\000\022;\n\026calibrate_data_comma"
+    "nd\030\224\003 \001(\0132\030.pb.CalibrateDataCommandH\000\022(\n"
+    "\014auth_request\030\365\003 \001(\0132\017.pb.AuthRequestH\000\022"
+    "/\n\rbusy_response\030\366\003 \001(\0132\025.pb.DeviceBusyM"
+    "essageH\000\022(\n\014ping_command\030\367\003 \001(\0132\017.pb.Pin"
+    "gCommandH\000\022&\n\013jit_command\030\370\003 \001(\0132\016.pb.Ji"
+    "tCommandH\000\022(\n\014jit_response\030\371\003 \001(\0132\017.pb.J"
+    "itResponseH\000B\006\n\004kindB\005\n\003_idJ\006\010\311\001\020\312\001J\006\010\254\002"
+    "\020\255\002J\006\010\364\003\020\365\003\"V\n\004File\022\034\n\007version\030\001 \001(\0132\013.p"
+    "b.Version\022\037\n\006module\030\002 \001(\0132\n.pb.ModuleH\000\210"
+    "\001\001B\t\n\007_moduleJ\004\010\003\020\004*2\n\006Prefix\022\010\n\004NONE\020\000\022"
+    "\t\n\005MILLI\020\001\022\t\n\005MICRO\020\002\022\010\n\004NANO\020\003*l\n\010RunSt"
+    "ate\022\007\n\003NEW\020\000\022\t\n\005ERROR\020\001\022\010\n\004DONE\020\002\022\n\n\006QUE"
+    "UED\020\003\022\014\n\010TAKE_OFF\020\004\022\006\n\002IC\020\005\022\006\n\002OP\020\006\022\n\n\006O"
+    "P_END\020\007\022\014\n\010TMP_HALT\020\010*\025\n\tErrorCode\022\010\n\004No"
+    "ne\020\000b\006proto3"
 };
 static ::absl::once_flag descriptor_table_main_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_main_2eproto = {
     false,
     false,
-    13315,
+    14132,
     descriptor_table_protodef_main_2eproto,
     "main.proto",
     &descriptor_table_main_2eproto_once,
     nullptr,
     0,
-    125,
+    135,
     schemas,
     file_default_instances,
     TableStruct_main_2eproto::offsets,
@@ -4702,75 +5031,81 @@ const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL SignalGeneratorConfig
 }
 PROTOBUF_CONSTINIT const uint32_t SignalGeneratorConfig_WaveForm_internal_data_[] = {
     196608u, 0u, };
-const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL PortConfig_AclState_descriptor() {
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL FrontPanelIOConfig_FrontPanelIOMode_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
   return file_level_enum_descriptors_main_2eproto[4];
+}
+PROTOBUF_CONSTINIT const uint32_t FrontPanelIOConfig_FrontPanelIOMode_internal_data_[] = {
+    262144u, 0u, };
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL PortConfig_AclState_descriptor() {
+  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
+  return file_level_enum_descriptors_main_2eproto[5];
 }
 PROTOBUF_CONSTINIT const uint32_t PortConfig_AclState_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ACLPlug_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[5];
+  return file_level_enum_descriptors_main_2eproto[6];
 }
 PROTOBUF_CONSTINIT const uint32_t ACLPlug_Kind_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Temperature_Unit_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[6];
+  return file_level_enum_descriptors_main_2eproto[7];
 }
 PROTOBUF_CONSTINIT const uint32_t Temperature_Unit_internal_data_[] = {
     262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL CalibrationConfig_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[7];
+  return file_level_enum_descriptors_main_2eproto[8];
 }
 PROTOBUF_CONSTINIT const uint32_t CalibrationConfig_Kind_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ManualControlCommand_State_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[8];
+  return file_level_enum_descriptors_main_2eproto[9];
 }
 PROTOBUF_CONSTINIT const uint32_t ManualControlCommand_State_internal_data_[] = {
     262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Entity_Class_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[9];
+  return file_level_enum_descriptors_main_2eproto[10];
 }
 PROTOBUF_CONSTINIT const uint32_t Entity_Class_internal_data_[] = {
     851968u, 32u, 131072u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL IntegerType_Signedness_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[10];
+  return file_level_enum_descriptors_main_2eproto[11];
 }
 PROTOBUF_CONSTINIT const uint32_t IntegerType_Signedness_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Source_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[11];
+  return file_level_enum_descriptors_main_2eproto[12];
 }
 PROTOBUF_CONSTINIT const uint32_t Source_Kind_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Issue_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[12];
+  return file_level_enum_descriptors_main_2eproto[13];
 }
 PROTOBUF_CONSTINIT const uint32_t Issue_Kind_internal_data_[] = {
     196608u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Prefix_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[13];
+  return file_level_enum_descriptors_main_2eproto[14];
 }
 PROTOBUF_CONSTINIT const uint32_t Prefix_internal_data_[] = {
     262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL RunState_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[14];
+  return file_level_enum_descriptors_main_2eproto[15];
 }
 PROTOBUF_CONSTINIT const uint32_t RunState_internal_data_[] = {
     589824u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ErrorCode_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[15];
+  return file_level_enum_descriptors_main_2eproto[16];
 }
 PROTOBUF_CONSTINIT const uint32_t ErrorCode_internal_data_[] = {
     65536u, 0u, };
@@ -12409,6 +12744,261 @@ void FrontPanelConfig::InternalSwap(FrontPanelConfig* PROTOBUF_RESTRICT PROTOBUF
 }
 // ===================================================================
 
+class FrontPanelIOConfig::_Internal {
+ public:
+};
+
+FrontPanelIOConfig::FrontPanelIOConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, FrontPanelIOConfig_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.FrontPanelIOConfig)
+}
+PROTOBUF_NDEBUG_INLINE FrontPanelIOConfig::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::FrontPanelIOConfig& from_msg)
+      : io_modes_{visibility, arena, from.io_modes_},
+        _io_modes_cached_byte_size_{0},
+        _cached_size_{0} {}
+
+FrontPanelIOConfig::FrontPanelIOConfig(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const FrontPanelIOConfig& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, FrontPanelIOConfig_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  FrontPanelIOConfig* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+
+  // @@protoc_insertion_point(copy_constructor:pb.FrontPanelIOConfig)
+}
+PROTOBUF_NDEBUG_INLINE FrontPanelIOConfig::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : io_modes_{visibility, arena},
+        _io_modes_cached_byte_size_{0},
+        _cached_size_{0} {}
+
+inline void FrontPanelIOConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+FrontPanelIOConfig::~FrontPanelIOConfig() {
+  // @@protoc_insertion_point(destructor:pb.FrontPanelIOConfig)
+  SharedDtor(*this);
+}
+inline void FrontPanelIOConfig::SharedDtor(MessageLite& self) {
+  FrontPanelIOConfig& this_ = static_cast<FrontPanelIOConfig&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL FrontPanelIOConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) FrontPanelIOConfig(arena);
+}
+constexpr auto FrontPanelIOConfig::InternalNewImpl_() {
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(FrontPanelIOConfig, _impl_.io_modes_) +
+          decltype(FrontPanelIOConfig::_impl_.io_modes_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::ZeroInit(
+        sizeof(FrontPanelIOConfig), alignof(FrontPanelIOConfig), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&FrontPanelIOConfig::PlacementNew_,
+                                 sizeof(FrontPanelIOConfig),
+                                 alignof(FrontPanelIOConfig));
+  }
+}
+constexpr auto FrontPanelIOConfig::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_FrontPanelIOConfig_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &FrontPanelIOConfig::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<FrontPanelIOConfig>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &FrontPanelIOConfig::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<FrontPanelIOConfig>(), &FrontPanelIOConfig::ByteSizeLong,
+              &FrontPanelIOConfig::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(FrontPanelIOConfig, _impl_._cached_size_),
+          false,
+      },
+      &FrontPanelIOConfig::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull FrontPanelIOConfig_class_data_ =
+        FrontPanelIOConfig::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+FrontPanelIOConfig::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&FrontPanelIOConfig_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(FrontPanelIOConfig_class_data_.tc_table);
+  return FrontPanelIOConfig_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+FrontPanelIOConfig::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    FrontPanelIOConfig_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::FrontPanelIOConfig>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // repeated .pb.FrontPanelIOConfig.FrontPanelIOMode io_modes = 1;
+    {::_pbi::TcParser::FastV32P1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(FrontPanelIOConfig, _impl_.io_modes_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // repeated .pb.FrontPanelIOConfig.FrontPanelIOMode io_modes = 1;
+    {PROTOBUF_FIELD_OFFSET(FrontPanelIOConfig, _impl_.io_modes_), 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kPackedOpenEnum)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void FrontPanelIOConfig::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.FrontPanelIOConfig)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.io_modes_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL FrontPanelIOConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const FrontPanelIOConfig& this_ = static_cast<const FrontPanelIOConfig&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL FrontPanelIOConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const FrontPanelIOConfig& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.FrontPanelIOConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // repeated .pb.FrontPanelIOConfig.FrontPanelIOMode io_modes = 1;
+  {
+    ::size_t byte_size = this_._impl_._io_modes_cached_byte_size_.Get();
+    if (byte_size > 0) {
+      target = stream->WriteEnumPacked(
+          1, this_._internal_io_modes(), byte_size, target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.FrontPanelIOConfig)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t FrontPanelIOConfig::ByteSizeLong(const MessageLite& base) {
+  const FrontPanelIOConfig& this_ = static_cast<const FrontPanelIOConfig&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t FrontPanelIOConfig::ByteSizeLong() const {
+  const FrontPanelIOConfig& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.FrontPanelIOConfig)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+   {
+    // repeated .pb.FrontPanelIOConfig.FrontPanelIOMode io_modes = 1;
+    {
+      total_size += ::_pbi::WireFormatLite::EnumSizeWithPackedTagSize(
+          this_._internal_io_modes(), 1, this_._impl_._io_modes_cached_byte_size_);
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void FrontPanelIOConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<FrontPanelIOConfig*>(&to_msg);
+  auto& from = static_cast<const FrontPanelIOConfig&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.FrontPanelIOConfig)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_internal_mutable_io_modes()->MergeFrom(from._internal_io_modes());
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void FrontPanelIOConfig::CopyFrom(const FrontPanelIOConfig& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.FrontPanelIOConfig)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void FrontPanelIOConfig::InternalSwap(FrontPanelIOConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.io_modes_.InternalSwap(&other->_impl_.io_modes_);
+}
+
+::google::protobuf::Metadata FrontPanelIOConfig::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class ACLPinSignal::_Internal {
  public:
   using HasBits =
@@ -14487,6 +15077,19 @@ void Item::set_allocated_ip_lookup_table(::pb::IpLookupTable* PROTOBUF_NULLABLE 
   }
   // @@protoc_insertion_point(field_set_allocated:pb.Item.ip_lookup_table)
 }
+void Item::set_allocated_front_panel_io_config(::pb::FrontPanelIOConfig* PROTOBUF_NULLABLE front_panel_io_config) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (front_panel_io_config) {
+    ::google::protobuf::Arena* submessage_arena = front_panel_io_config->GetArena();
+    if (message_arena != submessage_arena) {
+      front_panel_io_config = ::google::protobuf::internal::GetOwnedMessage(message_arena, front_panel_io_config, submessage_arena);
+    }
+    set_has_front_panel_io_config();
+    _impl_.kind_.front_panel_io_config_ = front_panel_io_config;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Item.front_panel_io_config)
+}
 void Item::set_allocated_sim_config(::pb::SimConfig* PROTOBUF_NULLABLE sim_config) {
   ::google::protobuf::Arena* message_arena = GetArena();
   clear_kind();
@@ -14597,6 +15200,9 @@ Item::Item(
         break;
       case kIpLookupTable:
         _impl_.kind_.ip_lookup_table_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.ip_lookup_table_);
+        break;
+      case kFrontPanelIoConfig:
+        _impl_.kind_.front_panel_io_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.front_panel_io_config_);
         break;
       case kSimConfig:
         _impl_.kind_.sim_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.sim_config_);
@@ -14798,6 +15404,14 @@ void Item::clear_kind() {
       }
       break;
     }
+    case kFrontPanelIoConfig: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.front_panel_io_config_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.front_panel_io_config_);
+      }
+      break;
+    }
     case kSimConfig: {
       if (GetArena() == nullptr) {
         delete _impl_.kind_.sim_config_;
@@ -14857,17 +15471,17 @@ Item::GetClassData() const {
   return Item_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 22, 22, 0, 7>
+const ::_pbi::TcParseTable<0, 23, 23, 0, 7>
 Item::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Item, _impl_._has_bits_),
     0, // no _extensions_
     1000, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    3229614590,  // skipmap
+    2155872766,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    22,  // num_field_entries
-    22,  // num_aux_entries
+    23,  // num_field_entries
+    23,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     Item_class_data_.base(),
     nullptr,  // post_loop_handler
@@ -14881,7 +15495,7 @@ Item::_table_ = {
      {10, 0, 0, PROTOBUF_FIELD_OFFSET(Item, _impl_.entity_)}},
   }}, {{
     1000, 0, 1,
-    65534, 21,
+    65534, 22,
     65535, 65535
   }}, {{
     // .pb.EntityId entity = 1;
@@ -14926,8 +15540,10 @@ Item::_table_ = {
     {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.dependency_info_), _Internal::kOneofCaseOffset + 0, 19, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.IpLookupTable ip_lookup_table = 30;
     {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.ip_lookup_table_), _Internal::kOneofCaseOffset + 0, 20, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.FrontPanelIOConfig front_panel_io_config = 31;
+    {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.front_panel_io_config_), _Internal::kOneofCaseOffset + 0, 21, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.SimConfig sim_config = 1000;
-    {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.sim_config_), _Internal::kOneofCaseOffset + 0, 21, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.sim_config_), _Internal::kOneofCaseOffset + 0, 22, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pb::EntityId>()},
@@ -14951,6 +15567,7 @@ Item::_table_ = {
       {::_pbi::TcParser::GetTable<::pb::EntitySpecification>()},
       {::_pbi::TcParser::GetTable<::pb::DependencyInfo>()},
       {::_pbi::TcParser::GetTable<::pb::IpLookupTable>()},
+      {::_pbi::TcParser::GetTable<::pb::FrontPanelIOConfig>()},
       {::_pbi::TcParser::GetTable<::pb::SimConfig>()},
   }},
   {{
@@ -15120,6 +15737,12 @@ PROTOBUF_NOINLINE void Item::Clear() {
           stream);
       break;
     }
+    case kFrontPanelIoConfig: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          31, *this_._impl_.kind_.front_panel_io_config_, this_._impl_.kind_.front_panel_io_config_->GetCachedSize(), target,
+          stream);
+      break;
+    }
     case kSimConfig: {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
           1000, *this_._impl_.kind_.sim_config_, this_._impl_.kind_.sim_config_->GetCachedSize(), target,
@@ -15279,6 +15902,12 @@ PROTOBUF_NOINLINE void Item::Clear() {
     case kIpLookupTable: {
       total_size += 2 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.ip_lookup_table_);
+      break;
+    }
+    // .pb.FrontPanelIOConfig front_panel_io_config = 31;
+    case kFrontPanelIoConfig: {
+      total_size += 2 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.front_panel_io_config_);
       break;
     }
     // .pb.SimConfig sim_config = 1000;
@@ -15485,6 +16114,14 @@ void Item::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::pr
           _this->_impl_.kind_.ip_lookup_table_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.ip_lookup_table_);
         } else {
           _this->_impl_.kind_.ip_lookup_table_->MergeFrom(*from._impl_.kind_.ip_lookup_table_);
+        }
+        break;
+      }
+      case kFrontPanelIoConfig: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.front_panel_io_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.front_panel_io_config_);
+        } else {
+          _this->_impl_.kind_.front_panel_io_config_->MergeFrom(*from._impl_.kind_.front_panel_io_config_);
         }
         break;
       }
@@ -26998,9 +27635,9 @@ DaqData::DaqData(
                offsetof(Impl_, sample_count_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, sample_count_),
-           offsetof(Impl_, channel_count_) -
+           offsetof(Impl_, channel_stride_) -
                offsetof(Impl_, sample_count_) +
-               sizeof(Impl_::channel_count_));
+               sizeof(Impl_::channel_stride_));
 
   // @@protoc_insertion_point(copy_constructor:pb.DaqData)
 }
@@ -27016,9 +27653,9 @@ inline void DaqData::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, type_),
            0,
-           offsetof(Impl_, channel_count_) -
+           offsetof(Impl_, channel_stride_) -
                offsetof(Impl_, type_) +
-               sizeof(Impl_::channel_count_));
+               sizeof(Impl_::channel_stride_));
 }
 DaqData::~DaqData() {
   // @@protoc_insertion_point(destructor:pb.DaqData)
@@ -27125,9 +27762,9 @@ DaqData::_table_ = {
     // uint32 sample_count = 6;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DaqData, _impl_.sample_count_), 2>(),
      {48, 2, 0, PROTOBUF_FIELD_OFFSET(DaqData, _impl_.sample_count_)}},
-    // uint32 channel_count = 7;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DaqData, _impl_.channel_count_), 3>(),
-     {56, 3, 0, PROTOBUF_FIELD_OFFSET(DaqData, _impl_.channel_count_)}},
+    // uint32 channel_stride = 7;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DaqData, _impl_.channel_stride_), 3>(),
+     {56, 3, 0, PROTOBUF_FIELD_OFFSET(DaqData, _impl_.channel_stride_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -27139,8 +27776,8 @@ DaqData::_table_ = {
     {PROTOBUF_FIELD_OFFSET(DaqData, _impl_.channels_), -1, 1, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
     // uint32 sample_count = 6;
     {PROTOBUF_FIELD_OFFSET(DaqData, _impl_.sample_count_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 channel_count = 7;
-    {PROTOBUF_FIELD_OFFSET(DaqData, _impl_.channel_count_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 channel_stride = 7;
+    {PROTOBUF_FIELD_OFFSET(DaqData, _impl_.channel_stride_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pb::DataType>()},
@@ -27169,8 +27806,8 @@ PROTOBUF_NOINLINE void DaqData::Clear() {
   }
   if ((cached_has_bits & 0x0000000cU) != 0) {
     ::memset(&_impl_.sample_count_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.channel_count_) -
-        reinterpret_cast<char*>(&_impl_.sample_count_)) + sizeof(_impl_.channel_count_));
+        reinterpret_cast<char*>(&_impl_.channel_stride_) -
+        reinterpret_cast<char*>(&_impl_.sample_count_)) + sizeof(_impl_.channel_stride_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -27230,12 +27867,12 @@ PROTOBUF_NOINLINE void DaqData::Clear() {
     }
   }
 
-  // uint32 channel_count = 7;
+  // uint32 channel_stride = 7;
   if ((cached_has_bits & 0x00000008U) != 0) {
-    if (this_._internal_channel_count() != 0) {
+    if (this_._internal_channel_stride() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          7, this_._internal_channel_count(), target);
+          7, this_._internal_channel_stride(), target);
     }
   }
 
@@ -27293,11 +27930,11 @@ PROTOBUF_NOINLINE void DaqData::Clear() {
             this_._internal_sample_count());
       }
     }
-    // uint32 channel_count = 7;
+    // uint32 channel_stride = 7;
     if ((cached_has_bits & 0x00000008U) != 0) {
-      if (this_._internal_channel_count() != 0) {
+      if (this_._internal_channel_stride() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-            this_._internal_channel_count());
+            this_._internal_channel_stride());
       }
     }
   }
@@ -27344,8 +27981,8 @@ void DaqData::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google:
       }
     }
     if ((cached_has_bits & 0x00000008U) != 0) {
-      if (from._internal_channel_count() != 0) {
-        _this->_impl_.channel_count_ = from._impl_.channel_count_;
+      if (from._internal_channel_stride() != 0) {
+        _this->_impl_.channel_stride_ = from._impl_.channel_stride_;
       }
     }
   }
@@ -27370,8 +28007,8 @@ void DaqData::InternalSwap(DaqData* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   _impl_.channels_.InternalSwap(&other->_impl_.channels_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.data_, &other->_impl_.data_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(DaqData, _impl_.channel_count_)
-      + sizeof(DaqData::_impl_.channel_count_)
+      PROTOBUF_FIELD_OFFSET(DaqData, _impl_.channel_stride_)
+      + sizeof(DaqData::_impl_.channel_stride_)
       - PROTOBUF_FIELD_OFFSET(DaqData, _impl_.type_)>(
           reinterpret_cast<char*>(&_impl_.type_),
           reinterpret_cast<char*>(&other->_impl_.type_));
@@ -39206,6 +39843,2309 @@ void JitResponse::InternalSwap(JitResponse* PROTOBUF_RESTRICT PROTOBUF_NONNULL o
 }
 // ===================================================================
 
+class UpdateCommand::_Internal {
+ public:
+  static constexpr ::int32_t kOneofCaseOffset =
+      PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_._oneof_case_);
+};
+
+void UpdateCommand::set_allocated_begin(::pb::UpdateBegin* PROTOBUF_NULLABLE begin) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (begin) {
+    ::google::protobuf::Arena* submessage_arena = begin->GetArena();
+    if (message_arena != submessage_arena) {
+      begin = ::google::protobuf::internal::GetOwnedMessage(message_arena, begin, submessage_arena);
+    }
+    set_has_begin();
+    _impl_.kind_.begin_ = begin;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateCommand.begin)
+}
+void UpdateCommand::set_allocated_write(::pb::UpdateWrite* PROTOBUF_NULLABLE write) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (write) {
+    ::google::protobuf::Arena* submessage_arena = write->GetArena();
+    if (message_arena != submessage_arena) {
+      write = ::google::protobuf::internal::GetOwnedMessage(message_arena, write, submessage_arena);
+    }
+    set_has_write();
+    _impl_.kind_.write_ = write;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateCommand.write)
+}
+void UpdateCommand::set_allocated_commit(::pb::UpdateCommit* PROTOBUF_NULLABLE commit) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (commit) {
+    ::google::protobuf::Arena* submessage_arena = commit->GetArena();
+    if (message_arena != submessage_arena) {
+      commit = ::google::protobuf::internal::GetOwnedMessage(message_arena, commit, submessage_arena);
+    }
+    set_has_commit();
+    _impl_.kind_.commit_ = commit;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateCommand.commit)
+}
+void UpdateCommand::set_allocated_abort(::pb::UpdateAbort* PROTOBUF_NULLABLE abort) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (abort) {
+    ::google::protobuf::Arena* submessage_arena = abort->GetArena();
+    if (message_arena != submessage_arena) {
+      abort = ::google::protobuf::internal::GetOwnedMessage(message_arena, abort, submessage_arena);
+    }
+    set_has_abort();
+    _impl_.kind_.abort_ = abort;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateCommand.abort)
+}
+UpdateCommand::UpdateCommand(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateCommand_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateCommand)
+}
+PROTOBUF_NDEBUG_INLINE UpdateCommand::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::UpdateCommand& from_msg)
+      : kind_{},
+        _cached_size_{0},
+        _oneof_case_{from._oneof_case_[0]} {}
+
+UpdateCommand::UpdateCommand(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateCommand& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateCommand_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateCommand* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  switch (kind_case()) {
+    case KIND_NOT_SET:
+      break;
+      case kBegin:
+        _impl_.kind_.begin_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.begin_);
+        break;
+      case kWrite:
+        _impl_.kind_.write_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.write_);
+        break;
+      case kCommit:
+        _impl_.kind_.commit_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.commit_);
+        break;
+      case kAbort:
+        _impl_.kind_.abort_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.abort_);
+        break;
+  }
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateCommand)
+}
+PROTOBUF_NDEBUG_INLINE UpdateCommand::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : kind_{},
+        _cached_size_{0},
+        _oneof_case_{} {}
+
+inline void UpdateCommand::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+UpdateCommand::~UpdateCommand() {
+  // @@protoc_insertion_point(destructor:pb.UpdateCommand)
+  SharedDtor(*this);
+}
+inline void UpdateCommand::SharedDtor(MessageLite& self) {
+  UpdateCommand& this_ = static_cast<UpdateCommand&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  if (this_.has_kind()) {
+    this_.clear_kind();
+  }
+  this_._impl_.~Impl_();
+}
+
+void UpdateCommand::clear_kind() {
+// @@protoc_insertion_point(one_of_clear_start:pb.UpdateCommand)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  switch (kind_case()) {
+    case kBegin: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.begin_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.begin_);
+      }
+      break;
+    }
+    case kWrite: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.write_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.write_);
+      }
+      break;
+    }
+    case kCommit: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.commit_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.commit_);
+      }
+      break;
+    }
+    case kAbort: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.abort_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.abort_);
+      }
+      break;
+    }
+    case KIND_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[0] = KIND_NOT_SET;
+}
+
+
+inline void* PROTOBUF_NONNULL UpdateCommand::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateCommand(arena);
+}
+constexpr auto UpdateCommand::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(UpdateCommand),
+                                            alignof(UpdateCommand));
+}
+constexpr auto UpdateCommand::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateCommand_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateCommand::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<UpdateCommand>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateCommand::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<UpdateCommand>(), &UpdateCommand::ByteSizeLong,
+              &UpdateCommand::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_._cached_size_),
+          false,
+      },
+      &UpdateCommand::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateCommand_class_data_ =
+        UpdateCommand::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateCommand::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateCommand_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateCommand_class_data_.tc_table);
+  return UpdateCommand_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 4, 4, 0, 2>
+UpdateCommand::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    13, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294959615,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    4,  // num_field_entries
+    4,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    UpdateCommand_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateCommand>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // .pb.UpdateBegin begin = 10;
+    {PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_.kind_.begin_), _Internal::kOneofCaseOffset + 0, 0, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateWrite write = 11;
+    {PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_.kind_.write_), _Internal::kOneofCaseOffset + 0, 1, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateCommit commit = 12;
+    {PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_.kind_.commit_), _Internal::kOneofCaseOffset + 0, 2, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateAbort abort = 13;
+    {PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_.kind_.abort_), _Internal::kOneofCaseOffset + 0, 3, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::pb::UpdateBegin>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateWrite>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateCommit>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateAbort>()},
+  }},
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void UpdateCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.UpdateCommand)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  clear_kind();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL UpdateCommand::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const UpdateCommand& this_ = static_cast<const UpdateCommand&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL UpdateCommand::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const UpdateCommand& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.UpdateCommand)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  switch (this_.kind_case()) {
+    case kBegin: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          10, *this_._impl_.kind_.begin_, this_._impl_.kind_.begin_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    case kWrite: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          11, *this_._impl_.kind_.write_, this_._impl_.kind_.write_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    case kCommit: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          12, *this_._impl_.kind_.commit_, this_._impl_.kind_.commit_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    case kAbort: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          13, *this_._impl_.kind_.abort_, this_._impl_.kind_.abort_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    default:
+      break;
+  }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.UpdateCommand)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t UpdateCommand::ByteSizeLong(const MessageLite& base) {
+  const UpdateCommand& this_ = static_cast<const UpdateCommand&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t UpdateCommand::ByteSizeLong() const {
+  const UpdateCommand& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.UpdateCommand)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  switch (this_.kind_case()) {
+    // .pb.UpdateBegin begin = 10;
+    case kBegin: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.begin_);
+      break;
+    }
+    // .pb.UpdateWrite write = 11;
+    case kWrite: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.write_);
+      break;
+    }
+    // .pb.UpdateCommit commit = 12;
+    case kCommit: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.commit_);
+      break;
+    }
+    // .pb.UpdateAbort abort = 13;
+    case kAbort: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.abort_);
+      break;
+    }
+    case KIND_NOT_SET: {
+      break;
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void UpdateCommand::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<UpdateCommand*>(&to_msg);
+  auto& from = static_cast<const UpdateCommand&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  ::google::protobuf::Arena* arena = _this->GetArena();
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.UpdateCommand)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (const uint32_t oneof_from_case = from._impl_._oneof_case_[0]) {
+    const uint32_t oneof_to_case = _this->_impl_._oneof_case_[0];
+    const bool oneof_needs_init = oneof_to_case != oneof_from_case;
+    if (oneof_needs_init) {
+      if (oneof_to_case != 0) {
+        _this->clear_kind();
+      }
+      _this->_impl_._oneof_case_[0] = oneof_from_case;
+    }
+
+    switch (oneof_from_case) {
+      case kBegin: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.begin_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.begin_);
+        } else {
+          _this->_impl_.kind_.begin_->MergeFrom(*from._impl_.kind_.begin_);
+        }
+        break;
+      }
+      case kWrite: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.write_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.write_);
+        } else {
+          _this->_impl_.kind_.write_->MergeFrom(*from._impl_.kind_.write_);
+        }
+        break;
+      }
+      case kCommit: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.commit_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.commit_);
+        } else {
+          _this->_impl_.kind_.commit_->MergeFrom(*from._impl_.kind_.commit_);
+        }
+        break;
+      }
+      case kAbort: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.abort_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.abort_);
+        } else {
+          _this->_impl_.kind_.abort_->MergeFrom(*from._impl_.kind_.abort_);
+        }
+        break;
+      }
+      case KIND_NOT_SET:
+        break;
+    }
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UpdateCommand::CopyFrom(const UpdateCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.UpdateCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void UpdateCommand::InternalSwap(UpdateCommand* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.kind_, other->_impl_.kind_);
+  swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
+}
+
+::google::protobuf::Metadata UpdateCommand::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateResponse::_Internal {
+ public:
+  static constexpr ::int32_t kOneofCaseOffset =
+      PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_._oneof_case_);
+};
+
+void UpdateResponse::set_allocated_ack(::pb::UpdateAck* PROTOBUF_NULLABLE ack) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (ack) {
+    ::google::protobuf::Arena* submessage_arena = ack->GetArena();
+    if (message_arena != submessage_arena) {
+      ack = ::google::protobuf::internal::GetOwnedMessage(message_arena, ack, submessage_arena);
+    }
+    set_has_ack();
+    _impl_.kind_.ack_ = ack;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateResponse.ack)
+}
+void UpdateResponse::set_allocated_failure(::pb::UpdateFailure* PROTOBUF_NULLABLE failure) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (failure) {
+    ::google::protobuf::Arena* submessage_arena = failure->GetArena();
+    if (message_arena != submessage_arena) {
+      failure = ::google::protobuf::internal::GetOwnedMessage(message_arena, failure, submessage_arena);
+    }
+    set_has_failure();
+    _impl_.kind_.failure_ = failure;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateResponse.failure)
+}
+void UpdateResponse::set_allocated_success(::pb::UpdateSuccess* PROTOBUF_NULLABLE success) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (success) {
+    ::google::protobuf::Arena* submessage_arena = success->GetArena();
+    if (message_arena != submessage_arena) {
+      success = ::google::protobuf::internal::GetOwnedMessage(message_arena, success, submessage_arena);
+    }
+    set_has_success();
+    _impl_.kind_.success_ = success;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateResponse.success)
+}
+UpdateResponse::UpdateResponse(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateResponse_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateResponse)
+}
+PROTOBUF_NDEBUG_INLINE UpdateResponse::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::UpdateResponse& from_msg)
+      : kind_{},
+        _cached_size_{0},
+        _oneof_case_{from._oneof_case_[0]} {}
+
+UpdateResponse::UpdateResponse(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateResponse& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateResponse_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateResponse* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  switch (kind_case()) {
+    case KIND_NOT_SET:
+      break;
+      case kAck:
+        _impl_.kind_.ack_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.ack_);
+        break;
+      case kFailure:
+        _impl_.kind_.failure_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.failure_);
+        break;
+      case kSuccess:
+        _impl_.kind_.success_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.success_);
+        break;
+  }
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateResponse)
+}
+PROTOBUF_NDEBUG_INLINE UpdateResponse::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : kind_{},
+        _cached_size_{0},
+        _oneof_case_{} {}
+
+inline void UpdateResponse::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+UpdateResponse::~UpdateResponse() {
+  // @@protoc_insertion_point(destructor:pb.UpdateResponse)
+  SharedDtor(*this);
+}
+inline void UpdateResponse::SharedDtor(MessageLite& self) {
+  UpdateResponse& this_ = static_cast<UpdateResponse&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  if (this_.has_kind()) {
+    this_.clear_kind();
+  }
+  this_._impl_.~Impl_();
+}
+
+void UpdateResponse::clear_kind() {
+// @@protoc_insertion_point(one_of_clear_start:pb.UpdateResponse)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  switch (kind_case()) {
+    case kAck: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.ack_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.ack_);
+      }
+      break;
+    }
+    case kFailure: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.failure_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.failure_);
+      }
+      break;
+    }
+    case kSuccess: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.success_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.success_);
+      }
+      break;
+    }
+    case KIND_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[0] = KIND_NOT_SET;
+}
+
+
+inline void* PROTOBUF_NONNULL UpdateResponse::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateResponse(arena);
+}
+constexpr auto UpdateResponse::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(UpdateResponse),
+                                            alignof(UpdateResponse));
+}
+constexpr auto UpdateResponse::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateResponse_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateResponse::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<UpdateResponse>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateResponse::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<UpdateResponse>(), &UpdateResponse::ByteSizeLong,
+              &UpdateResponse::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateResponse, _impl_._cached_size_),
+          false,
+      },
+      &UpdateResponse::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateResponse_class_data_ =
+        UpdateResponse::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateResponse::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateResponse_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateResponse_class_data_.tc_table);
+  return UpdateResponse_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 3, 3, 0, 2>
+UpdateResponse::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    12, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294963711,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    3,  // num_field_entries
+    3,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    UpdateResponse_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateResponse>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // .pb.UpdateAck ack = 10;
+    {PROTOBUF_FIELD_OFFSET(UpdateResponse, _impl_.kind_.ack_), _Internal::kOneofCaseOffset + 0, 0, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateFailure failure = 11;
+    {PROTOBUF_FIELD_OFFSET(UpdateResponse, _impl_.kind_.failure_), _Internal::kOneofCaseOffset + 0, 1, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateSuccess success = 12;
+    {PROTOBUF_FIELD_OFFSET(UpdateResponse, _impl_.kind_.success_), _Internal::kOneofCaseOffset + 0, 2, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::pb::UpdateAck>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateFailure>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateSuccess>()},
+  }},
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void UpdateResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.UpdateResponse)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  clear_kind();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL UpdateResponse::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const UpdateResponse& this_ = static_cast<const UpdateResponse&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL UpdateResponse::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const UpdateResponse& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.UpdateResponse)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  switch (this_.kind_case()) {
+    case kAck: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          10, *this_._impl_.kind_.ack_, this_._impl_.kind_.ack_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    case kFailure: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          11, *this_._impl_.kind_.failure_, this_._impl_.kind_.failure_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    case kSuccess: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          12, *this_._impl_.kind_.success_, this_._impl_.kind_.success_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    default:
+      break;
+  }
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.UpdateResponse)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t UpdateResponse::ByteSizeLong(const MessageLite& base) {
+  const UpdateResponse& this_ = static_cast<const UpdateResponse&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t UpdateResponse::ByteSizeLong() const {
+  const UpdateResponse& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.UpdateResponse)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  switch (this_.kind_case()) {
+    // .pb.UpdateAck ack = 10;
+    case kAck: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.ack_);
+      break;
+    }
+    // .pb.UpdateFailure failure = 11;
+    case kFailure: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.failure_);
+      break;
+    }
+    // .pb.UpdateSuccess success = 12;
+    case kSuccess: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.success_);
+      break;
+    }
+    case KIND_NOT_SET: {
+      break;
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void UpdateResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<UpdateResponse*>(&to_msg);
+  auto& from = static_cast<const UpdateResponse&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  ::google::protobuf::Arena* arena = _this->GetArena();
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.UpdateResponse)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (const uint32_t oneof_from_case = from._impl_._oneof_case_[0]) {
+    const uint32_t oneof_to_case = _this->_impl_._oneof_case_[0];
+    const bool oneof_needs_init = oneof_to_case != oneof_from_case;
+    if (oneof_needs_init) {
+      if (oneof_to_case != 0) {
+        _this->clear_kind();
+      }
+      _this->_impl_._oneof_case_[0] = oneof_from_case;
+    }
+
+    switch (oneof_from_case) {
+      case kAck: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.ack_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.ack_);
+        } else {
+          _this->_impl_.kind_.ack_->MergeFrom(*from._impl_.kind_.ack_);
+        }
+        break;
+      }
+      case kFailure: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.failure_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.failure_);
+        } else {
+          _this->_impl_.kind_.failure_->MergeFrom(*from._impl_.kind_.failure_);
+        }
+        break;
+      }
+      case kSuccess: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.success_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.success_);
+        } else {
+          _this->_impl_.kind_.success_->MergeFrom(*from._impl_.kind_.success_);
+        }
+        break;
+      }
+      case KIND_NOT_SET:
+        break;
+    }
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UpdateResponse::CopyFrom(const UpdateResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.UpdateResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void UpdateResponse::InternalSwap(UpdateResponse* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.kind_, other->_impl_.kind_);
+  swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
+}
+
+::google::protobuf::Metadata UpdateResponse::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateBegin::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<UpdateBegin>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(UpdateBegin, _impl_._has_bits_);
+};
+
+UpdateBegin::UpdateBegin(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateBegin_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateBegin)
+}
+PROTOBUF_NDEBUG_INLINE UpdateBegin::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::UpdateBegin& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        hash_(arena, from.hash_) {}
+
+UpdateBegin::UpdateBegin(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateBegin& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateBegin_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateBegin* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  _impl_.size_ = from._impl_.size_;
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateBegin)
+}
+PROTOBUF_NDEBUG_INLINE UpdateBegin::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        hash_(arena) {}
+
+inline void UpdateBegin::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.size_ = {};
+}
+UpdateBegin::~UpdateBegin() {
+  // @@protoc_insertion_point(destructor:pb.UpdateBegin)
+  SharedDtor(*this);
+}
+inline void UpdateBegin::SharedDtor(MessageLite& self) {
+  UpdateBegin& this_ = static_cast<UpdateBegin&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.hash_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL UpdateBegin::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateBegin(arena);
+}
+constexpr auto UpdateBegin::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(UpdateBegin),
+                                            alignof(UpdateBegin));
+}
+constexpr auto UpdateBegin::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateBegin_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateBegin::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<UpdateBegin>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateBegin::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<UpdateBegin>(), &UpdateBegin::ByteSizeLong,
+              &UpdateBegin::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateBegin, _impl_._cached_size_),
+          false,
+      },
+      &UpdateBegin::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateBegin_class_data_ =
+        UpdateBegin::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateBegin::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateBegin_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateBegin_class_data_.tc_table);
+  return UpdateBegin_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+UpdateBegin::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(UpdateBegin, _impl_._has_bits_),
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateBegin_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateBegin>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // bytes hash = 2;
+    {::_pbi::TcParser::FastBS1,
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(UpdateBegin, _impl_.hash_)}},
+    // uint64 size = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(UpdateBegin, _impl_.size_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(UpdateBegin, _impl_.size_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint64 size = 1;
+    {PROTOBUF_FIELD_OFFSET(UpdateBegin, _impl_.size_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt64)},
+    // bytes hash = 2;
+    {PROTOBUF_FIELD_OFFSET(UpdateBegin, _impl_.hash_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kBytes | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void UpdateBegin::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.UpdateBegin)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001U) != 0) {
+    _impl_.hash_.ClearNonDefaultToEmpty();
+  }
+  _impl_.size_ = ::uint64_t{0u};
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL UpdateBegin::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const UpdateBegin& this_ = static_cast<const UpdateBegin&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL UpdateBegin::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const UpdateBegin& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.UpdateBegin)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // uint64 size = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
+    if (this_._internal_size() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
+          1, this_._internal_size(), target);
+    }
+  }
+
+  // bytes hash = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
+    if (!this_._internal_hash().empty()) {
+      const ::std::string& _s = this_._internal_hash();
+      target = stream->WriteBytesMaybeAliased(2, _s, target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.UpdateBegin)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t UpdateBegin::ByteSizeLong(const MessageLite& base) {
+  const UpdateBegin& this_ = static_cast<const UpdateBegin&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t UpdateBegin::ByteSizeLong() const {
+  const UpdateBegin& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.UpdateBegin)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    // bytes hash = 2;
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (!this_._internal_hash().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
+                                        this_._internal_hash());
+      }
+    }
+    // uint64 size = 1;
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (this_._internal_size() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
+            this_._internal_size());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void UpdateBegin::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<UpdateBegin*>(&to_msg);
+  auto& from = static_cast<const UpdateBegin&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.UpdateBegin)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (!from._internal_hash().empty()) {
+        _this->_internal_set_hash(from._internal_hash());
+      } else {
+        if (_this->_impl_.hash_.IsDefault()) {
+          _this->_internal_set_hash("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (from._internal_size() != 0) {
+        _this->_impl_.size_ = from._impl_.size_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UpdateBegin::CopyFrom(const UpdateBegin& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.UpdateBegin)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void UpdateBegin::InternalSwap(UpdateBegin* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.hash_, &other->_impl_.hash_, arena);
+  swap(_impl_.size_, other->_impl_.size_);
+}
+
+::google::protobuf::Metadata UpdateBegin::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateWrite::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<UpdateWrite>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(UpdateWrite, _impl_._has_bits_);
+};
+
+UpdateWrite::UpdateWrite(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateWrite_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateWrite)
+}
+PROTOBUF_NDEBUG_INLINE UpdateWrite::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::UpdateWrite& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        data_(arena, from.data_) {}
+
+UpdateWrite::UpdateWrite(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateWrite& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateWrite_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateWrite* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  _impl_.offset_ = from._impl_.offset_;
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateWrite)
+}
+PROTOBUF_NDEBUG_INLINE UpdateWrite::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        data_(arena) {}
+
+inline void UpdateWrite::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.offset_ = {};
+}
+UpdateWrite::~UpdateWrite() {
+  // @@protoc_insertion_point(destructor:pb.UpdateWrite)
+  SharedDtor(*this);
+}
+inline void UpdateWrite::SharedDtor(MessageLite& self) {
+  UpdateWrite& this_ = static_cast<UpdateWrite&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.data_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL UpdateWrite::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateWrite(arena);
+}
+constexpr auto UpdateWrite::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(UpdateWrite),
+                                            alignof(UpdateWrite));
+}
+constexpr auto UpdateWrite::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateWrite_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateWrite::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<UpdateWrite>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateWrite::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<UpdateWrite>(), &UpdateWrite::ByteSizeLong,
+              &UpdateWrite::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateWrite, _impl_._cached_size_),
+          false,
+      },
+      &UpdateWrite::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateWrite_class_data_ =
+        UpdateWrite::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateWrite::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateWrite_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateWrite_class_data_.tc_table);
+  return UpdateWrite_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+UpdateWrite::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(UpdateWrite, _impl_._has_bits_),
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateWrite_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateWrite>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint64 offset = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(UpdateWrite, _impl_.offset_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(UpdateWrite, _impl_.offset_)}},
+    // bytes data = 1;
+    {::_pbi::TcParser::FastBS1,
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(UpdateWrite, _impl_.data_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // bytes data = 1;
+    {PROTOBUF_FIELD_OFFSET(UpdateWrite, _impl_.data_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kBytes | ::_fl::kRepAString)},
+    // uint64 offset = 2;
+    {PROTOBUF_FIELD_OFFSET(UpdateWrite, _impl_.offset_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt64)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void UpdateWrite::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.UpdateWrite)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001U) != 0) {
+    _impl_.data_.ClearNonDefaultToEmpty();
+  }
+  _impl_.offset_ = ::uint64_t{0u};
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL UpdateWrite::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const UpdateWrite& this_ = static_cast<const UpdateWrite&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL UpdateWrite::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const UpdateWrite& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.UpdateWrite)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // bytes data = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
+    if (!this_._internal_data().empty()) {
+      const ::std::string& _s = this_._internal_data();
+      target = stream->WriteBytesMaybeAliased(1, _s, target);
+    }
+  }
+
+  // uint64 offset = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
+    if (this_._internal_offset() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
+          2, this_._internal_offset(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.UpdateWrite)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t UpdateWrite::ByteSizeLong(const MessageLite& base) {
+  const UpdateWrite& this_ = static_cast<const UpdateWrite&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t UpdateWrite::ByteSizeLong() const {
+  const UpdateWrite& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.UpdateWrite)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    // bytes data = 1;
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (!this_._internal_data().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
+                                        this_._internal_data());
+      }
+    }
+    // uint64 offset = 2;
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (this_._internal_offset() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
+            this_._internal_offset());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void UpdateWrite::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<UpdateWrite*>(&to_msg);
+  auto& from = static_cast<const UpdateWrite&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.UpdateWrite)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (!from._internal_data().empty()) {
+        _this->_internal_set_data(from._internal_data());
+      } else {
+        if (_this->_impl_.data_.IsDefault()) {
+          _this->_internal_set_data("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (from._internal_offset() != 0) {
+        _this->_impl_.offset_ = from._impl_.offset_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UpdateWrite::CopyFrom(const UpdateWrite& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.UpdateWrite)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void UpdateWrite::InternalSwap(UpdateWrite* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.data_, &other->_impl_.data_, arena);
+  swap(_impl_.offset_, other->_impl_.offset_);
+}
+
+::google::protobuf::Metadata UpdateWrite::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateCommit::_Internal {
+ public:
+};
+
+UpdateCommit::UpdateCommit(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateCommit_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateCommit)
+}
+UpdateCommit::UpdateCommit(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateCommit& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateCommit_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateCommit* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateCommit)
+}
+
+inline void* PROTOBUF_NONNULL UpdateCommit::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateCommit(arena);
+}
+constexpr auto UpdateCommit::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(UpdateCommit),
+                                            alignof(UpdateCommit));
+}
+constexpr auto UpdateCommit::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateCommit_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateCommit::MergeImpl,
+          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<UpdateCommit>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateCommit::SharedDtor,
+          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<UpdateCommit>(), &UpdateCommit::ByteSizeLong,
+              &UpdateCommit::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateCommit, _impl_._cached_size_),
+          false,
+      },
+      &UpdateCommit::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateCommit_class_data_ =
+        UpdateCommit::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateCommit::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateCommit_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateCommit_class_data_.tc_table);
+  return UpdateCommit_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+UpdateCommit::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    0, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967295,  // skipmap
+    offsetof(decltype(_table_), field_names),  // no field_entries
+    0,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateCommit_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateCommit>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, // no field_entries, or aux_entries
+  {{
+  }},
+};
+
+
+
+
+
+
+
+::google::protobuf::Metadata UpdateCommit::GetMetadata() const {
+  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateAbort::_Internal {
+ public:
+};
+
+UpdateAbort::UpdateAbort(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateAbort_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateAbort)
+}
+UpdateAbort::UpdateAbort(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateAbort& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateAbort_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateAbort* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateAbort)
+}
+
+inline void* PROTOBUF_NONNULL UpdateAbort::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateAbort(arena);
+}
+constexpr auto UpdateAbort::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(UpdateAbort),
+                                            alignof(UpdateAbort));
+}
+constexpr auto UpdateAbort::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateAbort_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateAbort::MergeImpl,
+          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<UpdateAbort>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateAbort::SharedDtor,
+          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<UpdateAbort>(), &UpdateAbort::ByteSizeLong,
+              &UpdateAbort::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateAbort, _impl_._cached_size_),
+          false,
+      },
+      &UpdateAbort::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateAbort_class_data_ =
+        UpdateAbort::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateAbort::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateAbort_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateAbort_class_data_.tc_table);
+  return UpdateAbort_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+UpdateAbort::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    0, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967295,  // skipmap
+    offsetof(decltype(_table_), field_names),  // no field_entries
+    0,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateAbort_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateAbort>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, // no field_entries, or aux_entries
+  {{
+  }},
+};
+
+
+
+
+
+
+
+::google::protobuf::Metadata UpdateAbort::GetMetadata() const {
+  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateAck::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<UpdateAck>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(UpdateAck, _impl_._has_bits_);
+};
+
+UpdateAck::UpdateAck(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateAck_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateAck)
+}
+UpdateAck::UpdateAck(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const UpdateAck& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateAck_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(from._impl_) {
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE UpdateAck::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
+
+inline void UpdateAck::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.chunk_size_ = {};
+}
+UpdateAck::~UpdateAck() {
+  // @@protoc_insertion_point(destructor:pb.UpdateAck)
+  SharedDtor(*this);
+}
+inline void UpdateAck::SharedDtor(MessageLite& self) {
+  UpdateAck& this_ = static_cast<UpdateAck&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL UpdateAck::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateAck(arena);
+}
+constexpr auto UpdateAck::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(UpdateAck),
+                                            alignof(UpdateAck));
+}
+constexpr auto UpdateAck::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateAck_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateAck::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<UpdateAck>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateAck::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<UpdateAck>(), &UpdateAck::ByteSizeLong,
+              &UpdateAck::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateAck, _impl_._cached_size_),
+          false,
+      },
+      &UpdateAck::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateAck_class_data_ =
+        UpdateAck::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateAck::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateAck_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateAck_class_data_.tc_table);
+  return UpdateAck_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+UpdateAck::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(UpdateAck, _impl_._has_bits_),
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateAck_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateAck>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint64 chunk_size = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(UpdateAck, _impl_.chunk_size_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(UpdateAck, _impl_.chunk_size_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint64 chunk_size = 1;
+    {PROTOBUF_FIELD_OFFSET(UpdateAck, _impl_.chunk_size_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt64)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void UpdateAck::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.UpdateAck)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.chunk_size_ = ::uint64_t{0u};
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL UpdateAck::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const UpdateAck& this_ = static_cast<const UpdateAck&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL UpdateAck::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const UpdateAck& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.UpdateAck)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // uint64 chunk_size = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
+    if (this_._internal_chunk_size() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
+          1, this_._internal_chunk_size(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.UpdateAck)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t UpdateAck::ByteSizeLong(const MessageLite& base) {
+  const UpdateAck& this_ = static_cast<const UpdateAck&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t UpdateAck::ByteSizeLong() const {
+  const UpdateAck& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.UpdateAck)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+   {
+    // uint64 chunk_size = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (this_._internal_chunk_size() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
+            this_._internal_chunk_size());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void UpdateAck::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<UpdateAck*>(&to_msg);
+  auto& from = static_cast<const UpdateAck&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.UpdateAck)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001U) != 0) {
+    if (from._internal_chunk_size() != 0) {
+      _this->_impl_.chunk_size_ = from._impl_.chunk_size_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UpdateAck::CopyFrom(const UpdateAck& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.UpdateAck)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void UpdateAck::InternalSwap(UpdateAck* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  swap(_impl_.chunk_size_, other->_impl_.chunk_size_);
+}
+
+::google::protobuf::Metadata UpdateAck::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateFailure::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<UpdateFailure>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(UpdateFailure, _impl_._has_bits_);
+};
+
+UpdateFailure::UpdateFailure(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateFailure_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateFailure)
+}
+PROTOBUF_NDEBUG_INLINE UpdateFailure::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::UpdateFailure& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        reason_(arena, from.reason_) {}
+
+UpdateFailure::UpdateFailure(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateFailure& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, UpdateFailure_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateFailure* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateFailure)
+}
+PROTOBUF_NDEBUG_INLINE UpdateFailure::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        reason_(arena) {}
+
+inline void UpdateFailure::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+UpdateFailure::~UpdateFailure() {
+  // @@protoc_insertion_point(destructor:pb.UpdateFailure)
+  SharedDtor(*this);
+}
+inline void UpdateFailure::SharedDtor(MessageLite& self) {
+  UpdateFailure& this_ = static_cast<UpdateFailure&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.reason_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL UpdateFailure::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateFailure(arena);
+}
+constexpr auto UpdateFailure::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(UpdateFailure),
+                                            alignof(UpdateFailure));
+}
+constexpr auto UpdateFailure::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateFailure_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateFailure::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<UpdateFailure>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateFailure::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<UpdateFailure>(), &UpdateFailure::ByteSizeLong,
+              &UpdateFailure::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateFailure, _impl_._cached_size_),
+          false,
+      },
+      &UpdateFailure::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateFailure_class_data_ =
+        UpdateFailure::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateFailure::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateFailure_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateFailure_class_data_.tc_table);
+  return UpdateFailure_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 31, 2>
+UpdateFailure::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(UpdateFailure, _impl_._has_bits_),
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateFailure_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateFailure>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // string reason = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(UpdateFailure, _impl_.reason_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string reason = 1;
+    {PROTOBUF_FIELD_OFFSET(UpdateFailure, _impl_.reason_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+    "\20\6\0\0\0\0\0\0"
+    "pb.UpdateFailure"
+    "reason"
+  }},
+};
+PROTOBUF_NOINLINE void UpdateFailure::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.UpdateFailure)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001U) != 0) {
+    _impl_.reason_.ClearNonDefaultToEmpty();
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL UpdateFailure::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const UpdateFailure& this_ = static_cast<const UpdateFailure&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL UpdateFailure::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const UpdateFailure& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.UpdateFailure)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // string reason = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
+    if (!this_._internal_reason().empty()) {
+      const ::std::string& _s = this_._internal_reason();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "pb.UpdateFailure.reason");
+      target = stream->WriteStringMaybeAliased(1, _s, target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.UpdateFailure)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t UpdateFailure::ByteSizeLong(const MessageLite& base) {
+  const UpdateFailure& this_ = static_cast<const UpdateFailure&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t UpdateFailure::ByteSizeLong() const {
+  const UpdateFailure& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.UpdateFailure)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+   {
+    // string reason = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (!this_._internal_reason().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_reason());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void UpdateFailure::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<UpdateFailure*>(&to_msg);
+  auto& from = static_cast<const UpdateFailure&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.UpdateFailure)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001U) != 0) {
+    if (!from._internal_reason().empty()) {
+      _this->_internal_set_reason(from._internal_reason());
+    } else {
+      if (_this->_impl_.reason_.IsDefault()) {
+        _this->_internal_set_reason("");
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UpdateFailure::CopyFrom(const UpdateFailure& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.UpdateFailure)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void UpdateFailure::InternalSwap(UpdateFailure* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.reason_, &other->_impl_.reason_, arena);
+}
+
+::google::protobuf::Metadata UpdateFailure::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateSuccess::_Internal {
+ public:
+};
+
+UpdateSuccess::UpdateSuccess(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateSuccess_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateSuccess)
+}
+UpdateSuccess::UpdateSuccess(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateSuccess& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateSuccess_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateSuccess* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateSuccess)
+}
+
+inline void* PROTOBUF_NONNULL UpdateSuccess::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateSuccess(arena);
+}
+constexpr auto UpdateSuccess::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(UpdateSuccess),
+                                            alignof(UpdateSuccess));
+}
+constexpr auto UpdateSuccess::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateSuccess_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateSuccess::MergeImpl,
+          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<UpdateSuccess>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateSuccess::SharedDtor,
+          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<UpdateSuccess>(), &UpdateSuccess::ByteSizeLong,
+              &UpdateSuccess::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateSuccess, _impl_._cached_size_),
+          false,
+      },
+      &UpdateSuccess::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateSuccess_class_data_ =
+        UpdateSuccess::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateSuccess::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateSuccess_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateSuccess_class_data_.tc_table);
+  return UpdateSuccess_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+UpdateSuccess::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    0, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967295,  // skipmap
+    offsetof(decltype(_table_), field_names),  // no field_entries
+    0,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateSuccess_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateSuccess>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, // no field_entries, or aux_entries
+  {{
+  }},
+};
+
+
+
+
+
+
+
+::google::protobuf::Metadata UpdateSuccess::GetMetadata() const {
+  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class MessageV1::_Internal {
  public:
   using HasBits =
@@ -39476,6 +42416,19 @@ void MessageV1::set_allocated_calibration_command(::pb::CalibrationCommand* PROT
   }
   // @@protoc_insertion_point(field_set_allocated:pb.MessageV1.calibration_command)
 }
+void MessageV1::set_allocated_update_command(::pb::UpdateCommand* PROTOBUF_NULLABLE update_command) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (update_command) {
+    ::google::protobuf::Arena* submessage_arena = update_command->GetArena();
+    if (message_arena != submessage_arena) {
+      update_command = ::google::protobuf::internal::GetOwnedMessage(message_arena, update_command, submessage_arena);
+    }
+    set_has_update_command();
+    _impl_.kind_.update_command_ = update_command;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.MessageV1.update_command)
+}
 void MessageV1::set_allocated_extract_response(::pb::ExtractResponse* PROTOBUF_NULLABLE extract_response) {
   ::google::protobuf::Arena* message_arena = GetArena();
   clear_kind();
@@ -39696,6 +42649,19 @@ void MessageV1::set_allocated_calibration_response(::pb::CalibrationResponse* PR
     _impl_.kind_.calibration_response_ = calibration_response;
   }
   // @@protoc_insertion_point(field_set_allocated:pb.MessageV1.calibration_response)
+}
+void MessageV1::set_allocated_update_response(::pb::UpdateResponse* PROTOBUF_NULLABLE update_response) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (update_response) {
+    ::google::protobuf::Arena* submessage_arena = update_response->GetArena();
+    if (message_arena != submessage_arena) {
+      update_response = ::google::protobuf::internal::GetOwnedMessage(message_arena, update_response, submessage_arena);
+    }
+    set_has_update_response();
+    _impl_.kind_.update_response_ = update_response;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.MessageV1.update_response)
 }
 void MessageV1::set_allocated_calibrate_init_command(::pb::CalibrateInitCommand* PROTOBUF_NULLABLE calibrate_init_command) {
   ::google::protobuf::Arena* message_arena = GetArena();
@@ -39922,6 +42888,9 @@ MessageV1::MessageV1(
       case kCalibrationCommand:
         _impl_.kind_.calibration_command_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.calibration_command_);
         break;
+      case kUpdateCommand:
+        _impl_.kind_.update_command_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.update_command_);
+        break;
       case kExtractResponse:
         _impl_.kind_.extract_response_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.extract_response_);
         break;
@@ -39972,6 +42941,9 @@ MessageV1::MessageV1(
         break;
       case kCalibrationResponse:
         _impl_.kind_.calibration_response_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.calibration_response_);
+        break;
+      case kUpdateResponse:
+        _impl_.kind_.update_response_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.update_response_);
         break;
       case kCalibrateInitCommand:
         _impl_.kind_.calibrate_init_command_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.calibrate_init_command_);
@@ -40200,6 +43172,14 @@ void MessageV1::clear_kind() {
       }
       break;
     }
+    case kUpdateCommand: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.update_command_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.update_command_);
+      }
+      break;
+    }
     case kExtractResponse: {
       if (GetArena() == nullptr) {
         delete _impl_.kind_.extract_response_;
@@ -40336,6 +43316,14 @@ void MessageV1::clear_kind() {
       }
       break;
     }
+    case kUpdateResponse: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.update_response_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.update_response_);
+      }
+      break;
+    }
     case kCalibrateInitCommand: {
       if (GetArena() == nullptr) {
         delete _impl_.kind_.calibrate_init_command_;
@@ -40467,7 +43455,7 @@ MessageV1::GetClassData() const {
   return MessageV1_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 48, 47, 71, 41>
+const ::_pbi::TcParseTable<0, 50, 49, 71, 41>
 MessageV1::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(MessageV1, _impl_._has_bits_),
@@ -40476,8 +43464,8 @@ MessageV1::_table_ = {
     offsetof(decltype(_table_), field_lookup_table),
     4294967294,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    48,  // num_field_entries
-    47,  // num_aux_entries
+    50,  // num_field_entries
+    49,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     MessageV1_class_data_.base(),
     nullptr,  // post_loop_handler
@@ -40494,20 +43482,20 @@ MessageV1::_table_ = {
     65532, 1,
     200, 0, 13,
     2, 3,
-    65528, 18,
-    65535, 21,
-    65535, 21,
-    65535, 21,
-    65535, 21,
-    31, 21,
-    65472, 32,
-    65535, 38,
-    65535, 38,
-    65535, 38,
-    65535, 38,
-    57599, 38,
+    65520, 18,
+    65535, 22,
+    65535, 22,
+    65535, 22,
+    65535, 22,
+    31, 22,
+    65408, 33,
+    65535, 40,
+    65535, 40,
+    65535, 40,
+    65535, 40,
+    57599, 40,
     501, 0, 1,
-    65504, 43,
+    65504, 45,
     65535, 65535
   }}, {{
     // optional string id = 1;
@@ -40552,60 +43540,64 @@ MessageV1::_table_ = {
     {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.get_overload_status_command_), _Internal::kOneofCaseOffset + 0, 18, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.CalibrationCommand calibration_command = 218;
     {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibration_command_), _Internal::kOneofCaseOffset + 0, 19, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateCommand update_command = 219;
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.update_command_), _Internal::kOneofCaseOffset + 0, 20, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.ExtractResponse extract_response = 301;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.extract_response_), _Internal::kOneofCaseOffset + 0, 20, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.extract_response_), _Internal::kOneofCaseOffset + 0, 21, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.ConfigResponse config_response = 302;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.config_response_), _Internal::kOneofCaseOffset + 0, 21, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.config_response_), _Internal::kOneofCaseOffset + 0, 22, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.ResetResponse reset_response = 303;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.reset_response_), _Internal::kOneofCaseOffset + 0, 22, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.reset_response_), _Internal::kOneofCaseOffset + 0, 23, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.StartRunResponse start_run_response = 304;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.start_run_response_), _Internal::kOneofCaseOffset + 0, 23, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.start_run_response_), _Internal::kOneofCaseOffset + 0, 24, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.RunStateChangeMessage run_state_change_message = 305;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.run_state_change_message_), _Internal::kOneofCaseOffset + 0, 24, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.run_state_change_message_), _Internal::kOneofCaseOffset + 0, 25, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.RunDataMessage run_data_message = 306;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.run_data_message_), _Internal::kOneofCaseOffset + 0, 25, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.run_data_message_), _Internal::kOneofCaseOffset + 0, 26, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.RunDataEndMessage run_data_end_message = 307;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.run_data_end_message_), _Internal::kOneofCaseOffset + 0, 26, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.run_data_end_message_), _Internal::kOneofCaseOffset + 0, 27, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.GetSystemIdentResponse get_system_ident_response = 308;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.get_system_ident_response_), _Internal::kOneofCaseOffset + 0, 27, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.get_system_ident_response_), _Internal::kOneofCaseOffset + 0, 28, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.SyslogResponse syslog_response = 309;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.syslog_response_), _Internal::kOneofCaseOffset + 0, 28, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.syslog_response_), _Internal::kOneofCaseOffset + 0, 29, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.SystemStatsResponse system_stats_response = 310;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.system_stats_response_), _Internal::kOneofCaseOffset + 0, 29, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.system_stats_response_), _Internal::kOneofCaseOffset + 0, 30, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.ReadSystemIdentResponse read_system_ident_response = 311;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.read_system_ident_response_), _Internal::kOneofCaseOffset + 0, 30, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.read_system_ident_response_), _Internal::kOneofCaseOffset + 0, 31, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.ResetSystemIdentResponse reset_system_ident_response = 312;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.reset_system_ident_response_), _Internal::kOneofCaseOffset + 0, 31, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.reset_system_ident_response_), _Internal::kOneofCaseOffset + 0, 32, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.WriteSystemIdentResponse write_system_ident_response = 313;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.write_system_ident_response_), _Internal::kOneofCaseOffset + 0, 32, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.write_system_ident_response_), _Internal::kOneofCaseOffset + 0, 33, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.ReadTemperatureResponse read_temperature_response = 314;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.read_temperature_response_), _Internal::kOneofCaseOffset + 0, 33, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.read_temperature_response_), _Internal::kOneofCaseOffset + 0, 34, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.GetOverloadStatusResponse get_overload_status_response = 315;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.get_overload_status_response_), _Internal::kOneofCaseOffset + 0, 34, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.get_overload_status_response_), _Internal::kOneofCaseOffset + 0, 35, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.UdpDataStreamingRefusedResponse udp_data_streaming_refused_response = 316;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.udp_data_streaming_refused_response_), _Internal::kOneofCaseOffset + 0, 35, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.udp_data_streaming_refused_response_), _Internal::kOneofCaseOffset + 0, 36, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.CalibrationResponse calibration_response = 317;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibration_response_), _Internal::kOneofCaseOffset + 0, 36, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibration_response_), _Internal::kOneofCaseOffset + 0, 37, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateResponse update_response = 318;
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.update_response_), _Internal::kOneofCaseOffset + 0, 38, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.CalibrateInitCommand calibrate_init_command = 400;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_init_command_), _Internal::kOneofCaseOffset + 0, 37, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_init_command_), _Internal::kOneofCaseOffset + 0, 39, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.CalibrateLaneCommand calibrate_lane_command = 401;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_lane_command_), _Internal::kOneofCaseOffset + 0, 38, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_lane_command_), _Internal::kOneofCaseOffset + 0, 40, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.CalibrateOffsetCommand calibrate_offset_command = 402;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_offset_command_), _Internal::kOneofCaseOffset + 0, 39, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_offset_command_), _Internal::kOneofCaseOffset + 0, 41, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.CalibrateFinalizeCommand calibrate_finalize_command = 403;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_finalize_command_), _Internal::kOneofCaseOffset + 0, 40, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_finalize_command_), _Internal::kOneofCaseOffset + 0, 42, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.CalibrateDataCommand calibrate_data_command = 404;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_data_command_), _Internal::kOneofCaseOffset + 0, 41, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.calibrate_data_command_), _Internal::kOneofCaseOffset + 0, 43, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.AuthRequest auth_request = 501;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.auth_request_), _Internal::kOneofCaseOffset + 0, 42, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.auth_request_), _Internal::kOneofCaseOffset + 0, 44, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.DeviceBusyMessage busy_response = 502;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.busy_response_), _Internal::kOneofCaseOffset + 0, 43, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.busy_response_), _Internal::kOneofCaseOffset + 0, 45, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.PingCommand ping_command = 503;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.ping_command_), _Internal::kOneofCaseOffset + 0, 44, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.ping_command_), _Internal::kOneofCaseOffset + 0, 46, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.JitCommand jit_command = 504;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.jit_command_), _Internal::kOneofCaseOffset + 0, 45, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.jit_command_), _Internal::kOneofCaseOffset + 0, 47, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.JitResponse jit_response = 505;
-    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.jit_response_), _Internal::kOneofCaseOffset + 0, 46, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(MessageV1, _impl_.kind_.jit_response_), _Internal::kOneofCaseOffset + 0, 48, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pb::SuccessMessage>()},
@@ -40628,6 +43620,7 @@ MessageV1::_table_ = {
       {::_pbi::TcParser::GetTable<::pb::ReadTemperatureCommand>()},
       {::_pbi::TcParser::GetTable<::pb::GetOverloadStatusCommand>()},
       {::_pbi::TcParser::GetTable<::pb::CalibrationCommand>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateCommand>()},
       {::_pbi::TcParser::GetTable<::pb::ExtractResponse>()},
       {::_pbi::TcParser::GetTable<::pb::ConfigResponse>()},
       {::_pbi::TcParser::GetTable<::pb::ResetResponse>()},
@@ -40645,6 +43638,7 @@ MessageV1::_table_ = {
       {::_pbi::TcParser::GetTable<::pb::GetOverloadStatusResponse>()},
       {::_pbi::TcParser::GetTable<::pb::UdpDataStreamingRefusedResponse>()},
       {::_pbi::TcParser::GetTable<::pb::CalibrationResponse>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateResponse>()},
       {::_pbi::TcParser::GetTable<::pb::CalibrateInitCommand>()},
       {::_pbi::TcParser::GetTable<::pb::CalibrateLaneCommand>()},
       {::_pbi::TcParser::GetTable<::pb::CalibrateOffsetCommand>()},
@@ -40826,6 +43820,12 @@ PROTOBUF_NOINLINE void MessageV1::Clear() {
           stream);
       break;
     }
+    case kUpdateCommand: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          219, *this_._impl_.kind_.update_command_, this_._impl_.kind_.update_command_->GetCachedSize(), target,
+          stream);
+      break;
+    }
     case kExtractResponse: {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
           301, *this_._impl_.kind_.extract_response_, this_._impl_.kind_.extract_response_->GetCachedSize(), target,
@@ -40925,6 +43925,12 @@ PROTOBUF_NOINLINE void MessageV1::Clear() {
     case kCalibrationResponse: {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
           317, *this_._impl_.kind_.calibration_response_, this_._impl_.kind_.calibration_response_->GetCachedSize(), target,
+          stream);
+      break;
+    }
+    case kUpdateResponse: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          318, *this_._impl_.kind_.update_response_, this_._impl_.kind_.update_response_->GetCachedSize(), target,
           stream);
       break;
     }
@@ -41143,6 +44149,12 @@ PROTOBUF_NOINLINE void MessageV1::Clear() {
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.calibration_command_);
       break;
     }
+    // .pb.UpdateCommand update_command = 219;
+    case kUpdateCommand: {
+      total_size += 2 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.update_command_);
+      break;
+    }
     // .pb.ExtractResponse extract_response = 301;
     case kExtractResponse: {
       total_size += 2 +
@@ -41243,6 +44255,12 @@ PROTOBUF_NOINLINE void MessageV1::Clear() {
     case kCalibrationResponse: {
       total_size += 2 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.calibration_response_);
+      break;
+    }
+    // .pb.UpdateResponse update_response = 318;
+    case kUpdateResponse: {
+      total_size += 2 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.update_response_);
       break;
     }
     // .pb.CalibrateInitCommand calibrate_init_command = 400;
@@ -41501,6 +44519,14 @@ void MessageV1::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::googl
         }
         break;
       }
+      case kUpdateCommand: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.update_command_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.update_command_);
+        } else {
+          _this->_impl_.kind_.update_command_->MergeFrom(*from._impl_.kind_.update_command_);
+        }
+        break;
+      }
       case kExtractResponse: {
         if (oneof_needs_init) {
           _this->_impl_.kind_.extract_response_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.extract_response_);
@@ -41634,6 +44660,14 @@ void MessageV1::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::googl
           _this->_impl_.kind_.calibration_response_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.calibration_response_);
         } else {
           _this->_impl_.kind_.calibration_response_->MergeFrom(*from._impl_.kind_.calibration_response_);
+        }
+        break;
+      }
+      case kUpdateResponse: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.update_response_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.update_response_);
+        } else {
+          _this->_impl_.kind_.update_response_->MergeFrom(*from._impl_.kind_.update_response_);
         }
         break;
       }

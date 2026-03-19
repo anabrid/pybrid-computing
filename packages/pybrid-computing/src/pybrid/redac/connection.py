@@ -11,6 +11,7 @@ detection (direct vs. proxy mode), persistent channel creation, and teardown.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass
 from typing import Literal, List, Optional
@@ -224,20 +225,32 @@ class ConnectionManager:
         control = await AsyncControlChannel.create(host, port)
         control.start()
 
-        # The DataChannel shares the ControlChannel's TCP transport and routes
-        # control responses back via on_tcp_response().  The ControlChannel's
-        # recv thread must be stopped before the DataChannel starts so it can
-        # take exclusive ownership of the transport.
         output_queue = SampleLockFreeBuffer()
         data_channel = SampleDecodingDataChannel()
         data_channel.set_output_queue(output_queue)
         data_channel.set_tcp_transport(control.transport)
+        data_channel.set_control_channel(control.native)
         data_channel.set_control_response_callback(
             lambda data: control.native.on_tcp_response(data)
         )
 
-        control.native.stop_recv_thread()
-        data_channel.start()
+        # The ControlChannel recv thread must be running for UDP negotiation
+        # (send_and_recv needs it to read the device response). If negotiation
+        # fails, the C++ DataChannel::start() stops the recv thread itself
+        # before falling back to TCP.
+        #
+        # start() is run in an executor because it blocks during UDP negotiation
+        # (send_and_recv waits for the device response). If the device is a
+        # DummyDAC in the same event loop, blocking the loop would prevent it
+        # from processing the negotiation request, causing a timeout.
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, data_channel.start)
+
+        if data_channel.is_using_tcp_fallback():
+            logger.warning(
+                "Device at %s:%d refused UDP data streaming, falling back to TCP.",
+                host, port,
+            )
 
         conn = DeviceConnection(control=control, data=data_channel, output_queue=output_queue)
 

@@ -283,7 +283,7 @@ def make_daq_data(values: list, dtype: str, channel_count: int, sample_count: in
     import pybrid.base.proto.main_pb2 as pb
 
     data_pb = pb.DaqData()
-    data_pb.channel_count = channel_count
+    data_pb.channel_stride = channel_count
     data_pb.sample_count = sample_count
     data_pb.data = np.array(values, dtype=dtype).tobytes()
 

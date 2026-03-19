@@ -334,10 +334,14 @@ bool ControlChannel::set_module(const pb::Module& module, double timeout_secs) {
 
     pb::ConfigCommand* config_command = msg.mutable_config_command();
     config_command->mutable_module()->CopyFrom(module);
+    config_command->set_reset_before(true);
 
     pb::MessageV1 response = send_and_recv(msg, timeout_secs);
 
-    return !response.has_error_message();
+    if (response.has_error_message()) {
+        throw std::runtime_error(response.error_message().description());
+    }
+    return true;
 }
 
 void ControlChannel::start_run_request(
@@ -383,7 +387,10 @@ bool ControlChannel::authenticate(const std::string& token, double timeout_secs)
 
     pb::MessageV1 response = send_and_recv(msg, timeout_secs);
 
-    return !response.has_error_message();
+    if (response.has_error_message()) {
+        throw std::runtime_error(response.error_message().description());
+    }
+    return true;
 }
 
 }  // namespace anabrid::pybrid::native

@@ -261,7 +261,7 @@ class StartRunHandler(BaseHandler):
                 data=final_values.astype(np.float32).tobytes(),
                 type=pb.DataType(float_=pb.FloatType(bitwidth=32)),
                 sample_count=1,
-                channel_count=num_channels,
+                channel_stride=num_channels,
                 channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)]
             )
             msg = ClientConnection.new_message(
@@ -398,7 +398,7 @@ class StartRunHandler(BaseHandler):
                 data=chunk_samples.astype(np.float32).flatten(order='F').tobytes(),
                 type=pb.DataType(float_=pb.FloatType(bitwidth=32)),
                 sample_count=end - start,
-                channel_count=num_channels,
+                channel_stride=num_channels,
                 channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)]
             )
 
