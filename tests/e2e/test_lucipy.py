@@ -150,10 +150,9 @@ class TestCircuitDefinition:
 
         i0 = circuit.int(ic=0.0)
 
-        # Use probe() method which allocates an output and connects
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            circuit.probe(i0, front_port=0, weight=1.0)
+        # Use output() + connect() to route to ACL_OUT
+        out0 = circuit.output(0)
+        circuit.connect(i0, out0, weight=1.0)
 
         # Verify via pybrid object that ACL_OUT lane 24 has source i0
         lucidac = circuit.to_computer()
@@ -223,7 +222,7 @@ class TestLUCIStackE2E:
             circuit = Circuit("AA-BB-CC-DD-EE-FF")
             i0 = circuit.int(ic=1.0)
             circuit.connect(i0, i0, weight=-1.0)
-            circuit.measure(i0, adc_channel=0)
+            circuit.probe(i0, adc_channel=0)
 
             # Set circuit, DAQ, and run config
             luci.set_circuit(circuit)
@@ -275,7 +274,7 @@ class TestLorenz96Pattern:
             circuit.connect(F, x[i], weight=-0.10)
 
             # Measure each integrator
-            circuit.measure(x[i], adc_channel=i)
+            circuit.probe(x[i], adc_channel=i)
 
         # Verify element allocation counts
         integrators_allocated = sum(1 for used in circuit._integrators_used if used)

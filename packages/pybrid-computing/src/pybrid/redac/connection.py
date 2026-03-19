@@ -246,7 +246,7 @@ class ConnectionManager:
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, data_channel.start)
 
-        if data_channel.is_using_tcp_fallback():
+        if self._topology_mode == "direct" and data_channel.is_using_tcp_fallback():
             logger.warning(
                 "Device at %s:%d refused UDP data streaming, falling back to TCP.",
                 host, port,

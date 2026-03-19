@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 """
-Unit tests for Circuit.measure() ADC channel assignment.
+Unit tests for Circuit.probe() ADC channel assignment.
 
-These tests verify that measure() correctly raises ValueError on ADC channel
+These tests verify that probe() correctly raises ValueError on ADC channel
 exhaustion (max 8 channels).
 """
 
@@ -14,19 +14,17 @@ import pytest
 from pybrid.lucipy.circuits import Circuit
 
 
-class TestMeasure:
-    """Tests for Circuit.measure() ADC channel assignment (deprecated API)."""
+class TestProbe:
+    """Tests for Circuit.probe() ADC channel assignment."""
 
-    def test_measure_overflow(self):
-        """The 9th measure() call must raise ValueError (only 8 ADC channels)."""
+    def test_probe_overflow(self):
+        """The 9th probe() call must raise ValueError (only 8 ADC channels)."""
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
 
-        with pytest.warns(DeprecationWarning):
-            for i, integrator in enumerate(integrators):
-                circuit.measure(integrator)
+        for integrator in integrators:
+            circuit.probe(integrator)
 
         m0 = circuit.mul()
-        with pytest.raises(ValueError, match="(?i)adc|channel|measure|free|occupied"):
-            with pytest.warns(DeprecationWarning):
-                circuit.measure(m0)
+        with pytest.raises(ValueError, match="(?i)adc|channel|probe|free|occupied"):
+            circuit.probe(m0)

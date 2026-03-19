@@ -40,8 +40,11 @@ vdp.connect(y2,  fb.a, weight = -1)     # Build nonlinear feedback term
 vdp.connect(c,   fb.a, weight = 0.25)
 vdp.connect(mdy, fb.b)
 
-vdp.probe(mdy, front_port=0)            # Connect to front panel probes
-vdp.probe(y,   front_port=1)
+out0 = vdp.output(0)                    # Allocate output MCX plugs
+out1 = vdp.output(1)
+
+vdp.connect(mdy, out0)                  # Connect signals to front panel outputs
+vdp.connect(y,   out1)
 
 vdp.probe(mdy)                          # Connect to ADC to sample data
 vdp.probe(y)

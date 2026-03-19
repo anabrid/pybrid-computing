@@ -28,17 +28,17 @@ Lane allocation:
 import math
 import uuid
 import warnings
+import typing
 
 # for protobuf export
 from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.carrier import ADCChannel
 
-from pybrid.lucipy._compat import deprecated
 from pybrid.lucipy.helpers import Helpers
 from pybrid.lucipy.elements import (  # noqa: F401 — re-exported for backward compat
     Integrator,
-    _MulInput,
     Multiplier,
+    _MulInput,
     Identity,
     Constant,
     Input,
@@ -360,22 +360,14 @@ class Circuit:
             # IBlock: connect lane to target M-block input
             self._cluster.iblock.connect(lane, target_m_input, force=False)
 
-    def probe(self, source, adc_channel=None, front_port=None, weight=1.0):
+    def probe(self, source, adc_channel=None) -> int:
         """
-        Assign a source element to an ADC channel, or route to ACL_OUT (deprecated).
-
-        Signature-based dispatch:
-        - ``probe(source, adc_channel=N)`` — assign ADC channel (canonical)
-        - ``probe(source)`` — greedy ADC channel assignment (canonical)
-        - ``probe(source, front_port=N, weight=W)`` — deprecated ACL_OUT mode,
-          emits DeprecationWarning and delegates to ``output()`` + ``connect()``
+        Assign a source element to an ADC channel for measurement.
 
         :param source: Source element to probe
-        :param adc_channel: Explicit ADC channel (0-7), or None for greedy
-        :param front_port: Deprecated. If given, routes to ACL_OUT instead
-        :param weight: Connection weight (only used with front_port)
-        :returns: ADC channel number, or Output element (if front_port given)
-        :raises ValueError: If no free ADC channel or port is available
+        :param adc_channel: Explicit ADC channel (0-7), or None for greedy assignment
+        :returns: Assigned ADC channel number
+        :raises ValueError: If no free ADC channel is available
         """
         # Ownership check
         source_cid = getattr(source, '_circuit_id', None)
@@ -386,22 +378,6 @@ class Circuit:
                 f"Source {type(source).__name__} belongs to a different Circuit. "
                 f"All elements in a probe() call must belong to the same circuit."
             )
-
-        if front_port is not None and adc_channel is not None:
-            raise ValueError(
-                "Cannot specify both adc_channel and front_port. "
-                "Use adc_channel for ADC measurement, or front_port for ACL_OUT routing."
-            )
-
-        if front_port is not None:
-            warnings.warn(
-                "probe(front_port=...) is deprecated, use output() and connect() instead",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            out = self.output(front_port)
-            self.connect(source, out, weight=weight)
-            return out
 
         return self._probe_adc(source, adc_channel)
 
@@ -461,6 +437,20 @@ class Circuit:
             return carrier.front_plane.signal_generator
         return None
 
+    def set_leds(self, leds: typing.Union[int, typing.List[bool]]) -> None:
+        """
+        Set the LEDs on the front plane without triggering deprecation warnings.
+
+        :param leds: Either an integer bitmask (LSB = rightmost LED) or
+            a list of booleans (e.g., [True, False, True, ...])
+        """
+        carrier = self._lucidac.entities[0] if self._lucidac.entities else None
+        if carrier is not None and carrier.front_plane is not None:
+            if isinstance(leds, list):
+                # Convert boolean list to bitmask (LSB = rightmost LED)
+                leds = sum((1 if v else 0) << i for i, v in enumerate(leds))
+            carrier.front_plane.leds = leds
+
     def to_config(self) -> pb.File:
         """
         Convert the circuit to protobuf format suitable for sending to LUCIDAC.
@@ -481,40 +471,4 @@ class Circuit:
             module=module,
         )
 
-    @deprecated("measure() is deprecated, use probe() instead")
-    def measure(self, source, adc_channel=None) -> int:
-        """
-        Assign a source element to an ADC channel for measurement.
-
-        :param source: Source element to measure
-        :param adc_channel: Explicit channel (0-7), or None for greedy assignment
-        :returns: Assigned ADC channel number
-        """
-        return self.probe(source, adc_channel=adc_channel)
-
-    @deprecated("front_input() is deprecated, use input() instead")
-    def front_input(self, port):
-        """
-        Allocate an ACL_IN port.
-
-        :param port: Port number
-        :returns: The allocated Input element
-        """
-        return self.input(port=port)
-
-    @property
-    def front_panel(self):
-        """
-        Deprecated: use signal_generator() instead.
-
-        Returns the FrontPanel from the internal LUCIDAC.
-        """
-        warnings.warn(
-            "front_panel property is deprecated, use signal_generator() instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        carrier = self._lucidac.entities[0] if self._lucidac.entities else None
-        if carrier is not None:
-            return carrier.front_plane
-        return None
+ 

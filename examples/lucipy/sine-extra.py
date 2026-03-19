@@ -27,26 +27,33 @@ omega   = .01 * (2.*np.pi)              # Oscillation frequency
 sin = c.int(ic = ic_sin)                # Integrators for sine and cosine
 cos = c.int()
 
+port0 = c.output(0)                     # Allocate output MCX plugs
+port1 = c.output(1)
+
 c.connect(sin, cos, weight = +omega)    # Connect sine to cosine integrator
 c.connect(cos, sin, weight = -omega)    # Connect cosine to sine integrator
 
 c.probe(sin, adc_channel=0)             # Connect integrators to ADC
 c.probe(cos, adc_channel=1)             # to sample data
 
-c.probe(sin, front_port=0)
-c.probe(cos, front_port=1)
+c.connect(sin, port0)                   # Connect signals to analog output as
+c.connect(cos, port1)                   # well
 
 ###
 # Setup the front panel:
 # - signal generator
 ###
-c.front_panel.set_frequency(1000)
-c.front_panel.set_sine(amplitude=0.6, offset=0.2)
-c.front_panel.set_rect(low=-0.2, high=0.7)
-c.front_panel.set_triangle(offset=0.2)
-c.front_panel.set_aux(0.3, -0.8)
+sg = c.signal_generator()
+sg.frequency = 1000
+sg.amplitude = 0.6
+sg.offset = 0.2
+sg.square_voltage_low = -0.2
+sg.square_voltage_high = 0.7
+sg.dac_outputs = [0.3, -0.8]
+sg.sleep = False
 
-c.front_panel.set_leds([True, True, False, True, False, True, True, True])
+# Set LEDs (list of booleans)
+c.set_leds([True, True, False, True, False, True, True, True])
 
 ###
 # Settings for sampling and circuit execution

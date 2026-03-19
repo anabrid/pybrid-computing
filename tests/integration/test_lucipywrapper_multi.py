@@ -155,7 +155,7 @@ class TestLucipyWrapperMultiDevice:
 
             # Mutate the circuit after creation
             i0 = c0.int(ic=0.42)
-            c0.measure(i0)
+            c0.probe(i0)
 
             # The stored circuit sees the mutation (same object)
             stored = wrapper._circuits[0]
