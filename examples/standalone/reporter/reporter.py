@@ -10,7 +10,8 @@ import io
 import numpy as np
 from matplotlib import pyplot as plt
 from pybrid.base.utils.logging import set_pybrid_logging_level
-from pybrid.redac import Protocol, Controller, DAQConfig, RunConfig, Path
+from pybrid.redac import Controller as REDACController, DAQConfig, RunConfig, Path
+from pybrid.lucidac.controller import Controller as LUCIDACController
 from pybrid.redac.carrier import Carrier, ADCChannel
 
 set_pybrid_logging_level(logging.ERROR)
@@ -88,7 +89,7 @@ class Reporter:
         self.drawPlot(fig)
         plt.close(fig)
 
-async def sin_test(controller: Controller, reporter: Reporter) -> None:
+async def sin_test(controller: REDACController | LUCIDACController, reporter: Reporter) -> None:
     print("Harmonic oscillator test")
 
     reporter.drawString("Harmonic oscillator test", 18)
@@ -100,7 +101,6 @@ async def sin_test(controller: Controller, reporter: Reporter) -> None:
         reporter.drawString("periods = " + str(periods), 12)
         for carrier in computer.carriers:
             for cluster_idx, cluster in enumerate(carrier.clusters):
-                await controller.reset()
                 computer.reset()
                 for sincos_idx in range(4):
                     lane_cos = sincos_idx * 2
@@ -113,18 +113,23 @@ async def sin_test(controller: Controller, reporter: Reporter) -> None:
                     cluster.m0block.elements[lane_cos].ic = 1.0
                     computer.daq.capture(cluster.m0block.elements[lane_cos], cluster.m0block.elements[lane_sin])
 
-                await controller.set_computer(computer)
-
                 run_config = RunConfig(op_time= (periods * 6_283_185_307) // 10_000)
                 daq_config = DAQConfig(num_channels=8, sample_rate=(314_159) // 10)
-                run_class = controller.get_run_implementation()
-                run = run_class(config=run_config, daq=daq_config)
 
-                await controller.start_and_await_run(run)
+                runs = await (
+                    controller.create_session()
+                    .set_config(computer)
+                    .calibrate(gain=True, offset=True)
+                    .run(config=run_config, daq=daq_config)
+                    .execute()
+                )
+                run = runs[0]
 
                 labels = []
                 data = []
-                for channel_idx, channel in enumerate(run.data.values()):
+                for channel_idx, channel in enumerate(run.data):
+                    if channel is None:
+                        continue
                     channel = np.array(channel)
                     itor_idx = channel_idx
                     pi_values = np.linspace(0, periods * 2 * np.pi, len(channel))
@@ -135,7 +140,7 @@ async def sin_test(controller: Controller, reporter: Reporter) -> None:
                 reporter.box_plot(labels, data, title=str(cluster.path.root) + " cluster " + str(cluster_idx))
 
 
-async def lane_test(controller: Controller, reporter: Reporter) -> None:
+async def lane_test(controller: REDACController | LUCIDACController, reporter: Reporter) -> None:
     print("Lane Test")
 
     reporter.drawString("Lane test", 18)
@@ -145,7 +150,6 @@ async def lane_test(controller: Controller, reporter: Reporter) -> None:
 
     run_config = RunConfig(op_time=1_000_000)
     daq_config = DAQConfig(num_channels=2, sample_rate=100_000)
-    run_class = controller.get_run_implementation()
 
     for carrier in computer.carriers:
         for cluster_idx, cluster in enumerate(carrier.clusters):
@@ -154,20 +158,25 @@ async def lane_test(controller: Controller, reporter: Reporter) -> None:
 
             lane_coef = 0.56
             for batch_idx in range(8):
-                await controller.reset()
                 computer.reset()
                 for channel_idx in range(4):
                     lane_idx = batch_idx * 4 + channel_idx
 
                     cluster.add_constant(lane_idx, -lane_coef, 8 + channel_idx, 1.0)
-                    carrier.adc_config.append(ADCChannel(index=12 + channel_idx + 16 * cluster_idx, gain=1.0, offset=0.0))
+                    carrier.adc_config.append(ADCChannel(index=12 + channel_idx + 16 * cluster_idx, gain=1.0, offset=0.0, probe=channel_idx))
 
-                await controller.set_computer(computer)
+                runs = await (
+                    controller.create_session()
+                    .set_config(computer)
+                    .calibrate(gain=True, offset=True)
+                    .run(config=run_config, daq=daq_config)
+                    .execute()
+                )
+                run = runs[0]
 
-                run = run_class(config=run_config, daq=daq_config)
-                await controller.start_and_await_run(run)
-
-                for channel_idx, channel in enumerate(run.data.values()):
+                for channel_idx, channel in enumerate(run.data):
+                    if channel is None:
+                        continue
                     lane_idx = batch_idx * 4 + channel_idx
                     values = np.array(channel) - lane_coef
                     labels.append(str(lane_idx))
@@ -175,7 +184,7 @@ async def lane_test(controller: Controller, reporter: Reporter) -> None:
             reporter.box_plot(labels, data, title=str(cluster.path.root) + " cluster " + str(cluster_idx))
     reporter.nextPage()
 
-async def mul_test(controller: Controller, reporter: Reporter) -> None:
+async def mul_test(controller: REDACController | LUCIDACController, reporter: Reporter) -> None:
     print("Multiplication Test")
 
     reporter.drawString("Multiplication test", 18)
@@ -185,13 +194,11 @@ async def mul_test(controller: Controller, reporter: Reporter) -> None:
 
     run_config = RunConfig(op_time=1_000_000)
     daq_config = DAQConfig(num_channels=2, sample_rate=100_000)
-    run_class = controller.get_run_implementation()
 
     for carrier in computer.carriers:
         for cluster_idx, cluster in enumerate(carrier.clusters):
             labels = []
             data = []
-            await controller.reset()
             computer.reset()
 
             lhs_const = 0.8
@@ -204,14 +211,20 @@ async def mul_test(controller: Controller, reporter: Reporter) -> None:
                 cluster.add_constant(mul_lhs, -lhs_const, mul_lhs, 1.0)
                 cluster.add_constant(mul_rhs, -rhs_const, mul_rhs, 1.0)
 
-                carrier.adc_config.append(ADCChannel(index=mul_out + 16 * cluster_idx, gain=1.0, offset=0.0))
+                carrier.adc_config.append(ADCChannel(index=mul_out + 16 * cluster_idx, gain=1.0, offset=0.0, probe=mul_idx))
 
-            await controller.set_computer(computer)
+            runs = await (
+                controller.create_session()
+                .set_config(computer)
+                .calibrate(gain=True, offset=True)
+                .run(config=run_config, daq=daq_config)
+                .execute()
+            )
+            run = runs[0]
 
-            run = run_class(config=run_config, daq=daq_config)
-            await controller.start_and_await_run(run)
-
-            for channel_idx, channel in enumerate(run.data.values()):
+            for channel_idx, channel in enumerate(run.data):
+                if channel is None:
+                    continue
                 mul_idx = channel_idx
                 values = np.array(channel) - lhs_const * rhs_const
                 labels.append(str(mul_idx))
@@ -219,7 +232,7 @@ async def mul_test(controller: Controller, reporter: Reporter) -> None:
             reporter.box_plot(labels, data, title=str(cluster.path.root) + " cluster " + str(cluster_idx))
     reporter.nextPage()
 
-async def itor_test(controller: Controller, reporter: Reporter) -> None:
+async def itor_test(controller: REDACController | LUCIDACController, reporter: Reporter) -> None:
     print("Integrator Test")
     reporter.drawString("Integrator test", 18)
     reporter.drawString("Evaluate each integration with 0.1 input over time period that must reach 1.0.", 12)
@@ -233,15 +246,12 @@ async def itor_test(controller: Controller, reporter: Reporter) -> None:
 
             run_config = RunConfig(op_time=int(1_000_000_000 // k / slope))
             daq_config = DAQConfig(num_channels=2, sample_rate=40_000)
-            run_class = controller.get_run_implementation()
 
             for carrier in computer.carriers:
                 labels = []
                 raw = []
                 target = []
                 for cluster_idx, cluster in enumerate(carrier.clusters):
-
-                    await controller.reset()
                     computer.reset()
                     for itor_idx in range(8):
                         itor_in = itor_idx
@@ -250,14 +260,20 @@ async def itor_test(controller: Controller, reporter: Reporter) -> None:
                         cluster.add_constant(itor_idx, -slope, itor_in, 1.0)
                         cluster.m0block.elements[itor_idx].ic = 0.0
                         cluster.m0block.elements[itor_idx].k = k
-                        carrier.adc_config.append(ADCChannel(index=itor_out + 16 * cluster_idx, gain=1.0, offset=0.0))
+                        carrier.adc_config.append(ADCChannel(index=itor_out + 16 * cluster_idx, gain=1.0, offset=0.0, probe=itor_idx))
 
-                    await controller.set_computer(computer)
+                    runs = await (
+                        controller.create_session()
+                        .set_config(computer)
+                        .calibrate(gain=True, offset=True)
+                        .run(config=run_config, daq=daq_config)
+                        .execute()
+                    )
+                    run = runs[0]
 
-                    run = run_class(config=run_config, daq=daq_config)
-                    await controller.start_and_await_run(run)
-
-                    for channel_idx, channel in enumerate(run.data.values()):
+                    for channel_idx, channel in enumerate(run.data):
+                        if channel is None:
+                            continue
                         itor_idx = channel_idx
                         channel = np.array(channel)
                         values = channel - np.linspace(0.0, 1.0, len(channel))
@@ -271,14 +287,15 @@ async def itor_test(controller: Controller, reporter: Reporter) -> None:
 
 async def main():
     reporter = Reporter()
-    controller = Controller()
 
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', default='192.168.104.244', help='Host IP address')
     parser.add_argument('--port', type=int, default=5732, help='Port number')
+    parser.add_argument('--lucidac', action='store_true', help='Use LUCIDAC controller')
     args = parser.parse_args()
 
+    controller = LUCIDACController() if args.lucidac else REDACController()
     await controller.add_device(args.host, args.port)
 
     reporter.drawString("Device Report", 24)

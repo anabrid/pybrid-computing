@@ -50,9 +50,9 @@ sprott.connect(y, y, weight = +0.1)
 sprott.connect( y, y2.a)                # Compute y^2
 sprott.connect( y, y2.b)
 
-sprott.measure(x, adc_channel=0)        # Connect integrators to ADC
-sprott.measure(y, adc_channel=1)        # to sample data
-sprott.measure(z, adc_channel=2)
+sprott.probe(x, adc_channel=0)          # Connect integrators to ADC
+sprott.probe(y, adc_channel=1)          # to sample data
+sprott.probe(z, adc_channel=2)
 
 ###
 # Settings for sampling and circuit execution
@@ -71,10 +71,8 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-samples = list(run.data.values())
-
 ax = plt.figure().add_subplot(projection='3d')
-ax.plot(*np.array(samples), ls="-", marker=".", markersize=1.5)
+ax.plot(*np.array(run.data), ls="-", marker=".", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_zlabel("Z")

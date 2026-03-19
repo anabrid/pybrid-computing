@@ -30,8 +30,8 @@ cos = c.int()
 c.connect(sin, cos, weight = +omega)    # Connect sine to cosine integrator
 c.connect(cos, sin, weight = -omega)    # Connect cosine to sine integrator
 
-c.measure(sin, adc_channel=0)           # Connect integrators to ADC
-c.measure(cos, adc_channel=1)           # to sample data
+c.probe(sin, adc_channel=0)             # Connect integrators to ADC
+c.probe(cos, adc_channel=1)             # to sample data
 
 c.probe(sin, front_port=0)
 c.probe(cos, front_port=1)
@@ -65,9 +65,9 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-for adc_key, values in run.data.items():
+for ix, values in enumerate(run.data):
     x = time_series(sample_rate, len(values))
-    plt.plot(x, values, label=adc_key[-1])
+    plt.plot(x, values, label=f"Probe {ix}")
 plt.xlabel("time / s")
 plt.legend()
 plt.grid()

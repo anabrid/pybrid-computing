@@ -49,9 +49,9 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-for adc_key, values in run.data.items():
+for ix, values in enumerate(run.data):
     x = time_series(sample_rate, len(values))
-    plt.plot(x, values, label=adc_key[-1])
+    plt.plot(x, values, label=f"Probe {ix}")
 plt.xlabel("time / s")
 plt.legend()
 plt.grid()

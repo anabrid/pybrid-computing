@@ -43,8 +43,8 @@ vdp.connect(mdy, fb.b)
 vdp.probe(mdy, front_port=0)            # Connect to front panel probes
 vdp.probe(y,   front_port=1)
 
-vdp.measure(mdy)                        # Connect to ADC to sample data
-vdp.measure(y)
+vdp.probe(mdy)                          # Connect to ADC to sample data
+vdp.probe(y)
 
 ###
 # Settings for sampling and circuit execution
@@ -63,10 +63,8 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-samples = list(run.data.values())
-
 ax = plt.figure().add_subplot()
-ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
+ax.plot(*np.array(run.data), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 plt.show()

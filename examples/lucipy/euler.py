@@ -61,8 +61,8 @@ e.connect(scm1, sci1, weight = -5.)
 e.connect(sci0, x, weight = 0.2)         # Compute the parameterized Euler
 e.connect(sci1, y, weight = 0.2)         # spiral.
 
-e.measure(x, adc_channel=0)              # Connect integrators to ADC
-e.measure(y, adc_channel=1)              # to sample data
+e.probe(x, adc_channel=0)                # Connect integrators to ADC
+e.probe(y, adc_channel=1)                # to sample data
 
 ###
 # Settings for sampling and circuit execution
@@ -81,10 +81,8 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-samples = list(run.data.values())
-
 ax = plt.figure().add_subplot()
-ax.plot(*np.array(samples), ls="-", marker="+", markersize=1.5)
+ax.plot(*np.array(run.data), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 plt.show()
