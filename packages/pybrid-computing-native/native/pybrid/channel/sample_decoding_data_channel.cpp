@@ -198,7 +198,7 @@ DataTypeInfo get_data_type_info(const pb::DataType& data_type) {
 
 SampleDecodingDataChannel::DecodedDaqResult
 SampleDecodingDataChannel::decode_daq_data(const pb::DaqData& daq_data) {
-    const uint32_t num_input_channels = daq_data.channel_count();
+    const uint32_t num_input_channels = daq_data.channel_stride();
     const uint32_t num_samples = daq_data.sample_count();
 
     const size_t total_values = static_cast<size_t>(num_input_channels) * 

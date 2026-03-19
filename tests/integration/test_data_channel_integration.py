@@ -205,11 +205,11 @@ async def test_data_channel_receives_samples_via_run():
 
 @pytest.mark.asyncio
 async def test_data_channel_tcp_fallback_with_dummydac():
-    """DummyDAC's UDP refusal triggers TCP fallback; data still arrives in the IBuffer."""
+    """Explicit UDP refusal triggers TCP fallback; data still arrives in the IBuffer."""
     from pybrid.redac.connection import ConnectionManager
     from pybrid.redac.control import AsyncControlChannel
 
-    config = DummyDACConfig(mac_mode=DummyDACMacMode.VIRTUAL)
+    config = DummyDACConfig(mac_mode=DummyDACMacMode.VIRTUAL, accept_udp_streaming=False)
     async with DummyDAC(LOCALHOST, 0, config) as dac:
         port = dac.port
 

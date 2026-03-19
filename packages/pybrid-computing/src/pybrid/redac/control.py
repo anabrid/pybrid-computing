@@ -242,18 +242,20 @@ class AsyncControlChannel:
         calibration: bool = False,
         timeout: float = 5.0,
     ) -> pb.Module:
-        cmd = pb.ExtractCommand(
-            recursive=recursive,
-            specification=specification,
-            configuration=configuration,
-            calibration=calibration,
+        loop = asyncio.get_running_loop()
+        response_bytes = await loop.run_in_executor(
+            self._executor,
+            self._native.extract,
+            str(path) if path is not None else "",
+            recursive,
+            specification,
+            configuration,
+            calibration,
+            timeout,
         )
-        if path is not None:
-            cmd.entity.path = str(path)
-        msg = self._new_message(cmd)
-        response = await self.send_and_recv(msg, timeout)
-        self._to_result(response).raise_on_error()
-        return response.extract_response.module
+        module = pb.Module()
+        module.ParseFromString(response_bytes)
+        return module
 
     async def set_module(
         self,
@@ -261,12 +263,17 @@ class AsyncControlChannel:
         timeout: float = 5.0,
     ) -> Result:
         """Send a ``ConfigCommand`` with *module* and return the outcome."""
-        
-        cmd = pb.ConfigCommand()
-        cmd.module.CopyFrom(module)
-        msg = self._new_message(cmd)
-        response = await self.send_and_recv(msg, timeout)
-        return self._to_result(response)
+        loop = asyncio.get_running_loop()
+        try:
+            success = await loop.run_in_executor(
+                self._executor,
+                self._native.set_module,
+                module.SerializeToString(),
+                timeout,
+            )
+            return Result.success() if success else Result.failure("set_module rejected")
+        except RuntimeError as e:
+            return Result.failure(str(e))
 
     async def start_run_request(
         self,
@@ -277,9 +284,17 @@ class AsyncControlChannel:
 
         Does **not** wait for the run to complete.
         """
-        msg = self._new_message(run_command)
-        response = await self.send_and_recv(msg, timeout)
-        return self._to_result(response)
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                self._executor,
+                self._native.start_run_request,
+                run_command.SerializeToString(),
+                timeout,
+            )
+            return Result.success()
+        except RuntimeError as e:
+            return Result.failure(str(e))
 
     async def calibrate(
         self,
@@ -289,16 +304,20 @@ class AsyncControlChannel:
         offset: bool = False,
         timeout: float = 5.0,
     ) -> Result:
-        cmd = pb.CalibrationCommand()
-        cfg = cmd.config
-        if leader:
-            cfg.leader.path = leader
-        cfg.math = pb.CalibrationConfig.Enabled if math else pb.CalibrationConfig.Disabled
-        cfg.gain = pb.CalibrationConfig.Enabled if gain else pb.CalibrationConfig.Disabled
-        cfg.offset = pb.CalibrationConfig.Enabled if offset else pb.CalibrationConfig.Disabled
-        msg = self._new_message(cmd)
-        response = await self.send_and_recv(msg, timeout)
-        return self._to_result(response)
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                self._executor,
+                self._native.calibrate,
+                leader,
+                math,
+                gain,
+                offset,
+                timeout,
+            )
+            return Result.success()
+        except RuntimeError as e:
+            return Result.failure(str(e))
 
     async def register_external_entities(
         self,
@@ -307,9 +326,7 @@ class AsyncControlChannel:
     ) -> Result:
         """Send a ``RegisterExternalEntitiesCommand`` with the given entity map.
 
-        Args:
-            entities: Mapping of carrier MAC to IP address octets.
-            timeout:  Send/recv timeout in seconds.
+        No C++ convenience method exists — builds protobuf in Python.
         """
         cmd = pb.RegisterExternalEntitiesCommand()
         for mac, ip_octets in entities.items():
@@ -326,17 +343,31 @@ class AsyncControlChannel:
         sync: bool = True,
         timeout: float = 5.0,
     ) -> Result:
-        cmd = pb.ResetCommand(keep_calibration=keep_calibration, sync=sync)
-        msg = self._new_message(cmd)
-        response = await self.send_and_recv(msg, timeout)
-        return self._to_result(response)
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                self._executor,
+                self._native.reset,
+                keep_calibration,
+                sync,
+                timeout,
+            )
+            return Result.success()
+        except RuntimeError as e:
+            return Result.failure(str(e))
 
     async def authenticate(self, token: str, timeout: float = 5.0) -> Result:
-        cmd = pb.AuthRequest()
-        cmd.bearer.token = token
-        msg = self._new_message(cmd)
-        response = await self.send_and_recv(msg, timeout)
-        return self._to_result(response)
+        loop = asyncio.get_running_loop()
+        try:
+            success = await loop.run_in_executor(
+                self._executor,
+                self._native.authenticate,
+                token,
+                timeout,
+            )
+            return Result.success() if success else Result.failure("authentication rejected")
+        except RuntimeError as e:
+            return Result.failure(str(e))
 
     @property
     def transport(self):

@@ -59,9 +59,6 @@ class REDACSerializer(Serializer):
                 pb_adc_channel.offset = adc_channel.offset
                 pb_adc_channel.probe = adc_channel.probe
 
-        if len(adc_config.channels) == 0:
-            self.cc.pop_config()
-
         # need to send "global" ACL_SELECT value to first carrier
         if entity.acl_select:
             acl_config = self.cc.new_config(entity).port_config

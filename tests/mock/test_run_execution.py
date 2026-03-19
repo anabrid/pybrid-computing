@@ -195,8 +195,8 @@ async def test_run_data_end_uses_config_channel_count():
             )
             # Channel count should come from ConfigCommand (8), not DaqConfig (4).
             for msg in end_messages:
-                assert msg.data.channel_count == requested_channels, (
-                    f"Expected channel_count={requested_channels}, got {msg.data.channel_count}"
+                assert msg.data.channel_stride == requested_channels, (
+                    f"Expected channel_stride={requested_channels}, got {msg.data.channel_stride}"
                 )
                 assert len(msg.data.channels) == requested_channels
         finally:

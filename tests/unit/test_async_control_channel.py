@@ -61,85 +61,67 @@ class TestAsyncControlChannelUnit:
         assert result.extract_response.module.items[0].entity_specification.entity.id == "/test"
 
     async def test_extract(self):
-        """extract() builds ExtractCommand, calls send_and_recv, returns Module."""
+        """extract() delegates to native.extract() with correct arguments and deserializes the result."""
         native = self._make_mock_native()
-        channel = AsyncControlChannel(native)
 
-        # Mock send_and_recv to return an extract response with a Module
-        response = pb.MessageV1(id="resp-uuid")
+        module = pb.Module()
         item = pb.Item()
         item.entity.path = "/test-entity"
         item.entity_specification.entity.id = "/test-entity"
-        response.extract_response.module.items.append(item)
-        channel.send_and_recv = AsyncMock(return_value=response)
+        module.items.append(item)
+        native.extract.return_value = module.SerializeToString()
 
+        channel = AsyncControlChannel(native)
         result = await channel.extract(specification=True, recursive=True)
+
         assert isinstance(result, pb.Module)
         assert result.items[0].entity_specification.entity.id == "/test-entity"
-        # Verify the outgoing message has an extract_command with the right flags
-        sent_msg = channel.send_and_recv.call_args[0][0]
-        assert sent_msg.HasField("extract_command")
-        assert sent_msg.extract_command.specification is True
-        assert sent_msg.extract_command.recursive is True
+        native.extract.assert_called_once_with("", True, True, False, False, 5.0)
 
     async def test_extract_with_path_and_configuration(self):
-        """extract() with path and configuration flag sets entity path and configuration."""
+        """extract() passes path and configuration flag through to native.extract()."""
         native = self._make_mock_native()
+        native.extract.return_value = pb.Module().SerializeToString()
+
         channel = AsyncControlChannel(native)
-
-        response = pb.MessageV1(id="resp-uuid")
-        channel.send_and_recv = AsyncMock(return_value=response)
-
         result = await channel.extract("/", configuration=True, recursive=True)
+
         assert isinstance(result, pb.Module)
-        sent_msg = channel.send_and_recv.call_args[0][0]
-        assert sent_msg.HasField("extract_command")
-        assert sent_msg.extract_command.entity.path == "/"
-        assert sent_msg.extract_command.recursive is True
-        assert sent_msg.extract_command.configuration is True
+        native.extract.assert_called_once_with("/", True, False, True, False, 5.0)
 
     async def test_set_module(self):
-        """set_module() builds ConfigCommand, returns Result on success."""
+        """set_module() delegates to native.set_module() and returns Result on success."""
         native = self._make_mock_native()
+        native.set_module.return_value = True
+
         channel = AsyncControlChannel(native)
-
-        # Response without error_message → success
-        response = pb.MessageV1(id="resp-uuid")
-        channel.send_and_recv = AsyncMock(return_value=response)
-
         module = pb.Module()
         result = await channel.set_module(module)
+
         assert result.ok
-        sent_msg = channel.send_and_recv.call_args[0][0]
-        assert sent_msg.HasField("config_command")
+        native.set_module.assert_called_once()
+        sent_bytes = native.set_module.call_args[0][0]
+        assert sent_bytes == module.SerializeToString()
 
     async def test_reset(self):
-        """reset() builds ResetCommand with correct parameters."""
+        """reset() delegates to native.reset() with correct parameters."""
         native = self._make_mock_native()
+
         channel = AsyncControlChannel(native)
-
-        response = pb.MessageV1(id="resp-uuid")
-        channel.send_and_recv = AsyncMock(return_value=response)
-
         await channel.reset(keep_calibration=False, sync=True)
-        sent_msg = channel.send_and_recv.call_args[0][0]
-        assert sent_msg.HasField("reset_command")
-        assert sent_msg.reset_command.keep_calibration is False
-        assert sent_msg.reset_command.sync is True
+
+        native.reset.assert_called_once_with(False, True, 5.0)
 
     async def test_authenticate(self):
-        """authenticate() builds AuthRequest, returns Result on success."""
+        """authenticate() delegates to native.authenticate() and returns Result on success."""
         native = self._make_mock_native()
+        native.authenticate.return_value = True
+
         channel = AsyncControlChannel(native)
-
-        response = pb.MessageV1(id="resp-uuid")
-        channel.send_and_recv = AsyncMock(return_value=response)
-
         result = await channel.authenticate("my-token")
+
         assert result.ok
-        sent_msg = channel.send_and_recv.call_args[0][0]
-        assert sent_msg.HasField("auth_request")
-        assert sent_msg.auth_request.bearer.token == "my-token"
+        native.authenticate.assert_called_once_with("my-token", 5.0)
 
     def test_register_callback(self):
         """register_callback() wraps the callback for deserialization."""
@@ -183,87 +165,57 @@ class TestAsyncControlChannelResultType:
         return native
 
     async def test_set_module_returns_result_on_success(self):
-        """set_module() returns Result(ok=True) when the device replies without error."""
+        """set_module() returns Result(ok=True) when native.set_module() returns True."""
         native = self._make_mock_native()
+        native.set_module.return_value = True
+
         channel = AsyncControlChannel(native)
+        result = await channel.set_module(pb.Module())
 
-        response = pb.MessageV1(id="resp-uuid")
-        response.config_response.CopyFrom(pb.ConfigResponse())
-        channel.send_and_recv = AsyncMock(return_value=response)
-
-        module = pb.Module()
-        result = await channel.set_module(module)
-
-        assert isinstance(result, Result), (
-            f"set_module() must return a Result, got {type(result)}"
-        )
+        assert isinstance(result, Result)
         assert result.ok is True
 
     async def test_set_module_returns_result_on_error(self):
-        """set_module() returns Result(ok=False) with the error description when the device replies with error_message."""
+        """set_module() returns Result(ok=False) when native.set_module() raises RuntimeError."""
         native = self._make_mock_native()
+        native.set_module.side_effect = RuntimeError("config mismatch: unknown entity path")
+
         channel = AsyncControlChannel(native)
+        result = await channel.set_module(pb.Module())
 
-        response = pb.MessageV1(id="resp-uuid")
-        response.error_message.description = "config mismatch: unknown entity path"
-        channel.send_and_recv = AsyncMock(return_value=response)
-
-        module = pb.Module()
-        result = await channel.set_module(module)
-
-        assert isinstance(result, Result), (
-            f"set_module() must return a Result, got {type(result)}"
-        )
+        assert isinstance(result, Result)
         assert result.ok is False
         assert "config mismatch" in result.error
 
     async def test_start_run_request_returns_result(self):
-        """start_run_request() returns Result(ok=True) when the device accepts the run."""
+        """start_run_request() returns Result(ok=True) when native.start_run_request() succeeds."""
         native = self._make_mock_native()
+
         channel = AsyncControlChannel(native)
+        result = await channel.start_run_request(pb.StartRunCommand())
 
-        response = pb.MessageV1(id="resp-uuid")
-        response.start_run_response.CopyFrom(pb.StartRunResponse())
-        channel.send_and_recv = AsyncMock(return_value=response)
-
-        cmd = pb.StartRunCommand()
-        result = await channel.start_run_request(cmd)
-
-        assert isinstance(result, Result), (
-            f"start_run_request() must return a Result, got {type(result)}"
-        )
+        assert isinstance(result, Result)
         assert result.ok is True
 
     async def test_reset_returns_result(self):
-        """reset() returns Result(ok=True) on a successful reset response."""
+        """reset() returns Result(ok=True) when native.reset() succeeds."""
         native = self._make_mock_native()
+
         channel = AsyncControlChannel(native)
-
-        response = pb.MessageV1(id="resp-uuid")
-        response.reset_response.CopyFrom(pb.ResetResponse())
-        channel.send_and_recv = AsyncMock(return_value=response)
-
         result = await channel.reset()
 
-        assert isinstance(result, Result), (
-            f"reset() must return a Result, got {type(result)}"
-        )
+        assert isinstance(result, Result)
         assert result.ok is True
 
     async def test_authenticate_returns_result(self):
-        """authenticate() returns Result(ok=True) on a success_message response."""
+        """authenticate() returns Result(ok=True) when native.authenticate() returns True."""
         native = self._make_mock_native()
+        native.authenticate.return_value = True
+
         channel = AsyncControlChannel(native)
-
-        response = pb.MessageV1(id="resp-uuid")
-        response.success_message.CopyFrom(pb.SuccessMessage())
-        channel.send_and_recv = AsyncMock(return_value=response)
-
         result = await channel.authenticate("my-token")
 
-        assert isinstance(result, Result), (
-            f"authenticate() must return a Result, got {type(result)}"
-        )
+        assert isinstance(result, Result)
         assert result.ok is True
 
 
@@ -301,7 +253,7 @@ class TestBusyWaitRetryLogic:
         return msg.SerializeToString()
 
     async def test_send_and_recv_retries_on_busy_response(self):
-        """reset() transparently handles busy→ping→ping→retry with exactly 4 send_and_recv calls."""
+        """send_and_recv() transparently handles busy→ping→ping→retry with exactly 4 native calls."""
         native = self._make_mock_native()
         native.send_and_recv.side_effect = [
             self._busy_bytes(),        # call 1: original cmd → busy
@@ -311,39 +263,43 @@ class TestBusyWaitRetryLogic:
         ]
 
         channel = AsyncControlChannel(native)
-        result = await channel.reset()
+        msg = pb.MessageV1(id="test-uuid")
+        msg.reset_command.CopyFrom(pb.ResetCommand())
+        result = await channel.send_and_recv(msg)
 
-        assert result.ok, (
-            "reset() must return a successful Result after busy-wait completes"
-        )
+        assert result.HasField("reset_response")
         assert native.send_and_recv.call_count == 4, (
             f"Expected exactly 4 send_and_recv calls (1 original + 2 pings + 1 retry), "
             f"got {native.send_and_recv.call_count}"
         )
 
     async def test_send_and_recv_raises_on_busy_timeout(self):
-        """reset() raises TimeoutError when the proxy never becomes available within max_busy_wait."""
+        """send_and_recv() raises TimeoutError when the proxy never becomes available within max_busy_wait."""
         native = self._make_mock_native()
         native.send_and_recv.side_effect = lambda data, timeout: self._busy_bytes()
 
         channel = AsyncControlChannel(native, max_busy_wait=2.0)
+        msg = pb.MessageV1(id="test-uuid")
+        msg.reset_command.CopyFrom(pb.ResetCommand())
         with pytest.raises((TimeoutError, asyncio.TimeoutError)):
-            await channel.reset()
+            await channel.send_and_recv(msg)
 
         assert native.send_and_recv.call_count > 1, (
             "At least one PingCommand should have been sent before timing out"
         )
 
     async def test_send_and_recv_no_retry_on_normal_response(self):
-        """reset() does not retry when the first response is a normal reset_response."""
+        """send_and_recv() does not retry when the first response is a normal response."""
         native = self._make_mock_native()
         native.send_and_recv.return_value = self._reset_response_bytes()
 
         channel = AsyncControlChannel(native)
-        result = await channel.reset()
+        msg = pb.MessageV1(id="test-uuid")
+        msg.reset_command.CopyFrom(pb.ResetCommand())
+        result = await channel.send_and_recv(msg)
 
         assert native.send_and_recv.call_count == 1, (
             f"Expected exactly 1 send_and_recv call for a normal response, "
             f"got {native.send_and_recv.call_count}"
         )
-        assert result.ok, "reset() must return a successful Result for a normal response"
+        assert result.HasField("reset_response")
