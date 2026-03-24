@@ -114,7 +114,7 @@ build:python:
 # are pushed to Gitlab's package registry
 ###
 
-publish:
+publish:gitlab:
   extends: [.anabrid-uv-job, .anabrid-if-release-job]
   stage: publish
   needs:
@@ -129,29 +129,18 @@ publish:
         --password ${CI_JOB_TOKEN}
         dist/*
 
-###
-# CLEANUP job, to be run manually, for the CI/CD. Removes all packages from the
-# Gitlab repo except for the latest 3.
-###
-
-cleanup:packages:
-  extends: .anabrid-uv-job
+# for externals, push all the packages to a Github repo as well
+publish:pypi:
+  extends: [.anabrid-uv-job, .anabrid-if-release-job]
   stage: publish
-  needs: [publish]
-  rules:
-    - if: $DELETE_OLD_PACKAGES == "true" && $CI_COMMIT_TAG
-    - if: $DELETE_OLD_PACKAGES == "true" && $CI_PIPELINE_SOURCE == "schedule"
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq jq > /dev/null
+  needs:
+    - build:native:linux
+    - build:native:macos
+    - build:native:windows
+    - build:python
   script:
-    - |
-      for pkg_name in pybrid-computing pybrid-computing-native; do
-        curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_type=pypi&package_name=${pkg_name}&order_by=created_at&sort=desc&per_page=100" \
-          | jq -r '.[3:][].id' \
-          | while read pkg_id; do
-              echo "Deleting ${pkg_name} package ${pkg_id}"
-              curl -s --request DELETE --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-                "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${pkg_id}"
-            done
-      done
+    - pip install twine
+    - twine upload
+        --username ${TWINE_USERNAME}
+        --password ${TWINE_PASSWORD}
+        dist/*

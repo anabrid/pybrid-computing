@@ -1,13 +1,17 @@
 # Copyright (c) 2022-2025 anabrid GmbH
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-from pybrid.lucipy import Circuit, LUCIDAC, time_series
+from pybrid.lucipy import Circuit, LUCIDAC, time_series, WaveForm
 import matplotlib.pyplot as plt
 import numpy as np
 
 ###
 # Create a simple sine/cosine oscillator circuit in lucipy-syntax with some
-# additional goodies (LEDs, signal generator) showing the use of the pront panel
+# additional goodies (LEDs, signal generator) showing the use of the pront panel.
+#
+# For this to work, please:
+# - attach an oscilloscope to analog outputs A0, A1 and OP (trigger on OP)
+# - connect the Rect signal to analog in 2, the sine signal to analog in 3
 ###
 
 ###
@@ -39,11 +43,24 @@ c.probe(cos, adc_channel=1)             # to sample data
 c.connect(sin, port0)                   # Connect signals to analog output as
 c.connect(cos, port1)                   # well
 
+# wire inputs through ID-paths in order to sample from them
+input2 = c.input(2)
+input3 = c.input(3)
+
+mul0 = c.mul()
+
+c.connect(input2, mul0.a)
+c.connect(input3, mul0.b)
+
+c.probe(mul0.a.id(), adc_channel=2)
+c.probe(mul0.b.id(), adc_channel=3)
+
 ###
 # Setup the front panel:
 # - signal generator
 ###
 sg = c.signal_generator()
+sg.wave_form = WaveForm.SINE_AND_SQUARE
 sg.frequency = 1000
 sg.amplitude = 0.6
 sg.offset = 0.2
