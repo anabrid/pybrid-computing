@@ -611,10 +611,13 @@ class REDACDeserializer(Deserializer):
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity: TBlock = self.computer.get_entity(entity_path)
 
-        for idx, mux in enumerate(config.muxes):
-            entity.muxes[mux.index] = mux.state
-
-        pass
+        is_numerated = all(obj.index == 0 for obj in config.muxes)
+        if is_numerated:
+            for idx, mux in enumerate(config.muxes):
+                entity.muxes[idx] = mux.state
+        else:
+            for mux in config.muxes:
+                entity.muxes[mux.index] = mux.state
 
     @_deserialize_configuration.register
     def _(self, config: pb.BPLSwitchConfig):
@@ -622,8 +625,14 @@ class REDACDeserializer(Deserializer):
         entity_path = Path.parse(self._current_full_config.entity.path)
         entity: TBlock = self.computer.get_entity(entity_path)
 
-        for idx, mux in enumerate(config.muxes):
-            entity.muxes[mux.index] = mux.state
+        is_numerated = all(obj.index == 0 for obj in config.muxes)
+        if is_numerated:
+            for idx, mux in enumerate(config.muxes):
+                entity.muxes[idx] = mux.state
+        else:
+            for mux in config.muxes:
+                entity.muxes[mux.index] = mux.state
+
 
     @_deserialize_configuration.register
     def _(self, config: pb.PortConfig):
