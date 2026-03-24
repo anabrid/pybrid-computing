@@ -103,7 +103,7 @@ class TestSetComputerDelegation:
         assert len(pipeline) >= 1
         sc_cmds = [c for c in pipeline if isinstance(c, SetConfigCommand)]
         assert len(sc_cmds) >= 1
-        assert sc_cmds[0].computer is not None
+        assert sc_cmds[0].module is not None
 
 
 class TestStartAndAwaitRunDelegation:
@@ -177,7 +177,7 @@ class TestForwardSetConfigDelegation:
         assert captured_session is not None
         sc_cmds = [c for c in captured_session._pipeline if isinstance(c, SetConfigCommand)]
         assert len(sc_cmds) >= 1
-        assert sc_cmds[0].computer is not None
+        assert sc_cmds[0].module is not None
 
 
 class TestDeprecationWarnings:

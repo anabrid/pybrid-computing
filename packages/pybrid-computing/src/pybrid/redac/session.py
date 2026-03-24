@@ -88,7 +88,7 @@ class SessionCommand(ABC):
 
 @dataclass
 class SetConfigCommand(SessionCommand):
-    computer: Optional["AnalogComputer"] = None
+    module: pb.Module
 
 @dataclass
 class RunCommand(SessionCommand):
@@ -125,8 +125,11 @@ class Session:
 
     def set_config(self, computer: "AnalogComputer") -> "Session":
         """:returns: ``self`` so calls can be chained."""
-        self._pipeline.append(SetConfigCommand(computer=copy.deepcopy(computer)))
-        return self
+
+        serializer_cls = computer.get_serializer()
+        serializer = serializer_cls()
+        module = serializer.serialize(computer)
+        return self.set_module(module)
     
     def set_module(self, module: pb.Module) -> "Session":
         """Deserialize a protobuf Module into the controller's computer model
@@ -134,10 +137,7 @@ class Session:
 
         :returns: ``self`` so calls can be chained.
         """
-        computer = copy.deepcopy(self._controller.computer)
-        deserializer = computer.get_deserializer()(computer)
-        deserializer.deserialize(module)
-        self._pipeline.append(SetConfigCommand(computer=computer))
+        self._pipeline.append(SetConfigCommand(module=module))
         return self
     
     def calibrate(self, leader: str = "", math: bool = False, gain: bool = True, offset: bool = True) -> "Session":
@@ -233,10 +233,8 @@ class Session:
         get_unique_connections collapses those so the module is sent exactly
         once per physical channel.
         """
-    
-        serializer_cls = self._controller.computer.get_serializer()
-        serializer = serializer_cls()
-        module = serializer.serialize(cmd.computer)
+
+        module = cmd.module
 
         # distribute modules to devices
         unique_conns = self._controller.connection_manager.get_unique_connections()
