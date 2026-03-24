@@ -53,7 +53,8 @@ class REDACSerializer(Serializer):
 
     @_serialize_configuration.register
     def _(self, entity: Carrier):
-        adc_config = self.cc.new_config(entity).adc_config
+        item = self.cc.new_config(entity)
+        adc_config =  item.adc_config
         adc_channels = adc_config.channels
 
         for adc_channel in entity.adc_config:
@@ -153,9 +154,9 @@ class REDACSerializer(Serializer):
     def _(self, entity: TBlock):
         switch_config = self.cc.new_config(entity).switch_config
         for idx, state in enumerate(entity.muxes):
-            if idx is None:
+            if state is None:
                 continue
-            switch_config.muxes.append(pb.Mux(state=state))
+            switch_config.muxes.append(pb.Mux(state=state, index=idx))
 
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
@@ -164,9 +165,9 @@ class REDACSerializer(Serializer):
     def _(self, entity: BackplaneTBlock):
         switch_config = self.cc.new_config(entity).bpl_switch_config
         for idx, state in enumerate(entity.muxes):
-            if idx is None:
+            if state is None:
                 continue
-            switch_config.muxes.append(pb.Mux(state=state))
+            switch_config.muxes.append(pb.Mux(state=state, index=idx))
 
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
@@ -430,7 +431,7 @@ class REDACDeserializer(Deserializer):
             if not path_.id_:
                 logger.warning("Reported entities include nameless entity at %s: %s", path_, child)
             elif path_.id_ == "T":
-                tblock = self._spec_function_block(child, path_, stack_loc)
+                tblock = self._spec_function_block(child, path_, location)
             elif path_.id_ == "ST0":
                 st0block = self._spec_function_block(child, path_, stack_loc)
             elif path_.id_ == "ST1":
@@ -608,25 +609,21 @@ class REDACDeserializer(Deserializer):
     def _(self, config: pb.SwitchConfig):
         """Deserialize switch configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
-        entity = self.computer.get_entity(entity_path)
+        entity: TBlock = self.computer.get_entity(entity_path)
 
-        muxes = []
-        for mux in config.muxes:
-            muxes.append(mux.state)
-        if muxes:
-            entity.muxes = muxes
+        for idx, mux in enumerate(config.muxes):
+            entity.muxes[mux.index] = mux.state
+
+        pass
 
     @_deserialize_configuration.register
     def _(self, config: pb.BPLSwitchConfig):
         """Deserialize switch configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
-        entity = self.computer.get_entity(entity_path)
+        entity: TBlock = self.computer.get_entity(entity_path)
 
-        muxes = []
-        for mux in config.muxes:
-            muxes.append(mux.state)
-        if muxes:
-            entity.muxes = muxes
+        for idx, mux in enumerate(config.muxes):
+            entity.muxes[mux.index] = mux.state
 
     @_deserialize_configuration.register
     def _(self, config: pb.PortConfig):
