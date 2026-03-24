@@ -65,7 +65,7 @@ class Reporter:
         self.canvas.showPage()
         self.init_page()
 
-    def save(self):
+    def save(self, filename="reporter.pdf"):
         self.canvas.save()
 
     def box_plot(self, labels, distributions, title="") -> None:
@@ -307,4 +307,5 @@ async def main():
 
     reporter.save()
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

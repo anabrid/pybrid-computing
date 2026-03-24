@@ -14,8 +14,10 @@ from pybrid.lucipy.elements import (
     Input,
     Output,
     Element,
+    
 )
 from pybrid.lucipy.circuits import Circuit
+from pybrid.lucidac.front_plane import WaveForm
 from pybrid.lucipy.computer import LucipyWrapper as LUCIDAC
 
 
@@ -44,4 +46,5 @@ __all__ = [
     'Element',
     'LUCIDAC',
     'time_series',
+    'WaveForm'
 ]

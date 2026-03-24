@@ -242,39 +242,41 @@ async def display(obj):
 @click.option("--specification/--no-specification", default=True, help="Include entity specifications.")
 @click.option("--configuration/--no-configuration", default=False, help="Include entity configurations.")
 @click.option("--calibration/--no-calibration", default=False, help="Include calibration data.")
-async def extract(obj, export: str, specification: bool, configuration: bool, calibration: bool):
+@click.option("--skip-cache/--no-skip-cache", default=False, help="Force a fresh extract from the device.")
+async def extract(obj, export: str, specification: bool, configuration: bool, calibration: bool, skip_cache: bool):
     """
     Extract device data (specification, configuration, calibration) and optionally store to file.
     """
     controller: REDACController = obj["controller"]
-    module = await controller.extract()
 
-    # Extract entities from specification items
-    entities = [
-        item.entity_specification.entity
-        for item in module.items
-        if item.HasField("entity_specification")
-    ]
+    if skip_cache or configuration or calibration:
+        module = pb.Module(items=[])
+        for conn in controller.connection_manager.get_unique_connections():
+            result = await conn.control.extract(
+                specification=specification,
+                configuration=configuration,
+                calibration=calibration,
+            )
+            module.items.extend(result.items)
+    else:
+        module = await controller.extract()
 
     # if no location data is given, inject a linear order of carriers
-    for ix, entity in enumerate(entities):
-        if not entity.HasField("location_v0"):
-            entity.location_v0.CopyFrom(pb.CarrierLocationV0(stack=0, carrier=ix))
-
-    # create protobuf file format for export
-    file = pb.File()
-    file.version.minor = 1
-    for entity in entities:
-        file.module.items.append(pb.Item(entity_specification=pb.EntitySpecification(entity=entity)))
+    carrier_ix = 0
+    for item in module.items:
+        if item.HasField("entity_specification"):
+            entity = item.entity_specification.entity
+            if not entity.HasField("location_v0"):
+                entity.location_v0.CopyFrom(pb.CarrierLocationV0(stack=0, carrier=carrier_ix))
+                carrier_ix += 1
 
     if export:
         if export.endswith(".apb"):
-            with open(export, "wb") as f:
-                f.write(file.SerializeToString())
+            ProtoIO.store_module(module, export)
         else:
             click.echo("Unknown file format, only .apb is supported.")
     else:
-        print(file)
+        print(module)
 
 
 @click.command()
@@ -368,7 +370,29 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
         else:
             click.echo("No data available to plot.")
 
+@cli.command()
+@click.pass_obj
+@click.argument(
+    "filename",
+    type=str,
+    default="report.pdf")
+async def report(obj, filename: str):
+    """
+    Create a calibration report for an attached device and export as PDF.
+    """
+    controller: REDACController | LUCIDACController = obj["controller"]
+    
+    from pybrid.util.reporter import Reporter, sin_test, mul_test, lane_test, itor_test
 
+    reporter = Reporter(output=filename)
+    reporter.drawString("Device Report", 24)
+    async with controller:
+        await sin_test(controller, reporter)
+        await lane_test(controller, reporter)
+        await mul_test(controller, reporter)
+        await itor_test(controller, reporter)
+    reporter.save()
+    
 
 @cli.command("reset-usb")
 @click.option(
