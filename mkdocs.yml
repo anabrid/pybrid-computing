@@ -1,0 +1,39 @@
+site_name: pybrid-computing
+site_description: Python library for anabrid's LUCIDAC/REDAC analog-digital hybrid computers
+repo_url: https://lab.2b.anabrid.com/2b/pybrid-computing
+repo_name: pybrid-computing
+
+theme:
+  name: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - User Guide:
+      - user-guide/index.md
+      - Circuits: user-guide/circuits.md
+      - Running Computations: user-guide/running.md

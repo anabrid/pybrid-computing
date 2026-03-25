@@ -392,3 +392,6 @@ HEAD
 hooks
 objects
 refs
+
+# Generated documentation
+public/
