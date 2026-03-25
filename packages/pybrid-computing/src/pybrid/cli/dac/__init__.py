@@ -393,6 +393,15 @@ async def report(obj, filename: str):
         await itor_test(controller, reporter)
     reporter.save()
     
+@cli.command("read-apb")
+@click.argument(
+    "filename",
+    type=str
+)
+async def read_apb(filename: str):
+    """Converts an APB file into human-readable JSON for debugging purposes."""
+    apb = ProtoIO.load_module(filename, skip_update=True)
+    print(apb)
 
 @cli.command("reset-usb")
 @click.option(
