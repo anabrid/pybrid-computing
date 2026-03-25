@@ -30,6 +30,14 @@ dev = [
   "sphinx-rtd-theme>=3.0.2",
   "sphinxcontrib-plantuml>=0.31",
 ]
+docs = [
+  "mkdocs>=1.6,<2",
+  "mkdocs-material>=9.6",
+  "mkdocstrings[python]>=0.28",
+  "mkdocs-gen-files>=0.5",
+  "mkdocs-literate-nav>=0.6",
+  "mkdocs-section-index>=0.3",
+]
 
 [tool.black]
 line-length = 120
