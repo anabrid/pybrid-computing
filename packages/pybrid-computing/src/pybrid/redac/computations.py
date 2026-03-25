@@ -4,11 +4,12 @@
 
 from dataclasses import dataclass, field
 
-from pybrid.base.analog import Integration as BaseIntegration
-from pybrid.base.analog import Multiplication  # noqa
 from pybrid.base.analog import (
+    BaseComputation,
+    Integration as BaseIntegration,
     ScalarMultiplication as BaseScalarMultiplication,
     ScalarMultiplicationFactor,
+    Multiplication, Square, SquareRoot, Identity, Division
 )
 
 
@@ -37,3 +38,16 @@ class ScalarMultiplication(BaseScalarMultiplication):
 
     def reset(self):
         self.factor = 1.0
+
+@dataclass(kw_only=True)
+class MDROperation(BaseComputation):
+    """Wrapper operation for an MDR block which may switch its functionality."""
+
+    #: Defines the types of operation an MDR element can execute
+    OP_TYPE = Multiplication | Square | Division | SquareRoot | Identity
+
+    #: Defines the actual type of operation
+    op: OP_TYPE = field(default_factory=Multiplication)
+
+    def reset(self):
+        self.op = Multiplication()

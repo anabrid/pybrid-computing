@@ -11,13 +11,18 @@ from pybrid.redac.router import Tracer
 from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.hybrid.entities import Entity
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.redac.blocks import CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock
+from pybrid.redac.blocks import (
+    CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock, MMDRBlock
+)
 from pybrid.redac.carrier import Carrier, ADCChannel
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.device import Device
 from pybrid.redac.elements import ComputationElement
 from pybrid.redac.entities import Path, Loc, EntityType, EntityClass
+from pybrid.redac.computations import (
+    Multiplication, Square, SquareRoot, Division, Identity
+)
 
 from pybrid.base.hybrid.serializer import Serializer, Deserializer
 
@@ -78,6 +83,24 @@ class REDACSerializer(Serializer):
     @_serialize_configuration.register
     def _(self, entity: MMulBlock):
         pass
+
+    @_serialize_configuration.register
+    def _(self, entity: MMDRBlock):
+        mdr_config = self.cc.new_config(entity).mdr_config
+
+        for ix, element in enumerate(entity.elements):
+            if isinstance(element.op, Multiplication):
+                mdr_config.operations.append(pb.MDRConfig.Operation.MULTIPLY)
+            elif isinstance(element.op, Square):
+                mdr_config.operations.append(pb.MDRConfig.Operation.SQUARE)
+            elif isinstance(element.op, Division):
+                mdr_config.operations.append(pb.MDRConfig.Operation.DIVIDE)
+            elif isinstance(element.op, SquareRoot):
+                mdr_config.operations.append(pb.MDRConfig.Operation.SQRT)
+            elif isinstance(element.op, Identity):
+                mdr_config.operations.append(pb.MDRConfig.Operation.IDENT)
+            else:
+                raise Exception(f"Invalid MDR Element Op: {type(element)}")
 
     @_serialize_configuration.register
     def _(self, entity: MIntBlock):
@@ -281,26 +304,29 @@ class REDACSerializer(Serializer):
         tracer = Tracer()
 
         traces = []
-        cluster2node_map: typing.Dict[Loc, pb.Node] = dict()
+        carrier2node_map: typing.Dict[Loc, int] = dict()
 
-        def cluster2node(loc: Loc):
-            if loc in cluster2node_map:
-                node = cluster2node_map[loc]
+        def loc2carrier_idx(loc: Loc) -> int:
+            carrier_loc = loc.carrier()
+            if carrier_loc in carrier2node_map:
+                carrier_idx = carrier2node_map[carrier_loc]
             else:
-                node = cluster2node_map[loc] = len(cluster2node_map)
-            return node
+                carrier_idx = carrier2node_map[carrier_loc] = len(carrier2node_map)
+            return carrier_idx
 
-        for carrier in computer.carriers:
-            for cluster in carrier.clusters:
-                cluster2node(cluster.loc())
-                tracer.add_carrier(carrier)
+        def loc2trace_lane(loc: Loc) -> pb.TraceLane:
+            return pb.TraceLane(carrier=loc2carrier_idx(loc), cluster=loc.cluster_id(), lane=loc.lane_id())
+
+        dependency_info = pb.DependencyInfo()
+        for carrier in sorted(computer.carriers, key=lambda c: c.loc()):
+            loc2carrier_idx(carrier.loc())
+            tracer.add_carrier(carrier)
+            dependency_info.entity_ids.append(pb.EntityId(path=str(carrier.path)))
 
         def add_sink(src_loc: Loc, sink_loc: Loc, upscaled: bool):
             traces.append(pb.Trace(
-                source_node=cluster2node(src_loc.cluster()),
-                source_lane=src_loc.lane_id(),
-                sink_node=cluster2node(sink_loc.cluster()),
-                sink_lane=sink_loc.lane_id(),
+                source=loc2trace_lane(src_loc),
+                sink=loc2trace_lane(sink_loc),
                 sink_upscaled=upscaled
             ))
 
@@ -308,38 +334,43 @@ class REDACSerializer(Serializer):
             for cluster in carrier.clusters:
                 for lane_idx in range(0, 32):
                     target_loc = cluster.loc() / lane_idx
+                    if target_loc == Loc.new_lane(0, 1, 0, 0):
+                        pass
                     source_loc = tracer.find_coef(target_loc)
 
                     if source_loc is None:
                         continue
 
-                    src_carrier = computer.carriers[source_loc.carrier_id()]
-                    if src_carrier is None:
-                        continue
-                    src_cluster = src_carrier.clusters[source_loc.cluster_id()]
+                    src_cluster = computer.find_cluster(source_loc.cluster())
                     if src_cluster is None:
                         continue
                     coef = src_cluster.cblock.elements[source_loc.lane_id()]
                     if coef.factor == 0.0:
                         continue
+                    select = src_cluster.ublock.outputs[source_loc.lane_id()]
+                    if select == -1 or select is None:
+                        continue
 
+                    if source_loc.cluster() != target_loc.cluster():
+                        pass
                     upscaled = cluster.iblock.upscaling[target_loc.lane_id()]
                     add_sink(source_loc, target_loc, upscaled)
 
-        dependency_info = pb.DependencyInfo()
         for carrier in computer.carriers:
-            for cluster in carrier.clusters:
-                dependency_info.entity_ids.append(pb.EntityId(path=str(cluster.path)))
+            config = self.cc.new_config(carrier).dependency_info
+            config.CopyFrom(dependency_info)
+            carrier_idx = loc2carrier_idx(carrier.loc())
+            for trace in traces:
+                if trace.source.carrier == carrier_idx or trace.sink.carrier == carrier_idx:
+                    config.traces.append(trace)
 
-        for carrier in computer.carriers:
-            for cluster in carrier.clusters:
-                config = self.cc.new_config(carrier).dependency_info
-                config.CopyFrom(dependency_info)
-                cluster_node = cluster2node(cluster.loc())
+        item = pb.Item()
+        config = item.dependency_info
+        config.CopyFrom(dependency_info)
+        for trace in traces:
+            config.traces.append(trace)
 
-                for trace in traces:
-                    if cluster_node in (trace.source_node, trace.sink_node):
-                        config.traces.append(trace)
+        pass
 
     def serialize_additional(self, computer: AnalogComputer):
         self.serialize_dependency_info(computer)
@@ -518,6 +549,26 @@ class REDACDeserializer(Deserializer):
         for element in config.elements:
             limiters[element.idx] = element.enable
         entity.limiters = limiters
+
+    @_deserialize_configuration.register
+    def _(self, config: pb.MDRConfig):
+        """Deserialize config containing operation types for an MDR block."""
+        entity_path = Path.parse(self._current_full_config.entity.path)
+        entity = self.computer.get_entity(entity_path)
+
+        for ix, operation in enumerate(config.operations):
+            if operation == pb.MDRConfig.Operation.MULTIPLY:
+                entity.elements[ix].op = Multiplication()
+            elif operation == pb.MDRConfig.Operation.SQUARE:
+                entity.elements[ix].op = Square()
+            elif operation == pb.MDRConfig.Operation.DIVIDE:
+                entity.elements[ix].op = Division()
+            elif operation == pb.MDRConfig.Operation.SQRT:
+                entity.elements[ix].op = SquareRoot()
+            elif operation == pb.MDRConfig.Operation.IDENT:
+                entity.elements[ix].op = Identity()
+            else:
+                raise Exception(f"Invalid MDR Op TYpe: {operation}")
 
     @_deserialize_configuration.register
     def _(self, config: pb.SumConfig):

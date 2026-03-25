@@ -93,6 +93,37 @@ class MulConfig(_message.Message):
     calibration: _containers.RepeatedCompositeFieldContainer[MulConfig.Calibration]
     def __init__(self, calibration: _Optional[_Iterable[_Union[MulConfig.Calibration, _Mapping]]] = ...) -> None: ...
 
+class MDRConfig(_message.Message):
+    __slots__ = ("calibration", "operations")
+    class Operation(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        MULTIPLY: _ClassVar[MDRConfig.Operation]
+        SQUARE: _ClassVar[MDRConfig.Operation]
+        DIVIDE: _ClassVar[MDRConfig.Operation]
+        SQRT: _ClassVar[MDRConfig.Operation]
+        IDENT: _ClassVar[MDRConfig.Operation]
+    MULTIPLY: MDRConfig.Operation
+    SQUARE: MDRConfig.Operation
+    DIVIDE: MDRConfig.Operation
+    SQRT: MDRConfig.Operation
+    IDENT: MDRConfig.Operation
+    class Calibration(_message.Message):
+        __slots__ = ("offset_x", "offset_y", "offset_z", "gain")
+        OFFSET_X_FIELD_NUMBER: _ClassVar[int]
+        OFFSET_Y_FIELD_NUMBER: _ClassVar[int]
+        OFFSET_Z_FIELD_NUMBER: _ClassVar[int]
+        GAIN_FIELD_NUMBER: _ClassVar[int]
+        offset_x: int
+        offset_y: int
+        offset_z: int
+        gain: int
+        def __init__(self, offset_x: _Optional[int] = ..., offset_y: _Optional[int] = ..., offset_z: _Optional[int] = ..., gain: _Optional[int] = ...) -> None: ...
+    CALIBRATION_FIELD_NUMBER: _ClassVar[int]
+    OPERATIONS_FIELD_NUMBER: _ClassVar[int]
+    calibration: _containers.RepeatedCompositeFieldContainer[MDRConfig.Calibration]
+    operations: _containers.RepeatedScalarFieldContainer[MDRConfig.Operation]
+    def __init__(self, calibration: _Optional[_Iterable[_Union[MDRConfig.Calibration, _Mapping]]] = ..., operations: _Optional[_Iterable[_Union[MDRConfig.Operation, str]]] = ...) -> None: ...
+
 class ShiftHoldConfig(_message.Message):
     __slots__ = ("state",)
     class State(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -163,9 +194,11 @@ class SelectConfig(_message.Message):
         GROUND: _ClassVar[SelectConfig.ConstantConfig]
         POS_REF: _ClassVar[SelectConfig.ConstantConfig]
         NEG_REF: _ClassVar[SelectConfig.ConstantConfig]
+        ANALOG_INPUT: _ClassVar[SelectConfig.ConstantConfig]
     GROUND: SelectConfig.ConstantConfig
     POS_REF: SelectConfig.ConstantConfig
     NEG_REF: SelectConfig.ConstantConfig
+    ANALOG_INPUT: SelectConfig.ConstantConfig
     class Magnitude(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         ONE: _ClassVar[SelectConfig.Magnitude]
@@ -219,10 +252,12 @@ class Address(_message.Message):
     def __init__(self, data: _Optional[bytes] = ...) -> None: ...
 
 class Mux(_message.Message):
-    __slots__ = ("state",)
+    __slots__ = ("state", "index")
     STATE_FIELD_NUMBER: _ClassVar[int]
+    INDEX_FIELD_NUMBER: _ClassVar[int]
     state: int
-    def __init__(self, state: _Optional[int] = ...) -> None: ...
+    index: int
+    def __init__(self, state: _Optional[int] = ..., index: _Optional[int] = ...) -> None: ...
 
 class SwitchConfig(_message.Message):
     __slots__ = ("muxes",)
@@ -230,19 +265,25 @@ class SwitchConfig(_message.Message):
     muxes: _containers.RepeatedCompositeFieldContainer[Mux]
     def __init__(self, muxes: _Optional[_Iterable[_Union[Mux, _Mapping]]] = ...) -> None: ...
 
+class TraceLane(_message.Message):
+    __slots__ = ("carrier", "cluster", "lane")
+    CARRIER_FIELD_NUMBER: _ClassVar[int]
+    CLUSTER_FIELD_NUMBER: _ClassVar[int]
+    LANE_FIELD_NUMBER: _ClassVar[int]
+    carrier: int
+    cluster: int
+    lane: int
+    def __init__(self, carrier: _Optional[int] = ..., cluster: _Optional[int] = ..., lane: _Optional[int] = ...) -> None: ...
+
 class Trace(_message.Message):
-    __slots__ = ("source_node", "source_lane", "sink_node", "sink_lane", "sink_upscaled")
-    SOURCE_NODE_FIELD_NUMBER: _ClassVar[int]
-    SOURCE_LANE_FIELD_NUMBER: _ClassVar[int]
-    SINK_NODE_FIELD_NUMBER: _ClassVar[int]
-    SINK_LANE_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("source", "sink", "sink_upscaled")
+    SOURCE_FIELD_NUMBER: _ClassVar[int]
+    SINK_FIELD_NUMBER: _ClassVar[int]
     SINK_UPSCALED_FIELD_NUMBER: _ClassVar[int]
-    source_node: int
-    source_lane: int
-    sink_node: int
-    sink_lane: int
+    source: TraceLane
+    sink: TraceLane
     sink_upscaled: bool
-    def __init__(self, source_node: _Optional[int] = ..., source_lane: _Optional[int] = ..., sink_node: _Optional[int] = ..., sink_lane: _Optional[int] = ..., sink_upscaled: _Optional[bool] = ...) -> None: ...
+    def __init__(self, source: _Optional[_Union[TraceLane, _Mapping]] = ..., sink: _Optional[_Union[TraceLane, _Mapping]] = ..., sink_upscaled: _Optional[bool] = ...) -> None: ...
 
 class DependencyInfo(_message.Message):
     __slots__ = ("entity_ids", "traces")
@@ -370,7 +411,7 @@ class EntitySpecification(_message.Message):
     def __init__(self, entity: _Optional[_Union[Entity, _Mapping]] = ...) -> None: ...
 
 class Item(_message.Message):
-    __slots__ = ("entity", "adc_config", "cluster_config", "mul_config", "shift_hold_config", "coef_config", "itor_config", "select_config", "sum_config", "switch_config", "device_config", "limiter_config", "front_panel_config", "signal_generator_config", "port_config", "backpanel_config", "bpl_switch_config", "cmp_config", "entity_specification", "dependency_info", "ip_lookup_table", "front_panel_io_config", "sim_config")
+    __slots__ = ("entity", "adc_config", "cluster_config", "mul_config", "shift_hold_config", "coef_config", "itor_config", "select_config", "sum_config", "switch_config", "device_config", "limiter_config", "front_panel_config", "signal_generator_config", "port_config", "backpanel_config", "bpl_switch_config", "cmp_config", "entity_specification", "dependency_info", "ip_lookup_table", "front_panel_io_config", "mdr_config", "sim_config")
     ENTITY_FIELD_NUMBER: _ClassVar[int]
     ADC_CONFIG_FIELD_NUMBER: _ClassVar[int]
     CLUSTER_CONFIG_FIELD_NUMBER: _ClassVar[int]
@@ -393,6 +434,7 @@ class Item(_message.Message):
     DEPENDENCY_INFO_FIELD_NUMBER: _ClassVar[int]
     IP_LOOKUP_TABLE_FIELD_NUMBER: _ClassVar[int]
     FRONT_PANEL_IO_CONFIG_FIELD_NUMBER: _ClassVar[int]
+    MDR_CONFIG_FIELD_NUMBER: _ClassVar[int]
     SIM_CONFIG_FIELD_NUMBER: _ClassVar[int]
     entity: EntityId
     adc_config: AdcConfig
@@ -416,8 +458,9 @@ class Item(_message.Message):
     dependency_info: DependencyInfo
     ip_lookup_table: IpLookupTable
     front_panel_io_config: FrontPanelIOConfig
+    mdr_config: MDRConfig
     sim_config: SimConfig
-    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., adc_config: _Optional[_Union[AdcConfig, _Mapping]] = ..., cluster_config: _Optional[_Union[ClusterConfig, _Mapping]] = ..., mul_config: _Optional[_Union[MulConfig, _Mapping]] = ..., shift_hold_config: _Optional[_Union[ShiftHoldConfig, _Mapping]] = ..., coef_config: _Optional[_Union[CoefConfig, _Mapping]] = ..., itor_config: _Optional[_Union[ItorConfig, _Mapping]] = ..., select_config: _Optional[_Union[SelectConfig, _Mapping]] = ..., sum_config: _Optional[_Union[SumConfig, _Mapping]] = ..., switch_config: _Optional[_Union[SwitchConfig, _Mapping]] = ..., device_config: _Optional[_Union[DeviceConfig, _Mapping]] = ..., limiter_config: _Optional[_Union[LimiterConfig, _Mapping]] = ..., front_panel_config: _Optional[_Union[FrontPanelConfig, _Mapping]] = ..., signal_generator_config: _Optional[_Union[SignalGeneratorConfig, _Mapping]] = ..., port_config: _Optional[_Union[PortConfig, _Mapping]] = ..., backpanel_config: _Optional[_Union[BackpanelConfig, _Mapping]] = ..., bpl_switch_config: _Optional[_Union[BPLSwitchConfig, _Mapping]] = ..., cmp_config: _Optional[_Union[CmpConfig, _Mapping]] = ..., entity_specification: _Optional[_Union[EntitySpecification, _Mapping]] = ..., dependency_info: _Optional[_Union[DependencyInfo, _Mapping]] = ..., ip_lookup_table: _Optional[_Union[IpLookupTable, _Mapping]] = ..., front_panel_io_config: _Optional[_Union[FrontPanelIOConfig, _Mapping]] = ..., sim_config: _Optional[_Union[SimConfig, _Mapping]] = ...) -> None: ...
+    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., adc_config: _Optional[_Union[AdcConfig, _Mapping]] = ..., cluster_config: _Optional[_Union[ClusterConfig, _Mapping]] = ..., mul_config: _Optional[_Union[MulConfig, _Mapping]] = ..., shift_hold_config: _Optional[_Union[ShiftHoldConfig, _Mapping]] = ..., coef_config: _Optional[_Union[CoefConfig, _Mapping]] = ..., itor_config: _Optional[_Union[ItorConfig, _Mapping]] = ..., select_config: _Optional[_Union[SelectConfig, _Mapping]] = ..., sum_config: _Optional[_Union[SumConfig, _Mapping]] = ..., switch_config: _Optional[_Union[SwitchConfig, _Mapping]] = ..., device_config: _Optional[_Union[DeviceConfig, _Mapping]] = ..., limiter_config: _Optional[_Union[LimiterConfig, _Mapping]] = ..., front_panel_config: _Optional[_Union[FrontPanelConfig, _Mapping]] = ..., signal_generator_config: _Optional[_Union[SignalGeneratorConfig, _Mapping]] = ..., port_config: _Optional[_Union[PortConfig, _Mapping]] = ..., backpanel_config: _Optional[_Union[BackpanelConfig, _Mapping]] = ..., bpl_switch_config: _Optional[_Union[BPLSwitchConfig, _Mapping]] = ..., cmp_config: _Optional[_Union[CmpConfig, _Mapping]] = ..., entity_specification: _Optional[_Union[EntitySpecification, _Mapping]] = ..., dependency_info: _Optional[_Union[DependencyInfo, _Mapping]] = ..., ip_lookup_table: _Optional[_Union[IpLookupTable, _Mapping]] = ..., front_panel_io_config: _Optional[_Union[FrontPanelIOConfig, _Mapping]] = ..., mdr_config: _Optional[_Union[MDRConfig, _Mapping]] = ..., sim_config: _Optional[_Union[SimConfig, _Mapping]] = ...) -> None: ...
 
 class EntityId(_message.Message):
     __slots__ = ("path",)
@@ -1012,18 +1055,22 @@ class CalibrateLaneCommand(_message.Message):
     def __init__(self, lane: _Optional[int] = ...) -> None: ...
 
 class CalibrationData(_message.Message):
-    __slots__ = ("lane", "gain_correction")
+    __slots__ = ("lane", "gain_correction", "weight", "carrier")
     LANE_FIELD_NUMBER: _ClassVar[int]
     GAIN_CORRECTION_FIELD_NUMBER: _ClassVar[int]
+    WEIGHT_FIELD_NUMBER: _ClassVar[int]
+    CARRIER_FIELD_NUMBER: _ClassVar[int]
     lane: int
     gain_correction: float
-    def __init__(self, lane: _Optional[int] = ..., gain_correction: _Optional[float] = ...) -> None: ...
+    weight: int
+    carrier: int
+    def __init__(self, lane: _Optional[int] = ..., gain_correction: _Optional[float] = ..., weight: _Optional[int] = ..., carrier: _Optional[int] = ...) -> None: ...
 
 class CalibrateDataCommand(_message.Message):
     __slots__ = ("data",)
     DATA_FIELD_NUMBER: _ClassVar[int]
-    data: CalibrationData
-    def __init__(self, data: _Optional[_Union[CalibrationData, _Mapping]] = ...) -> None: ...
+    data: _containers.RepeatedCompositeFieldContainer[CalibrationData]
+    def __init__(self, data: _Optional[_Iterable[_Union[CalibrationData, _Mapping]]] = ...) -> None: ...
 
 class ReadTemperatureCommand(_message.Message):
     __slots__ = ()

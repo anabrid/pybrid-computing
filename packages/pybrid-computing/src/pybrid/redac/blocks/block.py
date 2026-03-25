@@ -23,23 +23,13 @@ class ElementBlock(FunctionBlock):
     ELEMENTS: typing.ClassVar[list[typing.Type[ComputationElement]]] = None
     elements: typing.Optional[list[ComputationElement]] = None
 
-    @property
-    def children(self):
-        if not self.elements:
-            return
-        yield from self.elements
-
     def __post_init__(self):
         super().__post_init__()
-        if self.elements is None:
-            self.elements = self.initialize_elements(self.path)
+        if self.elements is None and self.ELEMENTS is not None:
+            self.elements = [
+                cls(path=self.path / idx) for idx, cls in enumerate(self.ELEMENTS)
+            ]
 
-    @classmethod
-    def initialize_elements(cls, base_path) -> list[ComputationElement]:
-        if not cls.ELEMENTS:
-            return []
-        elements: list[ComputationElement] = list(E(path=base_path / str(idx)) for idx, E in enumerate(cls.ELEMENTS))
-        return elements
 
 
 class SignalConnectionError(Exception):

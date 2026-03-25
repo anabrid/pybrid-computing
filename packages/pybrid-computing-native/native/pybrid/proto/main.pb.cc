@@ -352,34 +352,32 @@ struct UdpDataStreamingCommandDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UdpDataStreamingCommandDefaultTypeInternal _UdpDataStreamingCommand_default_instance_;
 
-inline constexpr Trace::Impl_::Impl_(
+inline constexpr TraceLane::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        source_node_{0u},
-        source_lane_{0u},
-        sink_node_{0u},
-        sink_lane_{0u},
-        sink_upscaled_{false} {}
+        carrier_{0u},
+        cluster_{0u},
+        lane_{0u} {}
 
 template <typename>
-PROTOBUF_CONSTEXPR Trace::Trace(::_pbi::ConstantInitialized)
+PROTOBUF_CONSTEXPR TraceLane::TraceLane(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(Trace_class_data_.base()),
+    : ::google::protobuf::Message(TraceLane_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(),
 #endif  // PROTOBUF_CUSTOM_VTABLE
       _impl_(::_pbi::ConstantInitialized()) {
 }
-struct TraceDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR TraceDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~TraceDefaultTypeInternal() {}
+struct TraceLaneDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR TraceLaneDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~TraceLaneDefaultTypeInternal() {}
   union {
-    Trace _instance;
+    TraceLane _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TraceDefaultTypeInternal _Trace_default_instance_;
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TraceLaneDefaultTypeInternal _TraceLane_default_instance_;
 
 inline constexpr Time::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -946,7 +944,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr Mux::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        state_{0u} {}
+        state_{0u},
+        index_{0u} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR Mux::Mux(::_pbi::ConstantInitialized)
@@ -1020,6 +1019,34 @@ struct ManualControlCommandDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ManualControlCommandDefaultTypeInternal _ManualControlCommand_default_instance_;
+
+inline constexpr MDRConfig_Calibration::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        offset_x_{0u},
+        offset_y_{0u},
+        offset_z_{0u},
+        gain_{0u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR MDRConfig_Calibration::MDRConfig_Calibration(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(MDRConfig_Calibration_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct MDRConfig_CalibrationDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR MDRConfig_CalibrationDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~MDRConfig_CalibrationDefaultTypeInternal() {}
+  union {
+    MDRConfig_Calibration _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MDRConfig_CalibrationDefaultTypeInternal _MDRConfig_Calibration_default_instance_;
 
 inline constexpr LimiterConfig_Element::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -1536,7 +1563,9 @@ inline constexpr CalibrationData::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         lane_{0u},
-        gain_correction_{0} {}
+        gain_correction_{0},
+        weight_{0u},
+        carrier_{0u} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR CalibrationData::CalibrationData(::_pbi::ConstantInitialized)
@@ -1882,6 +1911,33 @@ struct UpdateCommandDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateCommandDefaultTypeInternal _UpdateCommand_default_instance_;
+
+inline constexpr Trace::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        source_{nullptr},
+        sink_{nullptr},
+        sink_upscaled_{false} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR Trace::Trace(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(Trace_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct TraceDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR TraceDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~TraceDefaultTypeInternal() {}
+  union {
+    Trace _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TraceDefaultTypeInternal _Trace_default_instance_;
 
 inline constexpr TemperatureMeasurement::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -2253,6 +2309,33 @@ struct MulConfigDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MulConfigDefaultTypeInternal _MulConfig_default_instance_;
 
+inline constexpr MDRConfig::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : calibration_{},
+        operations_{},
+        _operations_cached_byte_size_{0},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR MDRConfig::MDRConfig(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(MDRConfig_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct MDRConfigDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR MDRConfigDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~MDRConfigDefaultTypeInternal() {}
+  union {
+    MDRConfig _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MDRConfigDefaultTypeInternal _MDRConfig_default_instance_;
+
 inline constexpr LimiterConfig::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : elements_{},
@@ -2496,32 +2579,6 @@ struct DiagnosisDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DiagnosisDefaultTypeInternal _Diagnosis_default_instance_;
 
-inline constexpr DependencyInfo::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : entity_ids_{},
-        traces_{},
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR DependencyInfo::DependencyInfo(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(DependencyInfo_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct DependencyInfoDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR DependencyInfoDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~DependencyInfoDefaultTypeInternal() {}
-  union {
-    DependencyInfo _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DependencyInfoDefaultTypeInternal _DependencyInfo_default_instance_;
-
 inline constexpr DataType::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : kind_{},
@@ -2628,8 +2685,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 
 inline constexpr CalibrateDataCommand::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : _cached_size_{0},
-        data_{nullptr} {}
+      : data_{},
+        _cached_size_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR CalibrateDataCommand::CalibrateDataCommand(::_pbi::ConstantInitialized)
@@ -2963,6 +3020,32 @@ struct EntitySpecificationDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 EntitySpecificationDefaultTypeInternal _EntitySpecification_default_instance_;
+
+inline constexpr DependencyInfo::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : entity_ids_{},
+        traces_{},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DependencyInfo::DependencyInfo(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(DependencyInfo_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct DependencyInfoDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DependencyInfoDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DependencyInfoDefaultTypeInternal() {}
+  union {
+    DependencyInfo _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DependencyInfoDefaultTypeInternal _DependencyInfo_default_instance_;
 
 inline constexpr DaqData::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -3416,7 +3499,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 EnvelopeDefaultTypeInternal _Envelope_default_instance_;
 }  // namespace pb
 static const ::_pb::EnumDescriptor* PROTOBUF_NONNULL
-    file_level_enum_descriptors_main_2eproto[17];
+    file_level_enum_descriptors_main_2eproto[18];
 static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_main_2eproto = nullptr;
 const ::uint32_t
@@ -3455,6 +3538,20 @@ const ::uint32_t
         3,
         0x000, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::MulConfig, _impl_.calibration_),
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::MDRConfig_Calibration, _impl_._has_bits_),
+        7, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pb::MDRConfig_Calibration, _impl_.offset_x_),
+        PROTOBUF_FIELD_OFFSET(::pb::MDRConfig_Calibration, _impl_.offset_y_),
+        PROTOBUF_FIELD_OFFSET(::pb::MDRConfig_Calibration, _impl_.offset_z_),
+        PROTOBUF_FIELD_OFFSET(::pb::MDRConfig_Calibration, _impl_.gain_),
+        0,
+        1,
+        2,
+        3,
+        0x000, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::MDRConfig, _impl_.calibration_),
+        PROTOBUF_FIELD_OFFSET(::pb::MDRConfig, _impl_.operations_),
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::ShiftHoldConfig, _impl_._has_bits_),
         4, // hasbit index offset
@@ -3531,24 +3628,31 @@ const ::uint32_t
         0,
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::Mux, _impl_._has_bits_),
-        4, // hasbit index offset
+        5, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::pb::Mux, _impl_.state_),
+        PROTOBUF_FIELD_OFFSET(::pb::Mux, _impl_.index_),
         0,
+        1,
         0x000, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::SwitchConfig, _impl_.muxes_),
         0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pb::TraceLane, _impl_._has_bits_),
+        6, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pb::TraceLane, _impl_.carrier_),
+        PROTOBUF_FIELD_OFFSET(::pb::TraceLane, _impl_.cluster_),
+        PROTOBUF_FIELD_OFFSET(::pb::TraceLane, _impl_.lane_),
+        0,
+        1,
+        2,
+        0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_._has_bits_),
-        8, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_.source_node_),
-        PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_.source_lane_),
-        PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_.sink_node_),
-        PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_.sink_lane_),
+        6, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_.source_),
+        PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_.sink_),
         PROTOBUF_FIELD_OFFSET(::pb::Trace, _impl_.sink_upscaled_),
         0,
         1,
         2,
-        3,
-        4,
         0x000, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::DependencyInfo, _impl_.entity_ids_),
         PROTOBUF_FIELD_OFFSET(::pb::DependencyInfo, _impl_.traces_),
@@ -3622,7 +3726,7 @@ const ::uint32_t
         0x085, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_._oneof_case_[0]),
-        28, // hasbit index offset
+        29, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.entity_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
@@ -3647,7 +3751,9 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::Item, _impl_.kind_),
         0,
+        ~0u,
         ~0u,
         ~0u,
         ~0u,
@@ -4090,16 +4196,17 @@ const ::uint32_t
         0,
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::CalibrationData, _impl_._has_bits_),
-        5, // hasbit index offset
+        7, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::pb::CalibrationData, _impl_.lane_),
         PROTOBUF_FIELD_OFFSET(::pb::CalibrationData, _impl_.gain_correction_),
+        PROTOBUF_FIELD_OFFSET(::pb::CalibrationData, _impl_.weight_),
+        PROTOBUF_FIELD_OFFSET(::pb::CalibrationData, _impl_.carrier_),
         0,
         1,
-        0x081, // bitmap
-        PROTOBUF_FIELD_OFFSET(::pb::CalibrateDataCommand, _impl_._has_bits_),
-        4, // hasbit index offset
+        2,
+        3,
+        0x000, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::CalibrateDataCommand, _impl_.data_),
-        0,
         0x000, // bitmap
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::TemperatureMeasurement, _impl_._has_bits_),
@@ -4366,134 +4473,137 @@ static const ::_pbi::MigrationSchema
         {19, sizeof(::pb::ClusterConfig)},
         {20, sizeof(::pb::MulConfig_Calibration)},
         {31, sizeof(::pb::MulConfig)},
-        {33, sizeof(::pb::ShiftHoldConfig)},
-        {38, sizeof(::pb::CoefConfig_Element)},
-        {47, sizeof(::pb::CoefConfig)},
-        {49, sizeof(::pb::ItorConfig_Element)},
-        {58, sizeof(::pb::ItorConfig)},
-        {60, sizeof(::pb::LimiterConfig_Element)},
-        {67, sizeof(::pb::LimiterConfig)},
-        {69, sizeof(::pb::SelectConfig)},
-        {78, sizeof(::pb::SelectConnectionConfig)},
-        {85, sizeof(::pb::SumConfig)},
-        {88, sizeof(::pb::SumConnectionConfig)},
-        {95, sizeof(::pb::UpscaleConfig)},
-        {102, sizeof(::pb::Address)},
-        {107, sizeof(::pb::Mux)},
-        {112, sizeof(::pb::SwitchConfig)},
-        {114, sizeof(::pb::Trace)},
-        {127, sizeof(::pb::DependencyInfo)},
-        {130, sizeof(::pb::BPLSwitchConfig)},
-        {132, sizeof(::pb::CmpConfig)},
-        {133, sizeof(::pb::SignalGeneratorConfig)},
-        {154, sizeof(::pb::FrontPanelConfig)},
-        {159, sizeof(::pb::FrontPanelIOConfig)},
-        {161, sizeof(::pb::ACLPinSignal)},
-        {168, sizeof(::pb::PortConfig)},
-        {172, sizeof(::pb::BackpanelConfig)},
-        {183, sizeof(::pb::IpLookupTable_Entry)},
-        {190, sizeof(::pb::IpLookupTable)},
-        {192, sizeof(::pb::EntitySpecification)},
-        {197, sizeof(::pb::Item)},
-        {248, sizeof(::pb::EntityId)},
-        {253, sizeof(::pb::DescribeCommand)},
-        {254, sizeof(::pb::ResetCommand)},
-        {267, sizeof(::pb::ExtractCommand)},
-        {280, sizeof(::pb::ConfigCommand)},
-        {289, sizeof(::pb::ACLPlugin)},
-        {298, sizeof(::pb::ACLWire)},
-        {305, sizeof(::pb::ACLPlug)},
-        {312, sizeof(::pb::ACLConfig)},
-        {315, sizeof(::pb::SimConfig)},
-        {326, sizeof(::pb::Module)},
-        {328, sizeof(::pb::DescribeBundle)},
-        {330, sizeof(::pb::Time)},
-        {337, sizeof(::pb::Temperature)},
-        {344, sizeof(::pb::RunConfig)},
-        {359, sizeof(::pb::DaqConfig)},
-        {370, sizeof(::pb::SyncConfig)},
-        {379, sizeof(::pb::CalibrationConfig)},
-        {390, sizeof(::pb::UdpDataStreamingCommand)},
-        {395, sizeof(::pb::UdpDataStreamingRefusedResponse)},
-        {400, sizeof(::pb::StartRunCommand)},
-        {415, sizeof(::pb::StopRunCommand)},
-        {416, sizeof(::pb::StandByCommand)},
-        {423, sizeof(::pb::ManualControlCommand)},
-        {428, sizeof(::pb::PingCommand)},
-        {429, sizeof(::pb::RegisterExternalEntitiesCommand_EntitiesEntry_DoNotUse)},
-        {436, sizeof(::pb::RegisterExternalEntitiesCommand)},
-        {438, sizeof(::pb::SyslogCommand)},
-        {439, sizeof(::pb::SystemStatsCommand)},
-        {440, sizeof(::pb::Version)},
-        {449, sizeof(::pb::CarrierLocationV0)},
-        {456, sizeof(::pb::Entity)},
-        {477, sizeof(::pb::ResetResponse)},
-        {482, sizeof(::pb::ExtractResponse)},
-        {487, sizeof(::pb::ConfigResponse)},
-        {492, sizeof(::pb::StartRunResponse)},
-        {493, sizeof(::pb::RunStateChangeMessage)},
-        {508, sizeof(::pb::IntegerType)},
-        {515, sizeof(::pb::FloatType)},
-        {520, sizeof(::pb::DataType)},
-        {525, sizeof(::pb::DaqData)},
-        {538, sizeof(::pb::Run)},
-        {545, sizeof(::pb::RunDataMessage)},
-        {554, sizeof(::pb::RunDataEndMessage)},
-        {563, sizeof(::pb::PingResponse)},
-        {568, sizeof(::pb::FirmwareBuild_EntriesEntry_DoNotUse)},
-        {575, sizeof(::pb::FirmwareBuild)},
-        {577, sizeof(::pb::FirmwareImage)},
-        {584, sizeof(::pb::GetSystemIdentResponse)},
-        {593, sizeof(::pb::SyslogResponse)},
-        {602, sizeof(::pb::PerformanceCounters)},
-        {613, sizeof(::pb::SystemStatsResponse)},
-        {618, sizeof(::pb::ReadSystemIdentCommand)},
-        {623, sizeof(::pb::ReadSystemIdentResponse)},
-        {624, sizeof(::pb::ResetSystemIdentCommand)},
-        {629, sizeof(::pb::ResetSystemIdentResponse)},
-        {630, sizeof(::pb::WriteSystemIdentCommand)},
-        {635, sizeof(::pb::Vendor)},
-        {646, sizeof(::pb::WriteSystemIdentResponse)},
-        {651, sizeof(::pb::GetSystemIdentCommand)},
-        {652, sizeof(::pb::CalibrationCommand)},
-        {657, sizeof(::pb::CalibrationResponse)},
-        {658, sizeof(::pb::CalibrateInitCommand)},
-        {659, sizeof(::pb::CalibrateFinalizeCommand)},
-        {660, sizeof(::pb::CalibrateOffsetCommand)},
-        {661, sizeof(::pb::CalibrateLaneCommand)},
-        {666, sizeof(::pb::CalibrationData)},
-        {673, sizeof(::pb::CalibrateDataCommand)},
-        {678, sizeof(::pb::ReadTemperatureCommand)},
-        {679, sizeof(::pb::TemperatureMeasurement)},
-        {686, sizeof(::pb::TemperatureDataset)},
-        {688, sizeof(::pb::ReadTemperatureResponse)},
-        {693, sizeof(::pb::GetOverloadStatusCommand)},
-        {694, sizeof(::pb::OverloadStatus_Element)},
-        {703, sizeof(::pb::OverloadStatus)},
-        {710, sizeof(::pb::GetOverloadStatusResponse)},
-        {715, sizeof(::pb::SuccessMessage)},
-        {716, sizeof(::pb::DeviceBusyMessage)},
-        {717, sizeof(::pb::ErrorMessage)},
-        {724, sizeof(::pb::Envelope)},
-        {735, sizeof(::pb::GenericMessage)},
-        {740, sizeof(::pb::BearerAuth)},
-        {745, sizeof(::pb::AuthRequest)},
-        {749, sizeof(::pb::Source)},
-        {756, sizeof(::pb::JitCommand)},
-        {761, sizeof(::pb::Issue)},
-        {772, sizeof(::pb::Diagnosis)},
-        {774, sizeof(::pb::JitResponse)},
-        {781, sizeof(::pb::UpdateCommand)},
-        {788, sizeof(::pb::UpdateResponse)},
-        {794, sizeof(::pb::UpdateBegin)},
-        {801, sizeof(::pb::UpdateWrite)},
-        {808, sizeof(::pb::UpdateCommit)},
-        {809, sizeof(::pb::UpdateAbort)},
-        {810, sizeof(::pb::UpdateAck)},
-        {815, sizeof(::pb::UpdateFailure)},
-        {820, sizeof(::pb::UpdateSuccess)},
-        {821, sizeof(::pb::MessageV1)},
-        {926, sizeof(::pb::File)},
+        {33, sizeof(::pb::MDRConfig_Calibration)},
+        {44, sizeof(::pb::MDRConfig)},
+        {47, sizeof(::pb::ShiftHoldConfig)},
+        {52, sizeof(::pb::CoefConfig_Element)},
+        {61, sizeof(::pb::CoefConfig)},
+        {63, sizeof(::pb::ItorConfig_Element)},
+        {72, sizeof(::pb::ItorConfig)},
+        {74, sizeof(::pb::LimiterConfig_Element)},
+        {81, sizeof(::pb::LimiterConfig)},
+        {83, sizeof(::pb::SelectConfig)},
+        {92, sizeof(::pb::SelectConnectionConfig)},
+        {99, sizeof(::pb::SumConfig)},
+        {102, sizeof(::pb::SumConnectionConfig)},
+        {109, sizeof(::pb::UpscaleConfig)},
+        {116, sizeof(::pb::Address)},
+        {121, sizeof(::pb::Mux)},
+        {128, sizeof(::pb::SwitchConfig)},
+        {130, sizeof(::pb::TraceLane)},
+        {139, sizeof(::pb::Trace)},
+        {148, sizeof(::pb::DependencyInfo)},
+        {151, sizeof(::pb::BPLSwitchConfig)},
+        {153, sizeof(::pb::CmpConfig)},
+        {154, sizeof(::pb::SignalGeneratorConfig)},
+        {175, sizeof(::pb::FrontPanelConfig)},
+        {180, sizeof(::pb::FrontPanelIOConfig)},
+        {182, sizeof(::pb::ACLPinSignal)},
+        {189, sizeof(::pb::PortConfig)},
+        {193, sizeof(::pb::BackpanelConfig)},
+        {204, sizeof(::pb::IpLookupTable_Entry)},
+        {211, sizeof(::pb::IpLookupTable)},
+        {213, sizeof(::pb::EntitySpecification)},
+        {218, sizeof(::pb::Item)},
+        {271, sizeof(::pb::EntityId)},
+        {276, sizeof(::pb::DescribeCommand)},
+        {277, sizeof(::pb::ResetCommand)},
+        {290, sizeof(::pb::ExtractCommand)},
+        {303, sizeof(::pb::ConfigCommand)},
+        {312, sizeof(::pb::ACLPlugin)},
+        {321, sizeof(::pb::ACLWire)},
+        {328, sizeof(::pb::ACLPlug)},
+        {335, sizeof(::pb::ACLConfig)},
+        {338, sizeof(::pb::SimConfig)},
+        {349, sizeof(::pb::Module)},
+        {351, sizeof(::pb::DescribeBundle)},
+        {353, sizeof(::pb::Time)},
+        {360, sizeof(::pb::Temperature)},
+        {367, sizeof(::pb::RunConfig)},
+        {382, sizeof(::pb::DaqConfig)},
+        {393, sizeof(::pb::SyncConfig)},
+        {402, sizeof(::pb::CalibrationConfig)},
+        {413, sizeof(::pb::UdpDataStreamingCommand)},
+        {418, sizeof(::pb::UdpDataStreamingRefusedResponse)},
+        {423, sizeof(::pb::StartRunCommand)},
+        {438, sizeof(::pb::StopRunCommand)},
+        {439, sizeof(::pb::StandByCommand)},
+        {446, sizeof(::pb::ManualControlCommand)},
+        {451, sizeof(::pb::PingCommand)},
+        {452, sizeof(::pb::RegisterExternalEntitiesCommand_EntitiesEntry_DoNotUse)},
+        {459, sizeof(::pb::RegisterExternalEntitiesCommand)},
+        {461, sizeof(::pb::SyslogCommand)},
+        {462, sizeof(::pb::SystemStatsCommand)},
+        {463, sizeof(::pb::Version)},
+        {472, sizeof(::pb::CarrierLocationV0)},
+        {479, sizeof(::pb::Entity)},
+        {500, sizeof(::pb::ResetResponse)},
+        {505, sizeof(::pb::ExtractResponse)},
+        {510, sizeof(::pb::ConfigResponse)},
+        {515, sizeof(::pb::StartRunResponse)},
+        {516, sizeof(::pb::RunStateChangeMessage)},
+        {531, sizeof(::pb::IntegerType)},
+        {538, sizeof(::pb::FloatType)},
+        {543, sizeof(::pb::DataType)},
+        {548, sizeof(::pb::DaqData)},
+        {561, sizeof(::pb::Run)},
+        {568, sizeof(::pb::RunDataMessage)},
+        {577, sizeof(::pb::RunDataEndMessage)},
+        {586, sizeof(::pb::PingResponse)},
+        {591, sizeof(::pb::FirmwareBuild_EntriesEntry_DoNotUse)},
+        {598, sizeof(::pb::FirmwareBuild)},
+        {600, sizeof(::pb::FirmwareImage)},
+        {607, sizeof(::pb::GetSystemIdentResponse)},
+        {616, sizeof(::pb::SyslogResponse)},
+        {625, sizeof(::pb::PerformanceCounters)},
+        {636, sizeof(::pb::SystemStatsResponse)},
+        {641, sizeof(::pb::ReadSystemIdentCommand)},
+        {646, sizeof(::pb::ReadSystemIdentResponse)},
+        {647, sizeof(::pb::ResetSystemIdentCommand)},
+        {652, sizeof(::pb::ResetSystemIdentResponse)},
+        {653, sizeof(::pb::WriteSystemIdentCommand)},
+        {658, sizeof(::pb::Vendor)},
+        {669, sizeof(::pb::WriteSystemIdentResponse)},
+        {674, sizeof(::pb::GetSystemIdentCommand)},
+        {675, sizeof(::pb::CalibrationCommand)},
+        {680, sizeof(::pb::CalibrationResponse)},
+        {681, sizeof(::pb::CalibrateInitCommand)},
+        {682, sizeof(::pb::CalibrateFinalizeCommand)},
+        {683, sizeof(::pb::CalibrateOffsetCommand)},
+        {684, sizeof(::pb::CalibrateLaneCommand)},
+        {689, sizeof(::pb::CalibrationData)},
+        {700, sizeof(::pb::CalibrateDataCommand)},
+        {702, sizeof(::pb::ReadTemperatureCommand)},
+        {703, sizeof(::pb::TemperatureMeasurement)},
+        {710, sizeof(::pb::TemperatureDataset)},
+        {712, sizeof(::pb::ReadTemperatureResponse)},
+        {717, sizeof(::pb::GetOverloadStatusCommand)},
+        {718, sizeof(::pb::OverloadStatus_Element)},
+        {727, sizeof(::pb::OverloadStatus)},
+        {734, sizeof(::pb::GetOverloadStatusResponse)},
+        {739, sizeof(::pb::SuccessMessage)},
+        {740, sizeof(::pb::DeviceBusyMessage)},
+        {741, sizeof(::pb::ErrorMessage)},
+        {748, sizeof(::pb::Envelope)},
+        {759, sizeof(::pb::GenericMessage)},
+        {764, sizeof(::pb::BearerAuth)},
+        {769, sizeof(::pb::AuthRequest)},
+        {773, sizeof(::pb::Source)},
+        {780, sizeof(::pb::JitCommand)},
+        {785, sizeof(::pb::Issue)},
+        {796, sizeof(::pb::Diagnosis)},
+        {798, sizeof(::pb::JitResponse)},
+        {805, sizeof(::pb::UpdateCommand)},
+        {812, sizeof(::pb::UpdateResponse)},
+        {818, sizeof(::pb::UpdateBegin)},
+        {825, sizeof(::pb::UpdateWrite)},
+        {832, sizeof(::pb::UpdateCommit)},
+        {833, sizeof(::pb::UpdateAbort)},
+        {834, sizeof(::pb::UpdateAck)},
+        {839, sizeof(::pb::UpdateFailure)},
+        {844, sizeof(::pb::UpdateSuccess)},
+        {845, sizeof(::pb::MessageV1)},
+        {950, sizeof(::pb::File)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_OptionalLane_default_instance_._instance,
@@ -4503,6 +4613,8 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_ClusterConfig_default_instance_._instance,
     &::pb::_MulConfig_Calibration_default_instance_._instance,
     &::pb::_MulConfig_default_instance_._instance,
+    &::pb::_MDRConfig_Calibration_default_instance_._instance,
+    &::pb::_MDRConfig_default_instance_._instance,
     &::pb::_ShiftHoldConfig_default_instance_._instance,
     &::pb::_CoefConfig_Element_default_instance_._instance,
     &::pb::_CoefConfig_default_instance_._instance,
@@ -4518,6 +4630,7 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_Address_default_instance_._instance,
     &::pb::_Mux_default_instance_._instance,
     &::pb::_SwitchConfig_default_instance_._instance,
+    &::pb::_TraceLane_default_instance_._instance,
     &::pb::_Trace_default_instance_._instance,
     &::pb::_DependencyInfo_default_instance_._instance,
     &::pb::_BPLSwitchConfig_default_instance_._instance,
@@ -4642,26 +4755,33 @@ const char descriptor_table_protodef_main_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     "sterConfig\"\216\001\n\tMulConfig\022.\n\013calibration\030"
     "\001 \003(\0132\031.pb.MulConfig.Calibration\032Q\n\013Cali"
     "bration\022\020\n\010offset_x\030\001 \001(\r\022\020\n\010offset_y\030\002 "
-    "\001(\r\022\020\n\010offset_z\030\003 \001(\r\022\014\n\004gain\030\004 \001(\r\"\260\001\n\017"
-    "ShiftHoldConfig\022(\n\005state\030\001 \001(\0162\031.pb.Shif"
-    "tHoldConfig.State\"s\n\005State\022\t\n\005TRACK\020\000\022\017\n"
-    "\013TRACK_AT_IC\020\001\022\n\n\006INJECT\020\002\022\026\n\022GAIN_ZERO_"
-    "TO_SEVEN\020\003\022\031\n\025GAIN_EIGHT_TO_FIFTEEN\020\004\022\017\n"
-    "\013PASSTHROUGH\020\005\"\220\001\n\nCoefConfig\022(\n\010element"
-    "s\030\001 \003(\0132\026.pb.CoefConfig.Element\032X\n\007Eleme"
-    "nt\022\013\n\003idx\030\001 \001(\r\022\016\n\006factor\030\002 \001(\002\022\034\n\017gain_"
-    "correction\030\003 \001(\002H\000\210\001\001B\022\n\020_gain_correctio"
-    "n\"e\n\nItorConfig\022(\n\010elements\030\001 \003(\0132\026.pb.I"
-    "torConfig.Element\032-\n\007Element\022\013\n\003idx\030\001 \001("
-    "\r\022\n\n\002ic\030\002 \001(\002\022\t\n\001k\030\003 \001(\r\"d\n\rLimiterConfi"
-    "g\022+\n\010elements\030\001 \003(\0132\031.pb.LimiterConfig.E"
-    "lement\032&\n\007Element\022\013\n\003idx\030\001 \001(\r\022\016\n\006enable"
-    "\030\002 \001(\010\"\376\001\n\014SelectConfig\022/\n\013connections\030\001"
-    " \003(\0132\032.pb.SelectConnectionConfig\0221\n\010cons"
-    "tant\030\002 \001(\0162\037.pb.SelectConfig.ConstantCon"
-    "fig\022-\n\tmagnitude\030\003 \001(\0162\032.pb.SelectConfig"
-    ".Magnitude\"6\n\016ConstantConfig\022\n\n\006GROUND\020\000"
-    "\022\013\n\007POS_REF\020\001\022\013\n\007NEG_REF\020\002\"#\n\tMagnitude\022"
+    "\001(\r\022\020\n\010offset_z\030\003 \001(\r\022\014\n\004gain\030\004 \001(\r\"\203\002\n\t"
+    "MDRConfig\022.\n\013calibration\030\001 \003(\0132\031.pb.MDRC"
+    "onfig.Calibration\022+\n\noperations\030\002 \003(\0162\027."
+    "pb.MDRConfig.Operation\032Q\n\013Calibration\022\020\n"
+    "\010offset_x\030\001 \001(\r\022\020\n\010offset_y\030\002 \001(\r\022\020\n\010off"
+    "set_z\030\003 \001(\r\022\014\n\004gain\030\004 \001(\r\"F\n\tOperation\022\014"
+    "\n\010MULTIPLY\020\000\022\n\n\006SQUARE\020\001\022\n\n\006DIVIDE\020\002\022\010\n\004"
+    "SQRT\020\003\022\t\n\005IDENT\020\004\"\260\001\n\017ShiftHoldConfig\022(\n"
+    "\005state\030\001 \001(\0162\031.pb.ShiftHoldConfig.State\""
+    "s\n\005State\022\t\n\005TRACK\020\000\022\017\n\013TRACK_AT_IC\020\001\022\n\n\006"
+    "INJECT\020\002\022\026\n\022GAIN_ZERO_TO_SEVEN\020\003\022\031\n\025GAIN"
+    "_EIGHT_TO_FIFTEEN\020\004\022\017\n\013PASSTHROUGH\020\005\"\220\001\n"
+    "\nCoefConfig\022(\n\010elements\030\001 \003(\0132\026.pb.CoefC"
+    "onfig.Element\032X\n\007Element\022\013\n\003idx\030\001 \001(\r\022\016\n"
+    "\006factor\030\002 \001(\002\022\034\n\017gain_correction\030\003 \001(\002H\000"
+    "\210\001\001B\022\n\020_gain_correction\"e\n\nItorConfig\022(\n"
+    "\010elements\030\001 \003(\0132\026.pb.ItorConfig.Element\032"
+    "-\n\007Element\022\013\n\003idx\030\001 \001(\r\022\n\n\002ic\030\002 \001(\002\022\t\n\001k"
+    "\030\003 \001(\r\"d\n\rLimiterConfig\022+\n\010elements\030\001 \003("
+    "\0132\031.pb.LimiterConfig.Element\032&\n\007Element\022"
+    "\013\n\003idx\030\001 \001(\r\022\016\n\006enable\030\002 \001(\010\"\220\002\n\014SelectC"
+    "onfig\022/\n\013connections\030\001 \003(\0132\032.pb.SelectCo"
+    "nnectionConfig\0221\n\010constant\030\002 \001(\0162\037.pb.Se"
+    "lectConfig.ConstantConfig\022-\n\tmagnitude\030\003"
+    " \001(\0162\032.pb.SelectConfig.Magnitude\"H\n\016Cons"
+    "tantConfig\022\n\n\006GROUND\020\000\022\013\n\007POS_REF\020\001\022\013\n\007N"
+    "EG_REF\020\002\022\020\n\014ANALOG_INPUT\020\003\"#\n\tMagnitude\022"
     "\007\n\003ONE\020\000\022\r\n\tONE_TENTH\020\001\"7\n\026SelectConnect"
     "ionConfig\022\r\n\005input\030\001 \001(\r\022\016\n\006output\030\002 \001(\r"
     "\"^\n\tSumConfig\022,\n\013connections\030\001 \003(\0132\027.pb."
@@ -4669,337 +4789,340 @@ const char descriptor_table_protodef_main_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     "pb.UpscaleConfig\"5\n\023SumConnectionConfig\022"
     "\016\n\006inputs\030\001 \003(\r\022\016\n\006output\030\002 \001(\r\".\n\rUpsca"
     "leConfig\022\014\n\004lane\030\001 \001(\r\022\017\n\007enabled\030\002 \001(\010\""
-    "\027\n\007Address\022\014\n\004data\030\001 \001(\014\"#\n\003Mux\022\022\n\005state"
-    "\030\001 \001(\rH\000\210\001\001B\010\n\006_state\"&\n\014SwitchConfig\022\026\n"
-    "\005muxes\030\001 \003(\0132\007.pb.Mux\"n\n\005Trace\022\023\n\013source"
-    "_node\030\001 \001(\r\022\023\n\013source_lane\030\002 \001(\r\022\021\n\tsink"
-    "_node\030\003 \001(\r\022\021\n\tsink_lane\030\004 \001(\r\022\025\n\rsink_u"
-    "pscaled\030\005 \001(\010\"M\n\016DependencyInfo\022 \n\nentit"
-    "y_ids\030\001 \003(\0132\014.pb.EntityId\022\031\n\006traces\030\002 \003("
-    "\0132\t.pb.Trace\")\n\017BPLSwitchConfig\022\026\n\005muxes"
-    "\030\001 \003(\0132\007.pb.Mux\"\013\n\tCmpConfig\"\251\002\n\025SignalG"
-    "eneratorConfig\022\021\n\tfrequency\030\001 \001(\002\022\r\n\005pha"
-    "se\030\002 \001(\002\0225\n\twave_form\030\003 \001(\0162\".pb.SignalG"
-    "eneratorConfig.WaveForm\022\021\n\tamplitude\030\004 \001"
-    "(\002\022\032\n\022square_voltage_low\030\005 \001(\002\022\033\n\023square"
-    "_voltage_high\030\006 \001(\002\022\016\n\006offset\030\007 \001(\002\022\r\n\005s"
-    "leep\030\010 \001(\010\022\023\n\013dac_outputs\030\t \003(\002\"7\n\010WaveF"
-    "orm\022\010\n\004SINE\020\000\022\023\n\017SINE_AND_SQUARE\020\001\022\014\n\010TR"
-    "IANGLE\020\002\" \n\020FrontPanelConfig\022\014\n\004leds\030\001 \001"
-    "(\r\"\243\001\n\022FrontPanelIOConfig\0229\n\010io_modes\030\001 "
-    "\003(\0162\'.pb.FrontPanelIOConfig.FrontPanelIO"
-    "Mode\"R\n\020FrontPanelIOMode\022\016\n\nANALOG_OUT\020\000"
-    "\022\r\n\tANALOG_IN\020\001\022\017\n\013DIGITAL_OUT\020\002\022\016\n\nDIGI"
-    "TAL_IN\020\003\"+\n\014ACLPinSignal\022\016\n\006signal\030\001 \001(\t"
-    "\022\013\n\003pin\030\002 \001(\r\"\242\001\n\nPortConfig\022\'\n\006states\030\001"
-    " \003(\0162\027.pb.PortConfig.AclState\022 \n\006inputs\030"
-    "\002 \003(\0132\020.pb.ACLPinSignal\022!\n\007outputs\030\003 \003(\013"
-    "2\020.pb.ACLPinSignal\"&\n\010AclState\022\014\n\010INTERN"
-    "AL\020\000\022\014\n\010EXTERNAL\020\001\"f\n\017BackpanelConfig\022\024\n"
-    "\014backpanel_id\030\001 \001(\r\022\026\n\016backpanel_slot\030\002 "
-    "\001(\r\022\020\n\010is_valid\030\003 \001(\010\022\023\n\013is_isolated\030\004 \001"
-    "(\010\"\201\001\n\rIpLookupTable\022(\n\007entries\030\001 \003(\0132\027."
-    "pb.IpLookupTable.Entry\032F\n\005Entry\022\037\n\tentit"
-    "y_id\030\001 \001(\0132\014.pb.EntityId\022\034\n\007address\030\002 \001("
-    "\0132\013.pb.Address\"1\n\023EntitySpecification\022\032\n"
-    "\006entity\030\001 \001(\0132\n.pb.Entity\"\222\010\n\004Item\022\034\n\006en"
-    "tity\030\001 \001(\0132\014.pb.EntityId\022#\n\nadc_config\030\n"
-    " \001(\0132\r.pb.AdcConfigH\000\022+\n\016cluster_config\030"
-    "\013 \001(\0132\021.pb.ClusterConfigH\000\022#\n\nmul_config"
-    "\030\014 \001(\0132\r.pb.MulConfigH\000\0220\n\021shift_hold_co"
-    "nfig\030\r \001(\0132\023.pb.ShiftHoldConfigH\000\022%\n\013coe"
-    "f_config\030\016 \001(\0132\016.pb.CoefConfigH\000\022%\n\013itor"
-    "_config\030\017 \001(\0132\016.pb.ItorConfigH\000\022)\n\rselec"
-    "t_config\030\020 \001(\0132\020.pb.SelectConfigH\000\022#\n\nsu"
-    "m_config\030\021 \001(\0132\r.pb.SumConfigH\000\022)\n\rswitc"
-    "h_config\030\022 \001(\0132\020.pb.SwitchConfigH\000\022)\n\rde"
-    "vice_config\030\023 \001(\0132\020.pb.DeviceConfigH\000\022+\n"
-    "\016limiter_config\030\024 \001(\0132\021.pb.LimiterConfig"
-    "H\000\0222\n\022front_panel_config\030\025 \001(\0132\024.pb.Fron"
-    "tPanelConfigH\000\022<\n\027signal_generator_confi"
-    "g\030\026 \001(\0132\031.pb.SignalGeneratorConfigH\000\022%\n\013"
-    "port_config\030\027 \001(\0132\016.pb.PortConfigH\000\022/\n\020b"
-    "ackpanel_config\030\031 \001(\0132\023.pb.BackpanelConf"
-    "igH\000\0220\n\021bpl_switch_config\030\032 \001(\0132\023.pb.BPL"
-    "SwitchConfigH\000\022#\n\ncmp_config\030\033 \001(\0132\r.pb."
-    "CmpConfigH\000\0227\n\024entity_specification\030\034 \001("
-    "\0132\027.pb.EntitySpecificationH\000\022-\n\017dependen"
-    "cy_info\030\035 \001(\0132\022.pb.DependencyInfoH\000\022,\n\017i"
-    "p_lookup_table\030\036 \001(\0132\021.pb.IpLookupTableH"
-    "\000\0227\n\025front_panel_io_config\030\037 \001(\0132\026.pb.Fr"
-    "ontPanelIOConfigH\000\022$\n\nsim_config\030\350\007 \001(\0132"
-    "\r.pb.SimConfigH\000B\006\n\004kindJ\004\010\030\020\031\"\030\n\010Entity"
-    "Id\022\014\n\004path\030\001 \001(\t\"\021\n\017DescribeCommand\"\223\001\n\014"
-    "ResetCommand\022!\n\006entity\030\001 \001(\0132\014.pb.Entity"
-    "IdH\000\210\001\001\022\030\n\020keep_calibration\030\002 \001(\010\022\026\n\016ove"
-    "rload_reset\030\003 \001(\010\022\025\n\rcircuit_reset\030\004 \001(\010"
-    "\022\014\n\004sync\030\005 \001(\010B\t\n\007_entity\"\224\001\n\016ExtractCom"
-    "mand\022!\n\006entity\030\001 \001(\0132\014.pb.EntityIdH\000\210\001\001\022"
-    "\021\n\trecursive\030\002 \001(\010\022\025\n\rspecification\030\003 \001("
-    "\010\022\025\n\rconfiguration\030\004 \001(\010\022\023\n\013calibration\030"
-    "\005 \001(\010B\t\n\007_entity\"f\n\rConfigCommand\022\032\n\006mod"
-    "ule\030\001 \001(\0132\n.pb.Module\022\024\n\014reset_before\030\002 "
-    "\001(\010\022\021\n\tsh_kludge\030\003 \001(\010J\004\010\004\020\005J\004\010\005\020\006J\004\010\006\020\007"
-    "\">\n\tACLPlugin\022\016\n\006plugin\030\001 \001(\t\022\r\n\005label\030\002"
-    " \001(\t\022\022\n\nparameters\030\003 \003(\002\"C\n\007ACLWire\022\033\n\006s"
-    "ource\030\001 \001(\0132\013.pb.ACLPlug\022\033\n\006target\030\002 \001(\013"
-    "2\013.pb.ACLPlug\"j\n\007ACLPlug\022\037\n\tentity_id\030\001 "
-    "\001(\0132\014.pb.EntityId\022\036\n\004kind\030\002 \001(\0162\020.pb.ACL"
-    "Plug.Kind\"\036\n\004Kind\022\n\n\006Device\020\000\022\n\n\006Plugin\020"
-    "\001\"G\n\tACLConfig\022\036\n\007plugins\030\001 \003(\0132\r.pb.ACL"
-    "Plugin\022\032\n\005wires\030\004 \003(\0132\013.pb.ACLWire\"\212\001\n\tS"
-    "imConfig\022\017\n\002k0\030\001 \001(\rH\000\210\001\001\022\023\n\013with_limits"
-    "\030\002 \001(\010\022\031\n\021only_module_sinks\030\003 \001(\010\022&\n\nacl"
-    "_config\030\004 \001(\0132\r.pb.ACLConfigH\001\210\001\001B\005\n\003_k0"
-    "B\r\n\013_acl_config\"!\n\006Module\022\027\n\005items\030\001 \003(\013"
-    "2\010.pb.Item\".\n\016DescribeBundle\022\034\n\010entities"
-    "\030\001 \003(\0132\n.pb.Module\"1\n\004Time\022\r\n\005value\030\001 \001("
-    "\004\022\032\n\006prefix\030\002 \001(\0162\n.pb.Prefix\"{\n\013Tempera"
-    "ture\022\r\n\005value\030\001 \001(\002\022\"\n\004unit\030\002 \001(\0162\024.pb.T"
-    "emperature.Unit\"9\n\004Unit\022\010\n\004NONE\020\000\022\013\n\007CEL"
-    "SIUS\020\001\022\016\n\nFAHRENHEIT\020\002\022\n\n\006KELVIN\020\003\"\205\002\n\tR"
-    "unConfig\022\031\n\007ic_time\030\001 \001(\0132\010.pb.Time\022\031\n\007o"
-    "p_time\030\002 \001(\0132\010.pb.Time\022\035\n\020halt_on_overlo"
-    "ad\030\003 \001(\010H\000\210\001\001\022\026\n\tstreaming\030\004 \001(\010H\001\210\001\001\022\027\n"
-    "\nrepetitive\030\005 \001(\010H\002\210\001\001\022$\n\027write_run_stat"
-    "e_changes\030\006 \001(\010H\003\210\001\001B\023\n\021_halt_on_overloa"
-    "dB\014\n\n_streamingB\r\n\013_repetitiveB\032\n\030_write"
-    "_run_state_changes\"`\n\tDaqConfig\022\024\n\014num_c"
-    "hannels\030\001 \001(\r\022\023\n\013sample_rate\030\002 \001(\r\022\021\n\tsa"
-    "mple_op\030\003 \001(\010\022\025\n\rsample_op_end\030\004 \001(\010\"Z\n\n"
-    "SyncConfig\022\017\n\007enabled\030\001 \001(\010\022!\n\006master\030\002 "
-    "\001(\0132\014.pb.EntityIdH\000\210\001\001\022\r\n\005group\030\003 \001(\rB\t\n"
-    "\007_master\"\344\001\n\021CalibrationConfig\022!\n\006leader"
-    "\030\001 \001(\0132\014.pb.EntityIdH\000\210\001\001\022(\n\004math\030\002 \001(\0162"
-    "\032.pb.CalibrationConfig.Kind\022(\n\004gain\030\003 \001("
-    "\0162\032.pb.CalibrationConfig.Kind\022*\n\006offset\030"
-    "\004 \001(\0162\032.pb.CalibrationConfig.Kind\"!\n\004Kin"
-    "d\022\014\n\010Disabled\020\000\022\013\n\007Enabled\020\001B\t\n\007_leader\""
-    "\'\n\027UdpDataStreamingCommand\022\014\n\004port\030\001 \001(\007"
-    "\"A\n\037UdpDataStreamingRefusedResponse\022\023\n\006r"
-    "eason\030\001 \001(\tH\000\210\001\001B\t\n\007_reason\"\305\001\n\017StartRun"
-    "Command\022\024\n\003run\030\001 \001(\0132\007.pb.Run\022!\n\nrun_con"
-    "fig\030\002 \001(\0132\r.pb.RunConfig\022!\n\ndaq_config\030\003"
-    " \001(\0132\r.pb.DaqConfig\022#\n\013sync_config\030\004 \001(\013"
-    "2\016.pb.SyncConfig\022\026\n\016end_repetitive\030\006 \001(\010"
-    "\022\023\n\013clear_queue\030\007 \001(\010J\004\010\005\020\006\"\020\n\016StopRunCo"
-    "mmand\"8\n\016StandByCommand\022\017\n\007standby\030\001 \001(\010"
-    "\022\025\n\rhack_pwm_ramp\030\002 \001(\010\"q\n\024ManualControl"
-    "Command\022*\n\002to\030\001 \001(\0162\036.pb.ManualControlCo"
-    "mmand.State\"-\n\005State\022\006\n\002IC\020\000\022\006\n\002OP\020\001\022\010\n\004"
-    "HALT\020\002\022\n\n\006MINION\020\003\"\r\n\013PingCommand\"\244\001\n\037Re"
-    "gisterExternalEntitiesCommand\022C\n\010entitie"
-    "s\030\001 \003(\01321.pb.RegisterExternalEntitiesCom"
-    "mand.EntitiesEntry\032<\n\rEntitiesEntry\022\013\n\003k"
-    "ey\030\001 \001(\t\022\032\n\005value\030\002 \001(\0132\013.pb.Address:\0028\001"
-    "\"\017\n\rSyslogCommand\"\024\n\022SystemStatsCommand\""
-    "6\n\007Version\022\r\n\005major\030\001 \001(\r\022\r\n\005minor\030\002 \001(\r"
-    "\022\r\n\005patch\030\003 \001(\r\"3\n\021CarrierLocationV0\022\r\n\005"
-    "stack\030\001 \001(\r\022\017\n\007carrier\030\002 \001(\r\"\255\003\n\006Entity\022"
-    "\n\n\002id\030\001 \001(\t\022 \n\006class_\030\002 \001(\0162\020.pb.Entity."
-    "Class\022\014\n\004type\030\003 \001(\r\022\017\n\007variant\030\004 \001(\r\022\034\n\007"
-    "version\030\005 \001(\0132\013.pb.Version\022\013\n\003eui\030\006 \001(\t\022"
-    "\034\n\010children\030\007 \003(\0132\n.pb.Entity\022,\n\013locatio"
-    "n_v0\030d \001(\0132\025.pb.CarrierLocationV0H\000\"\322\001\n\005"
-    "Class\022\013\n\007UNKNOWN\020\000\022\013\n\007CARRIER\020\001\022\013\n\007CLUST"
-    "ER\020\002\022\013\n\007M_BLOCK\020\003\022\013\n\007U_BLOCK\020\004\022\013\n\007C_BLOC"
-    "K\020\005\022\013\n\007I_BLOCK\020\006\022\014\n\010SH_BLOCK\020\007\022\017\n\013FRONT_"
-    "PANEL\020\010\022\016\n\nCTRL_BLOCK\020\t\022\013\n\007T_BLOCK\020\n\022\016\n\n"
-    "BACK_PANEL\020\013\022\026\n\022BACK_PANEL_T_BLOCK\020\014\022\n\n\006"
-    "DEVICE\020\036B\n\n\010location\"-\n\rResetResponse\022\034\n"
-    "\006entity\030\001 \001(\0132\014.pb.EntityId\"-\n\017ExtractRe"
-    "sponse\022\032\n\006module\030\001 \001(\0132\n.pb.Module\">\n\016Co"
-    "nfigResponse\022!\n\006entity\030\001 \001(\0132\014.pb.Entity"
-    "IdH\000\210\001\001B\t\n\007_entity\"\022\n\020StartRunResponse\"\272"
-    "\001\n\025RunStateChangeMessage\022\024\n\003run\030\001 \001(\0132\007."
-    "pb.Run\022\031\n\003old\030\002 \001(\0162\014.pb.RunState\022\032\n\004new"
-    "_\030\003 \001(\0162\014.pb.RunState\022\026\n\004time\030\004 \001(\0132\010.pb"
-    ".Time\022\016\n\006reason\030\005 \001(\t\022!\n\006entity\030\006 \001(\0132\014."
-    "pb.EntityIdH\000\210\001\001B\t\n\007_entity\"t\n\013IntegerTy"
-    "pe\022+\n\007signess\030\001 \001(\0162\032.pb.IntegerType.Sig"
-    "nedness\022\020\n\010bitwidth\030\002 \001(\r\"&\n\nSignedness\022"
-    "\n\n\006Signed\020\000\022\014\n\010Unsigned\020\001\"\035\n\tFloatType\022\020"
-    "\n\010bitwidth\030\002 \001(\r\"W\n\010DataType\022\037\n\006float_\030\001"
-    " \001(\0132\r.pb.FloatTypeH\000\022\"\n\007integer\030\002 \001(\0132\017"
-    ".pb.IntegerTypeH\000B\006\n\004kind\"\217\001\n\007DaqData\022\014\n"
-    "\004data\030\001 \001(\014\022\032\n\004type\030\004 \001(\0132\014.pb.DataType\022"
-    " \n\010channels\030\005 \003(\0132\016.pb.AdcChannel\022\024\n\014sam"
-    "ple_count\030\006 \001(\r\022\026\n\016channel_stride\030\007 \001(\rJ"
-    "\004\010\002\020\003J\004\010\003\020\004\" \n\003Run\022\n\n\002id\030\001 \001(\t\022\r\n\005chunk\030"
-    "\002 \001(\r\"_\n\016RunDataMessage\022\024\n\003run\030\001 \001(\0132\007.p"
-    "b.Run\022\034\n\006entity\030\002 \001(\0132\014.pb.EntityId\022\031\n\004d"
-    "ata\030\003 \001(\0132\013.pb.DaqData\"b\n\021RunDataEndMess"
-    "age\022\024\n\003run\030\001 \001(\0132\007.pb.Run\022\034\n\006entity\030\002 \001("
-    "\0132\014.pb.EntityId\022\031\n\004data\030\003 \001(\0132\013.pb.DaqDa"
-    "ta\"\036\n\014PingResponse\022\016\n\006micros\030\001 \001(\004\"p\n\rFi"
-    "rmwareBuild\022/\n\007entries\030\001 \003(\0132\036.pb.Firmwa"
-    "reBuild.EntriesEntry\032.\n\014EntriesEntry\022\013\n\003"
-    "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"0\n\rFirmware"
-    "Image\022\014\n\004size\030\001 \001(\004\022\021\n\tsha256sum\030\002 \001(\t\"o"
-    "\n\026GetSystemIdentResponse\022\013\n\003mac\030\001 \001(\t\022#\n"
-    "\010fw_build\030\002 \001(\0132\021.pb.FirmwareBuild\022#\n\010fw"
-    "_image\030\003 \001(\0132\021.pb.FirmwareImage\"F\n\016Syslo"
-    "gResponse\022\021\n\tis_active\030\001 \001(\010\022\020\n\010max_size"
-    "\030\002 \001(\004\022\017\n\007entries\030\003 \003(\t\"\203\001\n\023PerformanceC"
-    "ounters\022\030\n\020total_ic_time_us\030\001 \001(\004\022\030\n\020tot"
-    "al_op_time_us\030\002 \001(\004\022\032\n\022total_halt_time_u"
-    "s\030\003 \001(\004\022\034\n\024total_number_of_runs\030\004 \001(\004\"E\n"
-    "\023SystemStatsResponse\022.\n\rperf_counters\030\001 "
-    "\001(\0132\027.pb.PerformanceCounters\"2\n\026ReadSyst"
-    "emIdentCommand\022\030\n\020read_from_eeprom\030\001 \001(\010"
-    "\"\031\n\027ReadSystemIdentResponse\"4\n\027ResetSyst"
-    "emIdentCommand\022\031\n\021write_to_hardware\030\001 \001("
-    "\010\"\032\n\030ResetSystemIdentResponse\"5\n\027WriteSy"
-    "stemIdentCommand\022\032\n\006vendor\030\001 \001(\0132\n.pb.Ve"
-    "ndor\"s\n\006Vendor\022\025\n\rserial_number\030\001 \001(\007\022\023\n"
-    "\013serial_uuid\030\002 \001(\t\022\036\n\026default_admin_pass"
-    "word\030\003 \001(\t\022\035\n\025default_user_password\030\004 \001("
-    "\t\")\n\030WriteSystemIdentResponse\022\r\n\005valid\030\001"
-    " \001(\010\"\027\n\025GetSystemIdentCommand\";\n\022Calibra"
-    "tionCommand\022%\n\006config\030\001 \001(\0132\025.pb.Calibra"
-    "tionConfig\"\025\n\023CalibrationResponse\"\026\n\024Cal"
-    "ibrateInitCommand\"\032\n\030CalibrateFinalizeCo"
-    "mmand\"\030\n\026CalibrateOffsetCommand\"$\n\024Calib"
-    "rateLaneCommand\022\014\n\004lane\030\001 \001(\r\"8\n\017Calibra"
-    "tionData\022\014\n\004lane\030\001 \001(\r\022\027\n\017gain_correctio"
-    "n\030\002 \001(\002\"9\n\024CalibrateDataCommand\022!\n\004data\030"
-    "\001 \001(\0132\023.pb.CalibrationData\"\030\n\026ReadTemper"
-    "atureCommand\"\\\n\026TemperatureMeasurement\022\034"
-    "\n\006entity\030\001 \001(\0132\014.pb.EntityId\022$\n\013temperat"
-    "ure\030\002 \001(\0132\017.pb.Temperature\"F\n\022Temperatur"
-    "eDataset\0220\n\014measurements\030\001 \003(\0132\032.pb.Temp"
-    "eratureMeasurement\"B\n\027ReadTemperatureRes"
-    "ponse\022\'\n\007dataset\030\001 \001(\0132\026.pb.TemperatureD"
-    "ataset\"\032\n\030GetOverloadStatusCommand\"\237\001\n\016O"
-    "verloadStatus\022\027\n\017global_overload\030\001 \001(\010\022,"
-    "\n\010elements\030\002 \003(\0132\032.pb.OverloadStatus.Ele"
-    "ment\032F\n\007Element\022\034\n\006entity\030\001 \001(\0132\014.pb.Ent"
-    "ityId\022\013\n\003idx\030\002 \001(\r\022\020\n\010overload\030\003 \001(\010\"\?\n\031"
-    "GetOverloadStatusResponse\022\"\n\006status\030\001 \001("
-    "\0132\022.pb.OverloadStatus\"\020\n\016SuccessMessage\""
-    "\023\n\021DeviceBusyMessage\"@\n\014ErrorMessage\022\033\n\004"
-    "code\030\001 \001(\0162\r.pb.ErrorCode\022\023\n\013description"
-    "\030\002 \001(\t\"|\n\010Envelope\022\034\n\007version\030\001 \001(\0132\013.pb"
-    ".Version\022%\n\007generic\030d \001(\0132\022.pb.GenericMe"
-    "ssageH\000\022#\n\nmessage_v1\030e \001(\0132\r.pb.Message"
-    "V1H\000B\006\n\004kind\"l\n\016GenericMessage\022\'\n\014ping_c"
-    "ommand\030d \001(\0132\017.pb.PingCommandH\000\022)\n\rping_"
-    "response\030e \001(\0132\020.pb.PingResponseH\000B\006\n\004ki"
-    "nd\"\033\n\nBearerAuth\022\r\n\005token\030\001 \001(\t\"7\n\013AuthR"
-    "equest\022 \n\006bearer\030\001 \001(\0132\016.pb.BearerAuthH\000"
-    "B\006\n\004kind\"P\n\006Source\022\035\n\004kind\030\001 \001(\0162\017.pb.So"
-    "urce.Kind\022\014\n\004text\030\002 \001(\t\"\031\n\004Kind\022\010\n\004MLIR\020"
-    "\000\022\007\n\003ANA\020\001\"(\n\nJitCommand\022\032\n\006source\030\001 \001(\013"
-    "2\n.pb.Source\"z\n\005Issue\022\034\n\004kind\030\001 \001(\0162\016.pb"
-    ".Issue.Kind\022\014\n\004lane\030\002 \001(\r\022\013\n\003col\030\003 \001(\r\022\016"
-    "\n\006reason\030\004 \001(\t\"(\n\004Kind\022\010\n\004INFO\020\000\022\013\n\007WARN"
-    "ING\020\001\022\t\n\005ERROR\020\002\"&\n\tDiagnosis\022\031\n\006issues\030"
-    "\001 \003(\0132\t.pb.Issue\";\n\013JitResponse\022\017\n\007succe"
-    "ss\030\001 \001(\010\022\033\n\004diag\030\002 \001(\0132\r.pb.Diagnosis\"\241\001"
-    "\n\rUpdateCommand\022 \n\005begin\030\n \001(\0132\017.pb.Upda"
-    "teBeginH\000\022 \n\005write\030\013 \001(\0132\017.pb.UpdateWrit"
-    "eH\000\022\"\n\006commit\030\014 \001(\0132\020.pb.UpdateCommitH\000\022"
-    " \n\005abort\030\r \001(\0132\017.pb.UpdateAbortH\000B\006\n\004kin"
-    "d\"\202\001\n\016UpdateResponse\022\034\n\003ack\030\n \001(\0132\r.pb.U"
-    "pdateAckH\000\022$\n\007failure\030\013 \001(\0132\021.pb.UpdateF"
-    "ailureH\000\022$\n\007success\030\014 \001(\0132\021.pb.UpdateSuc"
-    "cessH\000B\006\n\004kind\")\n\013UpdateBegin\022\014\n\004size\030\001 "
-    "\001(\004\022\014\n\004hash\030\002 \001(\014\"+\n\013UpdateWrite\022\014\n\004data"
-    "\030\001 \001(\014\022\016\n\006offset\030\002 \001(\004\"\016\n\014UpdateCommit\"\r"
-    "\n\013UpdateAbort\"\037\n\tUpdateAck\022\022\n\nchunk_size"
-    "\030\001 \001(\004\"\037\n\rUpdateFailure\022\016\n\006reason\030\001 \001(\t\""
-    "\017\n\rUpdateSuccess\"\270\026\n\tMessageV1\022\017\n\002id\030\001 \001"
-    "(\tH\001\210\001\001\022-\n\017success_message\030d \001(\0132\022.pb.Su"
-    "ccessMessageH\000\022)\n\rerror_message\030e \001(\0132\020."
-    "pb.ErrorMessageH\000\022/\n\020stand_by_command\030\310\001"
-    " \001(\0132\022.pb.StandByCommandH\000\022*\n\rreset_comm"
-    "and\030\312\001 \001(\0132\020.pb.ResetCommandH\000\022.\n\017extrac"
-    "t_command\030\313\001 \001(\0132\022.pb.ExtractCommandH\000\022,"
-    "\n\016config_command\030\314\001 \001(\0132\021.pb.ConfigComma"
-    "ndH\000\0221\n\021start_run_command\030\315\001 \001(\0132\023.pb.St"
-    "artRunCommandH\000\022/\n\020stop_run_command\030\316\001 \001"
-    "(\0132\022.pb.StopRunCommandH\000\022;\n\026manual_contr"
-    "ol_command\030\317\001 \001(\0132\030.pb.ManualControlComm"
-    "andH\000\022R\n\"register_external_entities_comm"
-    "and\030\320\001 \001(\0132#.pb.RegisterExternalEntities"
-    "CommandH\000\022>\n\030get_system_ident_command\030\321\001"
-    " \001(\0132\031.pb.GetSystemIdentCommandH\000\022,\n\016sys"
-    "log_command\030\322\001 \001(\0132\021.pb.SyslogCommandH\000\022"
-    "7\n\024system_stats_command\030\323\001 \001(\0132\026.pb.Syst"
-    "emStatsCommandH\000\022@\n\031read_system_ident_co"
-    "mmand\030\324\001 \001(\0132\032.pb.ReadSystemIdentCommand"
-    "H\000\022B\n\032reset_system_ident_command\030\325\001 \001(\0132"
-    "\033.pb.ResetSystemIdentCommandH\000\022B\n\032write_"
-    "system_ident_command\030\326\001 \001(\0132\033.pb.WriteSy"
-    "stemIdentCommandH\000\022B\n\032udp_data_streaming"
-    "_command\030\327\001 \001(\0132\033.pb.UdpDataStreamingCom"
-    "mandH\000\022\?\n\030read_temperature_command\030\330\001 \001("
-    "\0132\032.pb.ReadTemperatureCommandH\000\022D\n\033get_o"
-    "verload_status_command\030\331\001 \001(\0132\034.pb.GetOv"
-    "erloadStatusCommandH\000\0226\n\023calibration_com"
-    "mand\030\332\001 \001(\0132\026.pb.CalibrationCommandH\000\022,\n"
-    "\016update_command\030\333\001 \001(\0132\021.pb.UpdateComman"
-    "dH\000\0220\n\020extract_response\030\255\002 \001(\0132\023.pb.Extr"
-    "actResponseH\000\022.\n\017config_response\030\256\002 \001(\0132"
-    "\022.pb.ConfigResponseH\000\022,\n\016reset_response\030"
-    "\257\002 \001(\0132\021.pb.ResetResponseH\000\0223\n\022start_run"
-    "_response\030\260\002 \001(\0132\024.pb.StartRunResponseH\000"
-    "\022>\n\030run_state_change_message\030\261\002 \001(\0132\031.pb"
-    ".RunStateChangeMessageH\000\022/\n\020run_data_mes"
-    "sage\030\262\002 \001(\0132\022.pb.RunDataMessageH\000\0226\n\024run"
-    "_data_end_message\030\263\002 \001(\0132\025.pb.RunDataEnd"
-    "MessageH\000\022@\n\031get_system_ident_response\030\264"
-    "\002 \001(\0132\032.pb.GetSystemIdentResponseH\000\022.\n\017s"
-    "yslog_response\030\265\002 \001(\0132\022.pb.SyslogRespons"
-    "eH\000\0229\n\025system_stats_response\030\266\002 \001(\0132\027.pb"
-    ".SystemStatsResponseH\000\022B\n\032read_system_id"
-    "ent_response\030\267\002 \001(\0132\033.pb.ReadSystemIdent"
-    "ResponseH\000\022D\n\033reset_system_ident_respons"
-    "e\030\270\002 \001(\0132\034.pb.ResetSystemIdentResponseH\000"
-    "\022D\n\033write_system_ident_response\030\271\002 \001(\0132\034"
-    ".pb.WriteSystemIdentResponseH\000\022A\n\031read_t"
-    "emperature_response\030\272\002 \001(\0132\033.pb.ReadTemp"
-    "eratureResponseH\000\022F\n\034get_overload_status"
-    "_response\030\273\002 \001(\0132\035.pb.GetOverloadStatusR"
-    "esponseH\000\022S\n#udp_data_streaming_refused_"
-    "response\030\274\002 \001(\0132#.pb.UdpDataStreamingRef"
-    "usedResponseH\000\0228\n\024calibration_response\030\275"
-    "\002 \001(\0132\027.pb.CalibrationResponseH\000\022.\n\017upda"
-    "te_response\030\276\002 \001(\0132\022.pb.UpdateResponseH\000"
-    "\022;\n\026calibrate_init_command\030\220\003 \001(\0132\030.pb.C"
-    "alibrateInitCommandH\000\022;\n\026calibrate_lane_"
-    "command\030\221\003 \001(\0132\030.pb.CalibrateLaneCommand"
-    "H\000\022\?\n\030calibrate_offset_command\030\222\003 \001(\0132\032."
-    "pb.CalibrateOffsetCommandH\000\022C\n\032calibrate"
-    "_finalize_command\030\223\003 \001(\0132\034.pb.CalibrateF"
-    "inalizeCommandH\000\022;\n\026calibrate_data_comma"
-    "nd\030\224\003 \001(\0132\030.pb.CalibrateDataCommandH\000\022(\n"
-    "\014auth_request\030\365\003 \001(\0132\017.pb.AuthRequestH\000\022"
-    "/\n\rbusy_response\030\366\003 \001(\0132\025.pb.DeviceBusyM"
-    "essageH\000\022(\n\014ping_command\030\367\003 \001(\0132\017.pb.Pin"
-    "gCommandH\000\022&\n\013jit_command\030\370\003 \001(\0132\016.pb.Ji"
-    "tCommandH\000\022(\n\014jit_response\030\371\003 \001(\0132\017.pb.J"
-    "itResponseH\000B\006\n\004kindB\005\n\003_idJ\006\010\311\001\020\312\001J\006\010\254\002"
-    "\020\255\002J\006\010\364\003\020\365\003\"V\n\004File\022\034\n\007version\030\001 \001(\0132\013.p"
-    "b.Version\022\037\n\006module\030\002 \001(\0132\n.pb.ModuleH\000\210"
-    "\001\001B\t\n\007_moduleJ\004\010\003\020\004*2\n\006Prefix\022\010\n\004NONE\020\000\022"
-    "\t\n\005MILLI\020\001\022\t\n\005MICRO\020\002\022\010\n\004NANO\020\003*l\n\010RunSt"
-    "ate\022\007\n\003NEW\020\000\022\t\n\005ERROR\020\001\022\010\n\004DONE\020\002\022\n\n\006QUE"
-    "UED\020\003\022\014\n\010TAKE_OFF\020\004\022\006\n\002IC\020\005\022\006\n\002OP\020\006\022\n\n\006O"
-    "P_END\020\007\022\014\n\010TMP_HALT\020\010*\025\n\tErrorCode\022\010\n\004No"
-    "ne\020\000b\006proto3"
+    "\027\n\007Address\022\014\n\004data\030\001 \001(\014\"#\n\003Mux\022\r\n\005state"
+    "\030\001 \001(\r\022\r\n\005index\030\002 \001(\r\"&\n\014SwitchConfig\022\026\n"
+    "\005muxes\030\001 \003(\0132\007.pb.Mux\";\n\tTraceLane\022\017\n\007ca"
+    "rrier\030\001 \001(\r\022\017\n\007cluster\030\002 \001(\r\022\014\n\004lane\030\003 \001"
+    "(\r\"Z\n\005Trace\022\035\n\006source\030\001 \001(\0132\r.pb.TraceLa"
+    "ne\022\033\n\004sink\030\002 \001(\0132\r.pb.TraceLane\022\025\n\rsink_"
+    "upscaled\030\003 \001(\010\"M\n\016DependencyInfo\022 \n\nenti"
+    "ty_ids\030\001 \003(\0132\014.pb.EntityId\022\031\n\006traces\030\002 \003"
+    "(\0132\t.pb.Trace\")\n\017BPLSwitchConfig\022\026\n\005muxe"
+    "s\030\001 \003(\0132\007.pb.Mux\"\013\n\tCmpConfig\"\251\002\n\025Signal"
+    "GeneratorConfig\022\021\n\tfrequency\030\001 \001(\002\022\r\n\005ph"
+    "ase\030\002 \001(\002\0225\n\twave_form\030\003 \001(\0162\".pb.Signal"
+    "GeneratorConfig.WaveForm\022\021\n\tamplitude\030\004 "
+    "\001(\002\022\032\n\022square_voltage_low\030\005 \001(\002\022\033\n\023squar"
+    "e_voltage_high\030\006 \001(\002\022\016\n\006offset\030\007 \001(\002\022\r\n\005"
+    "sleep\030\010 \001(\010\022\023\n\013dac_outputs\030\t \003(\002\"7\n\010Wave"
+    "Form\022\010\n\004SINE\020\000\022\023\n\017SINE_AND_SQUARE\020\001\022\014\n\010T"
+    "RIANGLE\020\002\" \n\020FrontPanelConfig\022\014\n\004leds\030\001 "
+    "\001(\r\"\243\001\n\022FrontPanelIOConfig\0229\n\010io_modes\030\001"
+    " \003(\0162\'.pb.FrontPanelIOConfig.FrontPanelI"
+    "OMode\"R\n\020FrontPanelIOMode\022\016\n\nANALOG_OUT\020"
+    "\000\022\r\n\tANALOG_IN\020\001\022\017\n\013DIGITAL_OUT\020\002\022\016\n\nDIG"
+    "ITAL_IN\020\003\"+\n\014ACLPinSignal\022\016\n\006signal\030\001 \001("
+    "\t\022\013\n\003pin\030\002 \001(\r\"\242\001\n\nPortConfig\022\'\n\006states\030"
+    "\001 \003(\0162\027.pb.PortConfig.AclState\022 \n\006inputs"
+    "\030\002 \003(\0132\020.pb.ACLPinSignal\022!\n\007outputs\030\003 \003("
+    "\0132\020.pb.ACLPinSignal\"&\n\010AclState\022\014\n\010INTER"
+    "NAL\020\000\022\014\n\010EXTERNAL\020\001\"f\n\017BackpanelConfig\022\024"
+    "\n\014backpanel_id\030\001 \001(\r\022\026\n\016backpanel_slot\030\002"
+    " \001(\r\022\020\n\010is_valid\030\003 \001(\010\022\023\n\013is_isolated\030\004 "
+    "\001(\010\"\201\001\n\rIpLookupTable\022(\n\007entries\030\001 \003(\0132\027"
+    ".pb.IpLookupTable.Entry\032F\n\005Entry\022\037\n\tenti"
+    "ty_id\030\001 \001(\0132\014.pb.EntityId\022\034\n\007address\030\002 \001"
+    "(\0132\013.pb.Address\"1\n\023EntitySpecification\022\032"
+    "\n\006entity\030\001 \001(\0132\n.pb.Entity\"\267\010\n\004Item\022\034\n\006e"
+    "ntity\030\001 \001(\0132\014.pb.EntityId\022#\n\nadc_config\030"
+    "\n \001(\0132\r.pb.AdcConfigH\000\022+\n\016cluster_config"
+    "\030\013 \001(\0132\021.pb.ClusterConfigH\000\022#\n\nmul_confi"
+    "g\030\014 \001(\0132\r.pb.MulConfigH\000\0220\n\021shift_hold_c"
+    "onfig\030\r \001(\0132\023.pb.ShiftHoldConfigH\000\022%\n\013co"
+    "ef_config\030\016 \001(\0132\016.pb.CoefConfigH\000\022%\n\013ito"
+    "r_config\030\017 \001(\0132\016.pb.ItorConfigH\000\022)\n\rsele"
+    "ct_config\030\020 \001(\0132\020.pb.SelectConfigH\000\022#\n\ns"
+    "um_config\030\021 \001(\0132\r.pb.SumConfigH\000\022)\n\rswit"
+    "ch_config\030\022 \001(\0132\020.pb.SwitchConfigH\000\022)\n\rd"
+    "evice_config\030\023 \001(\0132\020.pb.DeviceConfigH\000\022+"
+    "\n\016limiter_config\030\024 \001(\0132\021.pb.LimiterConfi"
+    "gH\000\0222\n\022front_panel_config\030\025 \001(\0132\024.pb.Fro"
+    "ntPanelConfigH\000\022<\n\027signal_generator_conf"
+    "ig\030\026 \001(\0132\031.pb.SignalGeneratorConfigH\000\022%\n"
+    "\013port_config\030\027 \001(\0132\016.pb.PortConfigH\000\022/\n\020"
+    "backpanel_config\030\031 \001(\0132\023.pb.BackpanelCon"
+    "figH\000\0220\n\021bpl_switch_config\030\032 \001(\0132\023.pb.BP"
+    "LSwitchConfigH\000\022#\n\ncmp_config\030\033 \001(\0132\r.pb"
+    ".CmpConfigH\000\0227\n\024entity_specification\030\034 \001"
+    "(\0132\027.pb.EntitySpecificationH\000\022-\n\017depende"
+    "ncy_info\030\035 \001(\0132\022.pb.DependencyInfoH\000\022,\n\017"
+    "ip_lookup_table\030\036 \001(\0132\021.pb.IpLookupTable"
+    "H\000\0227\n\025front_panel_io_config\030\037 \001(\0132\026.pb.F"
+    "rontPanelIOConfigH\000\022#\n\nmdr_config\030  \001(\0132"
+    "\r.pb.MDRConfigH\000\022$\n\nsim_config\030\350\007 \001(\0132\r."
+    "pb.SimConfigH\000B\006\n\004kindJ\004\010\030\020\031\"\030\n\010EntityId"
+    "\022\014\n\004path\030\001 \001(\t\"\021\n\017DescribeCommand\"\223\001\n\014Re"
+    "setCommand\022!\n\006entity\030\001 \001(\0132\014.pb.EntityId"
+    "H\000\210\001\001\022\030\n\020keep_calibration\030\002 \001(\010\022\026\n\016overl"
+    "oad_reset\030\003 \001(\010\022\025\n\rcircuit_reset\030\004 \001(\010\022\014"
+    "\n\004sync\030\005 \001(\010B\t\n\007_entity\"\224\001\n\016ExtractComma"
+    "nd\022!\n\006entity\030\001 \001(\0132\014.pb.EntityIdH\000\210\001\001\022\021\n"
+    "\trecursive\030\002 \001(\010\022\025\n\rspecification\030\003 \001(\010\022"
+    "\025\n\rconfiguration\030\004 \001(\010\022\023\n\013calibration\030\005 "
+    "\001(\010B\t\n\007_entity\"f\n\rConfigCommand\022\032\n\006modul"
+    "e\030\001 \001(\0132\n.pb.Module\022\024\n\014reset_before\030\002 \001("
+    "\010\022\021\n\tsh_kludge\030\003 \001(\010J\004\010\004\020\005J\004\010\005\020\006J\004\010\006\020\007\">"
+    "\n\tACLPlugin\022\016\n\006plugin\030\001 \001(\t\022\r\n\005label\030\002 \001"
+    "(\t\022\022\n\nparameters\030\003 \003(\002\"C\n\007ACLWire\022\033\n\006sou"
+    "rce\030\001 \001(\0132\013.pb.ACLPlug\022\033\n\006target\030\002 \001(\0132\013"
+    ".pb.ACLPlug\"j\n\007ACLPlug\022\037\n\tentity_id\030\001 \001("
+    "\0132\014.pb.EntityId\022\036\n\004kind\030\002 \001(\0162\020.pb.ACLPl"
+    "ug.Kind\"\036\n\004Kind\022\n\n\006Device\020\000\022\n\n\006Plugin\020\001\""
+    "G\n\tACLConfig\022\036\n\007plugins\030\001 \003(\0132\r.pb.ACLPl"
+    "ugin\022\032\n\005wires\030\004 \003(\0132\013.pb.ACLWire\"\212\001\n\tSim"
+    "Config\022\017\n\002k0\030\001 \001(\rH\000\210\001\001\022\023\n\013with_limits\030\002"
+    " \001(\010\022\031\n\021only_module_sinks\030\003 \001(\010\022&\n\nacl_c"
+    "onfig\030\004 \001(\0132\r.pb.ACLConfigH\001\210\001\001B\005\n\003_k0B\r"
+    "\n\013_acl_config\"!\n\006Module\022\027\n\005items\030\001 \003(\0132\010"
+    ".pb.Item\".\n\016DescribeBundle\022\034\n\010entities\030\001"
+    " \003(\0132\n.pb.Module\"1\n\004Time\022\r\n\005value\030\001 \001(\004\022"
+    "\032\n\006prefix\030\002 \001(\0162\n.pb.Prefix\"{\n\013Temperatu"
+    "re\022\r\n\005value\030\001 \001(\002\022\"\n\004unit\030\002 \001(\0162\024.pb.Tem"
+    "perature.Unit\"9\n\004Unit\022\010\n\004NONE\020\000\022\013\n\007CELSI"
+    "US\020\001\022\016\n\nFAHRENHEIT\020\002\022\n\n\006KELVIN\020\003\"\205\002\n\tRun"
+    "Config\022\031\n\007ic_time\030\001 \001(\0132\010.pb.Time\022\031\n\007op_"
+    "time\030\002 \001(\0132\010.pb.Time\022\035\n\020halt_on_overload"
+    "\030\003 \001(\010H\000\210\001\001\022\026\n\tstreaming\030\004 \001(\010H\001\210\001\001\022\027\n\nr"
+    "epetitive\030\005 \001(\010H\002\210\001\001\022$\n\027write_run_state_"
+    "changes\030\006 \001(\010H\003\210\001\001B\023\n\021_halt_on_overloadB"
+    "\014\n\n_streamingB\r\n\013_repetitiveB\032\n\030_write_r"
+    "un_state_changes\"`\n\tDaqConfig\022\024\n\014num_cha"
+    "nnels\030\001 \001(\r\022\023\n\013sample_rate\030\002 \001(\r\022\021\n\tsamp"
+    "le_op\030\003 \001(\010\022\025\n\rsample_op_end\030\004 \001(\010\"Z\n\nSy"
+    "ncConfig\022\017\n\007enabled\030\001 \001(\010\022!\n\006master\030\002 \001("
+    "\0132\014.pb.EntityIdH\000\210\001\001\022\r\n\005group\030\003 \001(\rB\t\n\007_"
+    "master\"\344\001\n\021CalibrationConfig\022!\n\006leader\030\001"
+    " \001(\0132\014.pb.EntityIdH\000\210\001\001\022(\n\004math\030\002 \001(\0162\032."
+    "pb.CalibrationConfig.Kind\022(\n\004gain\030\003 \001(\0162"
+    "\032.pb.CalibrationConfig.Kind\022*\n\006offset\030\004 "
+    "\001(\0162\032.pb.CalibrationConfig.Kind\"!\n\004Kind\022"
+    "\014\n\010Disabled\020\000\022\013\n\007Enabled\020\001B\t\n\007_leader\"\'\n"
+    "\027UdpDataStreamingCommand\022\014\n\004port\030\001 \001(\007\"A"
+    "\n\037UdpDataStreamingRefusedResponse\022\023\n\006rea"
+    "son\030\001 \001(\tH\000\210\001\001B\t\n\007_reason\"\305\001\n\017StartRunCo"
+    "mmand\022\024\n\003run\030\001 \001(\0132\007.pb.Run\022!\n\nrun_confi"
+    "g\030\002 \001(\0132\r.pb.RunConfig\022!\n\ndaq_config\030\003 \001"
+    "(\0132\r.pb.DaqConfig\022#\n\013sync_config\030\004 \001(\0132\016"
+    ".pb.SyncConfig\022\026\n\016end_repetitive\030\006 \001(\010\022\023"
+    "\n\013clear_queue\030\007 \001(\010J\004\010\005\020\006\"\020\n\016StopRunComm"
+    "and\"8\n\016StandByCommand\022\017\n\007standby\030\001 \001(\010\022\025"
+    "\n\rhack_pwm_ramp\030\002 \001(\010\"q\n\024ManualControlCo"
+    "mmand\022*\n\002to\030\001 \001(\0162\036.pb.ManualControlComm"
+    "and.State\"-\n\005State\022\006\n\002IC\020\000\022\006\n\002OP\020\001\022\010\n\004HA"
+    "LT\020\002\022\n\n\006MINION\020\003\"\r\n\013PingCommand\"\244\001\n\037Regi"
+    "sterExternalEntitiesCommand\022C\n\010entities\030"
+    "\001 \003(\01321.pb.RegisterExternalEntitiesComma"
+    "nd.EntitiesEntry\032<\n\rEntitiesEntry\022\013\n\003key"
+    "\030\001 \001(\t\022\032\n\005value\030\002 \001(\0132\013.pb.Address:\0028\001\"\017"
+    "\n\rSyslogCommand\"\024\n\022SystemStatsCommand\"6\n"
+    "\007Version\022\r\n\005major\030\001 \001(\r\022\r\n\005minor\030\002 \001(\r\022\r"
+    "\n\005patch\030\003 \001(\r\"3\n\021CarrierLocationV0\022\r\n\005st"
+    "ack\030\001 \001(\r\022\017\n\007carrier\030\002 \001(\r\"\255\003\n\006Entity\022\n\n"
+    "\002id\030\001 \001(\t\022 \n\006class_\030\002 \001(\0162\020.pb.Entity.Cl"
+    "ass\022\014\n\004type\030\003 \001(\r\022\017\n\007variant\030\004 \001(\r\022\034\n\007ve"
+    "rsion\030\005 \001(\0132\013.pb.Version\022\013\n\003eui\030\006 \001(\t\022\034\n"
+    "\010children\030\007 \003(\0132\n.pb.Entity\022,\n\013location_"
+    "v0\030d \001(\0132\025.pb.CarrierLocationV0H\000\"\322\001\n\005Cl"
+    "ass\022\013\n\007UNKNOWN\020\000\022\013\n\007CARRIER\020\001\022\013\n\007CLUSTER"
+    "\020\002\022\013\n\007M_BLOCK\020\003\022\013\n\007U_BLOCK\020\004\022\013\n\007C_BLOCK\020"
+    "\005\022\013\n\007I_BLOCK\020\006\022\014\n\010SH_BLOCK\020\007\022\017\n\013FRONT_PA"
+    "NEL\020\010\022\016\n\nCTRL_BLOCK\020\t\022\013\n\007T_BLOCK\020\n\022\016\n\nBA"
+    "CK_PANEL\020\013\022\026\n\022BACK_PANEL_T_BLOCK\020\014\022\n\n\006DE"
+    "VICE\020\036B\n\n\010location\"-\n\rResetResponse\022\034\n\006e"
+    "ntity\030\001 \001(\0132\014.pb.EntityId\"-\n\017ExtractResp"
+    "onse\022\032\n\006module\030\001 \001(\0132\n.pb.Module\">\n\016Conf"
+    "igResponse\022!\n\006entity\030\001 \001(\0132\014.pb.EntityId"
+    "H\000\210\001\001B\t\n\007_entity\"\022\n\020StartRunResponse\"\272\001\n"
+    "\025RunStateChangeMessage\022\024\n\003run\030\001 \001(\0132\007.pb"
+    ".Run\022\031\n\003old\030\002 \001(\0162\014.pb.RunState\022\032\n\004new_\030"
+    "\003 \001(\0162\014.pb.RunState\022\026\n\004time\030\004 \001(\0132\010.pb.T"
+    "ime\022\016\n\006reason\030\005 \001(\t\022!\n\006entity\030\006 \001(\0132\014.pb"
+    ".EntityIdH\000\210\001\001B\t\n\007_entity\"t\n\013IntegerType"
+    "\022+\n\007signess\030\001 \001(\0162\032.pb.IntegerType.Signe"
+    "dness\022\020\n\010bitwidth\030\002 \001(\r\"&\n\nSignedness\022\n\n"
+    "\006Signed\020\000\022\014\n\010Unsigned\020\001\"\035\n\tFloatType\022\020\n\010"
+    "bitwidth\030\002 \001(\r\"W\n\010DataType\022\037\n\006float_\030\001 \001"
+    "(\0132\r.pb.FloatTypeH\000\022\"\n\007integer\030\002 \001(\0132\017.p"
+    "b.IntegerTypeH\000B\006\n\004kind\"\217\001\n\007DaqData\022\014\n\004d"
+    "ata\030\001 \001(\014\022\032\n\004type\030\004 \001(\0132\014.pb.DataType\022 \n"
+    "\010channels\030\005 \003(\0132\016.pb.AdcChannel\022\024\n\014sampl"
+    "e_count\030\006 \001(\r\022\026\n\016channel_stride\030\007 \001(\rJ\004\010"
+    "\002\020\003J\004\010\003\020\004\" \n\003Run\022\n\n\002id\030\001 \001(\t\022\r\n\005chunk\030\002 "
+    "\001(\r\"_\n\016RunDataMessage\022\024\n\003run\030\001 \001(\0132\007.pb."
+    "Run\022\034\n\006entity\030\002 \001(\0132\014.pb.EntityId\022\031\n\004dat"
+    "a\030\003 \001(\0132\013.pb.DaqData\"b\n\021RunDataEndMessag"
+    "e\022\024\n\003run\030\001 \001(\0132\007.pb.Run\022\034\n\006entity\030\002 \001(\0132"
+    "\014.pb.EntityId\022\031\n\004data\030\003 \001(\0132\013.pb.DaqData"
+    "\"\036\n\014PingResponse\022\016\n\006micros\030\001 \001(\004\"p\n\rFirm"
+    "wareBuild\022/\n\007entries\030\001 \003(\0132\036.pb.Firmware"
+    "Build.EntriesEntry\032.\n\014EntriesEntry\022\013\n\003ke"
+    "y\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"0\n\rFirmwareIm"
+    "age\022\014\n\004size\030\001 \001(\004\022\021\n\tsha256sum\030\002 \001(\t\"o\n\026"
+    "GetSystemIdentResponse\022\013\n\003mac\030\001 \001(\t\022#\n\010f"
+    "w_build\030\002 \001(\0132\021.pb.FirmwareBuild\022#\n\010fw_i"
+    "mage\030\003 \001(\0132\021.pb.FirmwareImage\"F\n\016SyslogR"
+    "esponse\022\021\n\tis_active\030\001 \001(\010\022\020\n\010max_size\030\002"
+    " \001(\004\022\017\n\007entries\030\003 \003(\t\"\203\001\n\023PerformanceCou"
+    "nters\022\030\n\020total_ic_time_us\030\001 \001(\004\022\030\n\020total"
+    "_op_time_us\030\002 \001(\004\022\032\n\022total_halt_time_us\030"
+    "\003 \001(\004\022\034\n\024total_number_of_runs\030\004 \001(\004\"E\n\023S"
+    "ystemStatsResponse\022.\n\rperf_counters\030\001 \001("
+    "\0132\027.pb.PerformanceCounters\"2\n\026ReadSystem"
+    "IdentCommand\022\030\n\020read_from_eeprom\030\001 \001(\010\"\031"
+    "\n\027ReadSystemIdentResponse\"4\n\027ResetSystem"
+    "IdentCommand\022\031\n\021write_to_hardware\030\001 \001(\010\""
+    "\032\n\030ResetSystemIdentResponse\"5\n\027WriteSyst"
+    "emIdentCommand\022\032\n\006vendor\030\001 \001(\0132\n.pb.Vend"
+    "or\"s\n\006Vendor\022\025\n\rserial_number\030\001 \001(\007\022\023\n\013s"
+    "erial_uuid\030\002 \001(\t\022\036\n\026default_admin_passwo"
+    "rd\030\003 \001(\t\022\035\n\025default_user_password\030\004 \001(\t\""
+    ")\n\030WriteSystemIdentResponse\022\r\n\005valid\030\001 \001"
+    "(\010\"\027\n\025GetSystemIdentCommand\";\n\022Calibrati"
+    "onCommand\022%\n\006config\030\001 \001(\0132\025.pb.Calibrati"
+    "onConfig\"\025\n\023CalibrationResponse\"\026\n\024Calib"
+    "rateInitCommand\"\032\n\030CalibrateFinalizeComm"
+    "and\"\030\n\026CalibrateOffsetCommand\"$\n\024Calibra"
+    "teLaneCommand\022\014\n\004lane\030\001 \001(\r\"Y\n\017Calibrati"
+    "onData\022\014\n\004lane\030\001 \001(\r\022\027\n\017gain_correction\030"
+    "\002 \001(\002\022\016\n\006weight\030\003 \001(\r\022\017\n\007carrier\030\004 \001(\r\"9"
+    "\n\024CalibrateDataCommand\022!\n\004data\030\001 \003(\0132\023.p"
+    "b.CalibrationData\"\030\n\026ReadTemperatureComm"
+    "and\"\\\n\026TemperatureMeasurement\022\034\n\006entity\030"
+    "\001 \001(\0132\014.pb.EntityId\022$\n\013temperature\030\002 \001(\013"
+    "2\017.pb.Temperature\"F\n\022TemperatureDataset\022"
+    "0\n\014measurements\030\001 \003(\0132\032.pb.TemperatureMe"
+    "asurement\"B\n\027ReadTemperatureResponse\022\'\n\007"
+    "dataset\030\001 \001(\0132\026.pb.TemperatureDataset\"\032\n"
+    "\030GetOverloadStatusCommand\"\237\001\n\016OverloadSt"
+    "atus\022\027\n\017global_overload\030\001 \001(\010\022,\n\010element"
+    "s\030\002 \003(\0132\032.pb.OverloadStatus.Element\032F\n\007E"
+    "lement\022\034\n\006entity\030\001 \001(\0132\014.pb.EntityId\022\013\n\003"
+    "idx\030\002 \001(\r\022\020\n\010overload\030\003 \001(\010\"\?\n\031GetOverlo"
+    "adStatusResponse\022\"\n\006status\030\001 \001(\0132\022.pb.Ov"
+    "erloadStatus\"\020\n\016SuccessMessage\"\023\n\021Device"
+    "BusyMessage\"@\n\014ErrorMessage\022\033\n\004code\030\001 \001("
+    "\0162\r.pb.ErrorCode\022\023\n\013description\030\002 \001(\t\"|\n"
+    "\010Envelope\022\034\n\007version\030\001 \001(\0132\013.pb.Version\022"
+    "%\n\007generic\030d \001(\0132\022.pb.GenericMessageH\000\022#"
+    "\n\nmessage_v1\030e \001(\0132\r.pb.MessageV1H\000B\006\n\004k"
+    "ind\"l\n\016GenericMessage\022\'\n\014ping_command\030d "
+    "\001(\0132\017.pb.PingCommandH\000\022)\n\rping_response\030"
+    "e \001(\0132\020.pb.PingResponseH\000B\006\n\004kind\"\033\n\nBea"
+    "rerAuth\022\r\n\005token\030\001 \001(\t\"7\n\013AuthRequest\022 \n"
+    "\006bearer\030\001 \001(\0132\016.pb.BearerAuthH\000B\006\n\004kind\""
+    "P\n\006Source\022\035\n\004kind\030\001 \001(\0162\017.pb.Source.Kind"
+    "\022\014\n\004text\030\002 \001(\t\"\031\n\004Kind\022\010\n\004MLIR\020\000\022\007\n\003ANA\020"
+    "\001\"(\n\nJitCommand\022\032\n\006source\030\001 \001(\0132\n.pb.Sou"
+    "rce\"z\n\005Issue\022\034\n\004kind\030\001 \001(\0162\016.pb.Issue.Ki"
+    "nd\022\014\n\004lane\030\002 \001(\r\022\013\n\003col\030\003 \001(\r\022\016\n\006reason\030"
+    "\004 \001(\t\"(\n\004Kind\022\010\n\004INFO\020\000\022\013\n\007WARNING\020\001\022\t\n\005"
+    "ERROR\020\002\"&\n\tDiagnosis\022\031\n\006issues\030\001 \003(\0132\t.p"
+    "b.Issue\";\n\013JitResponse\022\017\n\007success\030\001 \001(\010\022"
+    "\033\n\004diag\030\002 \001(\0132\r.pb.Diagnosis\"\241\001\n\rUpdateC"
+    "ommand\022 \n\005begin\030\n \001(\0132\017.pb.UpdateBeginH\000"
+    "\022 \n\005write\030\013 \001(\0132\017.pb.UpdateWriteH\000\022\"\n\006co"
+    "mmit\030\014 \001(\0132\020.pb.UpdateCommitH\000\022 \n\005abort\030"
+    "\r \001(\0132\017.pb.UpdateAbortH\000B\006\n\004kind\"\202\001\n\016Upd"
+    "ateResponse\022\034\n\003ack\030\n \001(\0132\r.pb.UpdateAckH"
+    "\000\022$\n\007failure\030\013 \001(\0132\021.pb.UpdateFailureH\000\022"
+    "$\n\007success\030\014 \001(\0132\021.pb.UpdateSuccessH\000B\006\n"
+    "\004kind\")\n\013UpdateBegin\022\014\n\004size\030\001 \001(\004\022\014\n\004ha"
+    "sh\030\002 \001(\014\"+\n\013UpdateWrite\022\014\n\004data\030\001 \001(\014\022\016\n"
+    "\006offset\030\002 \001(\004\"\016\n\014UpdateCommit\"\r\n\013UpdateA"
+    "bort\"\037\n\tUpdateAck\022\022\n\nchunk_size\030\001 \001(\004\"\037\n"
+    "\rUpdateFailure\022\016\n\006reason\030\001 \001(\t\"\017\n\rUpdate"
+    "Success\"\270\026\n\tMessageV1\022\017\n\002id\030\001 \001(\tH\001\210\001\001\022-"
+    "\n\017success_message\030d \001(\0132\022.pb.SuccessMess"
+    "ageH\000\022)\n\rerror_message\030e \001(\0132\020.pb.ErrorM"
+    "essageH\000\022/\n\020stand_by_command\030\310\001 \001(\0132\022.pb"
+    ".StandByCommandH\000\022*\n\rreset_command\030\312\001 \001("
+    "\0132\020.pb.ResetCommandH\000\022.\n\017extract_command"
+    "\030\313\001 \001(\0132\022.pb.ExtractCommandH\000\022,\n\016config_"
+    "command\030\314\001 \001(\0132\021.pb.ConfigCommandH\000\0221\n\021s"
+    "tart_run_command\030\315\001 \001(\0132\023.pb.StartRunCom"
+    "mandH\000\022/\n\020stop_run_command\030\316\001 \001(\0132\022.pb.S"
+    "topRunCommandH\000\022;\n\026manual_control_comman"
+    "d\030\317\001 \001(\0132\030.pb.ManualControlCommandH\000\022R\n\""
+    "register_external_entities_command\030\320\001 \001("
+    "\0132#.pb.RegisterExternalEntitiesCommandH\000"
+    "\022>\n\030get_system_ident_command\030\321\001 \001(\0132\031.pb"
+    ".GetSystemIdentCommandH\000\022,\n\016syslog_comma"
+    "nd\030\322\001 \001(\0132\021.pb.SyslogCommandH\000\0227\n\024system"
+    "_stats_command\030\323\001 \001(\0132\026.pb.SystemStatsCo"
+    "mmandH\000\022@\n\031read_system_ident_command\030\324\001 "
+    "\001(\0132\032.pb.ReadSystemIdentCommandH\000\022B\n\032res"
+    "et_system_ident_command\030\325\001 \001(\0132\033.pb.Rese"
+    "tSystemIdentCommandH\000\022B\n\032write_system_id"
+    "ent_command\030\326\001 \001(\0132\033.pb.WriteSystemIdent"
+    "CommandH\000\022B\n\032udp_data_streaming_command\030"
+    "\327\001 \001(\0132\033.pb.UdpDataStreamingCommandH\000\022\?\n"
+    "\030read_temperature_command\030\330\001 \001(\0132\032.pb.Re"
+    "adTemperatureCommandH\000\022D\n\033get_overload_s"
+    "tatus_command\030\331\001 \001(\0132\034.pb.GetOverloadSta"
+    "tusCommandH\000\0226\n\023calibration_command\030\332\001 \001"
+    "(\0132\026.pb.CalibrationCommandH\000\022,\n\016update_c"
+    "ommand\030\333\001 \001(\0132\021.pb.UpdateCommandH\000\0220\n\020ex"
+    "tract_response\030\255\002 \001(\0132\023.pb.ExtractRespon"
+    "seH\000\022.\n\017config_response\030\256\002 \001(\0132\022.pb.Conf"
+    "igResponseH\000\022,\n\016reset_response\030\257\002 \001(\0132\021."
+    "pb.ResetResponseH\000\0223\n\022start_run_response"
+    "\030\260\002 \001(\0132\024.pb.StartRunResponseH\000\022>\n\030run_s"
+    "tate_change_message\030\261\002 \001(\0132\031.pb.RunState"
+    "ChangeMessageH\000\022/\n\020run_data_message\030\262\002 \001"
+    "(\0132\022.pb.RunDataMessageH\000\0226\n\024run_data_end"
+    "_message\030\263\002 \001(\0132\025.pb.RunDataEndMessageH\000"
+    "\022@\n\031get_system_ident_response\030\264\002 \001(\0132\032.p"
+    "b.GetSystemIdentResponseH\000\022.\n\017syslog_res"
+    "ponse\030\265\002 \001(\0132\022.pb.SyslogResponseH\000\0229\n\025sy"
+    "stem_stats_response\030\266\002 \001(\0132\027.pb.SystemSt"
+    "atsResponseH\000\022B\n\032read_system_ident_respo"
+    "nse\030\267\002 \001(\0132\033.pb.ReadSystemIdentResponseH"
+    "\000\022D\n\033reset_system_ident_response\030\270\002 \001(\0132"
+    "\034.pb.ResetSystemIdentResponseH\000\022D\n\033write"
+    "_system_ident_response\030\271\002 \001(\0132\034.pb.Write"
+    "SystemIdentResponseH\000\022A\n\031read_temperatur"
+    "e_response\030\272\002 \001(\0132\033.pb.ReadTemperatureRe"
+    "sponseH\000\022F\n\034get_overload_status_response"
+    "\030\273\002 \001(\0132\035.pb.GetOverloadStatusResponseH\000"
+    "\022S\n#udp_data_streaming_refused_response\030"
+    "\274\002 \001(\0132#.pb.UdpDataStreamingRefusedRespo"
+    "nseH\000\0228\n\024calibration_response\030\275\002 \001(\0132\027.p"
+    "b.CalibrationResponseH\000\022.\n\017update_respon"
+    "se\030\276\002 \001(\0132\022.pb.UpdateResponseH\000\022;\n\026calib"
+    "rate_init_command\030\220\003 \001(\0132\030.pb.CalibrateI"
+    "nitCommandH\000\022;\n\026calibrate_lane_command\030\221"
+    "\003 \001(\0132\030.pb.CalibrateLaneCommandH\000\022\?\n\030cal"
+    "ibrate_offset_command\030\222\003 \001(\0132\032.pb.Calibr"
+    "ateOffsetCommandH\000\022C\n\032calibrate_finalize"
+    "_command\030\223\003 \001(\0132\034.pb.CalibrateFinalizeCo"
+    "mmandH\000\022;\n\026calibrate_data_command\030\224\003 \001(\013"
+    "2\030.pb.CalibrateDataCommandH\000\022(\n\014auth_req"
+    "uest\030\365\003 \001(\0132\017.pb.AuthRequestH\000\022/\n\rbusy_r"
+    "esponse\030\366\003 \001(\0132\025.pb.DeviceBusyMessageH\000\022"
+    "(\n\014ping_command\030\367\003 \001(\0132\017.pb.PingCommandH"
+    "\000\022&\n\013jit_command\030\370\003 \001(\0132\016.pb.JitCommandH"
+    "\000\022(\n\014jit_response\030\371\003 \001(\0132\017.pb.JitRespons"
+    "eH\000B\006\n\004kindB\005\n\003_idJ\006\010\311\001\020\312\001J\006\010\254\002\020\255\002J\006\010\364\003\020"
+    "\365\003\"V\n\004File\022\034\n\007version\030\001 \001(\0132\013.pb.Version"
+    "\022\037\n\006module\030\002 \001(\0132\n.pb.ModuleH\000\210\001\001B\t\n\007_mo"
+    "duleJ\004\010\003\020\004*2\n\006Prefix\022\010\n\004NONE\020\000\022\t\n\005MILLI\020"
+    "\001\022\t\n\005MICRO\020\002\022\010\n\004NANO\020\003*l\n\010RunState\022\007\n\003NE"
+    "W\020\000\022\t\n\005ERROR\020\001\022\010\n\004DONE\020\002\022\n\n\006QUEUED\020\003\022\014\n\010"
+    "TAKE_OFF\020\004\022\006\n\002IC\020\005\022\006\n\002OP\020\006\022\n\n\006OP_END\020\007\022\014"
+    "\n\010TMP_HALT\020\010*\025\n\tErrorCode\022\010\n\004None\020\000b\006pro"
+    "to3"
 };
 static ::absl::once_flag descriptor_table_main_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_main_2eproto = {
     false,
     false,
-    14132,
+    14523,
     descriptor_table_protodef_main_2eproto,
     "main.proto",
     &descriptor_table_main_2eproto_once,
     nullptr,
     0,
-    135,
+    138,
     schemas,
     file_default_instances,
     TableStruct_main_2eproto::offsets,
@@ -5007,105 +5130,111 @@ PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_main_2eproto =
     file_level_service_descriptors_main_2eproto,
 };
 namespace pb {
-const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ShiftHoldConfig_State_descriptor() {
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL MDRConfig_Operation_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
   return file_level_enum_descriptors_main_2eproto[0];
+}
+PROTOBUF_CONSTINIT const uint32_t MDRConfig_Operation_internal_data_[] = {
+    327680u, 0u, };
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ShiftHoldConfig_State_descriptor() {
+  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
+  return file_level_enum_descriptors_main_2eproto[1];
 }
 PROTOBUF_CONSTINIT const uint32_t ShiftHoldConfig_State_internal_data_[] = {
     393216u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL SelectConfig_ConstantConfig_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[1];
+  return file_level_enum_descriptors_main_2eproto[2];
 }
 PROTOBUF_CONSTINIT const uint32_t SelectConfig_ConstantConfig_internal_data_[] = {
-    196608u, 0u, };
+    262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL SelectConfig_Magnitude_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[2];
+  return file_level_enum_descriptors_main_2eproto[3];
 }
 PROTOBUF_CONSTINIT const uint32_t SelectConfig_Magnitude_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL SignalGeneratorConfig_WaveForm_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[3];
+  return file_level_enum_descriptors_main_2eproto[4];
 }
 PROTOBUF_CONSTINIT const uint32_t SignalGeneratorConfig_WaveForm_internal_data_[] = {
     196608u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL FrontPanelIOConfig_FrontPanelIOMode_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[4];
+  return file_level_enum_descriptors_main_2eproto[5];
 }
 PROTOBUF_CONSTINIT const uint32_t FrontPanelIOConfig_FrontPanelIOMode_internal_data_[] = {
     262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL PortConfig_AclState_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[5];
+  return file_level_enum_descriptors_main_2eproto[6];
 }
 PROTOBUF_CONSTINIT const uint32_t PortConfig_AclState_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ACLPlug_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[6];
+  return file_level_enum_descriptors_main_2eproto[7];
 }
 PROTOBUF_CONSTINIT const uint32_t ACLPlug_Kind_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Temperature_Unit_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[7];
+  return file_level_enum_descriptors_main_2eproto[8];
 }
 PROTOBUF_CONSTINIT const uint32_t Temperature_Unit_internal_data_[] = {
     262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL CalibrationConfig_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[8];
+  return file_level_enum_descriptors_main_2eproto[9];
 }
 PROTOBUF_CONSTINIT const uint32_t CalibrationConfig_Kind_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ManualControlCommand_State_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[9];
+  return file_level_enum_descriptors_main_2eproto[10];
 }
 PROTOBUF_CONSTINIT const uint32_t ManualControlCommand_State_internal_data_[] = {
     262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Entity_Class_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[10];
+  return file_level_enum_descriptors_main_2eproto[11];
 }
 PROTOBUF_CONSTINIT const uint32_t Entity_Class_internal_data_[] = {
     851968u, 32u, 131072u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL IntegerType_Signedness_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[11];
+  return file_level_enum_descriptors_main_2eproto[12];
 }
 PROTOBUF_CONSTINIT const uint32_t IntegerType_Signedness_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Source_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[12];
+  return file_level_enum_descriptors_main_2eproto[13];
 }
 PROTOBUF_CONSTINIT const uint32_t Source_Kind_internal_data_[] = {
     131072u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Issue_Kind_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[13];
+  return file_level_enum_descriptors_main_2eproto[14];
 }
 PROTOBUF_CONSTINIT const uint32_t Issue_Kind_internal_data_[] = {
     196608u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Prefix_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[14];
+  return file_level_enum_descriptors_main_2eproto[15];
 }
 PROTOBUF_CONSTINIT const uint32_t Prefix_internal_data_[] = {
     262144u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL RunState_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[15];
+  return file_level_enum_descriptors_main_2eproto[16];
 }
 PROTOBUF_CONSTINIT const uint32_t RunState_internal_data_[] = {
     589824u, 0u, };
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ErrorCode_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_main_2eproto);
-  return file_level_enum_descriptors_main_2eproto[16];
+  return file_level_enum_descriptors_main_2eproto[17];
 }
 PROTOBUF_CONSTINIT const uint32_t ErrorCode_internal_data_[] = {
     65536u, 0u, };
@@ -6759,6 +6888,635 @@ void MulConfig::InternalSwap(MulConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other
 }
 
 ::google::protobuf::Metadata MulConfig::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class MDRConfig_Calibration::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<MDRConfig_Calibration>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_._has_bits_);
+};
+
+MDRConfig_Calibration::MDRConfig_Calibration(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, MDRConfig_Calibration_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.MDRConfig.Calibration)
+}
+MDRConfig_Calibration::MDRConfig_Calibration(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const MDRConfig_Calibration& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, MDRConfig_Calibration_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(from._impl_) {
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE MDRConfig_Calibration::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
+
+inline void MDRConfig_Calibration::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, offset_x_),
+           0,
+           offsetof(Impl_, gain_) -
+               offsetof(Impl_, offset_x_) +
+               sizeof(Impl_::gain_));
+}
+MDRConfig_Calibration::~MDRConfig_Calibration() {
+  // @@protoc_insertion_point(destructor:pb.MDRConfig.Calibration)
+  SharedDtor(*this);
+}
+inline void MDRConfig_Calibration::SharedDtor(MessageLite& self) {
+  MDRConfig_Calibration& this_ = static_cast<MDRConfig_Calibration&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL MDRConfig_Calibration::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) MDRConfig_Calibration(arena);
+}
+constexpr auto MDRConfig_Calibration::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(MDRConfig_Calibration),
+                                            alignof(MDRConfig_Calibration));
+}
+constexpr auto MDRConfig_Calibration::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_MDRConfig_Calibration_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &MDRConfig_Calibration::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<MDRConfig_Calibration>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &MDRConfig_Calibration::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<MDRConfig_Calibration>(), &MDRConfig_Calibration::ByteSizeLong,
+              &MDRConfig_Calibration::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_._cached_size_),
+          false,
+      },
+      &MDRConfig_Calibration::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull MDRConfig_Calibration_class_data_ =
+        MDRConfig_Calibration::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+MDRConfig_Calibration::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&MDRConfig_Calibration_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(MDRConfig_Calibration_class_data_.tc_table);
+  return MDRConfig_Calibration_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
+MDRConfig_Calibration::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_._has_bits_),
+    0, // no _extensions_
+    4, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967280,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    4,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    MDRConfig_Calibration_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::MDRConfig_Calibration>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint32 gain = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MDRConfig_Calibration, _impl_.gain_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.gain_)}},
+    // uint32 offset_x = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MDRConfig_Calibration, _impl_.offset_x_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.offset_x_)}},
+    // uint32 offset_y = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MDRConfig_Calibration, _impl_.offset_y_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.offset_y_)}},
+    // uint32 offset_z = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MDRConfig_Calibration, _impl_.offset_z_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.offset_z_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint32 offset_x = 1;
+    {PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.offset_x_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 offset_y = 2;
+    {PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.offset_y_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 offset_z = 3;
+    {PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.offset_z_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 gain = 4;
+    {PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.gain_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void MDRConfig_Calibration::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.MDRConfig.Calibration)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000000fU) != 0) {
+    ::memset(&_impl_.offset_x_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.gain_) -
+        reinterpret_cast<char*>(&_impl_.offset_x_)) + sizeof(_impl_.gain_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL MDRConfig_Calibration::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const MDRConfig_Calibration& this_ = static_cast<const MDRConfig_Calibration&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL MDRConfig_Calibration::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const MDRConfig_Calibration& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.MDRConfig.Calibration)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // uint32 offset_x = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
+    if (this_._internal_offset_x() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          1, this_._internal_offset_x(), target);
+    }
+  }
+
+  // uint32 offset_y = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
+    if (this_._internal_offset_y() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_offset_y(), target);
+    }
+  }
+
+  // uint32 offset_z = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004U) != 0) {
+    if (this_._internal_offset_z() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_offset_z(), target);
+    }
+  }
+
+  // uint32 gain = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008U) != 0) {
+    if (this_._internal_gain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          4, this_._internal_gain(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.MDRConfig.Calibration)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t MDRConfig_Calibration::ByteSizeLong(const MessageLite& base) {
+  const MDRConfig_Calibration& this_ = static_cast<const MDRConfig_Calibration&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t MDRConfig_Calibration::ByteSizeLong() const {
+  const MDRConfig_Calibration& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.MDRConfig.Calibration)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000000fU) != 0) {
+    // uint32 offset_x = 1;
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (this_._internal_offset_x() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_offset_x());
+      }
+    }
+    // uint32 offset_y = 2;
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (this_._internal_offset_y() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_offset_y());
+      }
+    }
+    // uint32 offset_z = 3;
+    if ((cached_has_bits & 0x00000004U) != 0) {
+      if (this_._internal_offset_z() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_offset_z());
+      }
+    }
+    // uint32 gain = 4;
+    if ((cached_has_bits & 0x00000008U) != 0) {
+      if (this_._internal_gain() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_gain());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void MDRConfig_Calibration::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<MDRConfig_Calibration*>(&to_msg);
+  auto& from = static_cast<const MDRConfig_Calibration&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.MDRConfig.Calibration)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000000fU) != 0) {
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (from._internal_offset_x() != 0) {
+        _this->_impl_.offset_x_ = from._impl_.offset_x_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (from._internal_offset_y() != 0) {
+        _this->_impl_.offset_y_ = from._impl_.offset_y_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004U) != 0) {
+      if (from._internal_offset_z() != 0) {
+        _this->_impl_.offset_z_ = from._impl_.offset_z_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008U) != 0) {
+      if (from._internal_gain() != 0) {
+        _this->_impl_.gain_ = from._impl_.gain_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void MDRConfig_Calibration::CopyFrom(const MDRConfig_Calibration& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.MDRConfig.Calibration)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void MDRConfig_Calibration::InternalSwap(MDRConfig_Calibration* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.gain_)
+      + sizeof(MDRConfig_Calibration::_impl_.gain_)
+      - PROTOBUF_FIELD_OFFSET(MDRConfig_Calibration, _impl_.offset_x_)>(
+          reinterpret_cast<char*>(&_impl_.offset_x_),
+          reinterpret_cast<char*>(&other->_impl_.offset_x_));
+}
+
+::google::protobuf::Metadata MDRConfig_Calibration::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class MDRConfig::_Internal {
+ public:
+};
+
+MDRConfig::MDRConfig(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, MDRConfig_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.MDRConfig)
+}
+PROTOBUF_NDEBUG_INLINE MDRConfig::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::MDRConfig& from_msg)
+      : calibration_{visibility, arena, from.calibration_},
+        operations_{visibility, arena, from.operations_},
+        _operations_cached_byte_size_{0},
+        _cached_size_{0} {}
+
+MDRConfig::MDRConfig(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const MDRConfig& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, MDRConfig_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  MDRConfig* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+
+  // @@protoc_insertion_point(copy_constructor:pb.MDRConfig)
+}
+PROTOBUF_NDEBUG_INLINE MDRConfig::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : calibration_{visibility, arena},
+        operations_{visibility, arena},
+        _operations_cached_byte_size_{0},
+        _cached_size_{0} {}
+
+inline void MDRConfig::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+MDRConfig::~MDRConfig() {
+  // @@protoc_insertion_point(destructor:pb.MDRConfig)
+  SharedDtor(*this);
+}
+inline void MDRConfig::SharedDtor(MessageLite& self) {
+  MDRConfig& this_ = static_cast<MDRConfig&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL MDRConfig::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) MDRConfig(arena);
+}
+constexpr auto MDRConfig::InternalNewImpl_() {
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(MDRConfig, _impl_.calibration_) +
+          decltype(MDRConfig::_impl_.calibration_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+      PROTOBUF_FIELD_OFFSET(MDRConfig, _impl_.operations_) +
+          decltype(MDRConfig::_impl_.operations_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::ZeroInit(
+        sizeof(MDRConfig), alignof(MDRConfig), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&MDRConfig::PlacementNew_,
+                                 sizeof(MDRConfig),
+                                 alignof(MDRConfig));
+  }
+}
+constexpr auto MDRConfig::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_MDRConfig_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &MDRConfig::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<MDRConfig>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &MDRConfig::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<MDRConfig>(), &MDRConfig::ByteSizeLong,
+              &MDRConfig::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(MDRConfig, _impl_._cached_size_),
+          false,
+      },
+      &MDRConfig::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull MDRConfig_class_data_ =
+        MDRConfig::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+MDRConfig::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&MDRConfig_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(MDRConfig_class_data_.tc_table);
+  return MDRConfig_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 1, 0, 2>
+MDRConfig::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    MDRConfig_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::MDRConfig>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // repeated .pb.MDRConfig.Operation operations = 2;
+    {::_pbi::TcParser::FastV32P1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(MDRConfig, _impl_.operations_)}},
+    // repeated .pb.MDRConfig.Calibration calibration = 1;
+    {::_pbi::TcParser::FastMtR1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(MDRConfig, _impl_.calibration_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // repeated .pb.MDRConfig.Calibration calibration = 1;
+    {PROTOBUF_FIELD_OFFSET(MDRConfig, _impl_.calibration_), 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .pb.MDRConfig.Operation operations = 2;
+    {PROTOBUF_FIELD_OFFSET(MDRConfig, _impl_.operations_), 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kPackedOpenEnum)},
+  }},
+  {{
+      {::_pbi::TcParser::GetTable<::pb::MDRConfig_Calibration>()},
+  }},
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void MDRConfig::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.MDRConfig)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.calibration_.Clear();
+  _impl_.operations_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL MDRConfig::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const MDRConfig& this_ = static_cast<const MDRConfig&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL MDRConfig::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const MDRConfig& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.MDRConfig)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // repeated .pb.MDRConfig.Calibration calibration = 1;
+  for (unsigned i = 0, n = static_cast<unsigned>(
+                           this_._internal_calibration_size());
+       i < n; i++) {
+    const auto& repfield = this_._internal_calibration().Get(i);
+    target =
+        ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+            1, repfield, repfield.GetCachedSize(),
+            target, stream);
+  }
+
+  // repeated .pb.MDRConfig.Operation operations = 2;
+  {
+    ::size_t byte_size = this_._impl_._operations_cached_byte_size_.Get();
+    if (byte_size > 0) {
+      target = stream->WriteEnumPacked(
+          2, this_._internal_operations(), byte_size, target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.MDRConfig)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t MDRConfig::ByteSizeLong(const MessageLite& base) {
+  const MDRConfig& this_ = static_cast<const MDRConfig&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t MDRConfig::ByteSizeLong() const {
+  const MDRConfig& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.MDRConfig)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+   {
+    // repeated .pb.MDRConfig.Calibration calibration = 1;
+    {
+      total_size += 1UL * this_._internal_calibration_size();
+      for (const auto& msg : this_._internal_calibration()) {
+        total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+      }
+    }
+    // repeated .pb.MDRConfig.Operation operations = 2;
+    {
+      total_size += ::_pbi::WireFormatLite::EnumSizeWithPackedTagSize(
+          this_._internal_operations(), 1, this_._impl_._operations_cached_byte_size_);
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void MDRConfig::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<MDRConfig*>(&to_msg);
+  auto& from = static_cast<const MDRConfig&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.MDRConfig)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_internal_mutable_calibration()->MergeFrom(
+      from._internal_calibration());
+  _this->_internal_mutable_operations()->MergeFrom(from._internal_operations());
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void MDRConfig::CopyFrom(const MDRConfig& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.MDRConfig)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void MDRConfig::InternalSwap(MDRConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.calibration_.InternalSwap(&other->_impl_.calibration_);
+  _impl_.operations_.InternalSwap(&other->_impl_.operations_);
+}
+
+::google::protobuf::Metadata MDRConfig::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
@@ -10507,7 +11265,12 @@ PROTOBUF_NDEBUG_INLINE Mux::Impl_::Impl_(
 
 inline void Mux::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.state_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, state_),
+           0,
+           offsetof(Impl_, index_) -
+               offsetof(Impl_, state_) +
+               sizeof(Impl_::index_));
 }
 Mux::~Mux() {
   // @@protoc_insertion_point(destructor:pb.Mux)
@@ -10566,16 +11329,16 @@ Mux::GetClassData() const {
   return Mux_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 Mux::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Mux, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     Mux_class_data_.base(),
@@ -10585,14 +11348,19 @@ Mux::_table_ = {
     ::_pbi::TcParser::GetTable<::pb::Mux>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // optional uint32 state = 1;
+    // uint32 index = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Mux, _impl_.index_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(Mux, _impl_.index_)}},
+    // uint32 state = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Mux, _impl_.state_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(Mux, _impl_.state_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // optional uint32 state = 1;
+    // uint32 state = 1;
     {PROTOBUF_FIELD_OFFSET(Mux, _impl_.state_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 index = 2;
+    {PROTOBUF_FIELD_OFFSET(Mux, _impl_.index_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
   {{
@@ -10605,7 +11373,12 @@ PROTOBUF_NOINLINE void Mux::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.state_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    ::memset(&_impl_.state_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.index_) -
+        reinterpret_cast<char*>(&_impl_.state_)) + sizeof(_impl_.index_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -10628,12 +11401,22 @@ PROTOBUF_NOINLINE void Mux::Clear() {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  cached_has_bits = this_._impl_._has_bits_[0];
-  // optional uint32 state = 1;
-  if ((cached_has_bits & 0x00000001U) != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-        1, this_._internal_state(), target);
+  // uint32 state = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
+    if (this_._internal_state() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          1, this_._internal_state(), target);
+    }
+  }
+
+  // uint32 index = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
+    if (this_._internal_index() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_index(), target);
+    }
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -10659,12 +11442,22 @@ PROTOBUF_NOINLINE void Mux::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // optional uint32 state = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    // uint32 state = 1;
     if ((cached_has_bits & 0x00000001U) != 0) {
-      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-          this_._internal_state());
+      if (this_._internal_state() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_state());
+      }
+    }
+    // uint32 index = 2;
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (this_._internal_index() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_index());
+      }
     }
   }
   return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -10683,8 +11476,17 @@ void Mux::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::pro
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001U) != 0) {
-    _this->_impl_.state_ = from._impl_.state_;
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (from._internal_state() != 0) {
+        _this->_impl_.state_ = from._impl_.state_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (from._internal_index() != 0) {
+        _this->_impl_.index_ = from._impl_.index_;
+      }
+    }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
@@ -10702,7 +11504,12 @@ void Mux::InternalSwap(Mux* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using ::std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.state_, other->_impl_.state_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Mux, _impl_.index_)
+      + sizeof(Mux::_impl_.index_)
+      - PROTOBUF_FIELD_OFFSET(Mux, _impl_.state_)>(
+          reinterpret_cast<char*>(&_impl_.state_),
+          reinterpret_cast<char*>(&other->_impl_.state_));
 }
 
 ::google::protobuf::Metadata Mux::GetMetadata() const {
@@ -10970,6 +11777,320 @@ void SwitchConfig::InternalSwap(SwitchConfig* PROTOBUF_RESTRICT PROTOBUF_NONNULL
 }
 // ===================================================================
 
+class TraceLane::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<TraceLane>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(TraceLane, _impl_._has_bits_);
+};
+
+TraceLane::TraceLane(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, TraceLane_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb.TraceLane)
+}
+TraceLane::TraceLane(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const TraceLane& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, TraceLane_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(from._impl_) {
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE TraceLane::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
+
+inline void TraceLane::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, carrier_),
+           0,
+           offsetof(Impl_, lane_) -
+               offsetof(Impl_, carrier_) +
+               sizeof(Impl_::lane_));
+}
+TraceLane::~TraceLane() {
+  // @@protoc_insertion_point(destructor:pb.TraceLane)
+  SharedDtor(*this);
+}
+inline void TraceLane::SharedDtor(MessageLite& self) {
+  TraceLane& this_ = static_cast<TraceLane&>(self);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL TraceLane::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) TraceLane(arena);
+}
+constexpr auto TraceLane::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(TraceLane),
+                                            alignof(TraceLane));
+}
+constexpr auto TraceLane::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_TraceLane_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &TraceLane::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<TraceLane>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &TraceLane::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<TraceLane>(), &TraceLane::ByteSizeLong,
+              &TraceLane::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(TraceLane, _impl_._cached_size_),
+          false,
+      },
+      &TraceLane::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull TraceLane_class_data_ =
+        TraceLane::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+TraceLane::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TraceLane_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(TraceLane_class_data_.tc_table);
+  return TraceLane_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
+TraceLane::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(TraceLane, _impl_._has_bits_),
+    0, // no _extensions_
+    3, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967288,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    3,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    TraceLane_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::TraceLane>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // uint32 carrier = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TraceLane, _impl_.carrier_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.carrier_)}},
+    // uint32 cluster = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TraceLane, _impl_.cluster_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.cluster_)}},
+    // uint32 lane = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TraceLane, _impl_.lane_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.lane_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint32 carrier = 1;
+    {PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.carrier_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 cluster = 2;
+    {PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.cluster_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 lane = 3;
+    {PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.lane_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void TraceLane::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb.TraceLane)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000007U) != 0) {
+    ::memset(&_impl_.carrier_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.lane_) -
+        reinterpret_cast<char*>(&_impl_.carrier_)) + sizeof(_impl_.lane_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL TraceLane::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const TraceLane& this_ = static_cast<const TraceLane&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL TraceLane::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const TraceLane& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    this_.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pb.TraceLane)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // uint32 carrier = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
+    if (this_._internal_carrier() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          1, this_._internal_carrier(), target);
+    }
+  }
+
+  // uint32 cluster = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
+    if (this_._internal_cluster() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_cluster(), target);
+    }
+  }
+
+  // uint32 lane = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004U) != 0) {
+    if (this_._internal_lane() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_lane(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb.TraceLane)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t TraceLane::ByteSizeLong(const MessageLite& base) {
+  const TraceLane& this_ = static_cast<const TraceLane&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t TraceLane::ByteSizeLong() const {
+  const TraceLane& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pb.TraceLane)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000007U) != 0) {
+    // uint32 carrier = 1;
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (this_._internal_carrier() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_carrier());
+      }
+    }
+    // uint32 cluster = 2;
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (this_._internal_cluster() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_cluster());
+      }
+    }
+    // uint32 lane = 3;
+    if ((cached_has_bits & 0x00000004U) != 0) {
+      if (this_._internal_lane() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_lane());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void TraceLane::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<TraceLane*>(&to_msg);
+  auto& from = static_cast<const TraceLane&>(from_msg);
+  if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
+    from.VerifyHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb.TraceLane)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000007U) != 0) {
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      if (from._internal_carrier() != 0) {
+        _this->_impl_.carrier_ = from._impl_.carrier_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      if (from._internal_cluster() != 0) {
+        _this->_impl_.cluster_ = from._impl_.cluster_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004U) != 0) {
+      if (from._internal_lane() != 0) {
+        _this->_impl_.lane_ = from._impl_.lane_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void TraceLane::CopyFrom(const TraceLane& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb.TraceLane)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void TraceLane::InternalSwap(TraceLane* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.lane_)
+      + sizeof(TraceLane::_impl_.lane_)
+      - PROTOBUF_FIELD_OFFSET(TraceLane, _impl_.carrier_)>(
+          reinterpret_cast<char*>(&_impl_.carrier_),
+          reinterpret_cast<char*>(&other->_impl_.carrier_));
+}
+
+::google::protobuf::Metadata TraceLane::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class Trace::_Internal {
  public:
   using HasBits =
@@ -10987,16 +12108,36 @@ Trace::Trace(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:pb.Trace)
 }
+PROTOBUF_NDEBUG_INLINE Trace::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pb::Trace& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0} {}
+
 Trace::Trace(
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Trace& from)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const Trace& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, Trace_class_data_.base()),
+    : ::google::protobuf::Message(arena, Trace_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena),
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(from._impl_) {
+  Trace* const _this = this;
+  (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.source_ = ((cached_has_bits & 0x00000001U) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.source_)
+                : nullptr;
+  _impl_.sink_ = ((cached_has_bits & 0x00000002U) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.sink_)
+                : nullptr;
+  _impl_.sink_upscaled_ = from._impl_.sink_upscaled_;
+
+  // @@protoc_insertion_point(copy_constructor:pb.Trace)
 }
 PROTOBUF_NDEBUG_INLINE Trace::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
@@ -11006,10 +12147,10 @@ PROTOBUF_NDEBUG_INLINE Trace::Impl_::Impl_(
 inline void Trace::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, source_node_),
+               offsetof(Impl_, source_),
            0,
            offsetof(Impl_, sink_upscaled_) -
-               offsetof(Impl_, source_node_) +
+               offsetof(Impl_, source_) +
                sizeof(Impl_::sink_upscaled_));
 }
 Trace::~Trace() {
@@ -11023,6 +12164,8 @@ inline void Trace::SharedDtor(MessageLite& self) {
   }
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
+  delete this_._impl_.source_;
+  delete this_._impl_.sink_;
   this_._impl_.~Impl_();
 }
 
@@ -11069,18 +12212,18 @@ Trace::GetClassData() const {
   return Trace_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 2, 0, 2>
 Trace::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Trace, _impl_._has_bits_),
     0, // no _extensions_
-    5, 56,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967264,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    5,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
+    3,  // num_field_entries
+    2,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
     Trace_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
@@ -11089,38 +12232,29 @@ Trace::_table_ = {
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
-    // uint32 source_node = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Trace, _impl_.source_node_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_node_)}},
-    // uint32 source_lane = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Trace, _impl_.source_lane_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_lane_)}},
-    // uint32 sink_node = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Trace, _impl_.sink_node_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_node_)}},
-    // uint32 sink_lane = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Trace, _impl_.sink_lane_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_lane_)}},
-    // bool sink_upscaled = 5;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(Trace, _impl_.sink_upscaled_), 4>(),
-     {40, 4, 0, PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_upscaled_)}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // .pb.TraceLane source = 1;
+    {::_pbi::TcParser::FastMtS1,
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_)}},
+    // .pb.TraceLane sink = 2;
+    {::_pbi::TcParser::FastMtS1,
+     {18, 1, 1, PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_)}},
+    // bool sink_upscaled = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(Trace, _impl_.sink_upscaled_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_upscaled_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 source_node = 1;
-    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_node_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 source_lane = 2;
-    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_lane_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 sink_node = 3;
-    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_node_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 sink_lane = 4;
-    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_lane_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // bool sink_upscaled = 5;
-    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_upscaled_), _Internal::kHasBitsOffset + 4, 0, (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // .pb.TraceLane source = 1;
+    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.TraceLane sink = 2;
+    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_), _Internal::kHasBitsOffset + 1, 1, (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // bool sink_upscaled = 3;
+    {PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_upscaled_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
-  // no aux_entries
+  {{
+      {::_pbi::TcParser::GetTable<::pb::TraceLane>()},
+      {::_pbi::TcParser::GetTable<::pb::TraceLane>()},
+  }},
   {{
   }},
 };
@@ -11132,11 +12266,17 @@ PROTOBUF_NOINLINE void Trace::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000001fU) != 0) {
-    ::memset(&_impl_.source_node_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.sink_upscaled_) -
-        reinterpret_cast<char*>(&_impl_.source_node_)) + sizeof(_impl_.sink_upscaled_));
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    if ((cached_has_bits & 0x00000001U) != 0) {
+      ABSL_DCHECK(_impl_.source_ != nullptr);
+      _impl_.source_->Clear();
+    }
+    if ((cached_has_bits & 0x00000002U) != 0) {
+      ABSL_DCHECK(_impl_.sink_ != nullptr);
+      _impl_.sink_->Clear();
+    }
   }
+  _impl_.sink_upscaled_ = false;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -11159,48 +12299,27 @@ PROTOBUF_NOINLINE void Trace::Clear() {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 source_node = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
-    if (this_._internal_source_node() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_source_node(), target);
-    }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // .pb.TraceLane source = 1;
+  if ((cached_has_bits & 0x00000001U) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        1, *this_._impl_.source_, this_._impl_.source_->GetCachedSize(), target,
+        stream);
   }
 
-  // uint32 source_lane = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
-    if (this_._internal_source_lane() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_source_lane(), target);
-    }
+  // .pb.TraceLane sink = 2;
+  if ((cached_has_bits & 0x00000002U) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        2, *this_._impl_.sink_, this_._impl_.sink_->GetCachedSize(), target,
+        stream);
   }
 
-  // uint32 sink_node = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004U) != 0) {
-    if (this_._internal_sink_node() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          3, this_._internal_sink_node(), target);
-    }
-  }
-
-  // uint32 sink_lane = 4;
-  if ((this_._impl_._has_bits_[0] & 0x00000008U) != 0) {
-    if (this_._internal_sink_lane() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          4, this_._internal_sink_lane(), target);
-    }
-  }
-
-  // bool sink_upscaled = 5;
-  if ((this_._impl_._has_bits_[0] & 0x00000010U) != 0) {
+  // bool sink_upscaled = 3;
+  if ((cached_has_bits & 0x00000004U) != 0) {
     if (this_._internal_sink_upscaled() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          5, this_._internal_sink_upscaled(), target);
+          3, this_._internal_sink_upscaled(), target);
     }
   }
 
@@ -11229,37 +12348,19 @@ PROTOBUF_NOINLINE void Trace::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000001fU) != 0) {
-    // uint32 source_node = 1;
+  if ((cached_has_bits & 0x00000007U) != 0) {
+    // .pb.TraceLane source = 1;
     if ((cached_has_bits & 0x00000001U) != 0) {
-      if (this_._internal_source_node() != 0) {
-        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-            this_._internal_source_node());
-      }
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.source_);
     }
-    // uint32 source_lane = 2;
+    // .pb.TraceLane sink = 2;
     if ((cached_has_bits & 0x00000002U) != 0) {
-      if (this_._internal_source_lane() != 0) {
-        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-            this_._internal_source_lane());
-      }
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.sink_);
     }
-    // uint32 sink_node = 3;
+    // bool sink_upscaled = 3;
     if ((cached_has_bits & 0x00000004U) != 0) {
-      if (this_._internal_sink_node() != 0) {
-        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-            this_._internal_sink_node());
-      }
-    }
-    // uint32 sink_lane = 4;
-    if ((cached_has_bits & 0x00000008U) != 0) {
-      if (this_._internal_sink_lane() != 0) {
-        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-            this_._internal_sink_lane());
-      }
-    }
-    // bool sink_upscaled = 5;
-    if ((cached_has_bits & 0x00000010U) != 0) {
       if (this_._internal_sink_upscaled() != 0) {
         total_size += 2;
       }
@@ -11275,34 +12376,31 @@ void Trace::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::p
   if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
     from.VerifyHasBitConsistency();
   }
+  ::google::protobuf::Arena* arena = _this->GetArena();
   // @@protoc_insertion_point(class_specific_merge_from_start:pb.Trace)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000001fU) != 0) {
+  if ((cached_has_bits & 0x00000007U) != 0) {
     if ((cached_has_bits & 0x00000001U) != 0) {
-      if (from._internal_source_node() != 0) {
-        _this->_impl_.source_node_ = from._impl_.source_node_;
+      ABSL_DCHECK(from._impl_.source_ != nullptr);
+      if (_this->_impl_.source_ == nullptr) {
+        _this->_impl_.source_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.source_);
+      } else {
+        _this->_impl_.source_->MergeFrom(*from._impl_.source_);
       }
     }
     if ((cached_has_bits & 0x00000002U) != 0) {
-      if (from._internal_source_lane() != 0) {
-        _this->_impl_.source_lane_ = from._impl_.source_lane_;
+      ABSL_DCHECK(from._impl_.sink_ != nullptr);
+      if (_this->_impl_.sink_ == nullptr) {
+        _this->_impl_.sink_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.sink_);
+      } else {
+        _this->_impl_.sink_->MergeFrom(*from._impl_.sink_);
       }
     }
     if ((cached_has_bits & 0x00000004U) != 0) {
-      if (from._internal_sink_node() != 0) {
-        _this->_impl_.sink_node_ = from._impl_.sink_node_;
-      }
-    }
-    if ((cached_has_bits & 0x00000008U) != 0) {
-      if (from._internal_sink_lane() != 0) {
-        _this->_impl_.sink_lane_ = from._impl_.sink_lane_;
-      }
-    }
-    if ((cached_has_bits & 0x00000010U) != 0) {
       if (from._internal_sink_upscaled() != 0) {
         _this->_impl_.sink_upscaled_ = from._impl_.sink_upscaled_;
       }
@@ -11327,9 +12425,9 @@ void Trace::InternalSwap(Trace* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Trace, _impl_.sink_upscaled_)
       + sizeof(Trace::_impl_.sink_upscaled_)
-      - PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_node_)>(
-          reinterpret_cast<char*>(&_impl_.source_node_),
-          reinterpret_cast<char*>(&other->_impl_.source_node_));
+      - PROTOBUF_FIELD_OFFSET(Trace, _impl_.source_)>(
+          reinterpret_cast<char*>(&_impl_.source_),
+          reinterpret_cast<char*>(&other->_impl_.source_));
 }
 
 ::google::protobuf::Metadata Trace::GetMetadata() const {
@@ -15090,6 +16188,19 @@ void Item::set_allocated_front_panel_io_config(::pb::FrontPanelIOConfig* PROTOBU
   }
   // @@protoc_insertion_point(field_set_allocated:pb.Item.front_panel_io_config)
 }
+void Item::set_allocated_mdr_config(::pb::MDRConfig* PROTOBUF_NULLABLE mdr_config) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (mdr_config) {
+    ::google::protobuf::Arena* submessage_arena = mdr_config->GetArena();
+    if (message_arena != submessage_arena) {
+      mdr_config = ::google::protobuf::internal::GetOwnedMessage(message_arena, mdr_config, submessage_arena);
+    }
+    set_has_mdr_config();
+    _impl_.kind_.mdr_config_ = mdr_config;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Item.mdr_config)
+}
 void Item::set_allocated_sim_config(::pb::SimConfig* PROTOBUF_NULLABLE sim_config) {
   ::google::protobuf::Arena* message_arena = GetArena();
   clear_kind();
@@ -15203,6 +16314,9 @@ Item::Item(
         break;
       case kFrontPanelIoConfig:
         _impl_.kind_.front_panel_io_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.front_panel_io_config_);
+        break;
+      case kMdrConfig:
+        _impl_.kind_.mdr_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.mdr_config_);
         break;
       case kSimConfig:
         _impl_.kind_.sim_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.sim_config_);
@@ -15412,6 +16526,14 @@ void Item::clear_kind() {
       }
       break;
     }
+    case kMdrConfig: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.mdr_config_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.mdr_config_);
+      }
+      break;
+    }
     case kSimConfig: {
       if (GetArena() == nullptr) {
         delete _impl_.kind_.sim_config_;
@@ -15471,17 +16593,17 @@ Item::GetClassData() const {
   return Item_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 23, 23, 0, 7>
+const ::_pbi::TcParseTable<0, 24, 24, 0, 7>
 Item::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Item, _impl_._has_bits_),
     0, // no _extensions_
     1000, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    2155872766,  // skipmap
+    8389118,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    23,  // num_field_entries
-    23,  // num_aux_entries
+    24,  // num_field_entries
+    24,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     Item_class_data_.base(),
     nullptr,  // post_loop_handler
@@ -15495,7 +16617,7 @@ Item::_table_ = {
      {10, 0, 0, PROTOBUF_FIELD_OFFSET(Item, _impl_.entity_)}},
   }}, {{
     1000, 0, 1,
-    65534, 22,
+    65534, 23,
     65535, 65535
   }}, {{
     // .pb.EntityId entity = 1;
@@ -15542,8 +16664,10 @@ Item::_table_ = {
     {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.ip_lookup_table_), _Internal::kOneofCaseOffset + 0, 20, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.FrontPanelIOConfig front_panel_io_config = 31;
     {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.front_panel_io_config_), _Internal::kOneofCaseOffset + 0, 21, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.MDRConfig mdr_config = 32;
+    {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.mdr_config_), _Internal::kOneofCaseOffset + 0, 22, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.SimConfig sim_config = 1000;
-    {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.sim_config_), _Internal::kOneofCaseOffset + 0, 22, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    {PROTOBUF_FIELD_OFFSET(Item, _impl_.kind_.sim_config_), _Internal::kOneofCaseOffset + 0, 23, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pb::EntityId>()},
@@ -15568,6 +16692,7 @@ Item::_table_ = {
       {::_pbi::TcParser::GetTable<::pb::DependencyInfo>()},
       {::_pbi::TcParser::GetTable<::pb::IpLookupTable>()},
       {::_pbi::TcParser::GetTable<::pb::FrontPanelIOConfig>()},
+      {::_pbi::TcParser::GetTable<::pb::MDRConfig>()},
       {::_pbi::TcParser::GetTable<::pb::SimConfig>()},
   }},
   {{
@@ -15743,6 +16868,12 @@ PROTOBUF_NOINLINE void Item::Clear() {
           stream);
       break;
     }
+    case kMdrConfig: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          32, *this_._impl_.kind_.mdr_config_, this_._impl_.kind_.mdr_config_->GetCachedSize(), target,
+          stream);
+      break;
+    }
     case kSimConfig: {
       target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
           1000, *this_._impl_.kind_.sim_config_, this_._impl_.kind_.sim_config_->GetCachedSize(), target,
@@ -15908,6 +17039,12 @@ PROTOBUF_NOINLINE void Item::Clear() {
     case kFrontPanelIoConfig: {
       total_size += 2 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.front_panel_io_config_);
+      break;
+    }
+    // .pb.MDRConfig mdr_config = 32;
+    case kMdrConfig: {
+      total_size += 2 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.mdr_config_);
       break;
     }
     // .pb.SimConfig sim_config = 1000;
@@ -16122,6 +17259,14 @@ void Item::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::pr
           _this->_impl_.kind_.front_panel_io_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.front_panel_io_config_);
         } else {
           _this->_impl_.kind_.front_panel_io_config_->MergeFrom(*from._impl_.kind_.front_panel_io_config_);
+        }
+        break;
+      }
+      case kMdrConfig: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.mdr_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.mdr_config_);
+        } else {
+          _this->_impl_.kind_.mdr_config_->MergeFrom(*from._impl_.kind_.mdr_config_);
         }
         break;
       }
@@ -33959,9 +35104,9 @@ inline void CalibrationData::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, lane_),
            0,
-           offsetof(Impl_, gain_correction_) -
+           offsetof(Impl_, carrier_) -
                offsetof(Impl_, lane_) +
-               sizeof(Impl_::gain_correction_));
+               sizeof(Impl_::carrier_));
 }
 CalibrationData::~CalibrationData() {
   // @@protoc_insertion_point(destructor:pb.CalibrationData)
@@ -34020,16 +35165,16 @@ CalibrationData::GetClassData() const {
   return CalibrationData_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
 CalibrationData::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     CalibrationData_class_data_.base(),
@@ -34039,12 +35184,18 @@ CalibrationData::_table_ = {
     ::_pbi::TcParser::GetTable<::pb::CalibrationData>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // float gain_correction = 2;
-    {::_pbi::TcParser::FastF32S1,
-     {21, 1, 0, PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.gain_correction_)}},
+    // uint32 carrier = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(CalibrationData, _impl_.carrier_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.carrier_)}},
     // uint32 lane = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(CalibrationData, _impl_.lane_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.lane_)}},
+    // float gain_correction = 2;
+    {::_pbi::TcParser::FastF32S1,
+     {21, 1, 0, PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.gain_correction_)}},
+    // uint32 weight = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(CalibrationData, _impl_.weight_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.weight_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -34052,6 +35203,10 @@ CalibrationData::_table_ = {
     {PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.lane_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // float gain_correction = 2;
     {PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.gain_correction_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // uint32 weight = 3;
+    {PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.weight_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 carrier = 4;
+    {PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.carrier_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
   {{
@@ -34065,10 +35220,10 @@ PROTOBUF_NOINLINE void CalibrationData::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003U) != 0) {
+  if ((cached_has_bits & 0x0000000fU) != 0) {
     ::memset(&_impl_.lane_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.gain_correction_) -
-        reinterpret_cast<char*>(&_impl_.lane_)) + sizeof(_impl_.gain_correction_));
+        reinterpret_cast<char*>(&_impl_.carrier_) -
+        reinterpret_cast<char*>(&_impl_.lane_)) + sizeof(_impl_.carrier_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -34110,6 +35265,24 @@ PROTOBUF_NOINLINE void CalibrationData::Clear() {
     }
   }
 
+  // uint32 weight = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004U) != 0) {
+    if (this_._internal_weight() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_weight(), target);
+    }
+  }
+
+  // uint32 carrier = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008U) != 0) {
+    if (this_._internal_carrier() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          4, this_._internal_carrier(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -34135,7 +35308,7 @@ PROTOBUF_NOINLINE void CalibrationData::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003U) != 0) {
+  if ((cached_has_bits & 0x0000000fU) != 0) {
     // uint32 lane = 1;
     if ((cached_has_bits & 0x00000001U) != 0) {
       if (this_._internal_lane() != 0) {
@@ -34147,6 +35320,20 @@ PROTOBUF_NOINLINE void CalibrationData::Clear() {
     if ((cached_has_bits & 0x00000002U) != 0) {
       if (::absl::bit_cast<::uint32_t>(this_._internal_gain_correction()) != 0) {
         total_size += 5;
+      }
+    }
+    // uint32 weight = 3;
+    if ((cached_has_bits & 0x00000004U) != 0) {
+      if (this_._internal_weight() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_weight());
+      }
+    }
+    // uint32 carrier = 4;
+    if ((cached_has_bits & 0x00000008U) != 0) {
+      if (this_._internal_carrier() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_carrier());
       }
     }
   }
@@ -34166,7 +35353,7 @@ void CalibrationData::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003U) != 0) {
+  if ((cached_has_bits & 0x0000000fU) != 0) {
     if ((cached_has_bits & 0x00000001U) != 0) {
       if (from._internal_lane() != 0) {
         _this->_impl_.lane_ = from._impl_.lane_;
@@ -34175,6 +35362,16 @@ void CalibrationData::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
     if ((cached_has_bits & 0x00000002U) != 0) {
       if (::absl::bit_cast<::uint32_t>(from._internal_gain_correction()) != 0) {
         _this->_impl_.gain_correction_ = from._impl_.gain_correction_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004U) != 0) {
+      if (from._internal_weight() != 0) {
+        _this->_impl_.weight_ = from._impl_.weight_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008U) != 0) {
+      if (from._internal_carrier() != 0) {
+        _this->_impl_.carrier_ = from._impl_.carrier_;
       }
     }
   }
@@ -34195,8 +35392,8 @@ void CalibrationData::InternalSwap(CalibrationData* PROTOBUF_RESTRICT PROTOBUF_N
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.gain_correction_)
-      + sizeof(CalibrationData::_impl_.gain_correction_)
+      PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.carrier_)
+      + sizeof(CalibrationData::_impl_.carrier_)
       - PROTOBUF_FIELD_OFFSET(CalibrationData, _impl_.lane_)>(
           reinterpret_cast<char*>(&_impl_.lane_),
           reinterpret_cast<char*>(&other->_impl_.lane_));
@@ -34209,10 +35406,6 @@ void CalibrationData::InternalSwap(CalibrationData* PROTOBUF_RESTRICT PROTOBUF_N
 
 class CalibrateDataCommand::_Internal {
  public:
-  using HasBits =
-      decltype(::std::declval<CalibrateDataCommand>()._impl_._has_bits_);
-  static constexpr ::int32_t kHasBitsOffset =
-      8 * PROTOBUF_FIELD_OFFSET(CalibrateDataCommand, _impl_._has_bits_);
 };
 
 CalibrateDataCommand::CalibrateDataCommand(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
@@ -34228,7 +35421,7 @@ PROTOBUF_NDEBUG_INLINE CalibrateDataCommand::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
     [[maybe_unused]] const ::pb::CalibrateDataCommand& from_msg)
-      : _has_bits_{from._has_bits_},
+      : data_{visibility, arena, from.data_},
         _cached_size_{0} {}
 
 CalibrateDataCommand::CalibrateDataCommand(
@@ -34244,21 +35437,17 @@ CalibrateDataCommand::CalibrateDataCommand(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.data_ = ((cached_has_bits & 0x00000001U) != 0)
-                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.data_)
-                : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:pb.CalibrateDataCommand)
 }
 PROTOBUF_NDEBUG_INLINE CalibrateDataCommand::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
-      : _cached_size_{0} {}
+      : data_{visibility, arena},
+        _cached_size_{0} {}
 
 inline void CalibrateDataCommand::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.data_ = {};
 }
 CalibrateDataCommand::~CalibrateDataCommand() {
   // @@protoc_insertion_point(destructor:pb.CalibrateDataCommand)
@@ -34271,7 +35460,6 @@ inline void CalibrateDataCommand::SharedDtor(MessageLite& self) {
   }
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  delete this_._impl_.data_;
   this_._impl_.~Impl_();
 }
 
@@ -34281,8 +35469,20 @@ inline void* PROTOBUF_NONNULL CalibrateDataCommand::PlacementNew_(
   return ::new (mem) CalibrateDataCommand(arena);
 }
 constexpr auto CalibrateDataCommand::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(CalibrateDataCommand),
-                                            alignof(CalibrateDataCommand));
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(CalibrateDataCommand, _impl_.data_) +
+          decltype(CalibrateDataCommand::_impl_.data_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::ZeroInit(
+        sizeof(CalibrateDataCommand), alignof(CalibrateDataCommand), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&CalibrateDataCommand::PlacementNew_,
+                                 sizeof(CalibrateDataCommand),
+                                 alignof(CalibrateDataCommand));
+  }
 }
 constexpr auto CalibrateDataCommand::InternalGenerateClassData_() {
   return ::google::protobuf::internal::ClassDataFull{
@@ -34321,7 +35521,7 @@ PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
 const ::_pbi::TcParseTable<0, 1, 1, 0, 2>
 CalibrateDataCommand::_table_ = {
   {
-    PROTOBUF_FIELD_OFFSET(CalibrateDataCommand, _impl_._has_bits_),
+    0,  // no _has_bits_
     0, // no _extensions_
     1, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
@@ -34337,14 +35537,14 @@ CalibrateDataCommand::_table_ = {
     ::_pbi::TcParser::GetTable<::pb::CalibrateDataCommand>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // .pb.CalibrationData data = 1;
-    {::_pbi::TcParser::FastMtS1,
-     {10, 0, 0, PROTOBUF_FIELD_OFFSET(CalibrateDataCommand, _impl_.data_)}},
+    // repeated .pb.CalibrationData data = 1;
+    {::_pbi::TcParser::FastMtR1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(CalibrateDataCommand, _impl_.data_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // .pb.CalibrationData data = 1;
-    {PROTOBUF_FIELD_OFFSET(CalibrateDataCommand, _impl_.data_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .pb.CalibrationData data = 1;
+    {PROTOBUF_FIELD_OFFSET(CalibrateDataCommand, _impl_.data_), 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pb::CalibrationData>()},
@@ -34359,12 +35559,7 @@ PROTOBUF_NOINLINE void CalibrateDataCommand::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001U) != 0) {
-    ABSL_DCHECK(_impl_.data_ != nullptr);
-    _impl_.data_->Clear();
-  }
-  _impl_._has_bits_.Clear();
+  _impl_.data_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -34386,12 +35581,15 @@ PROTOBUF_NOINLINE void CalibrateDataCommand::Clear() {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  cached_has_bits = this_._impl_._has_bits_[0];
-  // .pb.CalibrationData data = 1;
-  if ((cached_has_bits & 0x00000001U) != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-        1, *this_._impl_.data_, this_._impl_.data_->GetCachedSize(), target,
-        stream);
+  // repeated .pb.CalibrationData data = 1;
+  for (unsigned i = 0, n = static_cast<unsigned>(
+                           this_._internal_data_size());
+       i < n; i++) {
+    const auto& repfield = this_._internal_data().Get(i);
+    target =
+        ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+            1, repfield, repfield.GetCachedSize(),
+            target, stream);
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -34417,12 +35615,14 @@ PROTOBUF_NOINLINE void CalibrateDataCommand::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
    {
-    // .pb.CalibrationData data = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
-    if ((cached_has_bits & 0x00000001U) != 0) {
-      total_size += 1 +
-                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.data_);
+    // repeated .pb.CalibrationData data = 1;
+    {
+      total_size += 1UL * this_._internal_data_size();
+      for (const auto& msg : this_._internal_data()) {
+        total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+      }
     }
   }
   return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -34435,22 +35635,13 @@ void CalibrateDataCommand::MergeImpl(::google::protobuf::MessageLite& to_msg, co
   if constexpr (::_pbi::DebugHardenVerifyHasBitConsistency()) {
     from.VerifyHasBitConsistency();
   }
-  ::google::protobuf::Arena* arena = _this->GetArena();
   // @@protoc_insertion_point(class_specific_merge_from_start:pb.CalibrateDataCommand)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001U) != 0) {
-    ABSL_DCHECK(from._impl_.data_ != nullptr);
-    if (_this->_impl_.data_ == nullptr) {
-      _this->_impl_.data_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.data_);
-    } else {
-      _this->_impl_.data_->MergeFrom(*from._impl_.data_);
-    }
-  }
-  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_mutable_data()->MergeFrom(
+      from._internal_data());
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -34465,8 +35656,7 @@ void CalibrateDataCommand::CopyFrom(const CalibrateDataCommand& from) {
 void CalibrateDataCommand::InternalSwap(CalibrateDataCommand* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using ::std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.data_, other->_impl_.data_);
+  _impl_.data_.InternalSwap(&other->_impl_.data_);
 }
 
 ::google::protobuf::Metadata CalibrateDataCommand::GetMetadata() const {
