@@ -129,15 +129,21 @@ class Session:
         serializer_cls = computer.get_serializer()
         serializer = serializer_cls()
         module = serializer.serialize(computer)
-        return self.set_module(module)
+        return self.set_module(module, raw=True)
     
-    def set_module(self, module: pb.Module) -> "Session":
+    def set_module(self, module: pb.Module, raw: bool = False) -> "Session":
         """Deserialize a protobuf Module into the controller's computer model
         and buffer the resulting config.
 
         :returns: ``self`` so calls can be chained.
         """
-        self._pipeline.append(SetConfigCommand(module=module))
+        if raw:
+            self._pipeline.append(SetConfigCommand(module=module))
+        else:
+            computer = copy.deepcopy(self._controller.computer)
+            deserializer = computer.get_deserializer()(computer)
+            deserializer.deserialize(module)
+            self.set_config(computer)
         return self
     
     def calibrate(self, leader: str = "", math: bool = False, gain: bool = True, offset: bool = True) -> "Session":
