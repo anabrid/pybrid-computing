@@ -45,7 +45,7 @@ class UBlock(SwitchingBlock):
         # Sanity check before actually doing anything
         if not force:
             for out in chain([output], outputs):
-                if self.outputs[out] is not None:
+                if self.outputs[out] is not None and self.outputs[out] != input:
                     raise SignalConnectionError(
                         "Output %s is already in use. Use the force argument to overwrite." % out
                     )

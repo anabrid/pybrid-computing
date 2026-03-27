@@ -53,7 +53,8 @@ class REDACSerializer(Serializer):
 
     @_serialize_configuration.register
     def _(self, entity: Carrier):
-        adc_config = self.cc.new_config(entity).adc_config
+        item = self.cc.new_config(entity)
+        adc_config =  item.adc_config
         adc_channels = adc_config.channels
 
         for adc_channel in entity.adc_config:
@@ -124,10 +125,6 @@ class REDACSerializer(Serializer):
                 continue
             sum_config.connections.append(pb.SumConnectionConfig(inputs=inputs, output=sum_idx))
 
-        if len(sum_config.connections) == 0:
-            self.cc.pop_config()
-            return
-
         for lane_idx, bit in enumerate(entity.upscaling):
             sum_config.upscales.append(pb.UpscaleConfig(lane=lane_idx, enabled=bit))
 
@@ -153,9 +150,9 @@ class REDACSerializer(Serializer):
     def _(self, entity: TBlock):
         switch_config = self.cc.new_config(entity).switch_config
         for idx, state in enumerate(entity.muxes):
-            if idx is None:
+            if state is None:
                 continue
-            switch_config.muxes.append(pb.Mux(state=state))
+            switch_config.muxes.append(pb.Mux(state=state, index=idx))
 
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
@@ -164,9 +161,9 @@ class REDACSerializer(Serializer):
     def _(self, entity: BackplaneTBlock):
         switch_config = self.cc.new_config(entity).bpl_switch_config
         for idx, state in enumerate(entity.muxes):
-            if idx is None:
+            if state is None:
                 continue
-            switch_config.muxes.append(pb.Mux(state=state))
+            switch_config.muxes.append(pb.Mux(state=state, index=idx))
 
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
@@ -330,36 +327,38 @@ class REDACSerializer(Serializer):
                 sink_upscaled=upscaled
             ))
 
-        for carrier in computer.carriers:
-            for cluster in carrier.clusters:
+        for sink_carrier in computer.carriers:
+            for sink_cluster in sink_carrier.clusters:
                 for lane_idx in range(0, 32):
-                    target_loc = cluster.loc() / lane_idx
-                    if target_loc == Loc.new_lane(0, 1, 0, 0):
-                        pass
+                    target_loc = sink_cluster.loc() / lane_idx
                     source_loc = tracer.find_coef(target_loc)
 
                     if source_loc is None:
                         continue
 
+                    found = False
+                    for summands in sink_cluster.iblock.outputs:
+                        if target_loc.lane_id() in summands:
+                            found = True
+                            break
+
+                    if not found:
+                        continue
+
                     src_cluster = computer.find_cluster(source_loc.cluster())
                     if src_cluster is None:
-                        continue
-                    coef = src_cluster.cblock.elements[source_loc.lane_id()]
-                    if coef.factor == 0.0:
                         continue
                     select = src_cluster.ublock.outputs[source_loc.lane_id()]
                     if select == -1 or select is None:
                         continue
 
-                    if source_loc.cluster() != target_loc.cluster():
-                        pass
-                    upscaled = cluster.iblock.upscaling[target_loc.lane_id()]
+                    upscaled = sink_cluster.iblock.upscaling[target_loc.lane_id()]
                     add_sink(source_loc, target_loc, upscaled)
 
-        for carrier in computer.carriers:
-            config = self.cc.new_config(carrier).dependency_info
+        for sink_carrier in computer.carriers:
+            config = self.cc.new_config(sink_carrier).dependency_info
             config.CopyFrom(dependency_info)
-            carrier_idx = loc2carrier_idx(carrier.loc())
+            carrier_idx = loc2carrier_idx(sink_carrier.loc())
             for trace in traces:
                 if trace.source.carrier == carrier_idx or trace.sink.carrier == carrier_idx:
                     config.traces.append(trace)
@@ -430,7 +429,7 @@ class REDACDeserializer(Deserializer):
             if not path_.id_:
                 logger.warning("Reported entities include nameless entity at %s: %s", path_, child)
             elif path_.id_ == "T":
-                tblock = self._spec_function_block(child, path_, stack_loc)
+                tblock = self._spec_function_block(child, path_, location)
             elif path_.id_ == "ST0":
                 st0block = self._spec_function_block(child, path_, stack_loc)
             elif path_.id_ == "ST1":
@@ -584,6 +583,7 @@ class REDACDeserializer(Deserializer):
         upscaling = [False] * len(entity.upscaling)
         for upscale in config.upscales:
             upscaling[upscale.lane] = upscale.enabled
+
         entity.upscaling = upscaling
 
     @_deserialize_configuration.register
@@ -608,25 +608,30 @@ class REDACDeserializer(Deserializer):
     def _(self, config: pb.SwitchConfig):
         """Deserialize switch configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
-        entity = self.computer.get_entity(entity_path)
+        entity: TBlock = self.computer.get_entity(entity_path)
 
-        muxes = []
-        for mux in config.muxes:
-            muxes.append(mux.state)
-        if muxes:
-            entity.muxes = muxes
+        is_numerated = all(obj.index == 0 for obj in config.muxes)
+        if is_numerated:
+            for idx, mux in enumerate(config.muxes):
+                entity.muxes[idx] = mux.state
+        else:
+            for mux in config.muxes:
+                entity.muxes[mux.index] = mux.state
 
     @_deserialize_configuration.register
     def _(self, config: pb.BPLSwitchConfig):
         """Deserialize switch configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
-        entity = self.computer.get_entity(entity_path)
+        entity: TBlock = self.computer.get_entity(entity_path)
 
-        muxes = []
-        for mux in config.muxes:
-            muxes.append(mux.state)
-        if muxes:
-            entity.muxes = muxes
+        is_numerated = all(obj.index == 0 for obj in config.muxes)
+        if is_numerated:
+            for idx, mux in enumerate(config.muxes):
+                entity.muxes[idx] = mux.state
+        else:
+            for mux in config.muxes:
+                entity.muxes[mux.index] = mux.state
+
 
     @_deserialize_configuration.register
     def _(self, config: pb.PortConfig):

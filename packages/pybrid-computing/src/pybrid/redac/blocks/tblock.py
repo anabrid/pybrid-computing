@@ -35,8 +35,5 @@ class TBlock(FunctionBlock):
     def source(self, dst_sector: int, sector_lane: int):
         return self.muxes[TBlock.index(dst_sector, sector_lane)]
 
-    def loc(self) -> "Loc":
-        return self.location
-
     def reset(self):
         self.muxes = [None] * (24 * 4)

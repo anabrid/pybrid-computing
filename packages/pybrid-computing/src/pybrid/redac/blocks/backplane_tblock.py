@@ -29,6 +29,3 @@ class BackplaneTBlock(FunctionBlock):
 
     def reset(self):
         self.muxes = [None] * 8 * 9
-
-    def loc(self) -> "Loc":
-        return self.location

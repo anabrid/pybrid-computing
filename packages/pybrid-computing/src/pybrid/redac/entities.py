@@ -223,6 +223,12 @@ class Loc:
     def __truediv__(self, other: int):
         return Loc(self.path + [other])
 
+    def __lt__(self, other):
+        return self.path < other.path
+
+    def __str__(self):
+        return '/'.join([str(val) for val in self.path])
+
 class Path(BasePath):
     """
     A tuple uniquely identifying an entity in the REDAC.
