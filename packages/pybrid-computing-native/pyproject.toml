@@ -22,7 +22,7 @@ Repository = "https://github.com/anabrid/pybrid-computing"
 Documentation = "https://anabrid.dev/docs/pybrid/"
 
 [build-system]
-requires = ["hatchling", "uv-dynamic-versioning", "scikit-build-core>=0.10", "pybind11>=2.12"]
+requires = ["hatchling", "uv-dynamic-versioning", "scikit-build-core>=0.10", "pybind11>=2.12", "ninja"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
@@ -64,12 +64,14 @@ before-build = "rm -rf {package}/build"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
-environment = { SDKROOT = "$(xcrun --show-sdk-path)" }
+environment = { SDKROOT = "$(xcrun --show-sdk-path)", CMAKE_BUILD_PARALLEL_LEVEL = "1" }
 before-build = "rm -rf {package}/build"
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
+# Pre-build abseil + protobuf once (cached across CI runs if versions match).
+before-all = "powershell -ExecutionPolicy Bypass -File {package}\\build-scripts\\windows-prebuild-deps.ps1"
 # Short absolute build dir to avoid MSBuild FileTracker exceeding MAX_PATH
 # (the CI runner's working directory is already ~134 chars deep).
 before-build = "if exist C:\\skb rmdir /s /q C:\\skb"
-environment = { SKBUILD_BUILD_DIR = "C:/skb/{wheel_tag}" }
+environment = { SKBUILD_BUILD_DIR = "C:/skb/{wheel_tag}", CMAKE_BUILD_PARALLEL_LEVEL = "4", PYBRID_DEPS_PREFIX = "C:/pybrid_deps" }

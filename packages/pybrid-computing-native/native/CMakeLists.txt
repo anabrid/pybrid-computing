@@ -17,6 +17,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# MSVC: compile multiple source files in parallel within a single project.
+if(MSVC)
+    add_compile_options(/MP)
+endif()
+
+# Pre-built dependencies prefix (e.g. from CI prebuild script).
+# Applies to both abseil and protobuf find_package() calls below.
+if(DEFINED ENV{PYBRID_DEPS_PREFIX})
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{PYBRID_DEPS_PREFIX}")
+elseif(DEFINED PYBRID_DEPS_PREFIX)
+    list(APPEND CMAKE_PREFIX_PATH "${PYBRID_DEPS_PREFIX}")
+endif()
+
 # GCC 15+ compatibility: force include <cstdint> for uintptr_t in abseil-cpp
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "15")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-include;cstdint>")
@@ -124,23 +137,29 @@ else()
     FetchContent_MakeAvailable(abseil-cpp)
 endif()
 
-# Protobuf: always build from source via FetchContent.
+# Protobuf: use pre-installed build when available, otherwise build from source.
 # Pre-generated .pb.cc/.pb.h files require ABI-compatible protobuf v32.
-FetchContent_Declare(
-    protobuf
-    GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
-    GIT_TAG        v32.0
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS TRUE
-    GIT_SUBMODULES "third_party/utf8_range"
-    EXCLUDE_FROM_ALL
-)
-set(protobuf_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "" FORCE)
-set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
-set(protobuf_INSTALL OFF CACHE BOOL "" FORCE)
-set(protobuf_ABSL_PROVIDER "package" CACHE STRING "" FORCE)
-FetchContent_MakeAvailable(protobuf)
+find_package(protobuf QUIET CONFIG)
+if(protobuf_FOUND)
+    message(STATUS "Using system Protobuf ${protobuf_VERSION} from ${protobuf_DIR}")
+else()
+    message(STATUS "System Protobuf not found — fetching via FetchContent")
+    FetchContent_Declare(
+        protobuf
+        GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
+        GIT_TAG        v32.0
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        GIT_SUBMODULES "third_party/utf8_range"
+        EXCLUDE_FROM_ALL
+    )
+    set(protobuf_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "" FORCE)
+    set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
+    set(protobuf_INSTALL OFF CACHE BOOL "" FORCE)
+    set(protobuf_BUILD_LIBUPB OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(protobuf)
+endif()
 
 # Library target (header-only for buffer classes)
 add_library(pybrid_headers INTERFACE)
