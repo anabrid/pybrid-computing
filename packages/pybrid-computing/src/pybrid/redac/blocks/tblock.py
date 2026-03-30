@@ -12,7 +12,7 @@ from pybrid.redac.entities import EntityClass, EntityType, Loc
 @EntityType.register(EntityClass.TBLOCK)
 @dataclass
 class TBlock(FunctionBlock):
-    muxes: list[int | None] = field(default_factory=lambda: [None] * 24 * 4)
+    muxes: list[int | None] = field(default_factory=lambda: [0, 1, 2, 3] * 24)
 
     @staticmethod
     def index(dst_sector: int, sector_lane: int):
@@ -36,4 +36,4 @@ class TBlock(FunctionBlock):
         return self.muxes[TBlock.index(dst_sector, sector_lane)]
 
     def reset(self):
-        self.muxes = [None] * (24 * 4)
+        self.muxes = [0, 1, 2, 3] * 24
