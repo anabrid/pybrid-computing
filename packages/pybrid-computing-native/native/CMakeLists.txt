@@ -67,6 +67,18 @@ option(PYBRID_BUILD_TESTS "Build C++ tests (only when PYBRID_BUILD_PYTHON is OFF
 option(PYBRID_ENABLE_SANITIZERS "Enable address and thread sanitizers" OFF)
 option(PYBRID_BUILD_PYTHON "Build Python extension" OFF)
 
+# For Python wheel builds: vendor protobuf/abseil from source (static linking)
+# to avoid runtime dependency on system-installed shared libraries.
+# When PYBRID_DEPS_PREFIX is set (e.g. Windows CI pre-built static deps),
+# those libraries are used instead.
+set(_PYBRID_VENDOR_DEPS FALSE)
+if(PYBRID_BUILD_PYTHON)
+    if(NOT DEFINED PYBRID_DEPS_PREFIX AND NOT DEFINED ENV{PYBRID_DEPS_PREFIX})
+        set(_PYBRID_VENDOR_DEPS TRUE)
+        message(STATUS "Python wheel build: vendoring protobuf/abseil from source (static)")
+    endif()
+endif()
+
 # Include FetchContent for dependency management
 include(FetchContent)
 
@@ -112,17 +124,19 @@ FetchContent_MakeAvailable(concurrentqueue)
 # Abseil: required by protobuf.  Use a pre-installed build when available
 # (e.g. /home/dthuerck/install) so the ABI matches protobuf v32+.
 # Set PYBRID_ABSEIL_PREFIX to override the search path.
-if(DEFINED ENV{PYBRID_ABSEIL_PREFIX})
-    list(APPEND CMAKE_PREFIX_PATH "$ENV{PYBRID_ABSEIL_PREFIX}")
-elseif(DEFINED PYBRID_ABSEIL_PREFIX)
-    list(APPEND CMAKE_PREFIX_PATH "${PYBRID_ABSEIL_PREFIX}")
+# Skipped for vendored (Python wheel) builds to avoid linking system shared libs.
+if(NOT _PYBRID_VENDOR_DEPS)
+    if(DEFINED ENV{PYBRID_ABSEIL_PREFIX})
+        list(APPEND CMAKE_PREFIX_PATH "$ENV{PYBRID_ABSEIL_PREFIX}")
+    elseif(DEFINED PYBRID_ABSEIL_PREFIX)
+        list(APPEND CMAKE_PREFIX_PATH "${PYBRID_ABSEIL_PREFIX}")
+    endif()
+    find_package(absl QUIET CONFIG)
 endif()
-
-find_package(absl QUIET CONFIG)
 if(absl_FOUND)
     message(STATUS "Using system Abseil ${absl_VERSION} from ${absl_DIR}")
 else()
-    message(STATUS "System Abseil not found — fetching via FetchContent")
+    message(STATUS "Abseil not found or vendored — fetching via FetchContent")
     FetchContent_Declare(
         abseil-cpp
         GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
@@ -134,16 +148,20 @@ else()
     set(ABSL_PROPAGATE_CXX_STD ON CACHE BOOL "" FORCE)
     set(ABSL_BUILD_TESTING OFF CACHE BOOL "" FORCE)
     set(ABSL_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(abseil-cpp)
 endif()
 
 # Protobuf: use pre-installed build when available, otherwise build from source.
 # Pre-generated .pb.cc/.pb.h files require ABI-compatible protobuf v32.
-find_package(protobuf QUIET CONFIG)
+# Skipped for vendored (Python wheel) builds to avoid linking system shared libs.
+if(NOT _PYBRID_VENDOR_DEPS)
+    find_package(protobuf QUIET CONFIG)
+endif()
 if(protobuf_FOUND)
     message(STATUS "Using system Protobuf ${protobuf_VERSION} from ${protobuf_DIR}")
 else()
-    message(STATUS "System Protobuf not found — fetching via FetchContent")
+    message(STATUS "Protobuf not found or vendored — fetching via FetchContent")
     FetchContent_Declare(
         protobuf
         GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
@@ -158,6 +176,7 @@ else()
     set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
     set(protobuf_INSTALL OFF CACHE BOOL "" FORCE)
     set(protobuf_BUILD_LIBUPB OFF CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(protobuf)
 endif()
 
