@@ -26,6 +26,7 @@ import asyncio
 import logging
 import struct
 import copy
+import typing
 from abc import ABC
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
@@ -34,6 +35,7 @@ from uuid import uuid4
 import numpy as np
 
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.redac.carrier import Carrier
 from pybrid.redac.run import Run, RunConfig, DAQConfig
 from pybrid.redac.entities import Path
 
@@ -296,7 +298,11 @@ class Session:
         run.sync.group = run.partition.id
 
         # In NATIVE mode the first carrier generates the SYNC pulse.
-        first_path = involved_paths[0]
+        carriers : typing.List[typing.Tuple[str, pb.CarrierLocationV0]] = \
+            [(c.path, c.location) for c in self._controller.computer.carriers]
+        carriers.sort(key=lambda e: e[1])
+        first_path = carriers[0][0]
+
         run.sync.enabled = True
         run.sync.master = first_path
 

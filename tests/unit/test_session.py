@@ -365,6 +365,8 @@ class TestSessionNativeSync:
         assert run.sync.master is not None
         # master must be one of the known paths
         known_paths = {Path.parse(p) for p in paths}
+
+        print(run.sync.master)
         assert run.sync.master in known_paths
 
 
