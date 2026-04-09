@@ -88,8 +88,7 @@ void DataChannel::start() {
         return;
     }
 
-    // If a TCP transport was explicitly set but no control channel and no UDP
-    // endpoint are configured, go directly to TCP fallback mode ("TCP-only" path).
+    // Direct TCP-only path.
     if (m_tcp_transport != nullptr && m_control_channel == nullptr
         && m_udp_host.empty() && m_udp_port == 0) {
         m_using_tcp_fallback.store(true, std::memory_order_release);
@@ -102,8 +101,6 @@ void DataChannel::start() {
         m_udp_socket->bind(m_udp_bind_port);
         m_udp_socket->start();
 
-        // If a ControlChannel is set and no explicit UDP endpoint was configured,
-        // perform UDP negotiation: inform the device which local port to stream to.
         if (m_control_channel != nullptr && m_udp_host.empty()) {
             uint16_t bound_port = m_udp_socket->local_port();
 
@@ -136,10 +133,6 @@ void DataChannel::start() {
                         "UDP negotiation failed or was refused by device");
                 }
 
-                // Stop the ControlChannel's recv thread so it no longer competes
-                // for messages on the shared TCP transport. The DataChannel's
-                // tcp_receive_loop takes over and routes control responses back
-                // via the control_response_callback → on_tcp_response().
                 m_control_channel->stop_recv_thread();
 
                 m_tcp_transport = m_control_channel->transport();
@@ -183,6 +176,28 @@ void DataChannel::stop() {
     }
 
     m_using_tcp_fallback.store(false, std::memory_order_release);
+}
+
+void DataChannel::reconnect() {
+    m_running.store(false, std::memory_order_release);
+
+    if (m_receive_thread.joinable()) {
+        m_receive_thread.join();
+    }
+
+    if (m_udp_socket) {
+        m_udp_socket->stop();
+        m_udp_socket.reset();
+    }
+
+    m_using_tcp_fallback.store(false, std::memory_order_release);
+
+    // Reset captured TCP fallback transport so re-negotiation works cleanly.
+    if (m_control_channel != nullptr) {
+        m_tcp_transport = nullptr;
+    }
+
+    start();
 }
 
 bool DataChannel::is_running() const {
@@ -242,9 +257,6 @@ void DataChannel::udp_receive_loop() {
         }
 
         if (result.status == RecvStatus::Success && result.bytes > 0) {
-            // UDP packets may carry either raw MessageV1 or Envelope-wrapped MessageV1.
-            // Try Envelope first; if the message has a message_v1 field, extract it.
-            // Otherwise fall back to parsing the raw bytes as MessageV1 directly.
             pb::MessageV1 message;
             {
                 pb::Envelope envelope;
@@ -274,9 +286,6 @@ void DataChannel::udp_receive_loop() {
                 handle_data_message(message);
             }
 
-            // Forward non-data messages to the ControlChannel so that Python callbacks
-            // registered there still fire. In UDP mode, the ControlChannel's recv thread
-            // only reads TCP, so we must explicitly forward UDP-delivered messages.
             if (!is_data_message(message) && m_control_response_callback) {
                 pb::Envelope env;
                 *env.mutable_message_v1() = message;
@@ -292,7 +301,6 @@ void DataChannel::udp_receive_loop() {
 void DataChannel::tcp_receive_loop() {
     std::vector<uint8_t> buffer(RECV_BUFFER_SIZE);
 
-    // Capture TCP transport pointer once at loop start to avoid race condition.
     TCPTransport* transport = m_tcp_transport;
     if (transport == nullptr) {
         if (m_error_callback) {
@@ -316,8 +324,6 @@ void DataChannel::tcp_receive_loop() {
         }
 
         if (result.status == RecvStatus::Success && result.bytes > 0) {
-            // TCP transport returns varint-deframed payloads which are
-            // serialized pb::Envelope messages (same framing as ControlChannel).
             pb::Envelope envelope;
             if (!envelope.ParseFromArray(buffer.data(), static_cast<int>(result.bytes))) {
                 if (m_error_callback) {

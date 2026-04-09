@@ -36,6 +36,7 @@ import numpy as np
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.run import Run, RunConfig, DAQConfig
 from pybrid.redac.entities import Path
+from pybrid.util.updater import UpdaterUtils
 
 if TYPE_CHECKING:
     from pybrid.base.hybrid.controller import BaseController
@@ -104,6 +105,13 @@ class CalibrateCommand(SessionCommand):
     gain: bool
     offset: bool
 
+@dataclass
+class FirmwareUpdateCommand(SessionCommand):
+    binary: bytearray
+    sha256: bytes
+    reboot_grace: float = 2.0
+    reconnect_timeout: float = 20.0
+    verbose: bool = False
 
 class Session:
     """Single-use pipeline that buffers config and run commands and executes
@@ -144,6 +152,46 @@ class Session:
             deserializer = computer.get_deserializer()(computer)
             deserializer.deserialize(module)
             self.set_config(computer)
+        return self
+    
+    def set_firmware(
+        self,
+        firmware: str | bytearray,
+        *,
+        reboot_grace: float = 2.0,
+        reconnect_timeout: float = 20.0,
+        verbose: bool = False,
+    ) -> "Session":
+        """Stores a (binary) firmware file that is to be uploaded and applied to
+        the computer before any next step.
+
+        :param firmware: Either a path to a firmware file or an in-memory
+            ``bytearray`` payload.
+        :param reboot_grace: Seconds to wait after a successful commit before
+            attempting to reconnect to each device (direct mode only).
+        :param reconnect_timeout: Total deadline, in seconds, for every per-device
+            reconnect after the reboot grace (direct mode only).
+        :param verbose: If ``True``, print progress information to stderr
+            during upload, verification, and commit.
+        :returns: ``self`` so calls can be chained.
+        """
+        use_fw = firmware
+        fw_sha256 = ""
+        if isinstance(firmware, str):
+            use_fw, fw_sha256 = UpdaterUtils.read_to_bin(firmware)
+        elif isinstance(firmware, bytearray):
+            fw_sha256 = UpdaterUtils.sha256(firmware)
+        else:
+            raise Exception("Unknown firmware data format")
+
+        self._pipeline.append(FirmwareUpdateCommand(
+            binary=use_fw,
+            sha256=fw_sha256,
+            reboot_grace=reboot_grace,
+            reconnect_timeout=reconnect_timeout,
+            verbose=verbose,
+        ))
+
         return self
     
     def calibrate(self, leader: str = "", math: bool = False, gain: bool = True, offset: bool = True) -> "Session":
@@ -198,6 +246,10 @@ class Session:
                     elif isinstance(cmd, RunCommand):
                         run = await self._execute_run(cmd)
                         self.runs.append(run)
+                    elif isinstance(cmd, FirmwareUpdateCommand):
+                        await self._execute_upload(cmd)
+                    else: 
+                        print(f"[Session] Skipping unknown command of type {type(cmd).__name__}")
 
         if timeout is not None:
             async with asyncio.timeout(timeout):
@@ -262,6 +314,116 @@ class Session:
                 )
             result = await conn.control.set_module(module)
             result.raise_on_error()
+
+    async def _execute_upload(self, cmd: FirmwareUpdateCommand) -> None:
+        """Execute the firmware upload in stages (per device, sequentially).
+
+        Runs ``update_begin``, ``update_write_full``, ``update_verify`` and
+        ``update_commit`` on every unique device connection, then sleeps for
+        ``cmd.reboot_grace`` seconds and reconnects each control channel so a
+        follow-up ``set_config`` / ``run`` on the same controller sees the
+        freshly booted firmware. The UDP data transport is rebuilt in-place
+        after every reconnect so streaming resumes without a full
+        ``DeviceConnection`` rebuild.
+
+        When a real proxy sits in front of the devices its
+        ``UpdateResponse.success`` is already gated on its backends being
+        healthy, so the reconnect below degenerates to a fast tear-down /
+        reconnect of the still-alive client socket.
+        """
+        logger.debug(
+            "Firmware size: %d, SHA256: %s, uploading...",
+            len(cmd.binary), cmd.sha256,
+        )
+
+        unique_conns = list(
+            self._controller.connection_manager.get_unique_connections()
+        )
+        try:
+            # phase 1: upload firmware to devices
+            for connection in unique_conns:
+                control = connection.control
+
+                host = control.remote_host
+                port = control.remote_port
+                logger.debug("Uploading firmware to %s:%s", host, port)
+
+                max_chunk_size = await control.update_begin(
+                    len(cmd.binary), cmd.sha256,
+                    verbose=cmd.verbose,
+                )
+                logger.debug("\tMaximum chunk size: %s", max_chunk_size)
+
+                res = await control.update_write_full(
+                    len(cmd.binary), max_chunk_size, cmd.binary,
+                    verbose=cmd.verbose,
+                )
+                res.raise_on_error()
+                logger.debug("\tUpload successful!")
+
+            # phase 2: verify on all devices
+            for connection in unique_conns:
+                control = connection.control
+                res = await control.update_verify(verbose=cmd.verbose)
+                res.raise_on_error()
+                logger.debug("Verification successfull on %s", control.remote_host)
+
+            # phase 3: commit update on all devices
+            for connection in unique_conns:
+                control = connection.control
+                res = await control.update_commit(verbose=cmd.verbose)
+                res.raise_on_error()
+                logger.debug("Commit done for %s", control.remote_host)
+
+        except (KeyboardInterrupt, Exception, asyncio.CancelledError):
+            # Best-effort abort broadcast on any failure, user interruption, or
+            # task cancellation; the bare ``raise`` preserves CancelledError
+            # semantics so the surrounding task still terminates.
+            for connection in unique_conns:
+                try:
+                    await connection.control.update_abort()
+                except Exception as abort_exc:
+                    logger.warning(
+                        "update_abort failed on %s: %s", connection, abort_exc,
+                    )
+            raise
+
+        # Cache each connection's endpoint while it is still connected so we
+        # can include it in the error message even after the transport has
+        # dropped (remote_host/remote_port clear on disconnect).
+        endpoints = [
+            (connection.control.remote_host, connection.control.remote_port)
+            for connection in unique_conns
+        ]
+
+        # Wait once for the device(s) to reboot, then check each unique
+        # control channel: if it dropped, the device rebooted under us in
+        # direct mode and we have to reconnect; if it survived, a proxy
+        # handled the reconnect on our behalf and tearing it down here would
+        # break the proxy session. Callers on slower links can raise
+        # ``reboot_grace`` to widen the margin against the drop/check race.
+        await asyncio.sleep(cmd.reboot_grace)
+
+        for (host, port), connection in zip(endpoints, unique_conns):
+            control = connection.control
+            if control.is_connected:
+                # The channel survived the reboot grace: either we're behind
+                # a proxy that handled the reconnect on our behalf, or the
+                # device didn't actually drop the connection. Either way no
+                # client-side reconnect is needed for this connection.
+                continue
+
+            reconnected = await control.reconnect(timeout=cmd.reconnect_timeout)
+            if not reconnected:
+                raise RuntimeError(
+                    f"Failed to reconnect to backend {host}:{port} "
+                    f"after firmware update (timeout={cmd.reconnect_timeout}s)"
+                )
+
+            data = connection.data
+            if data is not None:
+                loop = asyncio.get_running_loop()
+                await loop.run_in_executor(None, data.reconnect)
 
     async def _execute_run(self, cmd: RunCommand) -> Run:
         """Execute a single run described by *cmd* and return the completed Run."""

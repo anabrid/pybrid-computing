@@ -37,12 +37,20 @@ SHORT_TIMEOUT = 5.0    # seconds — single roundtrip or connection
 RUN_TIMEOUT = 15.0     # seconds — full run lifecycle including data
 SESSION_TIMEOUT = 2.0  # seconds — accelerated session timeout for ordering tests
 
+# Backend health states exposed by ProxyServer for the test debug hook.
+# Kept as plain ints so the test collects cleanly even before the binding
+# (set_backend_health_for_test) exists.
+HEALTH_HEALTHY = 0
+HEALTH_REBOOTING = 1
+HEALTH_DEAD = 2
+
 
 def _start_dummy_dac(
     config: DummyDACConfig,
     ready_event: threading.Event,
     stop_event: threading.Event,
     port_holder: list,
+    port: int = 0,
 ) -> threading.Thread:
     """
     Launch DummyDAC in a background thread with its own event loop.
@@ -56,13 +64,14 @@ def _start_dummy_dac(
         ready_event:  Set when the server is ready to accept connections.
         stop_event:   Set by the caller to request teardown.
         port_holder:  Single-element list; receives the bound port number.
+        port:         Port to bind to (0 = OS-assigned ephemeral port).
 
     Returns:
         The started (daemon) thread.
     """
     def _run() -> None:
         async def _async_run() -> None:
-            async with DummyDAC(LOCALHOST, 0, config) as dac:
+            async with DummyDAC(LOCALHOST, port, config) as dac:
                 port_holder[0] = dac.port
                 ready_event.set()
                 while not stop_event.is_set():
@@ -1345,3 +1354,274 @@ class TestBusyWaitPingPolling:
             proxy.stop()
             stop.set()
             dac_thread.join(timeout=SHORT_TIMEOUT)
+
+
+class TestBackendHealthWatchdog:
+    """Watchdog must tolerate REBOOTING backends without tearing down the session."""
+
+    def test_session_watchdog_tolerates_rebooting_backend(self) -> None:
+        """Watchdog must not tear down the session while a backend is marked REBOOTING."""
+        config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
+        ready = threading.Event()
+        stop = threading.Event()
+        dac_port_holder = [0]
+
+        dac_thread = _start_dummy_dac(config, ready, stop, dac_port_holder)
+        _wait_ready(ready)
+
+        proxy = ProxyServer()
+        # Keep session timeout comfortably longer than the reboot window below.
+        proxy.set_session_timeout(10.0)
+        client = None
+
+        error_received = threading.Event()
+
+        def on_error(msg_bytes: bytes) -> None:
+            """Flag that the proxy sent an ErrorMessage — the watchdog must not."""
+            error_received.set()
+
+        try:
+            proxy.add_backend(LOCALHOST, dac_port_holder[0])
+            proxy.start(LOCALHOST, 0)
+
+            client = ControlChannel.create(
+                LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT
+            )
+            client.start()
+            client.register_callback(
+                pb.MessageV1.ERROR_MESSAGE_FIELD_NUMBER,
+                on_error,
+            )
+
+            # Baseline: a describe must succeed before we start messing with
+            # the health state. This also pins the active session on the proxy.
+            client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            assert not error_received.is_set(), (
+                "Baseline extract must not produce an ErrorMessage"
+            )
+
+            assert proxy.get_backend_health(0) == HEALTH_HEALTHY, (
+                f"Backend must start HEALTHY, got {proxy.get_backend_health(0)}"
+            )
+
+            # Force the backend into REBOOTING. The underlying transport is
+            # still alive, so is_connected() would be True — we are probing
+            # the watchdog's respect for the health flag, not the transport.
+            proxy.set_backend_health_for_test(0, HEALTH_REBOOTING)
+            assert proxy.get_backend_health(0) == HEALTH_REBOOTING
+
+            # Sleep long enough to span multiple watchdog ticks. During this
+            # window the old watchdog path would have called
+            # send_error_to_client() and broken out of run_session().
+            time.sleep(0.5)
+
+            # Issue another extract while the backend is REBOOTING. The proxy
+            # will either queue/serve the request (acceptable) or at minimum
+            # it must not have torn the session down with an ErrorMessage.
+            # We accept a brief transient if the handler itself rejects the
+            # request, but a spontaneous ErrorMessage from the watchdog is not
+            # acceptable. Any raised exception here would still end up in the
+            # client callback as an error_message frame first, so we assert
+            # on that flag below regardless.
+            try:
+                client.extract(
+                    recursive=True, specification=True, timeout=SHORT_TIMEOUT
+                )
+            except Exception:
+                # The request itself may be rejected while REBOOTING; that's
+                # outside the scope of this test. We only guard against the
+                # watchdog tearing down the session with send_error_to_client.
+                pass
+
+            assert not error_received.is_set(), (
+                "Watchdog sent an ErrorMessage while backend was REBOOTING — "
+                "it must tolerate the transient health state"
+            )
+
+            # Transition back to HEALTHY and confirm the client session is
+            # still usable end-to-end.
+            proxy.set_backend_health_for_test(0, HEALTH_HEALTHY)
+            assert proxy.get_backend_health(0) == HEALTH_HEALTHY
+
+            # Give the proxy a beat to observe the flag change.
+            time.sleep(0.1)
+
+            # Final extract must succeed cleanly — the session survived.
+            client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            assert not error_received.is_set(), (
+                "No ErrorMessage must have arrived across the HEALTHY→REBOOTING→"
+                "HEALTHY cycle"
+            )
+        finally:
+            if client is not None:
+                client.stop()
+            proxy.stop()
+            stop.set()
+            dac_thread.join(timeout=SHORT_TIMEOUT)
+
+
+class TestActivateNextSessionRecovery:
+    """Background reconnect loop recovery tests.
+
+    A dedicated background thread in ProxyServer periodically checks
+    backend health. When a backend is DEAD, it attempts a bounded
+    reconnect. On success, the backend flips back to HEALTHY and any
+    waiting session is promoted. On failure, the backend stays DEAD
+    and is retried on the next poll cycle; clients wait until either
+    the backend recovers or they disconnect on their own.
+    """
+
+    def test_activate_next_session_recovers_dead_backend(self) -> None:
+        """Backend forced DEAD while DummyDAC is still listening — the
+        background reconnect loop must recover the backend and promote the
+        waiting client, so the client's first command succeeds.
+        """
+        config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
+        ready = threading.Event()
+        stop = threading.Event()
+        dac_port_holder = [0]
+
+        dac_thread = _start_dummy_dac(config, ready, stop, dac_port_holder)
+        _wait_ready(ready)
+
+        proxy = ProxyServer()
+        # Long session timeout so the idle path cannot mask the bug.
+        proxy.set_session_timeout(60.0)
+        client = None
+
+        error_received = threading.Event()
+        error_messages: list[str] = []
+
+        def on_error(msg_bytes: bytes) -> None:
+            """Record any ErrorMessage the proxy forwards to the client."""
+            msg = pb.MessageV1()
+            msg.ParseFromString(msg_bytes)
+            error_messages.append(msg.error_message.description)
+            error_received.set()
+
+        try:
+            proxy.add_backend(LOCALHOST, dac_port_holder[0])
+            proxy.start(LOCALHOST, 0)
+
+            # Force backend into DEAD while the DummyDAC is still running
+            # on its port. The underlying TCP socket is still alive, so
+            # the reconnect attempt must drive the real reconnect path
+            # (not just flip the flag back on an otherwise healthy socket).
+            proxy.set_backend_health_for_test(0, HEALTH_DEAD)
+            assert proxy.get_backend_health(0) == HEALTH_DEAD
+
+            # Client connects only after the backend is already DEAD so
+            # that activate_next_session is the caller responsible for
+            # recovery.
+            client = ControlChannel.create(
+                LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT
+            )
+            client.start()
+            client.register_callback(
+                pb.MessageV1.ERROR_MESSAGE_FIELD_NUMBER, on_error
+            )
+
+            # First command from the new client. This drives reconnect,
+            # flips the backend HEALTHY, and the extract returns the
+            # DummyDAC's topology.
+            client.extract(
+                recursive=True, specification=True, timeout=SHORT_TIMEOUT
+            )
+
+            assert not error_received.is_set(), (
+                f"Proxy must not forward any ErrorMessage — reconnect in "
+                f"activate_next_session should have revived the backend, "
+                f"got: {error_messages}"
+            )
+            assert proxy.get_backend_health(0) == HEALTH_HEALTHY, (
+                f"Backend should be HEALTHY after lazy recovery, got "
+                f"{proxy.get_backend_health(0)}"
+            )
+        finally:
+            if client is not None:
+                client.stop()
+            proxy.stop()
+            stop.set()
+            dac_thread.join(timeout=SHORT_TIMEOUT)
+
+    def test_background_reconnect_retries_until_backend_recovers(self) -> None:
+        """DummyDAC stopped, backend forced DEAD — the background reconnect
+        loop retries without dropping the waiting client. Once the DummyDAC
+        is restarted on the same port, the loop reconnects, the client is
+        promoted, and its first command succeeds.
+        """
+        config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
+        ready = threading.Event()
+        stop = threading.Event()
+        dac_port_holder = [0]
+
+        dac_thread = _start_dummy_dac(config, ready, stop, dac_port_holder)
+        _wait_ready(ready)
+
+        proxy = ProxyServer()
+        proxy.set_session_timeout(60.0)
+        client = None
+
+        try:
+            proxy.add_backend(LOCALHOST, dac_port_holder[0])
+            proxy.start(LOCALHOST, 0)
+
+            saved_port = dac_port_holder[0]
+
+            # Kill the DummyDAC so reconnect attempts fail.
+            stop.set()
+            dac_thread.join(timeout=SHORT_TIMEOUT)
+
+            proxy.set_backend_health_for_test(0, HEALTH_DEAD)
+            assert proxy.get_backend_health(0) == HEALTH_DEAD
+
+            # Connect a client while the backend is dead. It enters the
+            # waiting queue; activate_next_session blocks on session_cv_.
+            client = ControlChannel.create(
+                LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT
+            )
+            client.start()
+
+            # Give the reconnect loop a couple of cycles to confirm it
+            # does NOT flip the backend HEALTHY while nothing is listening.
+            time.sleep(1.5)
+            assert proxy.get_backend_health(0) == HEALTH_DEAD
+
+            # Restart the DummyDAC on the same port so the next reconnect
+            # attempt succeeds.
+            ready2 = threading.Event()
+            stop2 = threading.Event()
+            dac_port_holder2 = [saved_port]
+            dac_thread2 = _start_dummy_dac(
+                config, ready2, stop2, dac_port_holder2,
+                port=saved_port,
+            )
+            _wait_ready(ready2)
+
+            # The background loop should pick it up within a few seconds.
+            deadline = time.monotonic() + SHORT_TIMEOUT
+            while time.monotonic() < deadline:
+                if proxy.get_backend_health(0) == HEALTH_HEALTHY:
+                    break
+                time.sleep(0.2)
+            assert proxy.get_backend_health(0) == HEALTH_HEALTHY, (
+                "Background reconnect loop must recover the backend"
+            )
+
+            # The client should now be promoted. Issue a command to verify.
+            client.extract(
+                recursive=True, specification=True, timeout=SHORT_TIMEOUT
+            )
+
+        finally:
+            if client is not None:
+                client.stop()
+            proxy.stop()
+            stop.set()
+            dac_thread.join(timeout=SHORT_TIMEOUT)
+            # stop2/dac_thread2 may not be defined if the test failed early.
+            try:
+                stop2.set()  # type: ignore[possibly-undefined]
+                dac_thread2.join(timeout=SHORT_TIMEOUT)  # type: ignore[possibly-undefined]
+            except NameError:
+                pass

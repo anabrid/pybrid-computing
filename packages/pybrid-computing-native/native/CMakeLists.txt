@@ -162,6 +162,18 @@ if(protobuf_FOUND)
     message(STATUS "Using system Protobuf ${protobuf_VERSION} from ${protobuf_DIR}")
 else()
     message(STATUS "Protobuf not found or vendored — fetching via FetchContent")
+    # GCC >=14 on aarch64 accepts clang::musttail but the ABI rejects tail
+    # calls when return types differ, breaking protobuf's TcParser.  Patch
+    # port_def.inc to drop aarch64 from the musttail architecture list.
+    # See https://github.com/protocolbuffers/protobuf/issues/22367
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+       AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm")
+        set(_pb_patch
+            PATCH_COMMAND sed -i "s/defined(__aarch64__) || //"
+            src/google/protobuf/port_def.inc)
+    else()
+        set(_pb_patch "")
+    endif()
     FetchContent_Declare(
         protobuf
         GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
@@ -170,6 +182,7 @@ else()
         GIT_PROGRESS TRUE
         GIT_SUBMODULES "third_party/utf8_range"
         EXCLUDE_FROM_ALL
+        ${_pb_patch}
     )
     set(protobuf_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "" FORCE)

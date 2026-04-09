@@ -2,6 +2,9 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
+#include <chrono>
+#include <optional>
+
 #include "pybrid/buffer.h"
 #include "pybrid/lockfree_buffer.h"
 #include "pybrid/transport/tcp_transport.h"
@@ -618,6 +621,12 @@ Example:
             py::gil_scoped_release release;
             self.stop();
         }, "Stop the receive loop.")
+        .def("reconnect", [](DataChannel& self) {
+            py::gil_scoped_release release;
+            self.reconnect();
+        }, "Tear down the UDP receive loop and restart it. "
+           "The control channel must already be reconnected. "
+           "Blocks on control-channel round-trips, so dispatch via run_in_executor.")
         .def("is_running", &DataChannel::is_running,
              "Check if the receive loop is running.")
         .def("is_using_tcp_fallback", &DataChannel::is_using_tcp_fallback,
@@ -723,6 +732,47 @@ Used when DataChannel takes over the TCP transport for fallback streaming.
 After this call, send_and_recv() still works if responses are routed back
 via on_tcp_response().
 )doc")
+        .def("reconnect",
+            [](ControlChannel& self, double interval, py::object timeout) {
+                std::chrono::milliseconds interval_ms{
+                    static_cast<long>(interval * 1000.0)};
+                std::optional<std::chrono::milliseconds> timeout_opt;
+                if (!timeout.is_none()) {
+                    double t = py::cast<double>(timeout);
+                    timeout_opt = std::chrono::milliseconds{
+                        static_cast<long>(t * 1000.0)};
+                }
+                bool ok;
+                {
+                    py::gil_scoped_release release;
+                    ok = self.reconnect(interval_ms, timeout_opt);
+                }
+                return ok;
+            },
+            py::arg("interval") = 0.5,
+            py::arg("timeout") = py::none(),
+            R"doc(
+Reconnect to the cached endpoint.
+
+Tears down the current transport, then retries ``connect()`` every
+``interval`` seconds until either the connection succeeds, the optional
+``timeout`` (in seconds) elapses, or :meth:`cancel_reconnect` is called.
+On success the recv thread is relaunched and previously registered
+callbacks remain wired.
+
+Args:
+    interval: Seconds between retry attempts (default: 0.5).
+    timeout:  Optional absolute deadline in seconds; ``None`` retries forever
+              (default: None).
+
+Returns:
+    True on successful reconnect, False on timeout or cancellation.
+)doc")
+        .def("cancel_reconnect",
+            [](ControlChannel& self) {
+                self.cancel_reconnect();
+            },
+            "Cancel an in-flight reconnect() call from another thread.")
         .def("remote_host", &ControlChannel::remote_host,
              "Get the remote host address (empty if not connected).")
         .def("remote_port", &ControlChannel::remote_port,
@@ -988,6 +1038,121 @@ Returns:
 Raises:
     RuntimeError: On timeout.
 )doc")
+        .def("update_begin",
+            [](ControlChannel& self, size_t new_size,
+               const std::string& new_sha256, double timeout, bool verbose) {
+                size_t chunk_size;
+                {
+                    py::gil_scoped_release release;
+                    chunk_size = self.update_begin(new_size, new_sha256, timeout, verbose);
+                }
+                return chunk_size;
+            },
+            py::arg("new_size"), py::arg("new_sha256"), py::arg("timeout") = 5.0,
+            py::arg("verbose") = false,
+            R"doc(
+Begin an OTA update and return the chunk size advertised by the device.
+
+Args:
+    new_size:   Total size of the new firmware image in bytes.
+    new_sha256: Hex-encoded SHA-256 digest of the new firmware image.
+    timeout:    Maximum time to wait in seconds (default: 5.0).
+    verbose:    Print status messages to stderr (default: False).
+
+Returns:
+    The maximum chunk size (in bytes) the device will accept per write.
+
+Raises:
+    RuntimeError: On timeout, error response, or missing acknowledgement.
+)doc")
+        .def("update_write_full",
+            [](ControlChannel& self, size_t new_size, size_t max_chunk_size,
+               py::buffer data, double timeout, bool verbose) {
+                py::buffer_info info = data.request(/*writable=*/false);
+                if (info.ndim != 1 || info.itemsize != 1) {
+                    throw std::runtime_error(
+                        "update_write_full(): data must be a 1-D byte buffer");
+                }
+                if (static_cast<size_t>(info.size) < new_size) {
+                    throw std::runtime_error(
+                        "update_write_full(): buffer smaller than new_size");
+                }
+                std::vector<uint8_t> vec(
+                    static_cast<const uint8_t*>(info.ptr),
+                    static_cast<const uint8_t*>(info.ptr) + new_size);
+                {
+                    py::gil_scoped_release release;
+                    self.update_write_full(new_size, max_chunk_size, vec, timeout, verbose);
+                }
+            },
+            py::arg("new_size"), py::arg("max_chunk_size"),
+            py::arg("data"), py::arg("timeout") = 5.0,
+            py::arg("verbose") = false,
+            R"doc(
+Stream the firmware image to the device in chunks.
+
+Accepts any Python object implementing the buffer protocol with a 1-D byte
+layout (e.g., ``bytes``, ``bytearray``, ``memoryview``).
+
+Args:
+    new_size:       Total size of the firmware image in bytes.
+    max_chunk_size: Maximum chunk size advertised by ``update_begin``.
+    data:           Writable or read-only byte buffer holding the image.
+    timeout:        Per-chunk timeout in seconds (default: 5.0).
+    verbose:        Show a progress bar on stderr (default: False).
+
+Raises:
+    RuntimeError: On timeout, error response, or if the device rejects a chunk.
+)doc")
+        .def("update_verify",
+            [](ControlChannel& self, double timeout, bool verbose) {
+                py::gil_scoped_release release;
+                self.update_verify(timeout, verbose);
+            },
+            py::arg("timeout") = 5.0,
+            py::arg("verbose") = false,
+            R"doc(
+Ask the device to verify the uploaded image against the SHA-256 digest.
+
+Args:
+    timeout: Maximum time to wait in seconds (default: 5.0).
+    verbose: Print status messages to stderr (default: False).
+
+Raises:
+    RuntimeError: On timeout or if the device reports a hash mismatch.
+)doc")
+        .def("update_commit",
+            [](ControlChannel& self, double timeout, bool verbose) {
+                py::gil_scoped_release release;
+                self.update_commit(timeout, verbose);
+            },
+            py::arg("timeout") = 5.0,
+            py::arg("verbose") = false,
+            R"doc(
+Commit the verified update, causing the device to reboot into the new image.
+
+Args:
+    timeout: Maximum time to wait in seconds (default: 5.0).
+    verbose: Print status messages to stderr (default: False).
+
+Raises:
+    RuntimeError: On timeout or error response.
+)doc")
+        .def("update_abort",
+            [](ControlChannel& self, double timeout) {
+                py::gil_scoped_release release;
+                self.update_abort(timeout);
+            },
+            py::arg("timeout") = 5.0,
+            R"doc(
+Abort an in-progress update and discard any uploaded data.
+
+Args:
+    timeout: Maximum time to wait in seconds (default: 5.0).
+
+Raises:
+    RuntimeError: On timeout or error response.
+)doc")
         .def("__enter__", [](ControlChannel& self) -> ControlChannel& {
             return self;
         })
@@ -1117,6 +1282,21 @@ errors from devices, and proxy-internal errors.
 Args:
     enabled: True to enable debug logging, False to disable.
 )doc")
+        .def("set_backend_health_for_test",
+             [](ProxyServer& self, size_t index, int health_int) {
+                 self.set_backend_health_for_test(index, health_int);
+             },
+             py::arg("index"), py::arg("health"),
+             "Test-only: force a backend's health to "
+             "HEALTHY(0)/REBOOTING(1)/DEAD(2).")
+        .def("get_backend_health",
+             [](const ProxyServer& self, size_t index) {
+                 return self.get_backend_health(index);
+             },
+             py::arg("index"),
+             "Return the backend's health as int: "
+             "0=HEALTHY, 1=REBOOTING, 2=DEAD. Raises IndexError if "
+             "index is out of range.")
         .def("__enter__", [](ProxyServer& self) -> ProxyServer& { return self; })
         .def("__exit__", [](ProxyServer& self, py::object, py::object, py::object) {
             // Clear the Python sync callback while the GIL is still held (same

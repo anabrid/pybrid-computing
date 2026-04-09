@@ -166,6 +166,24 @@ struct UpdateWriteDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateWriteDefaultTypeInternal _UpdateWrite_default_instance_;
 template <typename>
+PROTOBUF_CONSTEXPR UpdateVerify::UpdateVerify(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(UpdateVerify_class_data_.base()){}
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase() {
+}
+#endif  // PROTOBUF_CUSTOM_VTABLE
+struct UpdateVerifyDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UpdateVerifyDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UpdateVerifyDefaultTypeInternal() {}
+  union {
+    UpdateVerify _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UpdateVerifyDefaultTypeInternal _UpdateVerify_default_instance_;
+template <typename>
 PROTOBUF_CONSTEXPR UpdateSuccess::UpdateSuccess(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::internal::ZeroFieldsBase(UpdateSuccess_class_data_.base()){}
@@ -4317,6 +4335,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
         PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
+        PROTOBUF_FIELD_OFFSET(::pb::UpdateCommand, _impl_.kind_),
         0x004, // bitmap
         PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_._oneof_case_[0]),
         PROTOBUF_FIELD_OFFSET(::pb::UpdateResponse, _impl_.kind_),
@@ -4337,6 +4356,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pb::UpdateWrite, _impl_.offset_),
         0,
         1,
+        0x000, // bitmap
         0x000, // bitmap
         0x000, // bitmap
         0x081, // bitmap
@@ -4594,16 +4614,17 @@ static const ::_pbi::MigrationSchema
         {796, sizeof(::pb::Diagnosis)},
         {798, sizeof(::pb::JitResponse)},
         {805, sizeof(::pb::UpdateCommand)},
-        {812, sizeof(::pb::UpdateResponse)},
-        {818, sizeof(::pb::UpdateBegin)},
-        {825, sizeof(::pb::UpdateWrite)},
-        {832, sizeof(::pb::UpdateCommit)},
-        {833, sizeof(::pb::UpdateAbort)},
-        {834, sizeof(::pb::UpdateAck)},
-        {839, sizeof(::pb::UpdateFailure)},
-        {844, sizeof(::pb::UpdateSuccess)},
-        {845, sizeof(::pb::MessageV1)},
-        {950, sizeof(::pb::File)},
+        {813, sizeof(::pb::UpdateResponse)},
+        {819, sizeof(::pb::UpdateBegin)},
+        {826, sizeof(::pb::UpdateWrite)},
+        {833, sizeof(::pb::UpdateCommit)},
+        {834, sizeof(::pb::UpdateAbort)},
+        {835, sizeof(::pb::UpdateVerify)},
+        {836, sizeof(::pb::UpdateAck)},
+        {841, sizeof(::pb::UpdateFailure)},
+        {846, sizeof(::pb::UpdateSuccess)},
+        {847, sizeof(::pb::MessageV1)},
+        {952, sizeof(::pb::File)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_OptionalLane_default_instance_._instance,
@@ -4739,6 +4760,7 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pb::_UpdateWrite_default_instance_._instance,
     &::pb::_UpdateCommit_default_instance_._instance,
     &::pb::_UpdateAbort_default_instance_._instance,
+    &::pb::_UpdateVerify_default_instance_._instance,
     &::pb::_UpdateAck_default_instance_._instance,
     &::pb::_UpdateFailure_default_instance_._instance,
     &::pb::_UpdateSuccess_default_instance_._instance,
@@ -5018,111 +5040,112 @@ const char descriptor_table_protodef_main_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     "\004 \001(\t\"(\n\004Kind\022\010\n\004INFO\020\000\022\013\n\007WARNING\020\001\022\t\n\005"
     "ERROR\020\002\"&\n\tDiagnosis\022\031\n\006issues\030\001 \003(\0132\t.p"
     "b.Issue\";\n\013JitResponse\022\017\n\007success\030\001 \001(\010\022"
-    "\033\n\004diag\030\002 \001(\0132\r.pb.Diagnosis\"\241\001\n\rUpdateC"
+    "\033\n\004diag\030\002 \001(\0132\r.pb.Diagnosis\"\305\001\n\rUpdateC"
     "ommand\022 \n\005begin\030\n \001(\0132\017.pb.UpdateBeginH\000"
     "\022 \n\005write\030\013 \001(\0132\017.pb.UpdateWriteH\000\022\"\n\006co"
     "mmit\030\014 \001(\0132\020.pb.UpdateCommitH\000\022 \n\005abort\030"
-    "\r \001(\0132\017.pb.UpdateAbortH\000B\006\n\004kind\"\202\001\n\016Upd"
-    "ateResponse\022\034\n\003ack\030\n \001(\0132\r.pb.UpdateAckH"
-    "\000\022$\n\007failure\030\013 \001(\0132\021.pb.UpdateFailureH\000\022"
-    "$\n\007success\030\014 \001(\0132\021.pb.UpdateSuccessH\000B\006\n"
-    "\004kind\")\n\013UpdateBegin\022\014\n\004size\030\001 \001(\004\022\014\n\004ha"
-    "sh\030\002 \001(\014\"+\n\013UpdateWrite\022\014\n\004data\030\001 \001(\014\022\016\n"
-    "\006offset\030\002 \001(\004\"\016\n\014UpdateCommit\"\r\n\013UpdateA"
-    "bort\"\037\n\tUpdateAck\022\022\n\nchunk_size\030\001 \001(\004\"\037\n"
-    "\rUpdateFailure\022\016\n\006reason\030\001 \001(\t\"\017\n\rUpdate"
-    "Success\"\270\026\n\tMessageV1\022\017\n\002id\030\001 \001(\tH\001\210\001\001\022-"
-    "\n\017success_message\030d \001(\0132\022.pb.SuccessMess"
-    "ageH\000\022)\n\rerror_message\030e \001(\0132\020.pb.ErrorM"
-    "essageH\000\022/\n\020stand_by_command\030\310\001 \001(\0132\022.pb"
-    ".StandByCommandH\000\022*\n\rreset_command\030\312\001 \001("
-    "\0132\020.pb.ResetCommandH\000\022.\n\017extract_command"
-    "\030\313\001 \001(\0132\022.pb.ExtractCommandH\000\022,\n\016config_"
-    "command\030\314\001 \001(\0132\021.pb.ConfigCommandH\000\0221\n\021s"
-    "tart_run_command\030\315\001 \001(\0132\023.pb.StartRunCom"
-    "mandH\000\022/\n\020stop_run_command\030\316\001 \001(\0132\022.pb.S"
-    "topRunCommandH\000\022;\n\026manual_control_comman"
-    "d\030\317\001 \001(\0132\030.pb.ManualControlCommandH\000\022R\n\""
-    "register_external_entities_command\030\320\001 \001("
-    "\0132#.pb.RegisterExternalEntitiesCommandH\000"
-    "\022>\n\030get_system_ident_command\030\321\001 \001(\0132\031.pb"
-    ".GetSystemIdentCommandH\000\022,\n\016syslog_comma"
-    "nd\030\322\001 \001(\0132\021.pb.SyslogCommandH\000\0227\n\024system"
-    "_stats_command\030\323\001 \001(\0132\026.pb.SystemStatsCo"
-    "mmandH\000\022@\n\031read_system_ident_command\030\324\001 "
-    "\001(\0132\032.pb.ReadSystemIdentCommandH\000\022B\n\032res"
-    "et_system_ident_command\030\325\001 \001(\0132\033.pb.Rese"
-    "tSystemIdentCommandH\000\022B\n\032write_system_id"
-    "ent_command\030\326\001 \001(\0132\033.pb.WriteSystemIdent"
-    "CommandH\000\022B\n\032udp_data_streaming_command\030"
-    "\327\001 \001(\0132\033.pb.UdpDataStreamingCommandH\000\022\?\n"
-    "\030read_temperature_command\030\330\001 \001(\0132\032.pb.Re"
-    "adTemperatureCommandH\000\022D\n\033get_overload_s"
-    "tatus_command\030\331\001 \001(\0132\034.pb.GetOverloadSta"
-    "tusCommandH\000\0226\n\023calibration_command\030\332\001 \001"
-    "(\0132\026.pb.CalibrationCommandH\000\022,\n\016update_c"
-    "ommand\030\333\001 \001(\0132\021.pb.UpdateCommandH\000\0220\n\020ex"
-    "tract_response\030\255\002 \001(\0132\023.pb.ExtractRespon"
-    "seH\000\022.\n\017config_response\030\256\002 \001(\0132\022.pb.Conf"
-    "igResponseH\000\022,\n\016reset_response\030\257\002 \001(\0132\021."
-    "pb.ResetResponseH\000\0223\n\022start_run_response"
-    "\030\260\002 \001(\0132\024.pb.StartRunResponseH\000\022>\n\030run_s"
-    "tate_change_message\030\261\002 \001(\0132\031.pb.RunState"
-    "ChangeMessageH\000\022/\n\020run_data_message\030\262\002 \001"
-    "(\0132\022.pb.RunDataMessageH\000\0226\n\024run_data_end"
-    "_message\030\263\002 \001(\0132\025.pb.RunDataEndMessageH\000"
-    "\022@\n\031get_system_ident_response\030\264\002 \001(\0132\032.p"
-    "b.GetSystemIdentResponseH\000\022.\n\017syslog_res"
-    "ponse\030\265\002 \001(\0132\022.pb.SyslogResponseH\000\0229\n\025sy"
-    "stem_stats_response\030\266\002 \001(\0132\027.pb.SystemSt"
-    "atsResponseH\000\022B\n\032read_system_ident_respo"
-    "nse\030\267\002 \001(\0132\033.pb.ReadSystemIdentResponseH"
-    "\000\022D\n\033reset_system_ident_response\030\270\002 \001(\0132"
-    "\034.pb.ResetSystemIdentResponseH\000\022D\n\033write"
-    "_system_ident_response\030\271\002 \001(\0132\034.pb.Write"
-    "SystemIdentResponseH\000\022A\n\031read_temperatur"
-    "e_response\030\272\002 \001(\0132\033.pb.ReadTemperatureRe"
-    "sponseH\000\022F\n\034get_overload_status_response"
-    "\030\273\002 \001(\0132\035.pb.GetOverloadStatusResponseH\000"
-    "\022S\n#udp_data_streaming_refused_response\030"
-    "\274\002 \001(\0132#.pb.UdpDataStreamingRefusedRespo"
-    "nseH\000\0228\n\024calibration_response\030\275\002 \001(\0132\027.p"
-    "b.CalibrationResponseH\000\022.\n\017update_respon"
-    "se\030\276\002 \001(\0132\022.pb.UpdateResponseH\000\022;\n\026calib"
-    "rate_init_command\030\220\003 \001(\0132\030.pb.CalibrateI"
-    "nitCommandH\000\022;\n\026calibrate_lane_command\030\221"
-    "\003 \001(\0132\030.pb.CalibrateLaneCommandH\000\022\?\n\030cal"
-    "ibrate_offset_command\030\222\003 \001(\0132\032.pb.Calibr"
-    "ateOffsetCommandH\000\022C\n\032calibrate_finalize"
-    "_command\030\223\003 \001(\0132\034.pb.CalibrateFinalizeCo"
-    "mmandH\000\022;\n\026calibrate_data_command\030\224\003 \001(\013"
-    "2\030.pb.CalibrateDataCommandH\000\022(\n\014auth_req"
-    "uest\030\365\003 \001(\0132\017.pb.AuthRequestH\000\022/\n\rbusy_r"
-    "esponse\030\366\003 \001(\0132\025.pb.DeviceBusyMessageH\000\022"
-    "(\n\014ping_command\030\367\003 \001(\0132\017.pb.PingCommandH"
-    "\000\022&\n\013jit_command\030\370\003 \001(\0132\016.pb.JitCommandH"
-    "\000\022(\n\014jit_response\030\371\003 \001(\0132\017.pb.JitRespons"
-    "eH\000B\006\n\004kindB\005\n\003_idJ\006\010\311\001\020\312\001J\006\010\254\002\020\255\002J\006\010\364\003\020"
-    "\365\003\"V\n\004File\022\034\n\007version\030\001 \001(\0132\013.pb.Version"
-    "\022\037\n\006module\030\002 \001(\0132\n.pb.ModuleH\000\210\001\001B\t\n\007_mo"
-    "duleJ\004\010\003\020\004*2\n\006Prefix\022\010\n\004NONE\020\000\022\t\n\005MILLI\020"
-    "\001\022\t\n\005MICRO\020\002\022\010\n\004NANO\020\003*l\n\010RunState\022\007\n\003NE"
-    "W\020\000\022\t\n\005ERROR\020\001\022\010\n\004DONE\020\002\022\n\n\006QUEUED\020\003\022\014\n\010"
-    "TAKE_OFF\020\004\022\006\n\002IC\020\005\022\006\n\002OP\020\006\022\n\n\006OP_END\020\007\022\014"
-    "\n\010TMP_HALT\020\010*\025\n\tErrorCode\022\010\n\004None\020\000b\006pro"
-    "to3"
+    "\r \001(\0132\017.pb.UpdateAbortH\000\022\"\n\006verify\030\016 \001(\013"
+    "2\020.pb.UpdateVerifyH\000B\006\n\004kind\"\202\001\n\016UpdateR"
+    "esponse\022\034\n\003ack\030\n \001(\0132\r.pb.UpdateAckH\000\022$\n"
+    "\007failure\030\013 \001(\0132\021.pb.UpdateFailureH\000\022$\n\007s"
+    "uccess\030\014 \001(\0132\021.pb.UpdateSuccessH\000B\006\n\004kin"
+    "d\")\n\013UpdateBegin\022\014\n\004size\030\001 \001(\004\022\014\n\004hash\030\002"
+    " \001(\014\"+\n\013UpdateWrite\022\014\n\004data\030\001 \001(\014\022\016\n\006off"
+    "set\030\002 \001(\004\"\016\n\014UpdateCommit\"\r\n\013UpdateAbort"
+    "\"\016\n\014UpdateVerify\"\037\n\tUpdateAck\022\022\n\nchunk_s"
+    "ize\030\001 \001(\004\"\037\n\rUpdateFailure\022\016\n\006reason\030\001 \001"
+    "(\t\"\017\n\rUpdateSuccess\"\270\026\n\tMessageV1\022\017\n\002id\030"
+    "\001 \001(\tH\001\210\001\001\022-\n\017success_message\030d \001(\0132\022.pb"
+    ".SuccessMessageH\000\022)\n\rerror_message\030e \001(\013"
+    "2\020.pb.ErrorMessageH\000\022/\n\020stand_by_command"
+    "\030\310\001 \001(\0132\022.pb.StandByCommandH\000\022*\n\rreset_c"
+    "ommand\030\312\001 \001(\0132\020.pb.ResetCommandH\000\022.\n\017ext"
+    "ract_command\030\313\001 \001(\0132\022.pb.ExtractCommandH"
+    "\000\022,\n\016config_command\030\314\001 \001(\0132\021.pb.ConfigCo"
+    "mmandH\000\0221\n\021start_run_command\030\315\001 \001(\0132\023.pb"
+    ".StartRunCommandH\000\022/\n\020stop_run_command\030\316"
+    "\001 \001(\0132\022.pb.StopRunCommandH\000\022;\n\026manual_co"
+    "ntrol_command\030\317\001 \001(\0132\030.pb.ManualControlC"
+    "ommandH\000\022R\n\"register_external_entities_c"
+    "ommand\030\320\001 \001(\0132#.pb.RegisterExternalEntit"
+    "iesCommandH\000\022>\n\030get_system_ident_command"
+    "\030\321\001 \001(\0132\031.pb.GetSystemIdentCommandH\000\022,\n\016"
+    "syslog_command\030\322\001 \001(\0132\021.pb.SyslogCommand"
+    "H\000\0227\n\024system_stats_command\030\323\001 \001(\0132\026.pb.S"
+    "ystemStatsCommandH\000\022@\n\031read_system_ident"
+    "_command\030\324\001 \001(\0132\032.pb.ReadSystemIdentComm"
+    "andH\000\022B\n\032reset_system_ident_command\030\325\001 \001"
+    "(\0132\033.pb.ResetSystemIdentCommandH\000\022B\n\032wri"
+    "te_system_ident_command\030\326\001 \001(\0132\033.pb.Writ"
+    "eSystemIdentCommandH\000\022B\n\032udp_data_stream"
+    "ing_command\030\327\001 \001(\0132\033.pb.UdpDataStreaming"
+    "CommandH\000\022\?\n\030read_temperature_command\030\330\001"
+    " \001(\0132\032.pb.ReadTemperatureCommandH\000\022D\n\033ge"
+    "t_overload_status_command\030\331\001 \001(\0132\034.pb.Ge"
+    "tOverloadStatusCommandH\000\0226\n\023calibration_"
+    "command\030\332\001 \001(\0132\026.pb.CalibrationCommandH\000"
+    "\022,\n\016update_command\030\333\001 \001(\0132\021.pb.UpdateCom"
+    "mandH\000\0220\n\020extract_response\030\255\002 \001(\0132\023.pb.E"
+    "xtractResponseH\000\022.\n\017config_response\030\256\002 \001"
+    "(\0132\022.pb.ConfigResponseH\000\022,\n\016reset_respon"
+    "se\030\257\002 \001(\0132\021.pb.ResetResponseH\000\0223\n\022start_"
+    "run_response\030\260\002 \001(\0132\024.pb.StartRunRespons"
+    "eH\000\022>\n\030run_state_change_message\030\261\002 \001(\0132\031"
+    ".pb.RunStateChangeMessageH\000\022/\n\020run_data_"
+    "message\030\262\002 \001(\0132\022.pb.RunDataMessageH\000\0226\n\024"
+    "run_data_end_message\030\263\002 \001(\0132\025.pb.RunData"
+    "EndMessageH\000\022@\n\031get_system_ident_respons"
+    "e\030\264\002 \001(\0132\032.pb.GetSystemIdentResponseH\000\022."
+    "\n\017syslog_response\030\265\002 \001(\0132\022.pb.SyslogResp"
+    "onseH\000\0229\n\025system_stats_response\030\266\002 \001(\0132\027"
+    ".pb.SystemStatsResponseH\000\022B\n\032read_system"
+    "_ident_response\030\267\002 \001(\0132\033.pb.ReadSystemId"
+    "entResponseH\000\022D\n\033reset_system_ident_resp"
+    "onse\030\270\002 \001(\0132\034.pb.ResetSystemIdentRespons"
+    "eH\000\022D\n\033write_system_ident_response\030\271\002 \001("
+    "\0132\034.pb.WriteSystemIdentResponseH\000\022A\n\031rea"
+    "d_temperature_response\030\272\002 \001(\0132\033.pb.ReadT"
+    "emperatureResponseH\000\022F\n\034get_overload_sta"
+    "tus_response\030\273\002 \001(\0132\035.pb.GetOverloadStat"
+    "usResponseH\000\022S\n#udp_data_streaming_refus"
+    "ed_response\030\274\002 \001(\0132#.pb.UdpDataStreaming"
+    "RefusedResponseH\000\0228\n\024calibration_respons"
+    "e\030\275\002 \001(\0132\027.pb.CalibrationResponseH\000\022.\n\017u"
+    "pdate_response\030\276\002 \001(\0132\022.pb.UpdateRespons"
+    "eH\000\022;\n\026calibrate_init_command\030\220\003 \001(\0132\030.p"
+    "b.CalibrateInitCommandH\000\022;\n\026calibrate_la"
+    "ne_command\030\221\003 \001(\0132\030.pb.CalibrateLaneComm"
+    "andH\000\022\?\n\030calibrate_offset_command\030\222\003 \001(\013"
+    "2\032.pb.CalibrateOffsetCommandH\000\022C\n\032calibr"
+    "ate_finalize_command\030\223\003 \001(\0132\034.pb.Calibra"
+    "teFinalizeCommandH\000\022;\n\026calibrate_data_co"
+    "mmand\030\224\003 \001(\0132\030.pb.CalibrateDataCommandH\000"
+    "\022(\n\014auth_request\030\365\003 \001(\0132\017.pb.AuthRequest"
+    "H\000\022/\n\rbusy_response\030\366\003 \001(\0132\025.pb.DeviceBu"
+    "syMessageH\000\022(\n\014ping_command\030\367\003 \001(\0132\017.pb."
+    "PingCommandH\000\022&\n\013jit_command\030\370\003 \001(\0132\016.pb"
+    ".JitCommandH\000\022(\n\014jit_response\030\371\003 \001(\0132\017.p"
+    "b.JitResponseH\000B\006\n\004kindB\005\n\003_idJ\006\010\311\001\020\312\001J\006"
+    "\010\254\002\020\255\002J\006\010\364\003\020\365\003\"V\n\004File\022\034\n\007version\030\001 \001(\0132"
+    "\013.pb.Version\022\037\n\006module\030\002 \001(\0132\n.pb.Module"
+    "H\000\210\001\001B\t\n\007_moduleJ\004\010\003\020\004*2\n\006Prefix\022\010\n\004NONE"
+    "\020\000\022\t\n\005MILLI\020\001\022\t\n\005MICRO\020\002\022\010\n\004NANO\020\003*l\n\010Ru"
+    "nState\022\007\n\003NEW\020\000\022\t\n\005ERROR\020\001\022\010\n\004DONE\020\002\022\n\n\006"
+    "QUEUED\020\003\022\014\n\010TAKE_OFF\020\004\022\006\n\002IC\020\005\022\006\n\002OP\020\006\022\n"
+    "\n\006OP_END\020\007\022\014\n\010TMP_HALT\020\010*\025\n\tErrorCode\022\010\n"
+    "\004None\020\000b\006proto3"
 };
 static ::absl::once_flag descriptor_table_main_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_main_2eproto = {
     false,
     false,
-    14523,
+    14575,
     descriptor_table_protodef_main_2eproto,
     "main.proto",
     &descriptor_table_main_2eproto_once,
     nullptr,
     0,
-    138,
+    139,
     schemas,
     file_default_instances,
     TableStruct_main_2eproto::offsets,
@@ -41091,6 +41114,19 @@ void UpdateCommand::set_allocated_abort(::pb::UpdateAbort* PROTOBUF_NULLABLE abo
   }
   // @@protoc_insertion_point(field_set_allocated:pb.UpdateCommand.abort)
 }
+void UpdateCommand::set_allocated_verify(::pb::UpdateVerify* PROTOBUF_NULLABLE verify) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_kind();
+  if (verify) {
+    ::google::protobuf::Arena* submessage_arena = verify->GetArena();
+    if (message_arena != submessage_arena) {
+      verify = ::google::protobuf::internal::GetOwnedMessage(message_arena, verify, submessage_arena);
+    }
+    set_has_verify();
+    _impl_.kind_.verify_ = verify;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.UpdateCommand.verify)
+}
 UpdateCommand::UpdateCommand(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, UpdateCommand_class_data_.base()) {
@@ -41135,6 +41171,9 @@ UpdateCommand::UpdateCommand(
         break;
       case kAbort:
         _impl_.kind_.abort_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.abort_);
+        break;
+      case kVerify:
+        _impl_.kind_.verify_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.verify_);
         break;
   }
 
@@ -41203,6 +41242,14 @@ void UpdateCommand::clear_kind() {
       }
       break;
     }
+    case kVerify: {
+      if (GetArena() == nullptr) {
+        delete _impl_.kind_.verify_;
+      } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.verify_);
+      }
+      break;
+    }
     case KIND_NOT_SET: {
       break;
     }
@@ -41254,17 +41301,17 @@ UpdateCommand::GetClassData() const {
   return UpdateCommand_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 4, 4, 0, 2>
+const ::_pbi::TcParseTable<0, 5, 5, 0, 2>
 UpdateCommand::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    13, 0,  // max_field_number, fast_idx_mask
+    14, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294959615,  // skipmap
+    4294951423,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
-    4,  // num_aux_entries
+    5,  // num_field_entries
+    5,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     UpdateCommand_class_data_.base(),
     nullptr,  // post_loop_handler
@@ -41285,12 +41332,15 @@ UpdateCommand::_table_ = {
     {PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_.kind_.commit_), _Internal::kOneofCaseOffset + 0, 2, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
     // .pb.UpdateAbort abort = 13;
     {PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_.kind_.abort_), _Internal::kOneofCaseOffset + 0, 3, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .pb.UpdateVerify verify = 14;
+    {PROTOBUF_FIELD_OFFSET(UpdateCommand, _impl_.kind_.verify_), _Internal::kOneofCaseOffset + 0, 4, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pb::UpdateBegin>()},
       {::_pbi::TcParser::GetTable<::pb::UpdateWrite>()},
       {::_pbi::TcParser::GetTable<::pb::UpdateCommit>()},
       {::_pbi::TcParser::GetTable<::pb::UpdateAbort>()},
+      {::_pbi::TcParser::GetTable<::pb::UpdateVerify>()},
   }},
   {{
   }},
@@ -41349,6 +41399,12 @@ PROTOBUF_NOINLINE void UpdateCommand::Clear() {
           stream);
       break;
     }
+    case kVerify: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          14, *this_._impl_.kind_.verify_, this_._impl_.kind_.verify_->GetCachedSize(), target,
+          stream);
+      break;
+    }
     default:
       break;
   }
@@ -41398,6 +41454,12 @@ PROTOBUF_NOINLINE void UpdateCommand::Clear() {
     case kAbort: {
       total_size += 1 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.abort_);
+      break;
+    }
+    // .pb.UpdateVerify verify = 14;
+    case kVerify: {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.kind_.verify_);
       break;
     }
     case KIND_NOT_SET: {
@@ -41460,6 +41522,14 @@ void UpdateCommand::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::g
           _this->_impl_.kind_.abort_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.abort_);
         } else {
           _this->_impl_.kind_.abort_->MergeFrom(*from._impl_.kind_.abort_);
+        }
+        break;
+      }
+      case kVerify: {
+        if (oneof_needs_init) {
+          _this->_impl_.kind_.verify_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.kind_.verify_);
+        } else {
+          _this->_impl_.kind_.verify_->MergeFrom(*from._impl_.kind_.verify_);
         }
         break;
       }
@@ -42710,6 +42780,115 @@ UpdateAbort::_table_ = {
 
 
 ::google::protobuf::Metadata UpdateAbort::GetMetadata() const {
+  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class UpdateVerify::_Internal {
+ public:
+};
+
+UpdateVerify::UpdateVerify(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateVerify_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(arena_constructor:pb.UpdateVerify)
+}
+UpdateVerify::UpdateVerify(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const UpdateVerify& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, UpdateVerify_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  UpdateVerify* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+
+  // @@protoc_insertion_point(copy_constructor:pb.UpdateVerify)
+}
+
+inline void* PROTOBUF_NONNULL UpdateVerify::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) UpdateVerify(arena);
+}
+constexpr auto UpdateVerify::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(UpdateVerify),
+                                            alignof(UpdateVerify));
+}
+constexpr auto UpdateVerify::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_UpdateVerify_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &UpdateVerify::MergeImpl,
+          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<UpdateVerify>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &UpdateVerify::SharedDtor,
+          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<UpdateVerify>(), &UpdateVerify::ByteSizeLong,
+              &UpdateVerify::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(UpdateVerify, _impl_._cached_size_),
+          false,
+      },
+      &UpdateVerify::kDescriptorMethods,
+      &descriptor_table_main_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull UpdateVerify_class_data_ =
+        UpdateVerify::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+UpdateVerify::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&UpdateVerify_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(UpdateVerify_class_data_.tc_table);
+  return UpdateVerify_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+UpdateVerify::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    0, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967295,  // skipmap
+    offsetof(decltype(_table_), field_names),  // no field_entries
+    0,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    UpdateVerify_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pb::UpdateVerify>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, // no field_entries, or aux_entries
+  {{
+  }},
+};
+
+
+
+
+
+
+
+::google::protobuf::Metadata UpdateVerify::GetMetadata() const {
   return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================

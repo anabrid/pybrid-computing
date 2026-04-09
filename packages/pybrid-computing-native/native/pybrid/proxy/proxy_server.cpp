@@ -319,6 +319,7 @@ void ProxyServer::start(const std::string& host, uint16_t port) {
         }
     }
 
+    reconnect_thread_ = std::thread(&ProxyServer::reconnect_loop, this);
     accept_thread_ = std::thread(&ProxyServer::accept_loop, this);
 }
 
@@ -336,8 +337,23 @@ void ProxyServer::stop() {
     }
     session_cv_.notify_all();
 
-    // Stop order: control channels → init futures → data channels
-    // (unblocks pending operations before teardown).
+    // Stop order: cancel any in-flight reconnects → control channels →
+    // init futures → data channels (unblocks pending operations before
+    // teardown so reconnect loops yield promptly on shutdown).
+    {
+        std::lock_guard<std::mutex> lock(backends_mutex_);
+
+        for (auto& backend : backends_) {
+            if (backend.control) {
+                backend.control->cancel_reconnect();
+            }
+        }
+    }
+
+    // Join the reconnect thread before tearing down channels — it may be
+    // mid-reconnect and needs the control channels alive until it exits.
+    if (reconnect_thread_.joinable()) reconnect_thread_.join();
+
     {
         std::lock_guard<std::mutex> lock(backends_mutex_);
 
@@ -412,6 +428,121 @@ void ProxyServer::set_debug(bool enabled) {
     debug_ = enabled;
 }
 
+void ProxyServer::set_backend_health(BackendDevice& backend,
+                                     BackendHealth new_health) {
+    {
+        // Serialises store with notify_all() so waiters cannot miss the edge.
+        std::lock_guard<std::mutex> lock(session_mutex_);
+        backend.health.store(new_health, std::memory_order_release);
+    }
+    session_cv_.notify_all();
+}
+
+bool ProxyServer::all_backends_healthy() const {
+    for (auto const& backend : backends_) {
+        if (backend.health.load(std::memory_order_acquire) !=
+            BackendHealth::HEALTHY) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ProxyServer::reconnect_backend(BackendDevice& backend,
+                                    std::chrono::milliseconds timeout) {
+    {
+        std::lock_guard<std::mutex> lock(log_mutex_);
+        std::cerr << "[ProxyServer] Connection lost to "
+                  << backend.host << ":" << backend.port
+                  << ", reconnecting...\n";
+    }
+    try {
+        if (!backend.control) return false;
+        bool ok = backend.control->reconnect(
+            std::chrono::milliseconds{500},
+            std::make_optional(timeout));
+        if (!ok) {
+            std::lock_guard<std::mutex> lock(log_mutex_);
+            std::cerr << "[ProxyServer] Failed to reconnect to "
+                      << backend.host << ":" << backend.port << "\n";
+            return false;
+        }
+        if (backend.data_channel) {
+            backend.data_channel->reconnect();
+        }
+
+        // Re-extract the entity tree so cached_module reflects
+        // post-reboot firmware (version, entity structure, etc.).
+        pb::Module module = backend.control->extract(
+            /*entity_path=*/"", /*recursive=*/true, /*specification=*/true,
+            /*configuration=*/false, /*calibration=*/false,
+            BACKEND_REQUEST_TIMEOUT_SECS);
+        if (backend.location_stack.has_value() &&
+            backend.location_carrier.has_value()) {
+            for (auto& item : *module.mutable_items()) {
+                if (item.has_entity_specification()) {
+                    auto* loc = item.mutable_entity_specification()
+                                    ->mutable_entity()
+                                    ->mutable_location_v0();
+                    loc->set_stack(backend.location_stack.value());
+                    loc->set_carrier(backend.location_carrier.value());
+                }
+            }
+        }
+        backend.cached_module = std::move(module);
+
+        {
+            std::lock_guard<std::mutex> lock(log_mutex_);
+            std::cerr << "[ProxyServer] Reconnected to "
+                      << backend.host << ":" << backend.port << "\n";
+        }
+        return true;
+    } catch (const std::exception& e) {
+        std::lock_guard<std::mutex> lock(log_mutex_);
+        std::cerr << "[ProxyServer] Reconnect to "
+                  << backend.host << ":" << backend.port
+                  << " failed: " << e.what() << "\n";
+        return false;
+    }
+}
+
+void ProxyServer::set_backend_health_for_test(size_t index, int new_health) {
+    if (index >= backends_.size()) {
+        throw std::out_of_range("backend index out of range");
+    }
+    set_backend_health(backends_[index],
+                       static_cast<BackendHealth>(new_health));
+}
+
+int ProxyServer::get_backend_health(size_t index) const {
+    if (index >= backends_.size()) {
+        throw std::out_of_range("backend index out of range");
+    }
+    return static_cast<int>(
+        backends_[index].health.load(std::memory_order_acquire));
+}
+
+void ProxyServer::reconnect_loop() {
+    while (running_.load(std::memory_order_acquire)) {
+        // Interruptible sleep: poll running_ in short intervals.
+        for (int i = 0; i < 5 && running_.load(std::memory_order_acquire); ++i) {
+            std::this_thread::sleep_for(RECONNECT_POLL_INTERVAL / 5);
+        }
+        if (!running_.load(std::memory_order_acquire)) break;
+
+        for (auto& backend : backends_) {
+            if (!running_.load(std::memory_order_acquire)) break;
+            if (backend.health.load(std::memory_order_acquire) != BackendHealth::DEAD)
+                continue;
+
+            bool ok = reconnect_backend(backend, RECONNECT_ATTEMPT_TIMEOUT);
+            if (ok) {
+                set_backend_health(backend, BackendHealth::HEALTHY);
+            }
+        }
+    }
+}
+
 void ProxyServer::accept_loop() {
     while (running_.load()) {
         AcceptedSocket sock = server_.accept(ACCEPT_POLL_TIMEOUT_SECS);
@@ -476,8 +607,8 @@ void ProxyServer::run_session(ClientSession& session) {
     }
 
     {
-        std::lock_guard<std::mutex> lock(session_mutex_);
-        register_session(session.session_id_);
+        std::unique_lock<std::mutex> lock(session_mutex_);
+        register_session(session.session_id_, lock);
     }
 
     std::vector<uint8_t> buf(RECV_BUFFER_SIZE);
@@ -546,16 +677,41 @@ void ProxyServer::run_session(ClientSession& session) {
             if (elapsed >= session_timeout_secs_) break;
         }
 
-        // backends_ is read-only after start().
+        // backends_ is read-only after start(); health is atomic.
         bool backend_lost = false;
         for (auto& backend : backends_) {
+            auto h = backend.health.load(std::memory_order_acquire);
+            if (h == BackendHealth::REBOOTING) {
+                // Tolerated: handle_update owns this transition and will
+                // flip the backend back to HEALTHY (or DEAD) once the
+                // device is up again. The watchdog stays silent this tick.
+                continue;
+            }
+            if (h == BackendHealth::DEAD) {
+                {
+                    std::lock_guard<std::mutex> lk(log_mutex_);
+                    std::cerr << "[ProxyServer] Backend " << backend.host
+                              << ":" << backend.port
+                              << " is DEAD during session "
+                              << session.session_id_ << "\n";
+                }
+                send_error_to_client(session, "",
+                    "Cluster degraded: backend " + backend.host + ":" +
+                    std::to_string(backend.port) + " is dead");
+                backend_lost = true;
+                break;
+            }
+            // HEALTHY: an unplanned TCP drop demotes the backend to DEAD so
+            // subsequent ticks (and activate_next_session) see the state.
             if (backend.control && !backend.control->is_connected()) {
-                if (debug_) {
-                    std::cerr << "[ProxyServer] DEBUG: Backend " << backend.host
+                {
+                    std::lock_guard<std::mutex> lk(log_mutex_);
+                    std::cerr << "[ProxyServer] Backend " << backend.host
                               << ":" << backend.port
                               << " disconnected during session "
                               << session.session_id_ << "\n";
                 }
+                set_backend_health(backend, BackendHealth::DEAD);
                 send_error_to_client(session, "",
                     "Backend device disconnected: " + backend.host + ":" +
                     std::to_string(backend.port));
@@ -593,27 +749,26 @@ void ProxyServer::run_session(ClientSession& session) {
     }
 
     {
-        std::lock_guard<std::mutex> lock(session_mutex_);
-        deregister_session(session.session_id_);
+        std::unique_lock<std::mutex> lock(session_mutex_);
+        deregister_session(session.session_id_, lock);
         session_map_.erase(session.session_id_);
     }
     session_cv_.notify_all();
 }
 
-void ProxyServer::register_session(const std::string& id) {
+void ProxyServer::register_session(const std::string& id,
+                                    std::unique_lock<std::mutex>& lock) {
     session_id_queue_.push(id);
-    if (session_id_queue_.size() == 1) {
-        // First (and only) session — mark active immediately.
-        active_session_id_ = id;
-        auto it = session_map_.find(id);
-        if (it != session_map_.end()) {
-            active_session_ = it->second;
-            it->second->active.store(true, std::memory_order_release);
-        }
+    if (active_session_id_.empty()) {
+        // No session currently active — route promotion through
+        // activate_next_session() so the lazy-recovery path runs if any
+        // backend is DEAD.
+        activate_next_session(lock);
     }
 }
 
-void ProxyServer::deregister_session(const std::string& id) {
+void ProxyServer::deregister_session(const std::string& id,
+                                     std::unique_lock<std::mutex>& lock) {
     bool was_active = (active_session_id_ == id);
 
     // Rebuild the queue without this session's ID.
@@ -630,12 +785,29 @@ void ProxyServer::deregister_session(const std::string& id) {
     if (was_active) {
         active_session_ = nullptr;
         clear_forward_callbacks();
-        activate_next_session();
+        active_session_id_.clear();
+        activate_next_session(lock);
     }
 }
 
-void ProxyServer::activate_next_session() {
+void ProxyServer::activate_next_session(std::unique_lock<std::mutex>& lock) {
     if (session_id_queue_.empty()) {
+        active_session_id_.clear();
+        active_session_ = nullptr;
+        return;
+    }
+
+    // Wait until all backends are healthy. The background reconnect_loop
+    // handles DEAD backends; handle_update handles REBOOTING ones. Both
+    // notify session_cv_ on health transitions.
+    session_cv_.wait(lock, [this]() {
+        return all_backends_healthy()
+            || !running_.load(std::memory_order_acquire)
+            || session_id_queue_.empty();
+    });
+
+    if (!running_.load(std::memory_order_acquire) ||
+        session_id_queue_.empty()) {
         active_session_id_.clear();
         active_session_ = nullptr;
         return;
@@ -648,7 +820,8 @@ void ProxyServer::activate_next_session() {
         it->second->active.store(true, std::memory_order_release);
         if (debug_) {
             std::cerr << "[ProxyServer] DEBUG: Session " << active_session_id_
-                      << " (" << it->second->peer_address_ << ") made active\n";
+                      << " (" << it->second->peer_address_
+                      << ") made active\n";
         }
     } else {
         active_session_ = nullptr;
@@ -818,6 +991,9 @@ void ProxyServer::dispatch_message(ClientSession& session, const pb::MessageV1& 
             break;
         case pb::MessageV1::kRegisterExternalEntitiesCommandFieldNumber:
             handle_register_external_entities(session, msg);
+            break;
+        case pb::MessageV1::kUpdateCommandFieldNumber:
+            handle_update(session, msg);
             break;
         case pb::MessageV1::kPingCommandFieldNumber: {
             pb::MessageV1 ping_response;
