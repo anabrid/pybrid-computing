@@ -1,8 +1,12 @@
 #include "control_channel.h"
 
+#include <algorithm>
 #include <chrono>
+#include <cstdio>
 #include <future>
+#include <mutex>
 #include <stdexcept>
+#include <thread>
 #include <vector>
 
 #include "pybrid/proto/main.pb.h"
@@ -55,14 +59,12 @@ void ControlChannel::stop_recv_thread() {
         recv_thread_.join();
     }
 
-    // Pending requests are NOT failed here because the DataChannel
-    // will route responses back via on_tcp_response() → process_message().
+    // DataChannel routes responses back via on_tcp_response().
 }
 
 void ControlChannel::stop() {
     stop_recv_thread();
 
-    // Fail any still-pending promises so callers don't block forever.
     {
         std::lock_guard<std::mutex> lock(pending_mutex_);
         for (auto& kv : pending_requests_) {
@@ -71,8 +73,7 @@ void ControlChannel::stop() {
                     std::make_exception_ptr(std::runtime_error(
                         "ControlChannel stopped while request was pending")));
             } catch (const std::future_error&) {
-                // Promise may already have been satisfied — ignore.
-            }
+                }
         }
         pending_requests_.clear();
     }
@@ -80,6 +81,66 @@ void ControlChannel::stop() {
     if (transport_) {
         transport_->stop();
     }
+}
+
+bool ControlChannel::reconnect(
+    std::chrono::milliseconds interval,
+    std::optional<std::chrono::milliseconds> timeout)
+{
+    if (!transport_) return false;
+
+    cancel_reconnect_.store(false, std::memory_order_release);
+    reconnecting_.store(true, std::memory_order_release);
+
+    running_.store(false, std::memory_order_release);
+    if (recv_thread_.joinable()) recv_thread_.join();
+
+    {
+        std::lock_guard<std::mutex> lock(pending_mutex_);
+        for (auto& kv : pending_requests_) {
+            try {
+                kv.second->promise.set_exception(
+                    std::make_exception_ptr(std::runtime_error("reconnecting")));
+            } catch (const std::future_error&) {}
+        }
+        pending_requests_.clear();
+    }
+
+    auto host = transport_->remote_host();
+    auto port = transport_->remote_port();
+    transport_->disconnect();
+
+    if (interval < std::chrono::milliseconds{10})
+        interval = std::chrono::milliseconds{10};
+
+    const auto deadline = timeout
+        ? std::chrono::steady_clock::now() + *timeout
+        : std::chrono::steady_clock::time_point::max();
+
+    while (!cancel_reconnect_.load(std::memory_order_acquire)) {
+        if (std::chrono::steady_clock::now() >= deadline) {
+            reconnecting_.store(false, std::memory_order_release);
+            return false;
+        }
+
+        double attempt_secs = std::chrono::duration<double>(interval).count();
+        try {
+            if (transport_->connect(host, port, attempt_secs)) {
+                start();
+                reconnecting_.store(false, std::memory_order_release);
+                return true;
+            }
+        } catch (...) {}
+
+        std::this_thread::sleep_for(interval);
+    }
+
+    reconnecting_.store(false, std::memory_order_release);
+    return false;
+}
+
+void ControlChannel::cancel_reconnect() {
+    cancel_reconnect_.store(true, std::memory_order_release);
 }
 
 std::string ControlChannel::remote_host() const {
@@ -102,6 +163,11 @@ bool ControlChannel::is_running() const {
 }
 
 void ControlChannel::send(const pb::MessageV1& msg) {
+    if (reconnecting_.load(std::memory_order_acquire))
+        throw std::runtime_error("ControlChannel::send(): reconnect in progress");
+    if (!is_connected())
+        throw std::runtime_error("ControlChannel::send(): not connected");
+
     pb::Envelope envelope;
     *envelope.mutable_message_v1() = msg;
 
@@ -116,20 +182,28 @@ void ControlChannel::send(const pb::MessageV1& msg) {
 }
 
 void ControlChannel::send_raw(const void* data, size_t len) {
+    if (reconnecting_.load(std::memory_order_acquire))
+        throw std::runtime_error("ControlChannel::send_raw(): reconnect in progress");
+    if (!is_connected())
+        throw std::runtime_error("ControlChannel::send_raw(): not connected");
+
     if (!transport_->send(data, len)) {
         throw std::runtime_error("ControlChannel::send_raw(): transport send failed");
     }
 }
 
 pb::MessageV1 ControlChannel::send_and_recv(const pb::MessageV1& msg, double timeout_secs) {
+    if (reconnecting_.load(std::memory_order_acquire))
+        throw std::runtime_error("ControlChannel::send_and_recv(): reconnect in progress");
+    if (!is_connected())
+        throw std::runtime_error("ControlChannel::send_and_recv(): not connected");
+
     const std::string& id = msg.id();
     if (id.empty()) {
         throw std::runtime_error(
             "ControlChannel::send_and_recv(): msg.id() must be non-empty");
     }
 
-    // Register the pending request before sending to avoid a race where the
-    // response arrives before we've inserted into pending_requests_.
     auto pending = std::make_shared<PendingRequest>();
     std::future<pb::MessageV1> future = pending->promise.get_future();
 
@@ -203,6 +277,7 @@ void ControlChannel::recv_loop() {
 
         if (result.status == RecvStatus::Disconnected) {
             running_.store(false, std::memory_order_release);
+            transport_->disconnect();
 
             std::lock_guard<std::mutex> lock(pending_mutex_);
             for (auto& kv : pending_requests_) {
@@ -249,17 +324,13 @@ void ControlChannel::process_message(pb::MessageV1& msg) {
         if (it != pending_requests_.end()) {
             auto pending = it->second;
             pending_requests_.erase(it);
-            // Lock released before setting value to minimise contention.
             try {
                 pending->promise.set_value(std::move(msg));
-            } catch (const std::future_error&) {
-                // Promise already satisfied (e.g., stop() was called) — ignore.
-            }
+            } catch (const std::future_error&) {}
             return;
         }
     }
 
-    // Non-empty id, no pending request — inbound request from peer.
     dispatch_callback(msg);
 }
 
@@ -392,5 +463,173 @@ bool ControlChannel::authenticate(const std::string& token, double timeout_secs)
     }
     return true;
 }
+
+size_t ControlChannel::update_begin(size_t new_size, std::string new_sha256,
+    double timeout_secs, bool verbose)
+{
+    if (verbose) {
+        char line[128];
+        int pos = snprintf(line, sizeof(line), "\rBeginning firmware update...");
+        while (pos < 100) line[pos++] = ' ';
+        line[pos] = '\0';
+        fwrite(line, 1, pos, stderr);
+        fflush(stderr);
+    }
+
+    pb::MessageV1 msg;
+    msg.set_id(utils::generate_uuid());
+
+    pb::UpdateCommand* update_cmd = msg.mutable_update_command();
+    auto begin_cmd = update_cmd->mutable_begin();
+
+    begin_cmd->set_size(new_size);
+    begin_cmd->set_hash(new_sha256);
+
+    pb::MessageV1 response = send_and_recv(msg, timeout_secs);
+
+    if (response.has_error_message()) {
+        throw std::runtime_error(response.error_message().description());
+    }
+
+    if (!response.has_update_response()) {
+        throw std::runtime_error("No update response received");
+    }
+
+    if(response.update_response().has_failure()) {
+        throw std::runtime_error(response.update_response().failure().reason());
+    }
+
+    assert(response.update_response().has_ack());
+    return response.update_response().ack().chunk_size();
+}
+
+void ControlChannel::update_write_full(size_t new_size, size_t max_chunk_size,
+    std::vector<uint8_t>& new_data, double timeout_secs, bool verbose)
+{
+    const size_t total_chunks = (new_size + max_chunk_size - 1) / max_chunk_size;
+    size_t chunk_idx = 0;
+    constexpr int bar_width = 40;
+
+    for(size_t offset = 0; offset < new_size; offset += max_chunk_size)
+    {
+        const size_t chunk_size = std::min(
+            max_chunk_size,
+            new_size - offset
+        );
+
+        // send one chunk of data
+        pb::MessageV1 msg;
+        msg.set_id(utils::generate_uuid());
+
+        pb::UpdateCommand* update_cmd = msg.mutable_update_command();
+        auto chunk_cmd = update_cmd->mutable_write();
+
+        std::string buf;
+        buf.resize(chunk_size);
+        memcpy(buf.data(), new_data.data() + offset, chunk_size);
+
+        chunk_cmd->set_data(buf);
+        chunk_cmd->set_offset(static_cast<uint64_t>(offset));
+
+        update_simple_response_process(send_and_recv(msg, timeout_secs));
+
+        ++chunk_idx;
+        if (verbose) {
+            const float progress = static_cast<float>(chunk_idx) / static_cast<float>(total_chunks);
+            const int filled = static_cast<int>(progress * bar_width);
+            char line[128];
+            int pos = snprintf(line, sizeof(line), "\rUploading firmware: [");
+            for (int i = 0; i < bar_width; ++i) {
+                line[pos++] = (i < filled ? '#' : '.');
+            }
+            pos += snprintf(line + pos, sizeof(line) - pos,
+                "] %3d%% (%zu/%zu chunks)",
+                static_cast<int>(progress * 100), chunk_idx, total_chunks);
+            // pad to fixed width so shorter subsequent lines fully overwrite
+            while (pos < 100) line[pos++] = ' ';
+            line[pos] = '\0';
+            fwrite(line, 1, pos, stderr);
+            fflush(stderr);
+        }
+    }
+}
+
+void ControlChannel::update_verify(double timeout_secs, bool verbose)
+{
+    if (verbose) {
+        char line[128];
+        int pos = snprintf(line, sizeof(line), "\rVerifying firmware...");
+        while (pos < 100) line[pos++] = ' ';
+        line[pos] = '\0';
+        fwrite(line, 1, pos, stderr);
+        fflush(stderr);
+    }
+
+    pb::MessageV1 msg;
+    msg.set_id(utils::generate_uuid());
+
+    pb::UpdateCommand* update_cmd = msg.mutable_update_command();
+    update_cmd->mutable_verify();
+
+    // device compares hash and returns success or failure
+    update_simple_response_process(send_and_recv(msg, timeout_secs));
+}
+
+void ControlChannel::update_commit(double timeout_secs, bool verbose)
+{
+    if (verbose) {
+        char line[128];
+        int pos = snprintf(line, sizeof(line), "\rCommitting firmware update...");
+        while (pos < 100) line[pos++] = ' ';
+        line[pos] = '\0';
+        fwrite(line, 1, pos, stderr);
+        fflush(stderr);
+    }
+
+    pb::MessageV1 msg;
+    msg.set_id(utils::generate_uuid());
+
+    pb::UpdateCommand* update_cmd = msg.mutable_update_command();
+    update_cmd->mutable_commit();
+
+    update_simple_response_process(send_and_recv(msg, timeout_secs));
+
+    if (verbose) {
+        char line[128];
+        int pos = snprintf(line, sizeof(line), "\rFirmware update complete.");
+        while (pos < 100) line[pos++] = ' ';
+        line[pos++] = '\n';
+        line[pos] = '\0';
+        fwrite(line, 1, pos, stderr);
+    }
+}
+
+void ControlChannel::update_abort(double timeout_secs)
+{
+    pb::MessageV1 msg;
+    msg.set_id(utils::generate_uuid());
+
+    pb::UpdateCommand* update_cmd = msg.mutable_update_command();
+    update_cmd->mutable_abort();
+
+    // device compares hash and returns success or failure
+    update_simple_response_process(send_and_recv(msg, timeout_secs));
+}
+
+void ControlChannel::update_simple_response_process(pb::MessageV1&& response)
+{
+    if (response.has_error_message()) {
+        throw std::runtime_error(response.error_message().description());
+    }
+
+    if (!response.has_update_response()) {
+        throw std::runtime_error("No update response received");
+    }
+
+    if (response.update_response().has_failure()) {
+        throw std::runtime_error(response.update_response().failure().reason());
+    }
+}
+
 
 }  // namespace anabrid::pybrid::native

@@ -98,6 +98,47 @@ class AsyncControlChannel:
         await loop.run_in_executor(self._executor, self._native.stop)
         self._executor.shutdown(wait=False)
 
+    async def reconnect(
+        self,
+        *,
+        interval: float = 0.5,
+        timeout: float | None = None,
+    ) -> bool:
+        """Reconnect the underlying transport to the cached endpoint.
+
+        Offloads the blocking native reconnect call to the dedicated executor.
+        Honours :class:`asyncio.CancelledError` by calling ``cancel_reconnect``
+        on the native channel so Ctrl-C during a 20 s reconnect loop returns
+        promptly.
+
+        Args:
+            interval: Poll interval between reconnect attempts, in seconds.
+            timeout:  Total deadline for the reconnect. ``None`` means retry
+                      forever (subject to cancellation).
+
+        Returns:
+            ``True`` if the channel reconnected, ``False`` on timeout or
+            cancellation.
+        """
+        loop = asyncio.get_running_loop()
+        future = loop.run_in_executor(
+            self._executor,
+            self._native.reconnect,
+            interval,
+            timeout,
+        )
+        try:
+            return await future
+        except asyncio.CancelledError:
+            # Ctrl-C or caller cancellation: unstick the native reconnect loop
+            # so the executor thread frees up before we return.
+            self._native.cancel_reconnect()
+            try:
+                await future
+            except (asyncio.CancelledError, Exception):
+                pass
+            return False
+
     @property
     def remote_host(self) -> str:
         """Remote IP address, or an empty string when not connected."""
@@ -366,6 +407,110 @@ class AsyncControlChannel:
                 timeout,
             )
             return Result.success() if success else Result.failure("authentication rejected")
+        except RuntimeError as e:
+            return Result.failure(str(e))
+
+    async def update_begin(
+        self,
+        new_size: int,
+        new_sha256: str,
+        timeout: float = 5.0,
+        verbose: bool = False,
+    ) -> int:
+        """Begin an OTA update and return the chunk size advertised by the device.
+
+        Args:
+            new_size:   Total size of the firmware image in bytes.
+            new_sha256: Hex-encoded SHA-256 digest of the firmware image.
+            timeout:    Maximum time to wait for the acknowledgement in seconds.
+            verbose:    Print progress information to stderr.
+
+        Returns:
+            The maximum chunk size (in bytes) the device will accept per write.
+
+        :raises RuntimeError: On timeout, error response, or missing acknowledgement.
+        """
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            self._executor,
+            self._native.update_begin,
+            new_size,
+            new_sha256,
+            timeout,
+            verbose,
+        )
+
+    async def update_write_full(
+        self,
+        new_size: int,
+        max_chunk_size: int,
+        data: "bytes | bytearray | memoryview",
+        timeout: float = 5.0,
+        verbose: bool = False,
+    ) -> Result:
+        """Stream the firmware image to the device in chunks.
+
+        Args:
+            new_size:       Total size of the firmware image in bytes.
+            max_chunk_size: Maximum chunk size advertised by :meth:`update_begin`.
+            data:           Byte buffer holding the firmware image. Any object
+                            implementing the Python buffer protocol is accepted.
+            timeout:        Per-chunk timeout in seconds.
+            verbose:        Print a progress bar to stderr.
+        """
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                self._executor,
+                self._native.update_write_full,
+                new_size,
+                max_chunk_size,
+                data,
+                timeout,
+                verbose,
+            )
+            return Result.success()
+        except RuntimeError as e:
+            return Result.failure(str(e))
+
+    async def update_verify(self, timeout: float = 5.0, verbose: bool = False) -> Result:
+        """Ask the device to verify the uploaded image against the SHA-256 digest."""
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                self._executor,
+                self._native.update_verify,
+                timeout,
+                verbose,
+            )
+            return Result.success()
+        except RuntimeError as e:
+            return Result.failure(str(e))
+
+    async def update_commit(self, timeout: float = 5.0, verbose: bool = False) -> Result:
+        """Commit the verified update; the device reboots into the new image."""
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                self._executor,
+                self._native.update_commit,
+                timeout,
+                verbose,
+            )
+            return Result.success()
+        except RuntimeError as e:
+            return Result.failure(str(e))
+
+    async def update_abort(self, timeout: float = 5.0) -> Result:
+        """Abort an in-progress update and discard any uploaded data."""
+        loop = asyncio.get_running_loop()
+        try:
+            await loop.run_in_executor(
+                self._executor,
+                self._native.update_abort,
+                timeout,
+            )
+            return Result.success()
         except RuntimeError as e:
             return Result.failure(str(e))
 

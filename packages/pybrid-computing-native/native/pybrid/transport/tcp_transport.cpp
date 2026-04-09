@@ -240,8 +240,6 @@ void TCPTransport::disconnect() {
     std::lock_guard<std::mutex> lock(socket_mutex_);
 
     connected_ = false;
-    remote_host_.clear();
-    remote_port_ = 0;
 
     if (socket_ && socket_->is_open()) {
         asio::error_code ec;
@@ -274,16 +272,10 @@ bool TCPTransport::drain(double timeout_secs) {
 }
 
 std::string TCPTransport::remote_host() const {
-    if (!connected_) {
-        return "";
-    }
     return remote_host_;
 }
 
 uint16_t TCPTransport::remote_port() const {
-    if (!connected_) {
-        return 0;
-    }
     return remote_port_;
 }
 

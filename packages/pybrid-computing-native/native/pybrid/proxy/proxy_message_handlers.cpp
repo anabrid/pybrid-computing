@@ -1,8 +1,11 @@
 #include "pybrid/proxy/proxy_server.h"
 
+#include <algorithm>
+#include <chrono>
 #include <future>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -12,12 +15,58 @@
 #include "pybrid/utils/protobuf_helpers.h"
 #include "pybrid/utils/uuid.h"
 
+namespace {
+
+/// Sort EntitySpecification items within a module by CarrierLocationV0
+/// (stack first, then carrier). Non-specification items are left in place.
+void sort_module_by_location(pb::Module& module) {
+    auto* items = module.mutable_items();
+
+    // Partition: collect indices of entity_specification items.
+    std::vector<int> spec_indices;
+    for (int i = 0; i < items->size(); ++i) {
+        if (items->at(i).has_entity_specification()) {
+            spec_indices.push_back(i);
+        }
+    }
+    if (spec_indices.size() <= 1) return;
+
+    // Sort the spec indices by (stack, carrier).
+    std::stable_sort(spec_indices.begin(), spec_indices.end(),
+        [&items](int a, int b) {
+            auto key = [](const pb::Item& item) -> std::pair<uint32_t, uint32_t> {
+                const auto& e = item.entity_specification().entity();
+                if (e.has_location_v0())
+                    return {e.location_v0().stack(), e.location_v0().carrier()};
+                return {UINT32_MAX, UINT32_MAX};
+            };
+            return key(items->at(a)) < key(items->at(b));
+        });
+
+    // Apply the permutation via a temporary copy of the spec items.
+    std::vector<pb::Item> sorted_specs;
+    sorted_specs.reserve(spec_indices.size());
+    for (int idx : spec_indices) {
+        sorted_specs.push_back(items->at(idx));
+    }
+
+    // Write them back into their original slot positions.
+    std::vector<int> slots(spec_indices);
+    std::sort(slots.begin(), slots.end());
+    for (size_t i = 0; i < slots.size(); ++i) {
+        *items->Mutable(slots[i]) = std::move(sorted_specs[i]);
+    }
+}
+
+}  // anonymous namespace
+
 namespace anabrid::pybrid::native {
 
 BroadcastResult ProxyServer::broadcast_to_backends(
     std::vector<BackendDevice*> targets,
     std::function<pb::MessageV1(BackendDevice&)> request_factory,
-    double timeout_secs) {
+    double timeout_secs,
+    bool include_responses) {
 
     struct BackendTask {
         BackendDevice* backend;
@@ -44,6 +93,10 @@ BroadcastResult ProxyServer::broadcast_to_backends(
     for (auto& task : tasks) {
         try {
             pb::MessageV1 resp = task.future.get();
+
+            if(include_responses)
+                result.responses.emplace_back(resp);
+
             if (resp.has_error_message() && !result.had_error) {
                 result.had_error = true;
                 result.error_text = resp.error_message().description();
@@ -93,6 +146,8 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
             }
         }
 
+        sort_module_by_location(merged);
+
         pb::MessageV1 response;
         response.set_id(msg.id());
         *response.mutable_extract_response()->mutable_module() = std::move(merged);
@@ -114,6 +169,9 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
         *req.mutable_extract_command() = msg.extract_command();
 
         pb::MessageV1 resp = backend->control->send_and_recv(req, BACKEND_REQUEST_TIMEOUT_SECS);
+        if (resp.has_extract_response()) {
+            sort_module_by_location(*resp.mutable_extract_response()->mutable_module());
+        }
         resp.set_id(msg.id());
         client.send(resp);
     } catch (const std::exception& e) {
@@ -332,6 +390,115 @@ void ProxyServer::handle_register_external_entities(
     pb::MessageV1 response;
     response.set_id(msg.id());
     response.mutable_success_message();
+    client.send(response);
+}
+
+void ProxyServer::handle_update(
+    ClientSession& client, const pb::MessageV1& msg) {
+    const auto& update_cmd = msg.update_command();
+
+    constexpr std::chrono::milliseconds REBOOT_GRACE{2000};
+    constexpr std::chrono::milliseconds RECONNECT_TIMEOUT{20000};
+
+    const char* kind = update_cmd.has_begin()  ? "begin"  :
+                       update_cmd.has_write()   ? nullptr  :
+                       update_cmd.has_verify()  ? "verify" :
+                       update_cmd.has_commit()  ? "commit" :
+                       update_cmd.has_abort()   ? "abort"  : "unknown";
+    if (kind) {
+        std::lock_guard<std::mutex> lock(log_mutex_);
+        std::cerr << "[ProxyServer] Update: " << kind << "\n";
+    }
+
+    std::vector<BackendDevice*> targets;
+    for (auto& b : backends_) targets.push_back(&b);
+
+    if (update_cmd.has_commit()) {
+        auto result = broadcast_to_backends(targets,
+            [&msg](BackendDevice&) {
+                pb::MessageV1 req;
+                req.set_id(utils::generate_uuid());
+                *req.mutable_update_command() = msg.update_command();
+                return req;
+            },
+            5.0);
+
+        // Reply to client immediately — the device answers before rebooting.
+        pb::MessageV1 response;
+        response.set_id(msg.id());
+        if (result.had_error) {
+            response.mutable_update_response()->mutable_failure()->set_reason(
+                result.error_text);
+        } else {
+            response.mutable_update_response()->mutable_success();
+        }
+        client.send(response);
+
+        if (result.had_error) return;
+
+        // Mark all backends REBOOTING so the background reconnect_loop
+        // and the session watchdog leave them alone during the reboot.
+        for (auto* backend : targets) {
+            set_backend_health(*backend, BackendHealth::REBOOTING);
+        }
+
+        std::this_thread::sleep_for(REBOOT_GRACE);
+
+        std::vector<std::future<bool>> futures;
+        futures.reserve(targets.size());
+        for (auto* backend : targets) {
+            futures.push_back(std::async(std::launch::async,
+                [this, backend]() {
+                    return reconnect_backend(*backend, RECONNECT_TIMEOUT);
+                }));
+        }
+
+        for (size_t i = 0; i < futures.size(); ++i) {
+            bool ok = futures[i].get();
+            set_backend_health(*targets[i],
+                ok ? BackendHealth::HEALTHY : BackendHealth::DEAD);
+        }
+        return;
+    }
+
+    // Non-commit paths: broadcast and relay results.
+    auto result = broadcast_to_backends(targets,
+        [&msg](BackendDevice&) {
+            pb::MessageV1 req;
+            req.set_id(utils::generate_uuid());
+            *req.mutable_update_command() = msg.update_command();
+            return req;
+        },
+        5.0,
+        update_cmd.has_begin());
+
+    if (result.had_error) {
+        pb::MessageV1 response;
+        response.set_id(msg.id());
+        response.mutable_update_response()->mutable_failure()->set_reason(
+            result.error_text);
+        client.send(response);
+        return;
+    }
+
+    if (update_cmd.has_begin()) {
+        // Use the minimum chunk size so no backend gets oversized writes.
+        size_t min_chunk = SIZE_MAX;
+        for (auto& resp : result.responses) {
+            min_chunk = std::min(min_chunk,
+                static_cast<size_t>(resp.update_response().ack().chunk_size()));
+        }
+
+        pb::MessageV1 response;
+        response.set_id(msg.id());
+        response.mutable_update_response()->mutable_ack()->set_chunk_size(min_chunk);
+        client.send(response);
+        return;
+    }
+
+    pb::MessageV1 response;
+    response.set_id(msg.id());
+    response.mutable_update_response()->mutable_success();
     client.send(response);
 }
 

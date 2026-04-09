@@ -61,6 +61,15 @@ private:
     void check_sequence(const pb::RunDataMessage& rdm);
 };
 
+/// Lifecycle state of a proxied backend device.
+/// Values are load-bearing: the test hook and Python binding expose them
+/// as integers (0/1/2).
+enum class BackendHealth : int {
+    HEALTHY = 0,
+    REBOOTING = 1,
+    DEAD = 2,
+};
+
 /// One connected backend device owned by the ProxyServer.
 struct BackendDevice {
     std::string host;
@@ -83,11 +92,44 @@ struct BackendDevice {
     std::optional<uint32_t> location_stack;
     std::optional<uint32_t> location_carrier;
 
+    /// Health state; only written through ProxyServer::set_backend_health()
+    /// so callers cannot forget to wake waiters on transitions.
+    std::atomic<BackendHealth> health{BackendHealth::HEALTHY};
+
     BackendDevice() = default;
     BackendDevice(const BackendDevice&) = delete;
     BackendDevice& operator=(const BackendDevice&) = delete;
-    BackendDevice(BackendDevice&&) = default;
-    BackendDevice& operator=(BackendDevice&&) = default;
+
+    // std::atomic is not move-constructible, so we move every other field
+    // explicitly and copy the atomic's current value.
+    BackendDevice(BackendDevice&& other) noexcept
+        : host(std::move(other.host)),
+          port(other.port),
+          control(std::move(other.control)),
+          data_channel(std::move(other.data_channel)),
+          data_channel_init_future(std::move(other.data_channel_init_future)),
+          carrier_paths(std::move(other.carrier_paths)),
+          cached_module(std::move(other.cached_module)),
+          location_stack(std::move(other.location_stack)),
+          location_carrier(std::move(other.location_carrier)),
+          health(other.health.load(std::memory_order_acquire)) {}
+
+    BackendDevice& operator=(BackendDevice&& other) noexcept {
+        if (this != &other) {
+            host = std::move(other.host);
+            port = other.port;
+            control = std::move(other.control);
+            data_channel = std::move(other.data_channel);
+            data_channel_init_future = std::move(other.data_channel_init_future);
+            carrier_paths = std::move(other.carrier_paths);
+            cached_module = std::move(other.cached_module);
+            location_stack = std::move(other.location_stack);
+            location_carrier = std::move(other.location_carrier);
+            health.store(other.health.load(std::memory_order_acquire),
+                         std::memory_order_release);
+        }
+        return *this;
+    }
 };
 
 /// One accepted TCP client connection managed by the ProxyServer.
@@ -131,6 +173,9 @@ private:
 struct BroadcastResult {
     bool had_error = false;
     std::string error_text;
+
+    // optional - responses only kept when user explicitly asks
+    std::vector<pb::MessageV1> responses;
 };
 
 /// Thin TCP relay between backend REDAC devices and client connections.
@@ -149,6 +194,8 @@ class ProxyServer {
     static constexpr double BACKEND_UDP_NEGOTIATION_TIMEOUT_SECS = 2.0;
     static constexpr double DRAIN_TIMEOUT_SECS = 1.0;
     static constexpr double SESSION_INITIAL_WAIT_SECS = 0.45;
+    static constexpr std::chrono::milliseconds RECONNECT_POLL_INTERVAL{500};
+    static constexpr std::chrono::milliseconds RECONNECT_ATTEMPT_TIMEOUT{5000};
 
 public:
     /// When requires_auth is true, reads PYBRID_AUTHENTICATION from the
@@ -193,14 +240,26 @@ public:
 
     void set_debug(bool enabled);
 
+    /// Test-only: force a backend's health directly. Values must match the
+    /// BackendHealth enum (0=HEALTHY, 1=REBOOTING, 2=DEAD). Out-of-range
+    /// indices are silently ignored.
+    void set_backend_health_for_test(size_t index, int new_health);
+
+    /// Test-only: read a backend's health as int. Returns -1 if the index
+    /// is out of range.
+    int get_backend_health(size_t index) const;
+
 private:
     void accept_loop();
+    void reconnect_loop();
     void run_session(ClientSession& session);
     void dispatch_message(ClientSession& session, const pb::MessageV1& msg);
 
-    void register_session(const std::string& id);
-    void deregister_session(const std::string& id);
-    void activate_next_session();
+    void register_session(const std::string& id,
+                          std::unique_lock<std::mutex>& lock);
+    void deregister_session(const std::string& id,
+                            std::unique_lock<std::mutex>& lock);
+    void activate_next_session(std::unique_lock<std::mutex>& lock);
 
     void install_forward_callbacks(ClientSession& session);
     void clear_forward_callbacks();
@@ -215,12 +274,28 @@ private:
     void handle_calibrate(ClientSession& client, const pb::MessageV1& msg);
     void handle_udp_streaming(ClientSession& client, const pb::MessageV1& msg);
     void handle_register_external_entities(ClientSession& client, const pb::MessageV1& msg);
+    void handle_update(ClientSession& client, const pb::MessageV1& msg);
 
     /// Dispatch requests to backends in parallel, returning the first error (if any).
     BroadcastResult broadcast_to_backends(
         std::vector<BackendDevice*> targets,
         std::function<pb::MessageV1(BackendDevice&)> request_factory,
-        double timeout_secs = BACKEND_REQUEST_TIMEOUT_SECS);
+        double timeout_secs = BACKEND_REQUEST_TIMEOUT_SECS,
+        bool include_responses = false);
+
+    /// Single writer for BackendDevice::health. Stores the new state under
+    /// session_mutex_ and notifies session_cv_ so waiters observe the
+    /// transition atomically.
+    void set_backend_health(BackendDevice& backend, BackendHealth new_health);
+
+    /// True iff every registered backend reports HEALTHY.
+    bool all_backends_healthy() const;
+
+    /// Attempt to bring a backend's control channel back up and rebuild its
+    /// UDP data transport. Returns true on success. Exceptions thrown by
+    /// the underlying channels are caught and converted to false.
+    bool reconnect_backend(BackendDevice& backend,
+                           std::chrono::milliseconds timeout);
 
     BackendDevice* find_backend_for_path(const std::string& entity_path);
     static pb::Entity merge_entity_trees(const std::vector<pb::Entity>& entities);
@@ -239,6 +314,7 @@ private:
 
     TCPServer server_;
     std::thread accept_thread_;
+    std::thread reconnect_thread_;
 
     std::mutex session_mutex_;
     std::condition_variable session_cv_;

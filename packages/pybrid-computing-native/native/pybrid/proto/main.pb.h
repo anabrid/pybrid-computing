@@ -623,6 +623,10 @@ class UpdateSuccess;
 struct UpdateSuccessDefaultTypeInternal;
 extern UpdateSuccessDefaultTypeInternal _UpdateSuccess_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull UpdateSuccess_class_data_;
+class UpdateVerify;
+struct UpdateVerifyDefaultTypeInternal;
+extern UpdateVerifyDefaultTypeInternal _UpdateVerify_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull UpdateVerify_class_data_;
 class UpdateWrite;
 struct UpdateWriteDefaultTypeInternal;
 extern UpdateWriteDefaultTypeInternal _UpdateWrite_default_instance_;
@@ -2453,6 +2457,141 @@ class UpdateWrite final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull UpdateWrite_class_data_;
 // -------------------------------------------------------------------
 
+class UpdateVerify final : public ::google::protobuf::internal::ZeroFieldsBase
+/* @@protoc_insertion_point(class_definition:pb.UpdateVerify) */ {
+ public:
+  inline UpdateVerify() : UpdateVerify(nullptr) {}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(UpdateVerify* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(UpdateVerify));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR UpdateVerify(::google::protobuf::internal::ConstantInitialized);
+
+  inline UpdateVerify(const UpdateVerify& from) : UpdateVerify(nullptr, from) {}
+  inline UpdateVerify(UpdateVerify&& from) noexcept
+      : UpdateVerify(nullptr, ::std::move(from)) {}
+  inline UpdateVerify& operator=(const UpdateVerify& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UpdateVerify& operator=(UpdateVerify&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const UpdateVerify& default_instance() {
+    return *reinterpret_cast<const UpdateVerify*>(
+        &_UpdateVerify_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 133;
+  friend void swap(UpdateVerify& a, UpdateVerify& b) { a.Swap(&b); }
+  inline void Swap(UpdateVerify* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(UpdateVerify* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  UpdateVerify* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<UpdateVerify>(arena);
+  }
+  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const UpdateVerify& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const UpdateVerify& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "pb.UpdateVerify"; }
+
+ protected:
+  explicit UpdateVerify(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  UpdateVerify(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const UpdateVerify& from);
+  UpdateVerify(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, UpdateVerify&& from) noexcept
+      : UpdateVerify(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  // @@protoc_insertion_point(class_scope:pb.UpdateVerify)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<0, 0,
+                                   0, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  friend struct ::TableStruct_main_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull UpdateVerify_class_data_;
+// -------------------------------------------------------------------
+
 class UpdateSuccess final : public ::google::protobuf::internal::ZeroFieldsBase
 /* @@protoc_insertion_point(class_definition:pb.UpdateSuccess) */ {
  public:
@@ -2507,7 +2646,7 @@ class UpdateSuccess final : public ::google::protobuf::internal::ZeroFieldsBase
     return *reinterpret_cast<const UpdateSuccess*>(
         &_UpdateSuccess_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 135;
+  static constexpr int kIndexInFileMessages = 136;
   friend void swap(UpdateSuccess& a, UpdateSuccess& b) { a.Swap(&b); }
   inline void Swap(UpdateSuccess* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2643,7 +2782,7 @@ class UpdateFailure final : public ::google::protobuf::Message
     return *reinterpret_cast<const UpdateFailure*>(
         &_UpdateFailure_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 134;
+  static constexpr int kIndexInFileMessages = 135;
   friend void swap(UpdateFailure& a, UpdateFailure& b) { a.Swap(&b); }
   inline void Swap(UpdateFailure* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -3182,7 +3321,7 @@ class UpdateAck final : public ::google::protobuf::Message
     return *reinterpret_cast<const UpdateAck*>(
         &_UpdateAck_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 133;
+  static constexpr int kIndexInFileMessages = 134;
   friend void swap(UpdateAck& a, UpdateAck& b) { a.Swap(&b); }
   inline void Swap(UpdateAck* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -15873,6 +16012,7 @@ class UpdateCommand final : public ::google::protobuf::Message
     kWrite = 11,
     kCommit = 12,
     kAbort = 13,
+    kVerify = 14,
     KIND_NOT_SET = 0,
   };
   static constexpr int kIndexInFileMessages = 127;
@@ -15967,6 +16107,7 @@ class UpdateCommand final : public ::google::protobuf::Message
     kWriteFieldNumber = 11,
     kCommitFieldNumber = 12,
     kAbortFieldNumber = 13,
+    kVerifyFieldNumber = 14,
   };
   // .pb.UpdateBegin begin = 10;
   bool has_begin() const;
@@ -16044,6 +16185,25 @@ class UpdateCommand final : public ::google::protobuf::Message
   ::pb::UpdateAbort* PROTOBUF_NONNULL _internal_mutable_abort();
 
   public:
+  // .pb.UpdateVerify verify = 14;
+  bool has_verify() const;
+  private:
+  bool _internal_has_verify() const;
+
+  public:
+  void clear_verify() ;
+  const ::pb::UpdateVerify& verify() const;
+  [[nodiscard]] ::pb::UpdateVerify* PROTOBUF_NULLABLE release_verify();
+  ::pb::UpdateVerify* PROTOBUF_NONNULL mutable_verify();
+  void set_allocated_verify(::pb::UpdateVerify* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_verify(::pb::UpdateVerify* PROTOBUF_NULLABLE value);
+  ::pb::UpdateVerify* PROTOBUF_NULLABLE unsafe_arena_release_verify();
+
+  private:
+  const ::pb::UpdateVerify& _internal_verify() const;
+  ::pb::UpdateVerify* PROTOBUF_NONNULL _internal_mutable_verify();
+
+  public:
   void clear_kind();
   KindCase kind_case() const;
   // @@protoc_insertion_point(class_scope:pb.UpdateCommand)
@@ -16053,11 +16213,12 @@ class UpdateCommand final : public ::google::protobuf::Message
   void set_has_write();
   void set_has_commit();
   void set_has_abort();
+  void set_has_verify();
   inline bool has_kind() const;
   inline void clear_has_kind();
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 4,
-                                   4, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 5,
+                                   5, 0,
                                    2>
       _table_;
 
@@ -16083,6 +16244,7 @@ class UpdateCommand final : public ::google::protobuf::Message
       ::google::protobuf::Message* PROTOBUF_NULLABLE write_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE commit_;
       ::google::protobuf::Message* PROTOBUF_NULLABLE abort_;
+      ::google::protobuf::Message* PROTOBUF_NULLABLE verify_;
     } kind_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -28386,7 +28548,7 @@ class File final : public ::google::protobuf::Message
     return *reinterpret_cast<const File*>(
         &_File_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 137;
+  static constexpr int kIndexInFileMessages = 138;
   friend void swap(File& a, File& b) { a.Swap(&b); }
   inline void Swap(File* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -29264,7 +29426,7 @@ class MessageV1 final : public ::google::protobuf::Message
     kJitResponse = 505,
     KIND_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 136;
+  static constexpr int kIndexInFileMessages = 137;
   friend void swap(MessageV1& a, MessageV1& b) { a.Swap(&b); }
   inline void Swap(MessageV1* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -44961,6 +45123,87 @@ inline ::pb::UpdateAbort* PROTOBUF_NONNULL UpdateCommand::mutable_abort()
   return _msg;
 }
 
+// .pb.UpdateVerify verify = 14;
+inline bool UpdateCommand::has_verify() const {
+  return kind_case() == kVerify;
+}
+inline bool UpdateCommand::_internal_has_verify() const {
+  return kind_case() == kVerify;
+}
+inline void UpdateCommand::set_has_verify() {
+  _impl_._oneof_case_[0] = kVerify;
+}
+inline void UpdateCommand::clear_verify() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (kind_case() == kVerify) {
+    if (GetArena() == nullptr) {
+      delete _impl_.kind_.verify_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.kind_.verify_);
+    }
+    clear_has_kind();
+  }
+}
+inline ::pb::UpdateVerify* PROTOBUF_NULLABLE UpdateCommand::release_verify() {
+  // @@protoc_insertion_point(field_release:pb.UpdateCommand.verify)
+  if (kind_case() == kVerify) {
+    clear_has_kind();
+    auto* temp = reinterpret_cast<::pb::UpdateVerify*>(_impl_.kind_.verify_);
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.kind_.verify_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::pb::UpdateVerify& UpdateCommand::_internal_verify() const {
+  return kind_case() == kVerify ? *reinterpret_cast<::pb::UpdateVerify*>(_impl_.kind_.verify_) : reinterpret_cast<::pb::UpdateVerify&>(::pb::_UpdateVerify_default_instance_);
+}
+inline const ::pb::UpdateVerify& UpdateCommand::verify() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb.UpdateCommand.verify)
+  return _internal_verify();
+}
+inline ::pb::UpdateVerify* PROTOBUF_NULLABLE UpdateCommand::unsafe_arena_release_verify() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pb.UpdateCommand.verify)
+  if (kind_case() == kVerify) {
+    clear_has_kind();
+    auto* temp = reinterpret_cast<::pb::UpdateVerify*>(_impl_.kind_.verify_);
+    _impl_.kind_.verify_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void UpdateCommand::unsafe_arena_set_allocated_verify(
+    ::pb::UpdateVerify* PROTOBUF_NULLABLE value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_kind();
+  if (value) {
+    set_has_verify();
+    _impl_.kind_.verify_ = reinterpret_cast<::google::protobuf::Message*>(value);
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb.UpdateCommand.verify)
+}
+inline ::pb::UpdateVerify* PROTOBUF_NONNULL UpdateCommand::_internal_mutable_verify() {
+  if (kind_case() != kVerify) {
+    clear_kind();
+    set_has_verify();
+    _impl_.kind_.verify_ = reinterpret_cast<::google::protobuf::Message*>(
+        ::google::protobuf::Message::DefaultConstruct<::pb::UpdateVerify>(GetArena()));
+  }
+  return reinterpret_cast<::pb::UpdateVerify*>(_impl_.kind_.verify_);
+}
+inline ::pb::UpdateVerify* PROTOBUF_NONNULL UpdateCommand::mutable_verify()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::pb::UpdateVerify* _msg = _internal_mutable_verify();
+  // @@protoc_insertion_point(field_mutable:pb.UpdateCommand.verify)
+  return _msg;
+}
+
 inline bool UpdateCommand::has_kind() const {
   return kind_case() != KIND_NOT_SET;
 }
@@ -45419,6 +45662,10 @@ inline void UpdateWrite::_internal_set_offset(::uint64_t value) {
 // -------------------------------------------------------------------
 
 // UpdateAbort
+
+// -------------------------------------------------------------------
+
+// UpdateVerify
 
 // -------------------------------------------------------------------
 

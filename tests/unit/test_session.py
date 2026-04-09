@@ -23,7 +23,13 @@ import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch, call
 
-from pybrid.redac.session import Session, SessionCommand, SetConfigCommand, RunCommand
+from pybrid.redac.session import (
+    Session,
+    SessionCommand,
+    SetConfigCommand,
+    RunCommand,
+    FirmwareUpdateCommand,
+)
 
 from pybrid.redac.run import Run, RunConfig, RunState
 from pybrid.redac.entities import Path, Loc

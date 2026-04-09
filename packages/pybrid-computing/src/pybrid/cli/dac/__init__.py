@@ -467,6 +467,19 @@ async def reset_usb(tag_filter: str, dry_run: bool):
     if not dry_run:
         click.echo(f"Reset {len(matches)} board(s).")
 
+@click.command()
+@click.argument("firmware", type=str)
+@click.pass_obj
+async def update(obj, firmware: str):
+    """
+    OTA update for a device (real device, not simulator).
+    """
+    controller: REDACController | LUCIDACController = obj["controller"]
+
+    # create a session that _only_ updates the firmware
+    session = controller.create_session()
+    session.set_firmware(firmware, verbose=True)
+    await session.execute()
 
 @cli.command()
 @click.pass_obj

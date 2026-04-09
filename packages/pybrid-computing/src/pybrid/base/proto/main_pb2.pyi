@@ -1224,16 +1224,18 @@ class JitResponse(_message.Message):
     def __init__(self, success: _Optional[bool] = ..., diag: _Optional[_Union[Diagnosis, _Mapping]] = ...) -> None: ...
 
 class UpdateCommand(_message.Message):
-    __slots__ = ("begin", "write", "commit", "abort")
+    __slots__ = ("begin", "write", "commit", "abort", "verify")
     BEGIN_FIELD_NUMBER: _ClassVar[int]
     WRITE_FIELD_NUMBER: _ClassVar[int]
     COMMIT_FIELD_NUMBER: _ClassVar[int]
     ABORT_FIELD_NUMBER: _ClassVar[int]
+    VERIFY_FIELD_NUMBER: _ClassVar[int]
     begin: UpdateBegin
     write: UpdateWrite
     commit: UpdateCommit
     abort: UpdateAbort
-    def __init__(self, begin: _Optional[_Union[UpdateBegin, _Mapping]] = ..., write: _Optional[_Union[UpdateWrite, _Mapping]] = ..., commit: _Optional[_Union[UpdateCommit, _Mapping]] = ..., abort: _Optional[_Union[UpdateAbort, _Mapping]] = ...) -> None: ...
+    verify: UpdateVerify
+    def __init__(self, begin: _Optional[_Union[UpdateBegin, _Mapping]] = ..., write: _Optional[_Union[UpdateWrite, _Mapping]] = ..., commit: _Optional[_Union[UpdateCommit, _Mapping]] = ..., abort: _Optional[_Union[UpdateAbort, _Mapping]] = ..., verify: _Optional[_Union[UpdateVerify, _Mapping]] = ...) -> None: ...
 
 class UpdateResponse(_message.Message):
     __slots__ = ("ack", "failure", "success")
@@ -1266,6 +1268,10 @@ class UpdateCommit(_message.Message):
     def __init__(self) -> None: ...
 
 class UpdateAbort(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class UpdateVerify(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 

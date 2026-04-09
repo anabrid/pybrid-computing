@@ -89,6 +89,9 @@ public:
     void stop();
     bool is_running() const;
 
+    /// Restart the UDP transport. The control channel must already be reconnected.
+    void reconnect();
+
     /// @return true if UDP was refused and now receiving via TCP.
     bool is_using_tcp_fallback() const;
 
