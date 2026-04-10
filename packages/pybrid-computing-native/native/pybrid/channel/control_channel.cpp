@@ -77,6 +77,15 @@ void ControlChannel::stop() {
         }
         pending_requests_.clear();
     }
+    {
+        std::lock_guard<std::mutex> lk(ping_mutex_);
+        if (pending_ping_) {
+            try { pending_ping_->set_exception(
+                std::make_exception_ptr(std::runtime_error("stopped"))); }
+            catch (const std::future_error&) {}
+            pending_ping_.reset();
+        }
+    }
 
     if (transport_) {
         transport_->stop();
@@ -104,6 +113,15 @@ bool ControlChannel::reconnect(
             } catch (const std::future_error&) {}
         }
         pending_requests_.clear();
+    }
+    {
+        std::lock_guard<std::mutex> lk(ping_mutex_);
+        if (pending_ping_) {
+            try { pending_ping_->set_exception(
+                std::make_exception_ptr(std::runtime_error("reconnecting"))); }
+            catch (const std::future_error&) {}
+            pending_ping_.reset();
+        }
     }
 
     auto host = transport_->remote_host();
@@ -233,6 +251,44 @@ pb::MessageV1 ControlChannel::send_and_recv(const pb::MessageV1& msg, double tim
     return future.get();
 }
 
+void ControlChannel::ping(double timeout_secs) {
+    if (reconnecting_.load(std::memory_order_acquire))
+        throw std::runtime_error("ControlChannel::ping(): reconnect in progress");
+    if (!is_connected())
+        throw std::runtime_error("ControlChannel::ping(): not connected");
+
+    auto pending = std::make_shared<std::promise<void>>();
+    std::future<void> future = pending->get_future();
+
+    {
+        std::lock_guard<std::mutex> lk(ping_mutex_);
+        pending_ping_ = pending;
+    }
+
+    pb::Envelope envelope;
+    envelope.mutable_generic()->mutable_ping_command();
+
+    std::string serialized;
+    if (!envelope.SerializeToString(&serialized)) {
+        std::lock_guard<std::mutex> lk(ping_mutex_);
+        pending_ping_.reset();
+        throw std::runtime_error("ControlChannel::ping(): failed to serialize");
+    }
+
+    if (!transport_->send(serialized.data(), serialized.size())) {
+        std::lock_guard<std::mutex> lk(ping_mutex_);
+        pending_ping_.reset();
+        throw std::runtime_error("ControlChannel::ping(): transport send failed");
+    }
+
+    auto timeout = std::chrono::duration<double>(timeout_secs);
+    if (future.wait_for(timeout) == std::future_status::timeout) {
+        std::lock_guard<std::mutex> lk(ping_mutex_);
+        pending_ping_.reset();
+        throw std::runtime_error("ControlChannel::ping(): timeout");
+    }
+}
+
 void ControlChannel::register_callback(
     int field_number,
     std::function<void(pb::MessageV1&)> callback)
@@ -279,17 +335,27 @@ void ControlChannel::recv_loop() {
             running_.store(false, std::memory_order_release);
             transport_->disconnect();
 
-            std::lock_guard<std::mutex> lock(pending_mutex_);
-            for (auto& kv : pending_requests_) {
-                try {
-                    kv.second->promise.set_exception(
+            {
+                std::lock_guard<std::mutex> lock(pending_mutex_);
+                for (auto& kv : pending_requests_) {
+                    try {
+                        kv.second->promise.set_exception(
+                            std::make_exception_ptr(std::runtime_error(
+                                "ControlChannel: TCP connection closed")));
+                    } catch (const std::future_error&) {}
+                }
+                pending_requests_.clear();
+            }
+            {
+                std::lock_guard<std::mutex> lk(ping_mutex_);
+                if (pending_ping_) {
+                    try { pending_ping_->set_exception(
                         std::make_exception_ptr(std::runtime_error(
-                            "ControlChannel: TCP connection closed")));
-                } catch (const std::future_error&) {
-                    // Already satisfied — ignore.
+                            "ControlChannel: TCP connection closed"))); }
+                    catch (const std::future_error&) {}
+                    pending_ping_.reset();
                 }
             }
-            pending_requests_.clear();
             break;
         }
 
@@ -297,6 +363,19 @@ void ControlChannel::recv_loop() {
             pb::Envelope envelope;
             if (!envelope.ParseFromArray(
                     buffer.data(), static_cast<int>(result.bytes))) {
+                continue;
+            }
+
+            if (envelope.has_generic()) {
+                const auto& generic = envelope.generic();
+                if (generic.has_ping_response()) {
+                    std::lock_guard<std::mutex> lk(ping_mutex_);
+                    if (pending_ping_) {
+                        try { pending_ping_->set_value(); }
+                        catch (const std::future_error&) {}
+                        pending_ping_.reset();
+                    }
+                }
                 continue;
             }
 

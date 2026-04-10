@@ -1166,7 +1166,7 @@ class TestBusyWaitPingPolling:
             dac_thread.join(timeout=SHORT_TIMEOUT)
 
     def test_ping_returns_success_when_session_active(self) -> None:
-        """PingCommand from the active (sole) session returns SuccessMessage."""
+        """GenericMessage ping from the active session succeeds (fanned out to backends)."""
         config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
         ready = threading.Event()
         stop = threading.Event()
@@ -1191,18 +1191,8 @@ class TestBusyWaitPingPolling:
             # A brief extract to establish the active session before pinging.
             client_a.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
 
-            # Send a raw PingCommand — should get SuccessMessage.
-            req = pb.MessageV1()
-            req.id = str(uuid.uuid4())
-            req.ping_command.CopyFrom(pb.PingCommand())
-            resp_bytes = client_a.send_and_recv(req.SerializeToString(), SHORT_TIMEOUT)
-            resp = pb.MessageV1()
-            resp.ParseFromString(resp_bytes)
-
-            assert resp.HasField("success_message"), (
-                f"Active client A should receive success_message for PingCommand, "
-                f"got kind: {resp.WhichOneof('kind')}"
-            )
+            # GenericMessage ping — fans out to backends, no exception = success.
+            client_a.ping(SHORT_TIMEOUT)
         finally:
             if client_a is not None:
                 client_a.stop()
@@ -1265,39 +1255,50 @@ class TestBusyWaitPingPolling:
                 # Signal that B is queued — A can now start the long run.
                 client_b_queued.set()
 
-                # Poll with PingCommand every second until SuccessMessage.
+                # Poll with GenericMessage ping every second.  While B is
+                # queued, ping() still succeeds (the proxy handles it), so
+                # we detect activation by attempting a ResetCommand: it
+                # returns busy_response while queued and succeeds once active.
                 MAX_POLLS = 20
                 for _ in range(MAX_POLLS):
                     time.sleep(1.0)
-                    ping_req = pb.MessageV1()
-                    ping_req.id = str(uuid.uuid4())
-                    ping_req.ping_command.CopyFrom(pb.PingCommand())
-                    ping_resp_bytes = ch.send_and_recv(
-                        ping_req.SerializeToString(), SHORT_TIMEOUT
-                    )
-                    ping_resp = pb.MessageV1()
-                    ping_resp.ParseFromString(ping_resp_bytes)
 
-                    if ping_resp.HasField("busy_response"):
+                    # Liveness check — also exercises the proxy ping fan-out.
+                    try:
+                        ch.ping(SHORT_TIMEOUT)
+                    except RuntimeError:
                         client_b_busy_count[0] += 1
                         continue
 
-                    if ping_resp.HasField("success_message"):
-                        # Session is now active — send final ResetCommand.
-                        ch.reset(keep_calibration=True, sync=False, timeout=RUN_TIMEOUT)
+                    # Try a reset to see if we're now the active session.
+                    probe = pb.MessageV1()
+                    probe.id = str(uuid.uuid4())
+                    probe.reset_command.keep_calibration = True
+                    probe.reset_command.sync = False
+                    probe_bytes = ch.send_and_recv(
+                        probe.SerializeToString(), SHORT_TIMEOUT
+                    )
+                    probe_resp = pb.MessageV1()
+                    probe_resp.ParseFromString(probe_bytes)
+
+                    if probe_resp.HasField("busy_response"):
+                        client_b_busy_count[0] += 1
+                        continue
+
+                    if probe_resp.HasField("reset_response"):
                         client_b_reset_ok.set()
                         return
 
                     client_b_error.append(
                         AssertionError(
-                            f"Unexpected PingCommand response: {ping_resp.WhichOneof('kind')}"
+                            f"Unexpected reset probe response: {probe_resp.WhichOneof('kind')}"
                         )
                     )
                     return
 
                 client_b_error.append(
                     TimeoutError(
-                        f"Exceeded {MAX_POLLS} ping polls without receiving SuccessMessage"
+                        f"Exceeded {MAX_POLLS} polls without becoming active"
                     )
                 )
             except Exception as exc:

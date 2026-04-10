@@ -876,6 +876,13 @@ Args:
         .def("transport", &ControlChannel::transport,
              py::return_value_policy::reference_internal,
              "Get a reference to the underlying TCPTransport.")
+        .def("ping",
+            [](ControlChannel& self, double timeout) {
+                py::gil_scoped_release release;
+                self.ping(timeout);
+            },
+            py::arg("timeout") = 5.0,
+            "Send an Envelope-level GenericMessage ping and wait for the response.")
         .def("extract",
             [](ControlChannel& self, const std::string& entity_path,
                bool recursive, bool specification,

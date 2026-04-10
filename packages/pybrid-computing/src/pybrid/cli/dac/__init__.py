@@ -482,6 +482,36 @@ async def update(obj, firmware: str):
     await session.execute()
 
 @cli.command()
+@click.argument("host", type=str)
+@click.option("--port", "-p", type=int, default=5732)
+@click.option("--timeout", "-t", type=float, default=3.0)
+@click.option("--count", "-c", type=int, default=1, help="Number of pings to send.")
+async def ping(host: str, port: int, timeout: float, count: int):
+    """Send a V1 PingCommand to a device and measure round-trip time."""
+    try:
+        from pybrid.native import ControlChannel
+    except ImportError:
+        click.echo("Error: Native C++ extension not available.", err=True)
+        raise SystemExit(1)
+
+    import time
+
+    cc = ControlChannel.create(host, port, timeout)
+    cc.start()
+
+    try:
+        for i in range(count):
+            t0 = time.monotonic()
+            try:
+                cc.ping(timeout)
+                elapsed = (time.monotonic() - t0) * 1000
+                click.echo(f"Reply from {host}:{port}: time={elapsed:.1f}ms")
+            except Exception as e:
+                click.echo(f"Ping {host}:{port} failed: {e}")
+    finally:
+        cc.stop()
+
+@cli.command()
 @click.pass_obj
 async def detect(obj):
     """

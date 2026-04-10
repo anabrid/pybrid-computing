@@ -108,6 +108,11 @@ public:
     void update_abort(double timeout_secs = TURN_TIMEOUT_SECS);
     void update_simple_response_process(pb::MessageV1&& response);
 
+    /// Sends an Envelope-level GenericMessage.ping_command and waits for
+    /// the corresponding GenericMessage.ping_response from the firmware.
+    /// @throws std::runtime_error on timeout or transport failure.
+    void ping(double timeout_secs = TURN_TIMEOUT_SECS);
+
     void register_callback(int field_number, std::function<void(pb::MessageV1&)> callback);
     void unregister_callback(int field_number);
 
@@ -137,6 +142,10 @@ protected:
 
     std::mutex pending_mutex_;
     std::unordered_map<std::string, std::shared_ptr<PendingRequest>> pending_requests_;
+
+    /// Fulfilled by recv_loop when a GenericMessage.ping_response arrives.
+    std::mutex ping_mutex_;
+    std::shared_ptr<std::promise<void>> pending_ping_;
 
     std::mutex callback_mutex_;
     std::unordered_map<int, std::function<void(pb::MessageV1&)>> callbacks_;
