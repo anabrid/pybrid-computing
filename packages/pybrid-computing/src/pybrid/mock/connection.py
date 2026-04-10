@@ -264,6 +264,17 @@ class ClientConnection:
                 data = await self._reader.readexactly(length)
                 envelope = pb.Envelope()
                 envelope.ParseFromString(data)
+
+                # GenericMessage ping: respond at the Envelope level.
+                if envelope.HasField("generic") and envelope.generic.HasField("ping_command"):
+                    resp = pb.Envelope()
+                    resp.generic.ping_response.CopyFrom(pb.PingResponse())
+                    data = resp.SerializeToString()
+                    _varint_encoder(self._writer.write, len(data))
+                    self._writer.write(data)
+                    await self._writer.drain()
+                    continue
+
                 msg = envelope.message_v1
                 await self._process(msg)
         except (EOFError, ConnectionError, asyncio.IncompleteReadError):

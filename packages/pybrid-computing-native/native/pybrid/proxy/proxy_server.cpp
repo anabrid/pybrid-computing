@@ -41,7 +41,12 @@ bool ClientSession::send(const pb::MessageV1& msg) {
     std::string bytes = utils::serialize_message(msg);
     if (bytes.empty()) return false;
     if (!is_connected()) return false;
-    return client_transport_->send(bytes.data(), bytes.size());
+    try {
+        return client_transport_->send(bytes.data(), bytes.size());
+    } catch (const std::runtime_error&) {
+        // TOCTOU: client disconnected between is_connected() and send().
+        return false;
+    }
 }
 
 ProxyServer::ProxyServer(bool requires_auth)
@@ -530,10 +535,42 @@ void ProxyServer::reconnect_loop() {
         }
         if (!running_.load(std::memory_order_acquire)) break;
 
+        bool session_active;
+        {
+            std::lock_guard<std::mutex> lk(session_mutex_);
+            session_active = !active_session_id_.empty();
+        }
+
         for (auto& backend : backends_) {
             if (!running_.load(std::memory_order_acquire)) break;
-            if (backend.health.load(std::memory_order_acquire) != BackendHealth::DEAD)
-                continue;
+
+            auto h = backend.health.load(std::memory_order_acquire);
+            if (h == BackendHealth::REBOOTING) continue;
+
+            if (h == BackendHealth::HEALTHY) {
+                if (!backend.control || !backend.control->is_connected()) {
+                    // Already known-disconnected (passive detection).
+                } else if (!session_active) {
+                    // No session owns the control channels — safe to send
+                    // an active probe via Envelope-level GenericMessage ping.
+                    try {
+                        backend.control->ping(PING_PROBE_TIMEOUT_SECS);
+                        continue;
+                    } catch (...) {
+                        // Ping failed — fall through to DEAD + reconnect.
+                    }
+                } else {
+                    // Session active — rely on passive is_connected() only.
+                    continue;
+                }
+                {
+                    std::lock_guard<std::mutex> lk(log_mutex_);
+                    std::cerr << "[ProxyServer] Backend " << backend.host
+                              << ":" << backend.port
+                              << " failed liveness probe\n";
+                }
+                set_backend_health(backend, BackendHealth::DEAD);
+            }
 
             bool ok = reconnect_backend(backend, RECONNECT_ATTEMPT_TIMEOUT);
             if (ok) {
@@ -587,7 +624,35 @@ void ProxyServer::accept_loop() {
         std::lock_guard<std::mutex> lock(session_mutex_);
         session_map_[session->session_id_] = session.get();
         session_threads_.emplace_back([this, session]() {
-            run_session(*session);
+            try {
+                run_session(*session);
+            } catch (const std::exception& e) {
+                {
+                    std::lock_guard<std::mutex> lk(log_mutex_);
+                    std::cerr << "[ProxyServer] Session " << session->session_id_
+                              << " ended with error: " << e.what() << "\n";
+                }
+                // Ensure cleanup even on exception — deregister the session
+                // so queue/active state doesn't leak.
+                {
+                    std::unique_lock<std::mutex> lk(session_mutex_);
+                    deregister_session(session->session_id_, lk);
+                    session_map_.erase(session->session_id_);
+                }
+                session_cv_.notify_all();
+            } catch (...) {
+                {
+                    std::lock_guard<std::mutex> lk(log_mutex_);
+                    std::cerr << "[ProxyServer] Session " << session->session_id_
+                              << " ended with unknown error\n";
+                }
+                {
+                    std::unique_lock<std::mutex> lk(session_mutex_);
+                    deregister_session(session->session_id_, lk);
+                    session_map_.erase(session->session_id_);
+                }
+                session_cv_.notify_all();
+            }
             // Guard against unsigned underflow from a bug causing more decrements
             // than increments, which would permanently block new connections.
             size_t prev = active_session_count_.load(std::memory_order_acquire);
@@ -638,6 +703,12 @@ void ProxyServer::run_session(ClientSession& session) {
 
         pb::Envelope env;
         if (!env.ParseFromArray(buf.data(), static_cast<int>(result.bytes))) continue;
+
+        if (env.has_generic() && env.generic().has_ping_command()) {
+            handle_ping(session);
+            continue;
+        }
+
         if (!env.has_message_v1()) continue;
         pb::MessageV1 msg = env.message_v1();
 
@@ -646,11 +717,6 @@ void ProxyServer::run_session(ClientSession& session) {
             handle_extract(session, msg);
         } else if (kind == pb::MessageV1::kAuthRequestFieldNumber) {
             handle_auth(session, msg);
-        } else if (kind == pb::MessageV1::kPingCommandFieldNumber) {
-            pb::MessageV1 busy;
-            busy.set_id(msg.id());
-            busy.mutable_busy_response();
-            session.send(busy);
         } else if (requires_auth_ && !session.authenticated_) {
             send_error_to_client(session, msg.id(), "Authentication required");
         } else {
@@ -678,31 +744,19 @@ void ProxyServer::run_session(ClientSession& session) {
         }
 
         // backends_ is read-only after start(); health is atomic.
+        // Scan ALL backends before breaking so every disconnected device
+        // is demoted to DEAD in one pass — the reconnect_loop then picks
+        // them all up in parallel instead of one per session attempt.
         bool backend_lost = false;
         for (auto& backend : backends_) {
             auto h = backend.health.load(std::memory_order_acquire);
             if (h == BackendHealth::REBOOTING) {
-                // Tolerated: handle_update owns this transition and will
-                // flip the backend back to HEALTHY (or DEAD) once the
-                // device is up again. The watchdog stays silent this tick.
                 continue;
             }
             if (h == BackendHealth::DEAD) {
-                {
-                    std::lock_guard<std::mutex> lk(log_mutex_);
-                    std::cerr << "[ProxyServer] Backend " << backend.host
-                              << ":" << backend.port
-                              << " is DEAD during session "
-                              << session.session_id_ << "\n";
-                }
-                send_error_to_client(session, "",
-                    "Cluster degraded: backend " + backend.host + ":" +
-                    std::to_string(backend.port) + " is dead");
                 backend_lost = true;
-                break;
+                continue;
             }
-            // HEALTHY: an unplanned TCP drop demotes the backend to DEAD so
-            // subsequent ticks (and activate_next_session) see the state.
             if (backend.control && !backend.control->is_connected()) {
                 {
                     std::lock_guard<std::mutex> lk(log_mutex_);
@@ -712,14 +766,14 @@ void ProxyServer::run_session(ClientSession& session) {
                               << session.session_id_ << "\n";
                 }
                 set_backend_health(backend, BackendHealth::DEAD);
-                send_error_to_client(session, "",
-                    "Backend device disconnected: " + backend.host + ":" +
-                    std::to_string(backend.port));
                 backend_lost = true;
-                break;
             }
         }
-        if (backend_lost) break;
+        if (backend_lost) {
+            send_error_to_client(session, "",
+                "Cluster degraded: one or more backends disconnected");
+            break;
+        }
 
         RecvResult result = session.transport()->recv(
             buf.data(), buf.size(), RECV_TIMEOUT_SECS);
@@ -728,6 +782,12 @@ void ProxyServer::run_session(ClientSession& session) {
 
         pb::Envelope env;
         if (!env.ParseFromArray(buf.data(), static_cast<int>(result.bytes))) continue;
+
+        if (env.has_generic() && env.generic().has_ping_command()) {
+            handle_ping(session);
+            continue;
+        }
+
         if (!env.has_message_v1()) continue;
         pb::MessageV1 msg = env.message_v1();
 
@@ -995,13 +1055,9 @@ void ProxyServer::dispatch_message(ClientSession& session, const pb::MessageV1& 
         case pb::MessageV1::kUpdateCommandFieldNumber:
             handle_update(session, msg);
             break;
-        case pb::MessageV1::kPingCommandFieldNumber: {
-            pb::MessageV1 ping_response;
-            ping_response.set_id(msg.id());
-            ping_response.mutable_success_message();
-            session.send(ping_response);
+        case pb::MessageV1::kPingCommandFieldNumber:
+            handle_ping(session);
             break;
-        }
         default:
             if(debug_)
             {

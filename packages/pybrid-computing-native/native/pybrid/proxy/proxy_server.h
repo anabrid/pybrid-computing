@@ -196,6 +196,7 @@ class ProxyServer {
     static constexpr double SESSION_INITIAL_WAIT_SECS = 0.45;
     static constexpr std::chrono::milliseconds RECONNECT_POLL_INTERVAL{500};
     static constexpr std::chrono::milliseconds RECONNECT_ATTEMPT_TIMEOUT{5000};
+    static constexpr double PING_PROBE_TIMEOUT_SECS = 2.0;
 
 public:
     /// When requires_auth is true, reads PYBRID_AUTHENTICATION from the
@@ -274,6 +275,7 @@ private:
     void handle_calibrate(ClientSession& client, const pb::MessageV1& msg);
     void handle_udp_streaming(ClientSession& client, const pb::MessageV1& msg);
     void handle_register_external_entities(ClientSession& client, const pb::MessageV1& msg);
+    void handle_ping(ClientSession& client);
     void handle_update(ClientSession& client, const pb::MessageV1& msg);
 
     /// Dispatch requests to backends in parallel, returning the first error (if any).

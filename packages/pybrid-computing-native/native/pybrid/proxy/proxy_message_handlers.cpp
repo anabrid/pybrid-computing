@@ -76,8 +76,13 @@ BroadcastResult ProxyServer::broadcast_to_backends(
     std::vector<BackendTask> tasks;
     tasks.reserve(targets.size());
 
+    BroadcastResult result;
     for (auto* backend : targets) {
-        if (!backend->control || !backend->control->is_connected()) continue;
+        if (!backend->control || !backend->control->is_connected()) {
+            result.had_error = true;
+            result.error_text = "Backend " + backend->host + " not connected!";
+            continue;
+        }
 
         // Capture by value: request built eagerly so the factory doesn't
         // need to be thread-safe.
@@ -89,7 +94,6 @@ BroadcastResult ProxyServer::broadcast_to_backends(
             })});
     }
 
-    BroadcastResult result;
     for (auto& task : tasks) {
         try {
             pb::MessageV1 resp = task.future.get();
@@ -393,6 +397,37 @@ void ProxyServer::handle_register_external_entities(
     client.send(response);
 }
 
+void ProxyServer::handle_ping(ClientSession& client) {
+    std::string error;
+    for (auto& backend : backends_) {
+        try {
+            backend.control->ping(BACKEND_REQUEST_TIMEOUT_SECS);
+        } catch (const std::exception& e) {
+            if (error.empty()) {
+                error = "Ping failed for " + backend.host + ":" +
+                        std::to_string(backend.port) + ": " + e.what();
+            }
+        }
+    }
+
+    pb::Envelope response;
+    if (error.empty()) {
+        response.mutable_generic()->mutable_ping_response();
+    } else {
+        response.mutable_message_v1()->mutable_error_message()
+            ->set_description(error);
+    }
+
+    std::string serialized;
+    if (response.SerializeToString(&serialized)) {
+        try {
+            client.transport()->send(serialized.data(), serialized.size());
+        } catch (const std::runtime_error&) {
+            // Client disconnected — response is lost, session will end.
+        }
+    }
+}
+
 void ProxyServer::handle_update(
     ClientSession& client, const pb::MessageV1& msg) {
     const auto& update_cmd = msg.update_command();
@@ -414,6 +449,7 @@ void ProxyServer::handle_update(
     for (auto& b : backends_) targets.push_back(&b);
 
     if (update_cmd.has_commit()) {
+
         auto result = broadcast_to_backends(targets,
             [&msg](BackendDevice&) {
                 pb::MessageV1 req;
@@ -421,20 +457,17 @@ void ProxyServer::handle_update(
                 *req.mutable_update_command() = msg.update_command();
                 return req;
             },
-            5.0);
+            20.0,
+            true);
 
         // Reply to client immediately — the device answers before rebooting.
+        // TCP closes during commit are expected (devices reboot after
+        // applying firmware), so we always report success and proceed to
+        // the REBOOTING + reconnect phase.
         pb::MessageV1 response;
         response.set_id(msg.id());
-        if (result.had_error) {
-            response.mutable_update_response()->mutable_failure()->set_reason(
-                result.error_text);
-        } else {
-            response.mutable_update_response()->mutable_success();
-        }
+        response.mutable_update_response()->mutable_success();
         client.send(response);
-
-        if (result.had_error) return;
 
         // Mark all backends REBOOTING so the background reconnect_loop
         // and the session watchdog leave them alone during the reboot.
