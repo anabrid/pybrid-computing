@@ -397,8 +397,8 @@ void ProxyServer::handle_update(
     ClientSession& client, const pb::MessageV1& msg) {
     const auto& update_cmd = msg.update_command();
 
-    constexpr std::chrono::milliseconds REBOOT_GRACE{2000};
-    constexpr std::chrono::milliseconds RECONNECT_TIMEOUT{20000};
+    static constexpr std::chrono::milliseconds REBOOT_GRACE{2000};
+    static constexpr std::chrono::milliseconds RECONNECT_TIMEOUT{20000};
 
     const char* kind = update_cmd.has_begin()  ? "begin"  :
                        update_cmd.has_write()   ? nullptr  :
