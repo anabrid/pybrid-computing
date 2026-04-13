@@ -33,6 +33,7 @@ dependencies = [
   "prompt-toolkit>=3.0.52",
   "pyserial-asyncio>=0.6",
   "pybrid-computing-native>=0.1.0,<1.0.0",
+  "reportlab>=4.4.10",
 ]
 
 [project.urls]

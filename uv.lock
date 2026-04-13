@@ -1128,6 +1128,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyi" },
     { name = "pyserial-asyncio" },
+    { name = "reportlab" },
     { name = "zeroconf" },
 ]
 
@@ -1144,6 +1145,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.11.9" },
     { name = "pyi", specifier = ">=0.1.0" },
     { name = "pyserial-asyncio", specifier = ">=0.6" },
+    { name = "reportlab", specifier = ">=4.4.10" },
     { name = "zeroconf", specifier = ">=0.147.2" },
 ]
 
