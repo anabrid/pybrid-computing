@@ -160,10 +160,15 @@ class REDACSerializer(Serializer):
     @_serialize_configuration.register
     def _(self, entity: BackplaneTBlock):
         switch_config = self.cc.new_config(entity).bpl_switch_config
-        for idx, state in enumerate(entity.muxes):
-            if state is None:
-                continue
-            switch_config.muxes.append(pb.Mux(state=state, index=idx))
+        for sector_out, lane_ins in enumerate(entity.sectors):
+            for lane_in, sector_in in enumerate(lane_ins):
+                if lane_ins is None:
+                    continue
+
+                if sector_in == 8:
+                    sector_in = sector_out
+
+                switch_config.muxes.append(pb.Mux(state=sector_in, index=9 * lane_in + sector_out))
 
         if len(switch_config.muxes) == 0:
             self.cc.pop_config()
@@ -622,15 +627,25 @@ class REDACDeserializer(Deserializer):
     def _(self, config: pb.BPLSwitchConfig):
         """Deserialize switch configuration and apply to TBlock."""
         entity_path = Path.parse(self._current_full_config.entity.path)
-        entity: TBlock = self.computer.get_entity(entity_path)
+        entity: BackplaneTBlock = self.computer.get_entity(entity_path)
 
         is_numerated = all(obj.index == 0 for obj in config.muxes)
+
+        def connect(in_sector, idx):
+            lane = idx // 9
+            out_sector = idx % 9
+
+            if out_sector == in_sector:
+                in_sector = 8
+
+            entity.connect(in_sector, out_sector, lane)
+
         if is_numerated:
             for idx, mux in enumerate(config.muxes):
-                entity.muxes[idx] = mux.state
+                connect(mux.state, idx)
         else:
             for mux in config.muxes:
-                entity.muxes[mux.index] = mux.state
+                connect(mux.state, mux.index)
 
 
     @_deserialize_configuration.register
