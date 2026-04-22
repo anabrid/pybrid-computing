@@ -94,6 +94,9 @@ class LucipyWrapper:
         self._num_devices = len(endpoints)
         self._device_indices = list(range(self._num_devices))
 
+    def controller(self):
+        return self._controller
+
     def create_circuit(self, device_index: int | None = None) -> Circuit:
         """Create a Circuit scoped to a specific carrier's MAC address.
 
