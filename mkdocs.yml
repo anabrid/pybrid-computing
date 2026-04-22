@@ -27,13 +27,51 @@ markdown_extensions:
   - toc:
       permalink: true
 
+watch:
+  - docs
+
 nav:
   - Home: index.md
-  - Getting Started:
-      - getting-started/index.md
-      - Installation: getting-started/installation.md
-      - Quick Start: getting-started/quickstart.md
+  - Overview:
+      - overview/index.md
+      - pybrid: overview/pybrid.md
+      - Place in the Software Stack: overview/place-in-the-software-stack.md
+      - Public and Developer Version: overview/public-and-developer-version.md
   - User Guide:
       - user-guide/index.md
-      - Circuits: user-guide/circuits.md
-      - Running Computations: user-guide/running.md
+      - Getting Started:
+          - user-guide/getting-started/index.md
+          - Requirements: user-guide/getting-started/requirements.md
+          - Setup: user-guide/getting-started/setup.md
+          - Identifying Your Device: user-guide/getting-started/identifying-your-device.md
+          - Building Your First Circuit: user-guide/getting-started/building-your-first-circuit.md
+          - Further Examples: user-guide/getting-started/further_examples.md
+      - Using pybrid:
+          - user-guide/using-pybrid/index.md
+          - File Formats: user-guide/using-pybrid/file-formats.md
+          - Programmatically: user-guide/using-pybrid/programmatically.md
+          - Lucipy: user-guide/using-pybrid/lucipy.md
+          - Using the CLI: user-guide/using-pybrid/using-the-cli.md
+          - Proxy: user-guide/using-pybrid/proxy.md
+  - Hardware Architecture:
+      - hardware-architecture/index.md
+      - 'Hierarchy: From Cluster to the REDAC': hardware-architecture/hierarchy-from-cluster-to-the-redac.md
+      - 'Configuration Items': hardware-architecture/configuration-items.md
+      - 'List of Blocks':
+          - hardware-architecture/list-of-blocks.md
+          - 'M Blocks':
+              - hardware-architecture/m-blocks/index.md
+              - MInt: hardware-architecture/m-blocks/m-int.md
+              - MMul: hardware-architecture/m-blocks/m-mul.md
+              - MMDR: hardware-architecture/m-blocks/m-mdr.md
+          - U Block: hardware-architecture/u-block.md
+          - I Block: hardware-architecture/i-block.md
+          - C Block: hardware-architecture/c-block.md
+          - T Block: hardware-architecture/t-block.md
+          - SH Block: hardware-architecture/sh-block.md
+  - Developer Guide:
+      - developer-guide/index.md
+      - System Setup: developer-guide/system-setup.md
+      - Data and Messaging Protocol: developer-guide/data-and-messaging-protocol.md
+      - Device Object Representation: developer-guide/device-object-representation.md
+      - Native Networking Code: developer-guide/native-networking-code.md
