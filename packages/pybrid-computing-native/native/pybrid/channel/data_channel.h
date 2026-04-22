@@ -22,7 +22,7 @@ class ControlChannel;
 /// Configuration methods and callbacks MUST be set before start() is called.
 /// Callbacks are invoked from the receive thread and must be thread-safe.
 class DataChannel {
-    static constexpr size_t RECV_BUFFER_SIZE = 65536;
+    static constexpr size_t RECV_BUFFER_SIZE = 262144;
     static constexpr double RECV_TIMEOUT_SECS = 0.1;
 
 public:
