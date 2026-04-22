@@ -23,7 +23,7 @@ class TCPTransport;
 /// All public methods are thread-safe. Callbacks must be registered before start().
 /// The recv thread invokes callbacks and resolves promises; callbacks must be thread-safe.
 class ControlChannel {
-    static constexpr size_t RECV_BUFFER_SIZE = 65536;
+    static constexpr size_t RECV_BUFFER_SIZE = 262144;
     static constexpr double RECV_TIMEOUT_SECS = 0.1;
     static constexpr double TURN_TIMEOUT_SECS = 5.0;
 

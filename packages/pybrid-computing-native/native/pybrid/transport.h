@@ -18,7 +18,7 @@ constexpr size_t MAX_UDP_PACKET_SIZE = 65507;
 
 /// Maximum size of a single varint-framed TCP message.
 /// Set to match MAX_UDP_PACKET_SIZE for consistency between transports.
-constexpr size_t DEFAULT_TCP_MESSAGE_SIZE = MAX_UDP_PACKET_SIZE;
+constexpr size_t DEFAULT_TCP_MESSAGE_SIZE = 262084;
 
 constexpr double DEFAULT_TCP_CONNECT_TIMEOUT = 5.0;
 
