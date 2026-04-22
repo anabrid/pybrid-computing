@@ -8,6 +8,7 @@ import logging
 import warnings
 from dataclasses import dataclass, field
 from typing import Optional, TYPE_CHECKING
+from enum import Enum
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.redac.blocks import TBlock
@@ -32,6 +33,12 @@ class ADCChannel:
     #: Probe: relates this ADC channel to an input function (e.g. a problem description, such as an ODE)
     probe: int = -1
 
+class FrontPanelIOMode(int, Enum):
+    ANALOG_OUT = 0
+    ANALOG_IN = 1
+    DIGITAL_OUT = 2
+    DIGITAL_IN = 3
+
 @dataclass(kw_only=True)
 class Carrier(Entity):
     """
@@ -48,7 +55,11 @@ class Carrier(Entity):
     adc_config: list[Optional[ADCChannel]] = field(default_factory=list)
 
     #: ACL Select for analog I/O - note that while not supported in HW, the firmware ignores this.
+    #: This is the LUCIDAC implementation.
     acl_select: Optional[list[str]] = None
+
+    #: Current implementation of the FrontPlane on REDACs (no specific entity)
+    front_panel_io: Optional[list[FrontPanelIOMode]] = None
 
     #: List of clusters on the carrier board.
     clusters: list[Cluster]

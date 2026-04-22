@@ -14,7 +14,7 @@ from pybrid.base.proto import main_pb2 as pb
 from pybrid.redac.blocks import (
     CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock, MMDRBlock
 )
-from pybrid.redac.carrier import Carrier, ADCChannel
+from pybrid.redac.carrier import Carrier, ADCChannel, FrontPanelIOMode
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.device import Device
@@ -73,6 +73,22 @@ class REDACSerializer(Serializer):
             for interface in entity.acl_select:
                 acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
                     interface.lower() == "external" else pb.PortConfig.AclState.INTERNAL)
+
+        # Front Panel ports for mREDAC
+        if entity.front_panel_io:
+            front_panel_io_config = self.cc.new_config(entity).front_panel_io_config
+
+            for mode in entity.front_panel_io:
+                if mode == FrontPanelIOMode.ANALOG_OUT:
+                    front_panel_io_config.io_modes.append(pb.FrontPanelIOConfig.FrontPanelIOMode.ANALOG_OUT)
+                elif mode == FrontPanelIOMode.ANALOG_IN:
+                    front_panel_io_config.io_modes.append(pb.FrontPanelIOConfig.FrontPanelIOMode.ANALOG_IN)
+                elif mode == FrontPanelIOMode.DIGITAL_OUT:
+                    front_panel_io_config.io_modes.append(pb.FrontPanelIOConfig.FrontPanelIOMode.DIGITAL_OUT)
+                elif mode == FrontPanelIOMode.DIGITAL_IN:
+                    front_panel_io_config.io_modes.append(pb.FrontPanelIOConfig.FrontPanelIOMode.DIGITAL_IN)
+                else:
+                    logger.warning(f"Unknown FrontPanelIO value: {mode}")
 
     @_serialize_configuration.register
     def _(self, entity: CBlock):
@@ -662,4 +678,23 @@ class REDACDeserializer(Deserializer):
                 acl_select.append("internal")
         entity.acl_select = acl_select
 
+    @_deserialize_configuration.register
+    def _(self, config: pb.FrontPanelIOConfig):
+        """Deserialize front panel config from REDACs and apply to Carrier."""
+        entity_path = Path.parse(self._current_full_config.entity.path)
+        entity = self.computer.get_entity(entity_path)
 
+        io_modes = []
+        for mode in config.io_modes:
+            if mode == pb.FrontPanelIOConfig.ANALOG_OUT:
+                io_modes.append(FrontPanelIOMode.ANALOG_OUT)
+            elif mode == pb.FrontPanelIOConfig.ANALOG_IN:
+                io_modes.append(FrontPanelIOMode.ANALOG_IN)
+            elif mode == pb.FrontPanelIOConfig.DIGITAL_OUT:
+                io_modes.append(FrontPanelIOMode.DIGITAL_OUT)
+            elif mode == pb.FrontPanelIOConfig.DIGITAL_IN:
+                io_modes.append(FrontPanelIOMode.DIGITAL_IN)
+            else:
+                logger.warning(f"Unknown FrontPanelIOValue: {mode}")
+
+        entity.io_modes = io_modes
