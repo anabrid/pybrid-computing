@@ -90,18 +90,24 @@ class Router(Routing):
         output_t_block.connect(src.cluster_id() + 1, 0, offset_lane_id)
         input_t_block.connect(0, dst.cluster_id() + 1, offset_lane_id)
 
+        mod_dst_lane = dst.lane_id() % 8
         if src.stack() != dst.stack():
             src_bpl_t_block = self.find_bpl_t_block(src, partition)
             dst_bpl_t_block = self.find_bpl_t_block(dst, partition)
 
-            src_sector = 7 if src.stack_id() < dst.stack_id() else 8
-            dst_sector = 8 if src.stack_id() < dst.stack_id() else 7
+            exit_sector = 7 if src.stack_id() < dst.stack_id() else 8
+            entry_sector = 8 if src.stack_id() < dst.stack_id() else 7
 
-            src_bpl_t_block.connect(src.carrier_id(), src_sector, dst.lane_id() % 8)
-            dst_bpl_t_block.connect(dst_sector, dst.carrier_id(), dst.lane_id() % 8)
+            src_bpl_t_block.connect(src.carrier_id(), exit_sector, mod_dst_lane)
+            dir = 1 if src.stack_id() < dst.stack_id() else -1
+            for btw_stack_idx in range(src.stack_id() + dir, dst.stack_id(), dir):
+                btw_bpl_t_block = self.find_bpl_t_block(Loc.new_stack(btw_stack_idx), partition)
+                btw_bpl_t_block.connect(entry_sector, exit_sector, mod_dst_lane)
+
+            dst_bpl_t_block.connect(entry_sector, dst.carrier_id(), mod_dst_lane)
         else:
             bpl_t_block = self.find_bpl_t_block(src, partition)
-            bpl_t_block.connect(src.carrier_id(), dst.carrier_id(), dst.lane_id() % 8)
+            bpl_t_block.connect(src.carrier_id(), dst.carrier_id(), mod_dst_lane)
 
 
     def route(self, src: Loc, dst: Loc):

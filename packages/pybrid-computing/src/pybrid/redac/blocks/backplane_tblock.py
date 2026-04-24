@@ -16,6 +16,8 @@ class BackplaneTBlock(FunctionBlock):
 
     def connect(self, src_sector: int, dst_sector: int, sector_lane: int):
         assert 0 <= src_sector < 9
+        assert 0 <= dst_sector < 9
+        assert 0 <= sector_lane < 8
         self.sectors[dst_sector][sector_lane] = src_sector
 
     def source(self, dst_sector: int, sector_lane: int) -> int:
