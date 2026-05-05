@@ -275,6 +275,17 @@ void UDPSocket::reset_stats() {
     bytes_received_.store(0, std::memory_order_relaxed);
 }
 
+void UDPSocket::reset_buffers() {
+    std::unique_ptr<IBuffer> fresh = Factory::create(buffer_type_);
+    std::lock_guard<std::mutex> lock(recv_queue_mutex_);
+    recv_queue_ = std::move(fresh);
+}
+
+size_t UDPSocket::recv_queue_len() const {
+    std::lock_guard<std::mutex> lock(recv_queue_mutex_);
+    return recv_queue_->len();
+}
+
 void UDPSocket::start_receive() {
     if (!socket_ || !socket_->is_open()) {
         return;
@@ -307,10 +318,13 @@ void UDPSocket::handle_receive(const asio::error_code& ec,
         std::min(bytes_received, static_cast<size_t>(UINT16_MAX)));
     std::memcpy(entry.data.data(), recv_buffer_.data(), entry.data_len);
 
-    if (!recv_queue_->try_put(sizeof(entry), &entry)) {
-        packets_dropped_.fetch_add(1, std::memory_order_relaxed);
-    } else {
-        recv_cv_.notify_one();
+    {
+        std::lock_guard<std::mutex> lock(recv_queue_mutex_);
+        if (!recv_queue_->try_put(sizeof(entry), &entry)) {
+            packets_dropped_.fetch_add(1, std::memory_order_relaxed);
+        } else {
+            recv_cv_.notify_one();
+        }
     }
 
     if (running_ && bound_) {

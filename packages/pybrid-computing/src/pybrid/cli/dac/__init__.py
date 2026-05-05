@@ -606,7 +606,6 @@ async def proxy(listen: str, port: int, backend: tuple[str, ...], session_timeou
     for spec in specs:
         click.echo(f"Connecting to backend {spec.host}:{spec.port}...")
         proxy_server.add_backend(spec.host, spec.port, stack=spec.stack, carrier=spec.carrier)
-    proxy_server.map_backends()
 
     proxy_server.set_session_timeout(session_timeout)
     proxy_server.start(listen, port)

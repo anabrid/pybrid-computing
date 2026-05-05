@@ -109,7 +109,7 @@ public:
         if (!sock.is_valid()) {
             throw std::runtime_error("MockBackend: accept timed out");
         }
-        transport_ = TCPTransport::from_accepted(sock);
+        transport_ = TCPTransport::from_accepted(std::move(sock));
         if (!transport_) {
             throw std::runtime_error("MockBackend: from_accepted returned null");
         }
@@ -213,6 +213,19 @@ public:
     }
 
     /**
+     * @brief Build a generic SuccessMessage response for the given request id.
+     *
+     * @param request_id The id to copy for correlation.
+     * @return A MessageV1 carrying an empty SuccessMessage.
+     */
+    pb::MessageV1 make_success_response(const std::string& request_id) const {
+        pb::MessageV1 resp;
+        resp.set_id(request_id);
+        resp.mutable_success_message();
+        return resp;
+    }
+
+    /**
      * @brief Serve the standard add_backend() handshake: ExtractCommand
      *        followed by ResetCommand, responding to each.
      *
@@ -237,6 +250,39 @@ public:
                 "MockBackend::serve_add_backend_handshake: expected ResetCommand");
         }
         send_message(make_reset_response(reset_req.id()));
+
+        // 3. UdpDataStreamingCommand — ProxyServer's ForwardingDataChannel runs
+        //    with require_udp=true, so a SuccessMessage is needed here.
+        pb::MessageV1 udp_req = recv_message();
+        if (!udp_req.has_udp_data_streaming_command()) {
+            throw std::runtime_error(
+                "MockBackend::serve_add_backend_handshake: expected "
+                "UdpDataStreamingCommand");
+        }
+        send_message(make_success_response(udp_req.id()));
+    }
+
+    /**
+     * @brief Serve the reconnect handshake: UdpDataStreamingCommand from
+     *        DataChannel::reconnect() followed by ExtractCommand from
+     *        ProxyBackendHandler::reconnect_backend().
+     */
+    void serve_reconnect_handshake() {
+        pb::MessageV1 udp_req = recv_message();
+        if (!udp_req.has_udp_data_streaming_command()) {
+            throw std::runtime_error(
+                "MockBackend::serve_reconnect_handshake: expected "
+                "UdpDataStreamingCommand");
+        }
+        send_message(make_success_response(udp_req.id()));
+
+        pb::MessageV1 extract_req = recv_message();
+        if (!extract_req.has_extract_command()) {
+            throw std::runtime_error(
+                "MockBackend::serve_reconnect_handshake: expected "
+                "ExtractCommand");
+        }
+        send_message(make_extract_response(extract_req.id()));
     }
 
     /** @brief Carrier entity path this backend advertises. */
@@ -1964,4 +2010,40 @@ TEST_F(ProxyServerTest, AddBackendNoLocationByDefault) {
     EXPECT_FALSE(any_has_location_v0);
 
     client->stop();
+}
+
+TEST_F(ProxyServerTest, Reconnect_RestoresHealth) {
+    start_proxy_with_single_backend();
+
+    EXPECT_EQ(proxy_->get_backend_health(0),
+              static_cast<int>(BackendHealth::HEALTHY));
+
+    backend_->disconnect();
+
+    auto dead_deadline = std::chrono::steady_clock::now() +
+                         std::chrono::seconds(15);
+    while (proxy_->get_backend_health(0) !=
+               static_cast<int>(BackendHealth::DEAD) &&
+           std::chrono::steady_clock::now() < dead_deadline) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    ASSERT_EQ(proxy_->get_backend_health(0),
+              static_cast<int>(BackendHealth::DEAD));
+
+    std::future<void> reconnect_serve = std::async(std::launch::async, [this]() {
+        backend_->accept_connection(/*timeout_secs=*/15.0);
+        backend_->serve_reconnect_handshake();
+    });
+
+    auto healthy_deadline = std::chrono::steady_clock::now() +
+                            std::chrono::seconds(20);
+    while (proxy_->get_backend_health(0) !=
+               static_cast<int>(BackendHealth::HEALTHY) &&
+           std::chrono::steady_clock::now() < healthy_deadline) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    EXPECT_EQ(proxy_->get_backend_health(0),
+              static_cast<int>(BackendHealth::HEALTHY));
+
+    reconnect_serve.get();
 }

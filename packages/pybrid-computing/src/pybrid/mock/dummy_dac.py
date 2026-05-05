@@ -89,7 +89,6 @@ class DummyDAC:
             ExtractHandler,
             UDPStreamingHandler,
             StartRunHandler,
-            RegisterExternalEntitiesHandler,
             CalibrationHandler,
         )
 
@@ -103,7 +102,6 @@ class DummyDAC:
             pb.MessageV1.EXTRACT_COMMAND_FIELD_NUMBER: ExtractHandler(self),
             pb.MessageV1.UDP_DATA_STREAMING_COMMAND_FIELD_NUMBER: UDPStreamingHandler(self),
             pb.MessageV1.START_RUN_COMMAND_FIELD_NUMBER: StartRunHandler(self),
-            pb.MessageV1.REGISTER_EXTERNAL_ENTITIES_COMMAND_FIELD_NUMBER: RegisterExternalEntitiesHandler(self),
             calibration_field: CalibrationHandler(self),
         }
 

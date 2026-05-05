@@ -81,6 +81,20 @@ public:
     UDPStats stats() const;
     void reset_stats();
 
+    // Avoid churning reallocate-free on back-to-back small runs; only shrink
+    // after a real burst has grown the backing store.
+    static constexpr size_t UDP_RECV_QUEUE_RESET_THRESHOLD = 1024;
+
+    // Release the grown recv_queue_ backing storage by replacing it with a
+    // fresh buffer of initial capacity.  Coordinated with the io thread so no
+    // push is in flight during the swap.
+    void reset_buffers();
+
+    // Test-only: approximate capacity hint for the recv_queue_ backing store.
+    // Returns the current logical item count (len()), which drops to 0 after
+    // reset_buffers() discards all unconsumed entries.
+    size_t recv_queue_len() const;
+
 private:
     void start_receive();
     void handle_receive(const asio::error_code& ec, size_t bytes);
@@ -100,6 +114,11 @@ private:
     std::atomic<bool> connected_{false};
 
     std::array<uint8_t, MAX_UDP_PACKET_SIZE> recv_buffer_;
+    // Guards recv_queue_ pointer swaps in reset_buffers() and try_put calls
+    // in handle_receive().  Critical section is a single try_put or a pointer
+    // swap — no I/O is done under this lock.  Mutable so const accessors like
+    // recv_queue_len() can lock safely.
+    mutable std::mutex recv_queue_mutex_;
     std::unique_ptr<IBuffer> recv_queue_;
 
     std::mutex recv_cv_mutex_;

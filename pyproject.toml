@@ -23,6 +23,7 @@ dev = [
   "pybrid-computing-native",
   "pytest>=8.4.2",
   "pytest-asyncio>=1.2.0",
+  "psutil>=5.9",
   "black>=25.9.0",
   "sphinx>=8.2.3",
   "sphinx-autobuild>=2025.8.25",

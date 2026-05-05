@@ -210,6 +210,10 @@ add_library(pybrid_native_lib STATIC
     pybrid/channel/sample_decoding_data_channel.cpp
     pybrid/proxy/proxy_server.cpp
     pybrid/proxy/proxy_message_handlers.cpp
+    pybrid/proxy/proxy_session.cpp
+    pybrid/proxy/proxy_run_coordinator.cpp
+    pybrid/proxy/proxy_backend_handler.cpp
+    pybrid/proxy/forwarding_data_channel.cpp
     pybrid/utils/protobuf_helpers.cpp
     pybrid/proto/main.pb.cc
 )
@@ -319,6 +323,38 @@ if(PYBRID_BUILD_TESTS AND NOT PYBRID_BUILD_PYTHON)
         target_link_options(pybrid_proxy_tests PRIVATE -fsanitize=address,undefined)
     endif()
 
+    # ProxyBackendHandler tests
+    add_executable(pybrid_proxy_backend_handler_tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/../tests/test_proxy_backend_handler.cpp)
+    target_link_libraries(pybrid_proxy_backend_handler_tests
+        pybrid_native_lib GTest::gtest_main)
+
+    if(PYBRID_ENABLE_SANITIZERS)
+        target_compile_options(pybrid_proxy_backend_handler_tests PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+        target_link_options(pybrid_proxy_backend_handler_tests PRIVATE -fsanitize=address,undefined)
+    endif()
+
+    # RunCoordinator tests
+    add_executable(pybrid_proxy_run_coordinator_tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/../tests/test_proxy_run_coordinator.cpp)
+    target_link_libraries(pybrid_proxy_run_coordinator_tests
+        pybrid_native_lib GTest::gtest_main)
+
+    if(PYBRID_ENABLE_SANITIZERS)
+        target_compile_options(pybrid_proxy_run_coordinator_tests PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+        target_link_options(pybrid_proxy_run_coordinator_tests PRIVATE -fsanitize=address,undefined)
+    endif()
+
+    # Proxy session-lifecycle benchmark — NOT registered with ctest.
+    add_executable(pybrid_proxy_session_lifecycle_benchmark
+        ${CMAKE_CURRENT_SOURCE_DIR}/../benchmarks/proxy_session_lifecycle.cpp)
+    target_link_libraries(pybrid_proxy_session_lifecycle_benchmark pybrid_native_lib)
+
+    if(PYBRID_ENABLE_SANITIZERS)
+        target_compile_options(pybrid_proxy_session_lifecycle_benchmark PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+        target_link_options(pybrid_proxy_session_lifecycle_benchmark PRIVATE -fsanitize=address,undefined)
+    endif()
+
     include(GoogleTest)
     gtest_discover_tests(pybrid_buffer_tests)
     gtest_discover_tests(pybrid_transport_tests)
@@ -326,5 +362,7 @@ if(PYBRID_BUILD_TESTS AND NOT PYBRID_BUILD_PYTHON)
     gtest_discover_tests(pybrid_data_channel_tests)
     gtest_discover_tests(pybrid_control_channel_tests)
     gtest_discover_tests(pybrid_proxy_tests)
+    gtest_discover_tests(pybrid_proxy_backend_handler_tests)
+    gtest_discover_tests(pybrid_proxy_run_coordinator_tests)
     gtest_discover_tests(pybrid_data_channel_negotiation_tests)
 endif()

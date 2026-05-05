@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <thread>
@@ -89,6 +90,16 @@ public:
     void stop();
     bool is_running() const;
 
+    /// Swap the three callback members into caller-supplied locals under the
+    /// callback_mutex_.  The caller holds the GIL; the io thread may still be
+    /// running.  After the swap the members are empty — the locals carry the
+    /// py::function captures and destruct in the caller's scope where the GIL
+    /// is held.
+    void swap_python_callbacks(
+        std::function<void(pb::RunState)>& state,
+        std::function<void(const std::string&)>& error,
+        std::function<void(std::vector<uint8_t>)>& control_response);
+
     /// Restart the UDP transport. The control channel must already be reconnected.
     void reconnect();
 
@@ -97,6 +108,12 @@ public:
 
     std::optional<UDPStats> udp_stats() const;
     void reset_udp_stats();
+
+    /// Release grown transport buffer backing storage after a run burst.
+    /// In UDP mode, swaps out the recv_queue_ on the UDPSocket; in TCP-fallback
+    /// mode, posts a resize onto the TCPTransport's io_context. The call is a
+    /// no-op when the buffer has not grown past its respective reset threshold.
+    void reset_buffers();
 
     pb::RunState current_run_state() const;
 
@@ -134,6 +151,7 @@ private:
     std::atomic<pb::RunState> m_run_state{pb::NEW};
     std::atomic<bool> m_running{false};
 
+    mutable std::mutex m_callback_mutex;
     std::function<void(pb::RunState)> m_state_callback;
     std::function<void(const std::string&)> m_error_callback;
     std::function<void(std::vector<uint8_t>)> m_control_response_callback;
