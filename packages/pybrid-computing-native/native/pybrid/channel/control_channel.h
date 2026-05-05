@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <functional>
 #include <future>
@@ -32,7 +33,8 @@ public:
     static std::unique_ptr<ControlChannel> create(
         const std::string& host,
         uint16_t port,
-        double timeout_secs = 5.0);
+        double timeout_secs = 5.0,
+        std::uint32_t max_busy_wait_secs = 60);
 
     ~ControlChannel();
 
@@ -64,6 +66,17 @@ public:
     /// Interrupts any in-flight reconnect() call. Safe to call from any
     /// thread; a subsequent reconnect() re-arms the cancel flag.
     void cancel_reconnect();
+
+    /// Interrupts any in-flight busy-wait inside send_and_recv(). Safe to
+    /// call from any thread; a subsequent send_and_recv() re-arms the flag.
+    /// Assumes at most one send_and_recv() call is in flight at a time: the
+    /// cancel flag is shared across callers and has no per-call routing.
+    void cancel_send_and_recv();
+
+    /// Per-instance cap (seconds) on the cumulative busy-retry wait inside
+    /// send_and_recv().
+    std::uint32_t max_busy_wait_secs() const;
+    void set_max_busy_wait_secs(std::uint32_t secs);
 
     std::string remote_host() const;
     uint16_t remote_port() const;
@@ -116,6 +129,10 @@ public:
     void register_callback(int field_number, std::function<void(pb::MessageV1&)> callback);
     void unregister_callback(int field_number);
 
+    /// Clear all registered callbacks while holding callback_mutex_. Must be
+    /// called while the GIL is held, before releasing it for stop().
+    void clear_callbacks();
+
     /// Routes a non-data envelope received by DataChannel during TCP fallback.
     void on_tcp_response(std::vector<uint8_t> data);
 
@@ -135,6 +152,11 @@ protected:
 
     std::atomic<bool> cancel_reconnect_{false};
     std::atomic<bool> reconnecting_{false};
+
+    std::uint32_t max_busy_wait_secs_{60};
+    std::mutex busy_wait_mutex_;
+    std::condition_variable busy_wait_cv_;
+    std::atomic<bool> busy_wait_cancelled_{false};
 
     struct PendingRequest {
         std::promise<pb::MessageV1> promise;

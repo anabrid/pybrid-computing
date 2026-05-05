@@ -10,7 +10,6 @@ from pybrid.mock.handler.config import ConfigHandler
 from pybrid.mock.handler.extract import ExtractHandler
 from pybrid.mock.handler.udp_streaming import UDPStreamingHandler
 from pybrid.mock.handler.start_run import StartRunHandler
-from pybrid.mock.handler.register_external_entities import RegisterExternalEntitiesHandler
 from pybrid.mock.handler.calibration import CalibrationHandler
 
 __all__ = [
@@ -20,6 +19,5 @@ __all__ = [
     "ExtractHandler",
     "UDPStreamingHandler",
     "StartRunHandler",
-    "RegisterExternalEntitiesHandler",
     "CalibrationHandler",
 ]

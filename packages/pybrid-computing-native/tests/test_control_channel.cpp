@@ -25,18 +25,6 @@
 
 using namespace anabrid::pybrid::native;
 
-// =============================================================================
-// Test fixture: loopback server + one accepted-side transport
-// =============================================================================
-
-/**
- * @brief Test fixture that provides a TCPServer and a helper to accept exactly
- *        one client connection as a server-side TCPTransport.
- *
- * Call accept_one() after constructing the ControlChannel to get the server
- * side. The fixture also provides helpers for serialising/deserialising the
- * Envelope wire format used by ControlChannel.
- */
 class ControlChannelTest : public ::testing::Test {
 protected:
     void SetUp() override {
@@ -66,7 +54,7 @@ protected:
         AcceptedSocket accepted = server_.accept(timeout_secs);
         ASSERT_TRUE(accepted.is_valid()) << "Server did not accept a connection in time";
 
-        server_transport_ = TCPTransport::from_accepted(accepted);
+        server_transport_ = TCPTransport::from_accepted(std::move(accepted));
         ASSERT_NE(server_transport_, nullptr);
         server_transport_->start();
     }
@@ -424,6 +412,370 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
     ASSERT_TRUE(result.has_extract_response());
     EXPECT_EQ(result.extract_response().module().items(0).entity_specification().entity().id(), "/injected-resp");
 }
+
+namespace {
+
+class BusyReplyScript {
+public:
+    BusyReplyScript(TCPTransport* transport, int busy_count)
+        : transport_(transport), busy_count_(busy_count) {}
+
+    void run(int turns_to_run) {
+        for (int i = 0; i < turns_to_run; ++i) {
+            std::vector<uint8_t> buf(65536);
+            RecvResult r;
+            while (true) {
+                if (stop_.load()) return;
+                r = transport_->recv(buf.data(), buf.size(), 0.2);
+                if (r.status == RecvStatus::Disconnected) return;
+                if (r.status == RecvStatus::Success && r.bytes > 0) break;
+                // Timeout: loop and re-check stop_.
+            }
+
+            pb::Envelope env;
+            ASSERT_TRUE(env.ParseFromArray(buf.data(), static_cast<int>(r.bytes)))
+                << "BusyReplyScript: failed to parse incoming Envelope";
+            if (!env.has_message_v1()) return;
+            pb::MessageV1 req = env.message_v1();
+
+            {
+                std::lock_guard<std::mutex> lk(mu_);
+                observed_ids_.push_back(req.id());
+            }
+
+            pb::MessageV1 reply;
+            reply.set_id(req.id());
+            if (i < busy_count_) {
+                reply.mutable_busy_response();
+            } else {
+                auto* mod = reply.mutable_extract_response()->mutable_module();
+                auto* item = mod->add_items();
+                item->mutable_entity_specification()
+                    ->mutable_entity()->set_id("/real-response");
+            }
+
+            pb::Envelope out;
+            *out.mutable_message_v1() = reply;
+            std::string serialized;
+            if (!out.SerializeToString(&serialized)) return;
+            transport_->send(serialized.data(), serialized.size());
+        }
+    }
+
+    void stop() { stop_.store(true); }
+
+    std::vector<std::string> observed_ids() {
+        std::lock_guard<std::mutex> lk(mu_);
+        return observed_ids_;
+    }
+
+private:
+    TCPTransport* transport_;
+    int busy_count_;
+    std::atomic<bool> stop_{false};
+    std::mutex mu_;
+    std::vector<std::string> observed_ids_;
+};
+
+/// Build a minimal ExtractCommand MessageV1 with a UUID id.
+pb::MessageV1 make_extract_request() {
+    pb::MessageV1 msg;
+    msg.set_id(anabrid::pybrid::native::utils::generate_uuid());
+    auto* cmd = msg.mutable_extract_command();
+    cmd->set_recursive(true);
+    cmd->set_specification(true);
+    return msg;
+}
+
+}  // namespace
+
+TEST_F(ControlChannelTest, BusyRetry_NoBusy_ReturnsImmediately) {
+    auto channel = ControlChannel::create("127.0.0.1", server_port(), 5.0);
+    accept_one();
+    channel->start();
+
+    BusyReplyScript script(server_transport_.get(), /*busy_count=*/0);
+    std::thread server_thread([&] { script.run(1); });
+
+    pb::MessageV1 request = make_extract_request();
+    const std::string original_id = request.id();
+
+    auto t0 = std::chrono::steady_clock::now();
+    pb::MessageV1 response = channel->send_and_recv(request, 5.0);
+    auto elapsed = std::chrono::steady_clock::now() - t0;
+
+    server_thread.join();
+
+    EXPECT_LT(std::chrono::duration<double>(elapsed).count(), 1.0)
+        << "No-busy case must not wait for the retry tick";
+    ASSERT_TRUE(response.has_extract_response());
+    EXPECT_EQ(response.id(), original_id);
+    EXPECT_EQ(response.extract_response().module().items(0)
+              .entity_specification().entity().id(), "/real-response");
+}
+
+TEST_F(ControlChannelTest, BusyRetry_SingleBusy_RetriesWithFreshIdAndReturnsFollowUp) {
+    // Cap the busy-wait low so a hang surfaces as a timeout in the test runner.
+    auto channel = ControlChannel::create(
+        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/10);
+    accept_one();
+    channel->start();
+
+    BusyReplyScript script(server_transport_.get(), /*busy_count=*/1);
+    std::thread server_thread([&] { script.run(2); });
+
+    pb::MessageV1 request = make_extract_request();
+    const std::string original_id = request.id();
+
+    auto t0 = std::chrono::steady_clock::now();
+    bool threw = false;
+    pb::MessageV1 response;
+    try {
+        response = channel->send_and_recv(request, 15.0);
+    } catch (const std::runtime_error&) {
+        threw = true;
+    }
+    auto elapsed_secs = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - t0).count();
+
+    script.stop();
+    channel->stop();
+    if (server_thread.joinable()) server_thread.join();
+
+    ASSERT_FALSE(threw) << "send_and_recv must succeed after single retry";
+
+    // Expected: ~2 s poll interval; allow generous upper bound for CI.
+    EXPECT_GE(elapsed_secs, 1.5);
+    EXPECT_LT(elapsed_secs, 4.0);
+
+    auto ids = script.observed_ids();
+    ASSERT_EQ(ids.size(), 2u);
+    EXPECT_EQ(ids[0], original_id);
+    EXPECT_NE(ids[1], original_id)
+        << "Retry must carry a regenerated MessageV1 id";
+    EXPECT_FALSE(ids[1].empty());
+
+    ASSERT_TRUE(response.has_extract_response());
+    EXPECT_FALSE(response.has_busy_response());
+    EXPECT_EQ(response.extract_response().module().items(0)
+              .entity_specification().entity().id(), "/real-response");
+}
+
+TEST_F(ControlChannelTest, BusyRetry_ExceedsMaxWait_Throws) {
+    auto channel = ControlChannel::create(
+        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/2);
+    accept_one();
+    channel->start();
+
+    // INT_MAX-ish busy replies so the cap, not the script, ends the test.
+    BusyReplyScript script(server_transport_.get(), /*busy_count=*/1000);
+    std::thread server_thread([&] { script.run(1000); });
+
+    pb::MessageV1 request = make_extract_request();
+
+    auto t0 = std::chrono::steady_clock::now();
+    bool threw = false;
+    std::string error_msg;
+    try {
+        channel->send_and_recv(request, 60.0);
+    } catch (const std::runtime_error& e) {
+        threw = true;
+        error_msg = e.what();
+    }
+    auto elapsed_secs = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - t0).count();
+
+    script.stop();
+    // Stopping the channel releases the server-side recv loop.
+    channel->stop();
+    if (server_thread.joinable()) server_thread.join();
+
+    ASSERT_TRUE(threw) << "Expected std::runtime_error from busy cap";
+    EXPECT_GE(elapsed_secs, 1.5);
+    EXPECT_LT(elapsed_secs, 6.0);
+
+    EXPECT_NE(error_msg.find("busy"), std::string::npos)
+        << "Error message must mention busy state: " << error_msg;
+    // Must mention both an elapsed value (e.g. "2.0s" or "2.1s") and the
+    // configured cap ("max wait of 2s"). The elapsed value must be non-zero.
+    EXPECT_NE(error_msg.find("max wait of 2s"), std::string::npos)
+        << "Error message must mention the configured cap: " << error_msg;
+    EXPECT_EQ(error_msg.find("busy for 0"), std::string::npos)
+        << "Elapsed must be non-zero when the cap actually tripped: " << error_msg;
+}
+
+TEST_F(ControlChannelTest, BusyRetry_MaxWaitIsPerInstance) {
+    // Default is 60 via the public getter.
+    auto default_channel = ControlChannel::create("127.0.0.1", server_port(), 5.0);
+    accept_one();
+    EXPECT_EQ(default_channel->max_busy_wait_secs(), 60u);
+    default_channel->stop();
+
+    // Need a second server for the short-capped channel.
+    TCPServer short_server;
+    short_server.bind(0);
+    short_server.start();
+
+    auto short_channel = ControlChannel::create(
+        "127.0.0.1", short_server.local_port(), 5.0, /*max_busy_wait_secs=*/1);
+    AcceptedSocket accepted = short_server.accept(5.0);
+    ASSERT_TRUE(accepted.is_valid());
+    auto short_server_transport = TCPTransport::from_accepted(std::move(accepted));
+    short_server_transport->start();
+
+    short_channel->start();
+
+    BusyReplyScript script(short_server_transport.get(), /*busy_count=*/1000);
+    std::thread t([&] { script.run(1000); });
+
+    auto t0 = std::chrono::steady_clock::now();
+    EXPECT_THROW(
+        short_channel->send_and_recv(make_extract_request(), 60.0),
+        std::runtime_error);
+    auto elapsed = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - t0).count();
+
+    EXPECT_LT(elapsed, 4.0) << "1-s cap must fire faster than default 60 s";
+
+    script.stop();
+    short_channel->stop();
+    if (t.joinable()) t.join();
+    short_server_transport->stop();
+    short_server.stop();
+}
+
+TEST_F(ControlChannelTest, BusyRetry_CancelUnblocksPromptly) {
+    auto channel = ControlChannel::create(
+        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/30);
+    accept_one();
+    channel->start();
+
+    BusyReplyScript script(server_transport_.get(), /*busy_count=*/1000);
+    std::thread server_thread([&] { script.run(1000); });
+
+    // Cancel ~100 ms in — well before the 2 s busy poll interval elapses.
+    std::thread canceller([&] {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        channel->cancel_send_and_recv();
+    });
+
+    pb::MessageV1 request = make_extract_request();
+
+    auto t0 = std::chrono::steady_clock::now();
+    bool threw = false;
+    std::string error_msg;
+    try {
+        channel->send_and_recv(request, 60.0);
+    } catch (const std::runtime_error& e) {
+        threw = true;
+        error_msg = e.what();
+    }
+    auto elapsed = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - t0).count();
+
+    canceller.join();
+    script.stop();
+    channel->stop();
+    if (server_thread.joinable()) server_thread.join();
+
+    ASSERT_TRUE(threw) << "Expected std::runtime_error from cancel";
+    EXPECT_LT(elapsed, 2.0)
+        << "Cancel must unblock before the next busy-poll tick";
+
+    EXPECT_NE(error_msg.find("cancelled"), std::string::npos)
+        << "Error message must mention cancellation: " << error_msg;
+}
+
+// Every command wrapper routes through send_and_recv(), so one representative
+// invocation per wrapper is enough to catch a wrapper that bypasses the retry.
+enum class CommandKind {
+    Extract,
+    SetModule,
+    Reset,
+    Authenticate,
+    StartRun,
+    RawSendAndRecv,
+};
+
+class BusyRetryWrapperTest
+    : public ControlChannelTest,
+      public ::testing::WithParamInterface<CommandKind> {};
+
+TEST_P(BusyRetryWrapperTest, EveryWrapperInheritsRetry) {
+    auto channel = ControlChannel::create(
+        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/15);
+    accept_one();
+    channel->start();
+
+    // Two busy replies, then the real response.
+    BusyReplyScript script(server_transport_.get(), /*busy_count=*/2);
+    std::thread server_thread([&] { script.run(3); });
+
+    auto invoke = [&](CommandKind kind) {
+        switch (kind) {
+            case CommandKind::Extract:
+                channel->extract("/", true, true, false, false, 15.0);
+                break;
+            case CommandKind::SetModule: {
+                pb::Module m;
+                channel->set_module(m, 15.0);
+                break;
+            }
+            case CommandKind::Reset:
+                channel->reset(true, true, 15.0);
+                break;
+            case CommandKind::Authenticate:
+                channel->authenticate("token", 15.0);
+                break;
+            case CommandKind::StartRun: {
+                pb::StartRunCommand run;
+                channel->start_run_request(run, 15.0);
+                break;
+            }
+            case CommandKind::RawSendAndRecv:
+                channel->send_and_recv(make_extract_request(), 15.0);
+                break;
+        }
+    };
+
+    // Must complete without throwing — the wrapper has to keep retrying past
+    // the two busy replies until the real response arrives.
+    auto t0 = std::chrono::steady_clock::now();
+    bool threw = false;
+    try {
+        invoke(GetParam());
+    } catch (...) {
+        threw = true;
+    }
+    auto elapsed = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - t0).count();
+
+    script.stop();
+    channel->stop();
+    if (server_thread.joinable()) server_thread.join();
+
+    ASSERT_FALSE(threw) << "Wrapper must complete successfully after retries";
+
+    // ~4 s (two 2-s poll intervals) expected, allow up to 7 s. Lower bound
+    // loosened to 2.5 s so weak CI runners (notably macOS) don't flake.
+    EXPECT_GE(elapsed, 2.5);
+    EXPECT_LT(elapsed, 7.0);
+
+    auto ids = script.observed_ids();
+    ASSERT_EQ(ids.size(), 3u);
+    EXPECT_NE(ids[0], ids[1]);
+    EXPECT_NE(ids[1], ids[2]);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    AllWrappers, BusyRetryWrapperTest,
+    ::testing::Values(
+        CommandKind::Extract,
+        CommandKind::SetModule,
+        CommandKind::Reset,
+        CommandKind::Authenticate,
+        CommandKind::StartRun,
+        CommandKind::RawSendAndRecv));
 
 /**
  * @brief utils::generate_uuid() produces valid UUID v4 strings.

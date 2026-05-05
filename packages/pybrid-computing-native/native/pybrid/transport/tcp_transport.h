@@ -21,6 +21,7 @@
 #include "../buffer.h"
 #include "../buffer_factory.h"
 #include "../transport.h"
+#include "../varint.h"
 #include "accepted_socket.h"
 
 namespace anabrid::pybrid::native {
@@ -46,9 +47,11 @@ public:
     explicit TCPTransport(BufferType buffer_type = BufferType::LockFree);
 
     /// Factory method for server-side connections; adopts an existing native socket.
+    /// Takes ownership of accepted (move). On success, accepted.native_handle is
+    /// cleared to prevent double-close; on failure, the destructor closes it.
     /// Caller must call start() after construction.
     static std::unique_ptr<TCPTransport> from_accepted(
-        const AcceptedSocket& accepted,
+        AcceptedSocket accepted,
         BufferType buffer_type = BufferType::LockFree);
 
     ~TCPTransport() override;
@@ -85,6 +88,19 @@ public:
     TCPStats stats() const;
     void reset_stats();
 
+    // Avoid churning reallocate-free on back-to-back small runs; only shrink
+    // after a real burst has grown the reassembly buffer.
+    static constexpr size_t TCP_RECV_BUFFER_RESET_THRESHOLD =
+        4 * (MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE);
+
+    // Post a closure onto io_ that shrinks recv_buffer_ back to its initial capacity.
+    void reset_buffers();
+
+    // Test-only: current allocated capacity of the varint-reassembly recv_buffer_.
+    // Tracked via an atomic so callers on other threads do not race with io_ resizes.
+    // reset_buffers() should bring this back to MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE.
+    size_t recv_buffer_capacity() const;
+
 private:
     void start_receive();
     void process_recv_buffer();
@@ -107,6 +123,9 @@ private:
 
     std::vector<uint8_t> recv_buffer_;
     size_t recv_buffer_used_{0};
+    // Shadow of recv_buffer_.capacity(), updated on io_ thread after every resize.
+    // Read by recv_buffer_capacity() from any thread without a lock.
+    std::atomic<size_t> recv_buffer_capacity_{MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE};
 
     std::thread send_thread_;
     std::mutex send_cv_mutex_;

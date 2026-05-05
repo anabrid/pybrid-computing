@@ -549,7 +549,7 @@ protected:
         // Set counts
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -608,7 +608,7 @@ protected:
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -667,7 +667,7 @@ protected:
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -714,7 +714,7 @@ protected:
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -772,7 +772,7 @@ protected:
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -830,7 +830,7 @@ protected:
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -905,7 +905,7 @@ protected:
         }
 
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(wire_channels);
+        daq_data->set_channel_stride(wire_channels);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -967,7 +967,7 @@ protected:
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -1026,7 +1026,7 @@ protected:
 
         uint32_t sample_count = samples.size() / channel_count;
         daq_data->set_sample_count(sample_count);
-        daq_data->set_channel_count(channel_count);
+        daq_data->set_channel_stride(channel_count);
 
         std::string serialized;
         msg.SerializeToString(&serialized);
@@ -1409,7 +1409,7 @@ TEST_F(SampleDecodingDataChannelTest, HandlesMessageWithEmptySampleData) {
     auto* daq_data = run_data->mutable_data();
     daq_data->set_data("");  // Empty data
     daq_data->set_sample_count(0);
-    daq_data->set_channel_count(1);
+    daq_data->set_channel_stride(1);
 
     std::string serialized;
     msg.SerializeToString(&serialized);
@@ -1486,7 +1486,7 @@ TEST_F(SampleDecodingDataChannelTest, DecodesRunDataEndMessageWithOpEndType) {
     ch->set_probe(0);
 
     daq_data->set_sample_count(2);
-    daq_data->set_channel_count(1);
+    daq_data->set_channel_stride(1);
 
     std::string serialized;
     msg.SerializeToString(&serialized);

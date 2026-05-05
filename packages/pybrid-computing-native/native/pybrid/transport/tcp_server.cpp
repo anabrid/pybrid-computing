@@ -83,7 +83,15 @@ void TCPServer::stop() {
         accept_thread_.join();
     }
 
+    // Wake any blocked accept() callers before draining, then close all
+    // queued server-side fds that were never consumed.
     pending_cv_.notify_all();
+    {
+        std::lock_guard<std::mutex> lock(pending_mutex_);
+        while (!pending_.empty()) {
+            pending_.pop();
+        }
+    }
 }
 
 bool TCPServer::is_running() const {

@@ -3,10 +3,18 @@
 #include <atomic>
 #include <chrono>
 #include <cstring>
+#include <errno.h>
+#include <fcntl.h>
+#include <netinet/in.h>
 #include <random>
+#include <sys/socket.h>
 #include <thread>
+#include <type_traits>
+#include <unistd.h>
 #include <vector>
 
+#include "pybrid/transport/accepted_socket.h"
+#include "pybrid/transport/tcp_server.h"
 #include "pybrid/transport/tcp_transport.h"
 #include "pybrid/transport/udp_socket.h"
 #include "pybrid/varint.h"
@@ -602,4 +610,338 @@ TEST_F(UDPSocketTest, SendReceiveLoopback) {
 
     sender.stop();
     receiver.stop();
+}
+
+// ============================================================================
+// AcceptedSocket RAII Tests (Fix #3)
+// ============================================================================
+
+// Helper: returns true if the given fd is closed (kernel reports EBADF).
+static bool fd_is_closed(int fd) {
+    errno = 0;
+    int ret = ::fcntl(fd, F_GETFD);
+    return ret == -1 && errno == EBADF;
+}
+
+class AcceptedSocketTest : public ::testing::Test {};
+
+// After an AcceptedSocket goes out of scope the fd must be closed.
+TEST_F(AcceptedSocketTest, DestructorClosesFd) {
+    int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    ASSERT_GE(fd, 0) << "Failed to create socket: " << strerror(errno);
+
+    {
+        AcceptedSocket sock(fd, "127.0.0.1", 9999);
+        EXPECT_TRUE(sock.is_valid());
+    }
+
+    EXPECT_TRUE(fd_is_closed(fd))
+        << "Expected fd " << fd << " to be closed after AcceptedSocket destructor";
+}
+
+// Moving an AcceptedSocket transfers fd ownership; the moved-from object
+// must not close the fd when it is destroyed.
+TEST_F(AcceptedSocketTest, MoveTransfersFd) {
+    int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    ASSERT_GE(fd, 0) << "Failed to create socket: " << strerror(errno);
+
+    AcceptedSocket a(fd, "127.0.0.1", 9999);
+    EXPECT_TRUE(a.is_valid());
+
+    AcceptedSocket b = std::move(a);
+
+    // Source must be invalidated (no longer owns the fd).
+    EXPECT_EQ(a.native_handle, -1);
+    EXPECT_FALSE(a.is_valid());
+
+    // Destination holds the fd.
+    EXPECT_EQ(b.native_handle, fd);
+    EXPECT_TRUE(b.is_valid());
+
+    // After b is destroyed the fd must be closed.
+    { AcceptedSocket sink = std::move(b); }
+
+    EXPECT_TRUE(fd_is_closed(fd))
+        << "Expected fd " << fd << " to be closed after move-target AcceptedSocket destroyed";
+}
+
+// Move-assignment must close the previously held fd and steal the source fd.
+TEST_F(AcceptedSocketTest, MoveAssignmentClosesExistingFd) {
+    int fd1 = ::socket(AF_INET, SOCK_STREAM, 0);
+    ASSERT_GE(fd1, 0) << "Failed to create socket fd1: " << strerror(errno);
+    int fd2 = ::socket(AF_INET, SOCK_STREAM, 0);
+    ASSERT_GE(fd2, 0) << "Failed to create socket fd2: " << strerror(errno);
+
+    AcceptedSocket a(fd1, "127.0.0.1", 9998);
+    AcceptedSocket b(fd2, "127.0.0.1", 9999);
+
+    a = std::move(b);
+
+    // fd1 must have been closed by the assignment (a dropped its old resource).
+    EXPECT_TRUE(fd_is_closed(fd1))
+        << "Expected fd1 to be closed after move-assignment replaced it";
+
+    // a now owns fd2.
+    EXPECT_EQ(a.native_handle, fd2);
+
+    // b is in moved-from state.
+    EXPECT_EQ(b.native_handle, -1);
+    EXPECT_FALSE(b.is_valid());
+
+    // fd2 is still open (owned by a).
+    EXPECT_FALSE(fd_is_closed(fd2));
+}
+
+// AcceptedSocket must NOT be copy-constructible or copy-assignable: copying
+// a raw fd without an ownership protocol leads to double-close.
+TEST_F(AcceptedSocketTest, CopyIsDeleted) {
+    EXPECT_FALSE(std::is_copy_constructible<AcceptedSocket>::value)
+        << "AcceptedSocket must not be copy-constructible (would cause double-close)";
+    EXPECT_FALSE(std::is_copy_assignable<AcceptedSocket>::value)
+        << "AcceptedSocket must not be copy-assignable (would cause double-close)";
+}
+
+// ============================================================================
+// TCPServer pending_ drain Tests (Fix #3)
+// ============================================================================
+
+class TCPServerPendingDrainTest : public ::testing::Test {};
+
+// When TCPServer is destroyed with queued but unconsumed AcceptedSockets, the
+// destructor must close all pending fds.  We verify via the client side: a
+// TCP connection whose server-side half is closed will have its blocking
+// ::read() return 0 (EOF) rather than hanging indefinitely.
+TEST_F(TCPServerPendingDrainTest, DestructorClosesPendingFds) {
+    const int N_CLIENTS = 3;
+
+    std::vector<int> client_fds;
+    {
+        TCPServer server;
+        uint16_t port = server.bind(0);
+        server.start();
+
+        for (int i = 0; i < N_CLIENTS; ++i) {
+            int cfd = ::socket(AF_INET, SOCK_STREAM, 0);
+            ASSERT_GE(cfd, 0);
+
+            sockaddr_in addr{};
+            addr.sin_family = AF_INET;
+            addr.sin_port = htons(port);
+            addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+            ASSERT_EQ(::connect(cfd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)), 0)
+                << "connect() failed: " << strerror(errno);
+
+            client_fds.push_back(cfd);
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // server destroyed here — must close all pending server-side fds.
+    }
+
+    // Set a per-socket receive timeout so ::recv() won't block indefinitely if
+    // the drain is missing (test would time out instead of hanging forever).
+    // 500 ms is enough: after the fix, EOF arrives immediately; before the fix,
+    // we want a fast failure rather than a 30-second hang.
+    for (int cfd : client_fds) {
+        struct timeval tv{};
+        tv.tv_sec = 0;
+        tv.tv_usec = 500000;
+        ::setsockopt(cfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    }
+
+    // Each client must see EOF (recv returns 0) because the server-side half
+    // was closed by the TCPServer destructor draining pending_.
+    for (int i = 0; i < N_CLIENTS; ++i) {
+        int cfd = client_fds[i];
+        char buf[16];
+        ssize_t n = ::recv(cfd, buf, sizeof(buf), 0);
+        EXPECT_EQ(n, 0)
+            << "Client " << i << " expected EOF (0) after server destruction, got " << n
+            << " (errno=" << errno << " " << strerror(errno) << ")";
+        ::close(cfd);
+    }
+}
+
+// ============================================================================
+// UDPSocket reset_buffers Tests (Fix #2)
+// ============================================================================
+
+class UDPSocketResetBuffersTest : public ::testing::Test {};
+
+// After a burst that grows the recv_queue_ backing store, reset_buffers() must
+// release the accumulated capacity: the queue becomes empty (all unread entries
+// are discarded) and the fresh buffer starts at initial allocation.
+TEST_F(UDPSocketResetBuffersTest, ResetBuffersReleasesBackingAfterBurst) {
+    const int N_PACKETS = 512;
+
+    UDPSocket receiver;
+    uint16_t recv_port = receiver.bind(0);
+    receiver.start();
+
+    UDPSocket sender;
+    sender.bind(0);
+    sender.start();
+
+    // Fill the recv_queue_ by sending N packets without consuming any.
+    std::vector<uint8_t> pkt(64, 0xAB);
+    for (int i = 0; i < N_PACKETS; ++i) {
+        sender.send_to(pkt.data(), pkt.size(), "127.0.0.1", recv_port);
+    }
+
+    // Give the io thread time to push all packets into the queue.
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    // The queue must have grown: at least some packets arrived.
+    EXPECT_GT(receiver.recv_queue_len(), 0u)
+        << "No packets arrived in recv_queue_ before reset — burst did not work";
+
+    // reset_buffers() swaps in a fresh buffer; in-flight entries are discarded.
+    receiver.reset_buffers();
+
+    // After reset the backing store is fresh: no items remain from before.
+    EXPECT_EQ(receiver.recv_queue_len(), 0u)
+        << "recv_queue_ still contains entries after reset_buffers() — old backing not released";
+
+    sender.stop();
+    receiver.stop();
+}
+
+// Concurrent reset_buffers() while the io thread is actively receiving must
+// not crash or corrupt state.  After the concurrent phase, the socket must
+// still be usable for normal send/recv.
+TEST_F(UDPSocketResetBuffersTest, ResetBuffersSafeWithConcurrentReceives) {
+    UDPSocket receiver;
+    uint16_t recv_port = receiver.bind(0);
+    receiver.start();
+
+    UDPSocket sender;
+    sender.bind(0);
+    sender.start();
+
+    std::atomic<bool> stop_sender{false};
+
+    // Sender thread: continuously push small packets into the receiver.
+    std::thread sender_thread([&]() {
+        std::vector<uint8_t> pkt(32, 0xCD);
+        while (!stop_sender.load(std::memory_order_relaxed)) {
+            sender.send_to(pkt.data(), pkt.size(), "127.0.0.1", recv_port);
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+        }
+    });
+
+    // Let some packets accumulate.
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    // Call reset_buffers() while the sender is still running — must not crash.
+    receiver.reset_buffers();
+
+    // Brief additional activity after the reset.
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    stop_sender.store(true, std::memory_order_relaxed);
+    sender_thread.join();
+
+    // Socket must still be in a usable state (no crash, io thread alive).
+    EXPECT_TRUE(receiver.is_running())
+        << "UDPSocket not running after concurrent reset_buffers() — io thread crashed";
+
+    sender.stop();
+    receiver.stop();
+}
+
+// ============================================================================
+// TCPTransport reset_buffers Tests (Fix #2)
+// ============================================================================
+
+// Helper that creates a loopback pair: a TCPServer listening on an ephemeral
+// port and a client TCPTransport connected to it.  Returns the server-side
+// transport (from_accepted) and the client transport.
+static std::pair<std::unique_ptr<TCPTransport>, std::unique_ptr<TCPTransport>>
+make_loopback_pair() {
+    TCPServer server;
+    uint16_t port = server.bind(0);
+    server.start();
+
+    // Client side
+    auto client = std::make_unique<TCPTransport>();
+    client->start();
+    bool connected = client->connect("127.0.0.1", port, 5.0);
+    if (!connected) {
+        return {nullptr, nullptr};
+    }
+
+    // Give the server time to accept.
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    auto accepted = server.accept(0.5);
+    if (!accepted.is_valid()) {
+        return {nullptr, nullptr};
+    }
+
+    auto server_side = TCPTransport::from_accepted(std::move(accepted));
+    if (!server_side) {
+        return {nullptr, nullptr};
+    }
+    server_side->start();
+
+    return {std::move(server_side), std::move(client)};
+}
+
+class TCPTransportResetBuffersTest : public ::testing::Test {};
+
+// reset_buffers() must shrink recv_buffer_ back to its initial capacity
+// (MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE) after it has been allowed to
+// grow, and must leave the transport in a functional state.
+TEST_F(TCPTransportResetBuffersTest, ResetBuffersShrinksRecvBufferVector) {
+    auto [server_side, client] = make_loopback_pair();
+    ASSERT_NE(server_side, nullptr) << "Failed to create loopback pair";
+    ASSERT_NE(client, nullptr) << "Failed to create loopback pair";
+
+    // Initial capacity must equal the value set in the TCPTransport constructor.
+    const size_t initial_cap = MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE;
+    EXPECT_EQ(server_side->recv_buffer_capacity(), initial_cap)
+        << "Initial recv_buffer_ capacity does not match MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE";
+
+    // reset_buffers() on a transport that has not grown must also be a no-op
+    // (capacity stays at initial) and must not throw or corrupt state.
+    server_side->reset_buffers();
+
+    EXPECT_EQ(server_side->recv_buffer_capacity(), initial_cap)
+        << "recv_buffer_ capacity changed unexpectedly after reset on non-grown buffer";
+
+    // Send messages through the client so bytes flow into server_side's
+    // recv_buffer_.  Enough data to force at least one resize cycle
+    // (i.e. fill the buffer before the io thread can drain it).
+    // We send a burst of messages; the server does NOT consume them, so the
+    // reassembly vector fills up and must double.
+    //
+    // Each varint-framed message has a 1-byte header + payload bytes.
+    // We send N_MSGS * payload_size bytes to overflow the initial buffer.
+    const size_t payload_size = 1024;
+    const int N_MSGS = static_cast<int>(initial_cap / payload_size) + 4;
+    std::vector<uint8_t> payload(payload_size, 0xEF);
+    for (int i = 0; i < N_MSGS; ++i) {
+        client->send(payload.data(), payload_size);
+    }
+    // Wait for data to flow into server_side recv_buffer_.
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    // After the burst, recv_buffer_capacity() may have grown above initial_cap
+    // (the resize-on-full path doubles the buffer).  Whether it grew or not,
+    // reset_buffers() must bring it back to initial_cap.
+    server_side->reset_buffers();
+
+    // Allow the posted reset closure to execute on the io_ thread.
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    EXPECT_EQ(server_side->recv_buffer_capacity(), initial_cap)
+        << "recv_buffer_ capacity did not shrink to initial after reset_buffers()";
+
+    // Transport must still be functional after reset.
+    EXPECT_TRUE(server_side->is_running())
+        << "TCPTransport not running after reset_buffers()";
+
+    client->stop();
+    server_side->stop();
 }

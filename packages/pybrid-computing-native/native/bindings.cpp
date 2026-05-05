@@ -14,6 +14,7 @@
 #include "pybrid/channel/sample_decoding_data_channel.h"
 #include "pybrid/channel/control_channel.h"
 #include "pybrid/proxy/proxy_server.h"
+#include "pybrid/proxy/proxy_session.h"
 #include "pybrid/proto/main.pb.h"
 
 namespace py = pybind11;
@@ -343,7 +344,7 @@ Raises:
                 accepted = self.accept(timeout);
             }
             return accepted;
-        }, py::arg("timeout"),
+        }, py::arg("timeout"), py::return_value_policy::move,
            R"doc(
 Accept the next pending connection.
 
@@ -532,8 +533,8 @@ Returns:
              "Get the local port.")
         .def("stats", &TCPTransport::stats,
              "Get current transport statistics.")
-        .def_static("from_accepted", [](const AcceptedSocket& accepted, BufferType buffer_type) {
-            auto transport = TCPTransport::from_accepted(accepted, buffer_type);
+        .def_static("from_accepted", [](AcceptedSocket& accepted, BufferType buffer_type) {
+            auto transport = TCPTransport::from_accepted(std::move(accepted), buffer_type);
             if (!transport) {
                 throw std::runtime_error("Failed to create transport from accepted socket");
             }
@@ -618,8 +619,19 @@ Example:
             self.start();
         }, "Start the receive loop.")
         .def("stop", [](DataChannel& self) {
-            py::gil_scoped_release release;
-            self.stop();
+            // Swap callbacks into locals while the GIL is held and the io
+            // thread is still live.  The swap is serialized with the io thread
+            // via DataChannel::m_callback_mutex.  After stop() joins the
+            // thread, the locals destruct here with the GIL held.
+            std::function<void(pb::RunState)> s;
+            std::function<void(const std::string&)> e;
+            std::function<void(std::vector<uint8_t>)> c;
+            self.swap_python_callbacks(s, e, c);
+            {
+                py::gil_scoped_release release;
+                self.stop();
+            }
+            // s, e, c destruct here — GIL held, io thread joined.
         }, "Stop the receive loop.")
         .def("reconnect", [](DataChannel& self) {
             py::gil_scoped_release release;
@@ -657,8 +669,14 @@ Example:
              "Set the output queue for decoded sample blobs.")
         .def("__enter__", [](SampleDecodingDataChannel& self) -> SampleDecodingDataChannel& { return self; })
         .def("__exit__", [](SampleDecodingDataChannel& self, py::object, py::object, py::object) {
-            py::gil_scoped_release release;
-            self.stop();
+            std::function<void(pb::RunState)> s;
+            std::function<void(const std::string&)> e;
+            std::function<void(std::vector<uint8_t>)> c;
+            self.swap_python_callbacks(s, e, c);
+            {
+                py::gil_scoped_release release;
+                self.stop();
+            }
         });
 
     py::class_<ControlChannel>(m, "ControlChannel",
@@ -685,15 +703,18 @@ Context Manager:
 
         // Factory method — release GIL during connection
         .def_static("create",
-            [](const std::string& host, uint16_t port, double timeout) {
+            [](const std::string& host, uint16_t port, double timeout,
+               std::uint32_t max_busy_wait_secs) {
                 std::unique_ptr<ControlChannel> channel;
                 {
                     py::gil_scoped_release release;
-                    channel = ControlChannel::create(host, port, timeout);
+                    channel = ControlChannel::create(host, port, timeout,
+                                                     max_busy_wait_secs);
                 }
                 return channel.release();  // pybind11 takes ownership
             },
             py::arg("host"), py::arg("port"), py::arg("timeout") = 5.0,
+            py::arg("max_busy_wait_secs") = 60u,
             py::return_value_policy::take_ownership,
             R"doc(
 Create a connected ControlChannel.
@@ -702,9 +723,12 @@ Connects a TCPTransport to host:port internally. Call start() to launch
 the recv thread before sending or receiving messages.
 
 Args:
-    host:    Remote IP address (raw IP only, no DNS resolution).
-    port:    Remote port number.
-    timeout: Connection timeout in seconds (default: 5.0).
+    host:               Remote IP address (raw IP only, no DNS resolution).
+    port:               Remote port number.
+    timeout:            Connection timeout in seconds (default: 5.0).
+    max_busy_wait_secs: Maximum cumulative seconds ``send_and_recv`` will
+                        wait while the peer returns ``busy_response``
+                        replies before raising (default: 60).
 
 Returns:
     A new ControlChannel instance connected to the remote host.
@@ -716,6 +740,9 @@ Raises:
              "Start the recv thread. Must be called after create().")
         .def("stop",
             [](ControlChannel& self) {
+                // Clear py::function captures while the GIL is held so their
+                // destructors see a refcount-safe state.
+                self.clear_callbacks();
                 py::gil_scoped_release release;
                 self.stop();
             },
@@ -773,6 +800,26 @@ Returns:
                 self.cancel_reconnect();
             },
             "Cancel an in-flight reconnect() call from another thread.")
+        .def("cancel_send_and_recv",
+            [](ControlChannel& self) {
+                self.cancel_send_and_recv();
+            },
+            R"doc(
+Cancel an in-flight busy-wait inside send_and_recv().
+
+Wakes the condition-variable sleep used between busy-response retries so the
+pending ``send_and_recv`` call terminates with a RuntimeError instead of
+waiting for the next poll. Safe to call from any thread.
+)doc")
+        .def_property("max_busy_wait_secs",
+            [](const ControlChannel& self) { return self.max_busy_wait_secs(); },
+            [](ControlChannel& self, std::uint32_t secs) {
+                self.set_max_busy_wait_secs(secs);
+            },
+            R"doc(
+Per-instance cap (seconds) on the cumulative busy-retry wait inside
+``send_and_recv``.
+)doc")
         .def("remote_host", &ControlChannel::remote_host,
              "Get the remote host address (empty if not connected).")
         .def("remote_port", &ControlChannel::remote_port,
@@ -1166,6 +1213,9 @@ Raises:
         .def("__exit__",
             [](ControlChannel& self, py::object /*exc_type*/,
                py::object /*exc_val*/, py::object /*exc_tb*/) {
+                // Clear py::function captures while the GIL is held so their
+                // destructors see a refcount-safe state.
+                self.clear_callbacks();
                 py::gil_scoped_release release;
                 self.stop();
             });
@@ -1212,18 +1262,6 @@ Args:
 Raises:
     RuntimeError: If connection or handshake fails.
 )doc")
-        .def("map_backends",
-            [](ProxyServer& self) {
-                py::gil_scoped_release release;
-                self.map_backends();
-            },
-            R"doc(
-Finalize the list of backends by distributing a list of devices IDs and IPs
-amongst all registered backends.
-
-Raises:
-    RuntimeError: If any of the devices report an error.
-)doc")
         .def("start",
             [](ProxyServer& self, const std::string& host, uint16_t port) {
                 py::gil_scoped_release release;
@@ -1242,9 +1280,6 @@ Raises:
 )doc")
         .def("stop",
             [](ProxyServer& self) {
-                // Clear the Python sync callback while the GIL is still held so
-                // that the py::function destructor does not run without the GIL
-                // (which would be undefined behaviour in CPython).
                 py::gil_scoped_release release;
                 self.stop();
             },
@@ -1306,11 +1341,14 @@ Args:
              "index is out of range.")
         .def("__enter__", [](ProxyServer& self) -> ProxyServer& { return self; })
         .def("__exit__", [](ProxyServer& self, py::object, py::object, py::object) {
-            // Clear the Python sync callback while the GIL is still held (same
-            // reason as stop() above — py::function destructor needs the GIL).
             py::gil_scoped_release release;
             self.stop();
         });
+
+    m.def("_client_session_alive_count", &ClientSession::alive_count,
+          "Test-only: count of currently live ClientSession objects.");
+    m.def("_client_session_alive_peak", &ClientSession::alive_peak,
+          "Test-only: peak number of concurrently live ClientSession objects.");
 
     py::class_<IBuffer>(m, "IBuffer",
         "Abstract base class for variable-sized item buffers")

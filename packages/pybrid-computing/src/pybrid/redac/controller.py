@@ -309,32 +309,6 @@ class Controller(BaseController):
         result = await session.execute()
         return result[0] if result else run
 
-    async def register_external_entities(self):
-        """Distribute carrier MACs and IP addresses to every connected device.
-
-        Builds a map of ``{carrier_mac: ip_octets}`` from all carriers
-        in :attr:`computer` and sends a ``RegisterExternalEntitiesCommand`` to
-        each unique backend connection.
-        """
-
-        # TODO: reinstate once implemented in the firmware
-        logger.warning("RegisterExternalEntities command skipped...")
-        return
-
-        if not self.computer.carriers:
-            return
-
-        entities: dict[str, tuple[int, int, int, int]] = {}
-        for carrier in self.computer.carriers:
-            conn = self.connection_manager.get_connection(carrier.path)
-            host = conn.control.remote_host
-            octets = tuple(int(x) for x in host.split("."))
-            entities[str(carrier.path)] = octets
-
-        for conn in self.connection_manager.get_unique_connections():
-            result = await conn.control.register_external_entities(entities)
-            result.raise_on_error()
-
     async def reset(self, keep_calibration: bool = True, sync: bool = True):
         """Reset all carrier boards to initial configuration."""
         for conn in self.connection_manager.get_unique_connections():

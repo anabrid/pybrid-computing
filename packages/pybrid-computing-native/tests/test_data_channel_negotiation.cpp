@@ -96,7 +96,7 @@ protected:
         ASSERT_TRUE(accepted.is_valid())
             << "Mock device server did not accept a connection in time";
 
-        server_transport_ = TCPTransport::from_accepted(accepted);
+        server_transport_ = TCPTransport::from_accepted(std::move(accepted));
         ASSERT_NE(server_transport_, nullptr);
         server_transport_->start();
     }

@@ -25,9 +25,11 @@ ControlChannel::~ControlChannel() {
 std::unique_ptr<ControlChannel> ControlChannel::create(
     const std::string& host,
     uint16_t port,
-    double timeout_secs)
+    double timeout_secs,
+    std::uint32_t max_busy_wait_secs)
 {
     auto channel = std::unique_ptr<ControlChannel>(new ControlChannel());
+    channel->max_busy_wait_secs_ = max_busy_wait_secs;
 
     channel->transport_ = std::make_unique<TCPTransport>();
     channel->transport_->start();
@@ -41,6 +43,22 @@ std::unique_ptr<ControlChannel> ControlChannel::create(
     }
 
     return channel;
+}
+
+void ControlChannel::cancel_send_and_recv() {
+    {
+        std::lock_guard<std::mutex> lk(busy_wait_mutex_);
+        busy_wait_cancelled_.store(true, std::memory_order_release);
+    }
+    busy_wait_cv_.notify_all();
+}
+
+std::uint32_t ControlChannel::max_busy_wait_secs() const {
+    return max_busy_wait_secs_;
+}
+
+void ControlChannel::set_max_busy_wait_secs(std::uint32_t secs) {
+    max_busy_wait_secs_ = secs;
 }
 
 void ControlChannel::start() {
@@ -210,45 +228,111 @@ void ControlChannel::send_raw(const void* data, size_t len) {
     }
 }
 
+namespace {
+
+// Poll interval between busy-retry attempts. The condition variable can wake
+// earlier via cancel_send_and_recv().
+constexpr std::chrono::seconds kBusyRetryPollInterval{2};
+
+}  // namespace
+
 pb::MessageV1 ControlChannel::send_and_recv(const pb::MessageV1& msg, double timeout_secs) {
     if (reconnecting_.load(std::memory_order_acquire))
         throw std::runtime_error("ControlChannel::send_and_recv(): reconnect in progress");
     if (!is_connected())
         throw std::runtime_error("ControlChannel::send_and_recv(): not connected");
 
-    const std::string& id = msg.id();
-    if (id.empty()) {
+    if (msg.id().empty()) {
         throw std::runtime_error(
             "ControlChannel::send_and_recv(): msg.id() must be non-empty");
     }
 
-    auto pending = std::make_shared<PendingRequest>();
-    std::future<pb::MessageV1> future = pending->promise.get_future();
+    // One caller owns the busy-wait flag at a time; resetting on entry is
+    // sufficient because there is no defined semantics for concurrent callers.
+    busy_wait_cancelled_.store(false, std::memory_order_release);
 
-    {
-        std::lock_guard<std::mutex> lock(pending_mutex_);
-        pending_requests_.emplace(id, pending);
+    pb::MessageV1 current_msg = msg;
+    const auto busy_loop_start = std::chrono::steady_clock::now();
+    const auto max_wait = std::chrono::seconds(max_busy_wait_secs_);
+
+    while (true) {
+        const std::string id = current_msg.id();
+
+        auto pending = std::make_shared<PendingRequest>();
+        std::future<pb::MessageV1> future = pending->promise.get_future();
+
+        {
+            std::lock_guard<std::mutex> lock(pending_mutex_);
+            pending_requests_.emplace(id, pending);
+        }
+
+        try {
+            send(current_msg);
+        } catch (...) {
+            std::lock_guard<std::mutex> lock(pending_mutex_);
+            pending_requests_.erase(id);
+            throw;
+        }
+
+        auto timeout = std::chrono::duration<double>(timeout_secs);
+        std::future_status status = future.wait_for(timeout);
+
+        if (status == std::future_status::timeout) {
+            std::lock_guard<std::mutex> lock(pending_mutex_);
+            pending_requests_.erase(id);
+            throw std::runtime_error(
+                "ControlChannel::send_and_recv(): timeout waiting for response to id=" + id);
+        }
+
+        pb::MessageV1 response = future.get();
+
+        if (!response.has_busy_response()) {
+            return response;
+        }
+
+        // Busy: sleep on the condvar up to the poll interval, or wake early
+        // on cancel. Sleeping past the deadline is bounded by clamping the
+        // wait to the remaining budget; the cap is then enforced once after
+        // the sleep (the first iteration always gets one sleep before any
+        // cap check, which is the intended behaviour).
+        {
+            std::unique_lock<std::mutex> lk(busy_wait_mutex_);
+            auto elapsed = std::chrono::steady_clock::now() - busy_loop_start;
+            auto remaining = (elapsed >= max_wait)
+                ? std::chrono::steady_clock::duration::zero()
+                : (max_wait - elapsed);
+            auto sleep_for = std::min<std::chrono::steady_clock::duration>(
+                kBusyRetryPollInterval, remaining);
+            busy_wait_cv_.wait_for(lk, sleep_for, [this] {
+                return busy_wait_cancelled_.load(std::memory_order_acquire);
+            });
+        }
+
+        if (busy_wait_cancelled_.load(std::memory_order_acquire)) {
+            throw std::runtime_error(
+                "ControlChannel::send_and_recv(): busy wait cancelled");
+        }
+
+        auto elapsed = std::chrono::steady_clock::now() - busy_loop_start;
+        if (elapsed >= max_wait) {
+            // Report elapsed with 0.1 s resolution so a fast trip never shows
+            // "0s". std::to_string(double) gives 6 decimals; format manually.
+            auto elapsed_ms =
+                std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+            char buf[32];
+            std::snprintf(buf, sizeof(buf), "%lld.%01lld",
+                static_cast<long long>(elapsed_ms / 1000),
+                static_cast<long long>((elapsed_ms % 1000) / 100));
+            throw std::runtime_error(
+                "Device busy for " + std::string(buf) +
+                "s, exceeded max wait of " +
+                std::to_string(max_busy_wait_secs_) + "s");
+        }
+
+        // Regenerate the id so the retry is correlated independently from the
+        // just-resolved busy reply.
+        current_msg.set_id(utils::generate_uuid());
     }
-
-    try {
-        send(msg);
-    } catch (...) {
-        std::lock_guard<std::mutex> lock(pending_mutex_);
-        pending_requests_.erase(id);
-        throw;
-    }
-
-    auto timeout = std::chrono::duration<double>(timeout_secs);
-    std::future_status status = future.wait_for(timeout);
-
-    if (status == std::future_status::timeout) {
-        std::lock_guard<std::mutex> lock(pending_mutex_);
-        pending_requests_.erase(id);
-        throw std::runtime_error(
-            "ControlChannel::send_and_recv(): timeout waiting for response to id=" + id);
-    }
-
-    return future.get();
 }
 
 void ControlChannel::ping(double timeout_secs) {
@@ -300,6 +384,11 @@ void ControlChannel::register_callback(
 void ControlChannel::unregister_callback(int field_number) {
     std::lock_guard<std::mutex> lock(callback_mutex_);
     callbacks_.erase(field_number);
+}
+
+void ControlChannel::clear_callbacks() {
+    std::lock_guard<std::mutex> lock(callback_mutex_);
+    callbacks_.clear();
 }
 
 void ControlChannel::on_tcp_response(std::vector<uint8_t> data) {

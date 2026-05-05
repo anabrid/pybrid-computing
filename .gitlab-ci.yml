@@ -55,7 +55,28 @@ test:
       junit: report.xml
 
 ###
-# BUILD: Native/C++ code, mainly for networking and the proxy. This should best 
+# Runs the C++/GoogleTest suite for pybrid-computing-native. Guards against
+# regressions in ProxyServer, DataChannel, and transport code that the
+# pure-Python suite cannot reach.
+###
+
+test:native:
+  extends: .anabrid-uv-job
+  stage: test
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq build-essential cmake git > /dev/null
+  script:
+    - cmake -S packages/pybrid-computing-native/native -B build-tests -DPYBRID_BUILD_TESTS=ON
+    - cmake --build build-tests -j$(nproc)
+    - ctest --test-dir build-tests --output-on-failure --output-junit report-native.xml
+  artifacts:
+    expire_in: 3 hours
+    when: always
+    reports:
+      junit: build-tests/report-native.xml
+
+###
+# BUILD: Native/C++ code, mainly for networking and the proxy. This should best
 # be in docker containers (`docker` tag) as it uses
 # native functions and involves installing packages
 #

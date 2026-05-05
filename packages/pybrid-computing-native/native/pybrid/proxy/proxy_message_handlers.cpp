@@ -62,65 +62,10 @@ void sort_module_by_location(pb::Module& module) {
 
 namespace anabrid::pybrid::native {
 
-BroadcastResult ProxyServer::broadcast_to_backends(
-    std::vector<BackendDevice*> targets,
-    std::function<pb::MessageV1(BackendDevice&)> request_factory,
-    double timeout_secs,
-    bool include_responses) {
-
-    struct BackendTask {
-        BackendDevice* backend;
-        std::future<pb::MessageV1> future;
-    };
-
-    std::vector<BackendTask> tasks;
-    tasks.reserve(targets.size());
-
-    BroadcastResult result;
-    for (auto* backend : targets) {
-        if (!backend->control || !backend->control->is_connected()) {
-            result.had_error = true;
-            result.error_text = "Backend " + backend->host + " not connected!";
-            continue;
-        }
-
-        // Capture by value: request built eagerly so the factory doesn't
-        // need to be thread-safe.
-        pb::MessageV1 req = request_factory(*backend);
-        auto* ctrl = backend->control.get();
-        tasks.push_back({backend, std::async(std::launch::async,
-            [ctrl, r = std::move(req), timeout_secs]() mutable {
-                return ctrl->send_and_recv(r, timeout_secs);
-            })});
-    }
-
-    for (auto& task : tasks) {
-        try {
-            pb::MessageV1 resp = task.future.get();
-
-            if(include_responses)
-                result.responses.emplace_back(resp);
-
-            if (resp.has_error_message() && !result.had_error) {
-                result.had_error = true;
-                result.error_text = resp.error_message().description();
-            }
-        } catch (const std::exception& e) {
-            if (!result.had_error) {
-                result.had_error = true;
-                result.error_text = e.what();
-            }
-        }
-    }
-
-    return result;
-}
-
 void ProxyServer::handle_reset(ClientSession& client, const pb::MessageV1& msg) {
-    std::vector<BackendDevice*> targets;
-    for (auto& b : backends_) targets.push_back(&b);
+    auto targets = backend_handler_.targets();
 
-    auto result = broadcast_to_backends(targets,
+    auto result = backend_handler_.broadcast_to_backends(targets,
         [&msg](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
@@ -144,8 +89,8 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
     if (path.empty()) {
         // No entity path specified — aggregate cached modules from all backends.
         pb::Module merged;
-        for (auto& backend : backends_) {
-            for (const auto& item : backend.cached_module.items()) {
+        for (auto* backend : backend_handler_.targets()) {
+            for (const auto& item : backend->cached_module.items()) {
                 *merged.add_items() = item;
             }
         }
@@ -159,7 +104,7 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
         return;
     }
 
-    BackendDevice* backend = find_backend_for_path(path);
+    BackendDevice* backend = backend_handler_.find_backend_for_path(path);
 
     if (!backend || !backend->control || !backend->control->is_connected()) {
         send_error_to_client(client, msg.id(),
@@ -172,7 +117,8 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
         req.set_id(utils::generate_uuid());
         *req.mutable_extract_command() = msg.extract_command();
 
-        pb::MessageV1 resp = backend->control->send_and_recv(req, BACKEND_REQUEST_TIMEOUT_SECS);
+        pb::MessageV1 resp = backend->control->send_and_recv(
+            req, ProxyBackendHandler::BACKEND_REQUEST_TIMEOUT_SECS);
         if (resp.has_extract_response()) {
             sort_module_by_location(*resp.mutable_extract_response()->mutable_module());
         }
@@ -221,13 +167,13 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
         // Config entries without an entity path (global settings) are broadcast
         // to all backends — they don't participate in MAC-based routing.
         if (path.empty()) {
-            for (auto& backend : backends_) {
-                *per_backend[&backend].add_items() = cfg;
+            for (auto* backend : backend_handler_.targets()) {
+                *per_backend[backend].add_items() = cfg;
             }
             continue;
         }
 
-        BackendDevice* backend = find_backend_for_path(path);
+        BackendDevice* backend = backend_handler_.find_backend_for_path(path);
         if (!backend) {
             unroutable_paths.push_back(path);
             continue;
@@ -251,7 +197,7 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
         targets.push_back(backend_ptr);
     }
 
-    auto result = broadcast_to_backends(targets,
+    auto result = backend_handler_.broadcast_to_backends(targets,
         [&per_backend, &msg](BackendDevice& backend) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
@@ -273,19 +219,11 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
 }
 
 void ProxyServer::handle_start_run(ClientSession& client, const pb::MessageV1& msg) {
-    // Advance the run generation and reset per-run counters so that stale
-    // callbacks from the previous run are discarded. Also clear done_received
-    // so the session timeout does not fire mid-run.
-    run_id_.fetch_add(1, std::memory_order_acq_rel);
-    take_off_count_.store(0, std::memory_order_release);
-    done_count_.store(0, std::memory_order_release);
+    run_coordinator_.start_run();
+    // Clear done flag so the session timeout does not fire mid-run.
     client.done_received.store(false, std::memory_order_release);
 
-    for (auto& backend : backends_) {
-        if (backend.data_channel) {
-            backend.data_channel->reset_sequence_tracking();
-        }
-    }
+    backend_handler_.reset_sequence_tracking();
 
     if (debug_) {
         std::string json_str;
@@ -303,10 +241,9 @@ void ProxyServer::handle_start_run(ClientSession& client, const pb::MessageV1& m
         }
     }
 
-    std::vector<BackendDevice*> targets;
-    for (auto& b : backends_) targets.push_back(&b);
+    auto targets = backend_handler_.targets();
 
-    auto result = broadcast_to_backends(targets,
+    auto result = backend_handler_.broadcast_to_backends(targets,
         [&msg](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
@@ -360,10 +297,9 @@ void ProxyServer::handle_calibrate(ClientSession& client, const pb::MessageV1& m
                   << "\n";
     }
 
-    std::vector<BackendDevice*> targets;
-    for (auto& b : backends_) targets.push_back(&b);
+    auto targets = backend_handler_.targets();
 
-    auto result = broadcast_to_backends(targets,
+    auto result = backend_handler_.broadcast_to_backends(targets,
         [&msg](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
@@ -389,23 +325,16 @@ void ProxyServer::handle_udp_streaming(
         "UDP streaming is not supported by the proxy; data is delivered over TCP.");
 }
 
-void ProxyServer::handle_register_external_entities(
-    ClientSession& client, const pb::MessageV1& msg) {
-    pb::MessageV1 response;
-    response.set_id(msg.id());
-    response.mutable_success_message();
-    client.send(response);
-}
-
 void ProxyServer::handle_ping(ClientSession& client) {
     std::string error;
-    for (auto& backend : backends_) {
+    for (auto* backend : backend_handler_.targets()) {
         try {
-            backend.control->ping(BACKEND_REQUEST_TIMEOUT_SECS);
+            backend->control->ping(
+                ProxyBackendHandler::BACKEND_REQUEST_TIMEOUT_SECS);
         } catch (const std::exception& e) {
             if (error.empty()) {
-                error = "Ping failed for " + backend.host + ":" +
-                        std::to_string(backend.port) + ": " + e.what();
+                error = "Ping failed for " + backend->host + ":" +
+                        std::to_string(backend->port) + ": " + e.what();
             }
         }
     }
@@ -445,12 +374,11 @@ void ProxyServer::handle_update(
         std::cerr << "[ProxyServer] Update: " << kind << "\n";
     }
 
-    std::vector<BackendDevice*> targets;
-    for (auto& b : backends_) targets.push_back(&b);
+    auto targets = backend_handler_.targets();
 
     if (update_cmd.has_commit()) {
 
-        auto result = broadcast_to_backends(targets,
+        auto result = backend_handler_.broadcast_to_backends(targets,
             [&msg](BackendDevice&) {
                 pb::MessageV1 req;
                 req.set_id(utils::generate_uuid());
@@ -472,7 +400,7 @@ void ProxyServer::handle_update(
         // Mark all backends REBOOTING so the background reconnect_loop
         // and the session watchdog leave them alone during the reboot.
         for (auto* backend : targets) {
-            set_backend_health(*backend, BackendHealth::REBOOTING);
+            backend_handler_.set_backend_health(*backend, BackendHealth::REBOOTING);
         }
 
         std::this_thread::sleep_for(REBOOT_GRACE);
@@ -482,20 +410,20 @@ void ProxyServer::handle_update(
         for (auto* backend : targets) {
             futures.push_back(std::async(std::launch::async,
                 [this, backend]() {
-                    return reconnect_backend(*backend, RECONNECT_TIMEOUT);
+                    return backend_handler_.reconnect_backend(*backend, RECONNECT_TIMEOUT);
                 }));
         }
 
         for (size_t i = 0; i < futures.size(); ++i) {
             bool ok = futures[i].get();
-            set_backend_health(*targets[i],
+            backend_handler_.set_backend_health(*targets[i],
                 ok ? BackendHealth::HEALTHY : BackendHealth::DEAD);
         }
         return;
     }
 
     // Non-commit paths: broadcast and relay results.
-    auto result = broadcast_to_backends(targets,
+    auto result = backend_handler_.broadcast_to_backends(targets,
         [&msg](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
@@ -533,40 +461,6 @@ void ProxyServer::handle_update(
     response.set_id(msg.id());
     response.mutable_update_response()->mutable_success();
     client.send(response);
-}
-
-BackendDevice* ProxyServer::find_backend_for_path(const std::string& entity_path) {
-    if (entity_path.empty()) return nullptr;
-
-    // Extract the MAC address: first segment before any '/'.
-    // Strip optional leading '/' first.
-    size_t start = (entity_path[0] == '/') ? 1 : 0;
-    auto slash_pos = entity_path.find('/', start);
-    std::string mac = (slash_pos != std::string::npos)
-        ? entity_path.substr(start, slash_pos - start)
-        : entity_path.substr(start);
-
-    // carrier_paths are stored without leading '/'.
-    auto it = path_to_backend_.find(mac);
-    if (it != path_to_backend_.end()) return it->second;
-
-    return nullptr;
-}
-
-pb::Entity ProxyServer::merge_entity_trees(const std::vector<pb::Entity>& entities) {
-    if (entities.empty()) {
-        return pb::Entity{};
-    }
-    if (entities.size() == 1) {
-        return entities[0];
-    }
-
-    pb::Entity root;
-    root.set_id("/");
-    for (const auto& entity : entities) {
-        *root.add_children() = entity;
-    }
-    return root;
 }
 
 void ProxyServer::send_error_to_client(

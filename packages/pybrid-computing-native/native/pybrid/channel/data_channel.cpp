@@ -40,6 +40,7 @@ void DataChannel::set_tcp_transport(TCPTransport* transport) {
 void DataChannel::set_control_response_callback(
     std::function<void(std::vector<uint8_t>)> callback) {
     throw_if_running("set_control_response_callback");
+    std::lock_guard<std::mutex> lock(m_callback_mutex);
     m_control_response_callback = std::move(callback);
 }
 
@@ -115,8 +116,13 @@ void DataChannel::start() {
                     throw;
                 }
                 udp_accepted = false;
-                if (m_error_callback) {
-                    m_error_callback(
+                {
+                    std::function<void(const std::string&)> cb;
+                    {
+                        std::lock_guard<std::mutex> lock(m_callback_mutex);
+                        cb = m_error_callback;
+                    }
+                    if (cb) cb(
                         "DataChannel::start(): UDP negotiation failed, "
                         "falling back to TCP: " +
                         std::string(neg_ex.what()));
@@ -156,11 +162,24 @@ void DataChannel::start() {
             m_receive_thread = std::thread(&DataChannel::tcp_receive_loop, this);
         } else {
             m_running.store(false, std::memory_order_release);
-            if (m_error_callback) {
-                m_error_callback("Failed to start DataChannel: " + std::string(e.what()));
+            std::function<void(const std::string&)> cb;
+            {
+                std::lock_guard<std::mutex> lock(m_callback_mutex);
+                cb = m_error_callback;
             }
+            if (cb) cb("Failed to start DataChannel: " + std::string(e.what()));
         }
     }
+}
+
+void DataChannel::swap_python_callbacks(
+    std::function<void(pb::RunState)>& state,
+    std::function<void(const std::string&)>& error,
+    std::function<void(std::vector<uint8_t>)>& control_response) {
+    std::lock_guard<std::mutex> lock(m_callback_mutex);
+    std::swap(state, m_state_callback);
+    std::swap(error, m_error_callback);
+    std::swap(control_response, m_control_response_callback);
 }
 
 void DataChannel::stop() {
@@ -221,24 +240,47 @@ void DataChannel::reset_udp_stats() {
     }
 }
 
+void DataChannel::reset_buffers() {
+    if (m_using_tcp_fallback.load(std::memory_order_acquire)) {
+        if (m_tcp_transport &&
+            m_tcp_transport->recv_buffer_capacity() >=
+                TCPTransport::TCP_RECV_BUFFER_RESET_THRESHOLD) {
+            m_tcp_transport->reset_buffers();
+        }
+    } else {
+        if (m_udp_socket &&
+            m_udp_socket->recv_queue_len() >=
+                UDPSocket::UDP_RECV_QUEUE_RESET_THRESHOLD) {
+            m_udp_socket->reset_buffers();
+        }
+    }
+}
+
 pb::RunState DataChannel::current_run_state() const {
     return m_run_state.load(std::memory_order_acquire);
 }
 
 void DataChannel::on_run_state_change(std::function<void(pb::RunState)> callback) {
     throw_if_running("on_run_state_change");
+    std::lock_guard<std::mutex> lock(m_callback_mutex);
     m_state_callback = std::move(callback);
 }
 
 void DataChannel::update_run_state(pb::RunState new_state) {
     pb::RunState old_state = m_run_state.exchange(new_state, std::memory_order_acq_rel);
-    if (old_state != new_state && m_state_callback) {
-        m_state_callback(new_state);
+    if (old_state != new_state) {
+        std::function<void(pb::RunState)> cb;
+        {
+            std::lock_guard<std::mutex> lock(m_callback_mutex);
+            cb = m_state_callback;
+        }
+        if (cb) cb(new_state);
     }
 }
 
 void DataChannel::on_error(std::function<void(const std::string&)> callback) {
     throw_if_running("on_error");
+    std::lock_guard<std::mutex> lock(m_callback_mutex);
     m_error_callback = std::move(callback);
 }
 
@@ -264,9 +306,12 @@ void DataChannel::udp_receive_loop() {
                     && envelope.has_message_v1()) {
                     message = envelope.message_v1();
                 } else if (!message.ParseFromArray(buffer.data(), static_cast<int>(result.bytes))) {
-                    if (m_error_callback) {
-                        m_error_callback("Failed to parse UDP message as protobuf");
+                    std::function<void(const std::string&)> cb;
+                    {
+                        std::lock_guard<std::mutex> lock(m_callback_mutex);
+                        cb = m_error_callback;
                     }
+                    if (cb) cb("Failed to parse UDP message as protobuf");
                     continue;
                 }
             }
@@ -286,13 +331,20 @@ void DataChannel::udp_receive_loop() {
                 handle_data_message(message);
             }
 
-            if (!is_data_message(message) && m_control_response_callback) {
-                pb::Envelope env;
-                *env.mutable_message_v1() = message;
-                std::string serialized;
-                env.SerializeToString(&serialized);
-                std::vector<uint8_t> bytes(serialized.begin(), serialized.end());
-                m_control_response_callback(std::move(bytes));
+            if (!is_data_message(message)) {
+                std::function<void(std::vector<uint8_t>)> cb;
+                {
+                    std::lock_guard<std::mutex> lock(m_callback_mutex);
+                    cb = m_control_response_callback;
+                }
+                if (cb) {
+                    pb::Envelope env;
+                    *env.mutable_message_v1() = message;
+                    std::string serialized;
+                    env.SerializeToString(&serialized);
+                    std::vector<uint8_t> bytes(serialized.begin(), serialized.end());
+                    cb(std::move(bytes));
+                }
             }
         }
     }
@@ -303,9 +355,12 @@ void DataChannel::tcp_receive_loop() {
 
     TCPTransport* transport = m_tcp_transport;
     if (transport == nullptr) {
-        if (m_error_callback) {
-            m_error_callback("TCP transport not configured for receive loop");
+        std::function<void(const std::string&)> cb;
+        {
+            std::lock_guard<std::mutex> lock(m_callback_mutex);
+            cb = m_error_callback;
         }
+        if (cb) cb("TCP transport not configured for receive loop");
         return;
     }
 
@@ -317,18 +372,24 @@ void DataChannel::tcp_receive_loop() {
         }
 
         if (result.status == RecvStatus::Disconnected) {
-            if (m_error_callback) {
-                m_error_callback("TCP connection closed during data streaming");
+            std::function<void(const std::string&)> cb;
+            {
+                std::lock_guard<std::mutex> lock(m_callback_mutex);
+                cb = m_error_callback;
             }
+            if (cb) cb("TCP connection closed during data streaming");
             break;
         }
 
         if (result.status == RecvStatus::Success && result.bytes > 0) {
             pb::Envelope envelope;
             if (!envelope.ParseFromArray(buffer.data(), static_cast<int>(result.bytes))) {
-                if (m_error_callback) {
-                    m_error_callback("Failed to parse TCP Envelope");
+                std::function<void(const std::string&)> cb;
+                {
+                    std::lock_guard<std::mutex> lock(m_callback_mutex);
+                    cb = m_error_callback;
                 }
+                if (cb) cb("Failed to parse TCP Envelope");
                 continue;
             }
 
@@ -359,11 +420,16 @@ void DataChannel::tcp_receive_loop() {
             if (is_data_message(message)) {
                 handle_data_message(message);
             } else {
-                if (m_control_response_callback) {
+                std::function<void(std::vector<uint8_t>)> cb;
+                {
+                    std::lock_guard<std::mutex> lock(m_callback_mutex);
+                    cb = m_control_response_callback;
+                }
+                if (cb) {
                     std::vector<uint8_t> response_data(
                         buffer.begin(),
                         buffer.begin() + static_cast<std::ptrdiff_t>(result.bytes));
-                    m_control_response_callback(std::move(response_data));
+                    cb(std::move(response_data));
                 }
             }
         }
@@ -382,18 +448,23 @@ void DataChannel::fallback_to_tcp() {
 
     if (m_require_udp) {
         m_running.store(false, std::memory_order_release);
-        if (m_error_callback) {
-            m_error_callback(
-                "UDP streaming refused at runtime and require_udp is set");
+        std::function<void(const std::string&)> cb;
+        {
+            std::lock_guard<std::mutex> lock(m_callback_mutex);
+            cb = m_error_callback;
         }
+        if (cb) cb("UDP streaming refused at runtime and require_udp is set");
         return;
     }
 
     if (m_tcp_transport == nullptr) {
         m_running.store(false, std::memory_order_release);
-        if (m_error_callback) {
-            m_error_callback("UDP streaming refused and no TCP fallback configured");
+        std::function<void(const std::string&)> cb;
+        {
+            std::lock_guard<std::mutex> lock(m_callback_mutex);
+            cb = m_error_callback;
         }
+        if (cb) cb("UDP streaming refused and no TCP fallback configured");
         return;
     }
 

@@ -19,7 +19,7 @@ TCPTransport::TCPTransport(BufferType buffer_type)
 }
 
 std::unique_ptr<TCPTransport> TCPTransport::from_accepted(
-    const AcceptedSocket& accepted, BufferType buffer_type) {
+    AcceptedSocket accepted, BufferType buffer_type) {
 
     if (!accepted.is_valid()) {
         return nullptr;
@@ -33,14 +33,18 @@ std::unique_ptr<TCPTransport> TCPTransport::from_accepted(
     asio::error_code ec;
     transport->socket_->assign(asio::ip::tcp::v4(), accepted.native_handle, ec);
     if (ec) {
+        // accepted goes out of scope here and closes the fd via its destructor.
         return nullptr;
     }
 
-    transport->socket_->set_option(asio::ip::tcp::no_delay(true), ec);
-    transport->socket_->set_option(asio::socket_base::keep_alive(true), ec);
-
     transport->remote_host_ = accepted.remote_host;
     transport->remote_port_ = accepted.remote_port;
+
+    // Asio now owns the fd; prevent the destructor from double-closing it.
+    accepted.native_handle = -1;
+
+    transport->socket_->set_option(asio::ip::tcp::no_delay(true), ec);
+    transport->socket_->set_option(asio::socket_base::keep_alive(true), ec);
     transport->connected_ = true;
 
     return transport;
@@ -325,6 +329,26 @@ void TCPTransport::reset_stats() {
     messages_dropped_.store(0, std::memory_order_relaxed);
 }
 
+void TCPTransport::reset_buffers() {
+    // Post onto io_ so the closure runs between receive callbacks, preventing
+    // concurrent access to recv_buffer_. Only recv_buffer_ is touched here:
+    // recv_queue_ and send_queue_ are intentionally left alone because
+    // send_loop() runs on a separate thread and cannot be safely displaced by
+    // a swap serialised only on io_.
+    asio::post(io_, [this]() {
+        const size_t initial = MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE;
+        recv_buffer_.resize(initial);
+        recv_buffer_.shrink_to_fit();
+        recv_buffer_used_ = std::min(recv_buffer_used_, initial);
+        recv_buffer_capacity_.store(recv_buffer_.capacity(),
+                                    std::memory_order_relaxed);
+    });
+}
+
+size_t TCPTransport::recv_buffer_capacity() const {
+    return recv_buffer_capacity_.load(std::memory_order_relaxed);
+}
+
 void TCPTransport::start_receive() {
     if (!running_ || !connected_ || !socket_ || !socket_->is_open()) {
         return;
@@ -335,6 +359,8 @@ void TCPTransport::start_receive() {
         // Expand without cap; system memory is the limit.
         recv_buffer_.resize(recv_buffer_.size() * 2);
         available_space = recv_buffer_.size() - recv_buffer_used_;
+        recv_buffer_capacity_.store(recv_buffer_.capacity(),
+                                    std::memory_order_relaxed);
     }
 
     socket_->async_read_some(

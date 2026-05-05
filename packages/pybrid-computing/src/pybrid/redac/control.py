@@ -15,10 +15,8 @@ executor when multiple channels run concurrently.
 
 import asyncio
 import logging
-import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
-from uuid import uuid4
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.result import Result
@@ -52,16 +50,12 @@ class AsyncControlChannel:
     def __init__(
         self,
         native: "NativeControlChannel",
-        max_busy_wait: float = 30.0,
     ):
         """
         Args:
-            native:        A connected ``NativeControlChannel`` instance.
-            max_busy_wait: Maximum time in seconds to wait when a ``busy_response``
-                           is received before raising :class:`TimeoutError`.
+            native: A connected ``NativeControlChannel`` instance.
         """
         self._native = native
-        self._max_busy_wait = max_busy_wait
         self._executor = ThreadPoolExecutor(
             max_workers=1,
             thread_name_prefix="ctrl-channel",
@@ -159,71 +153,6 @@ class AsyncControlChannel:
         """``True`` if the C++ recv thread is active."""
         return self._native.is_running()
 
-    async def send(self, msg: pb.MessageV1) -> None:
-        """Fire-and-forget send — queues the serialized message for async TCP transmission."""
-        self._native.send(msg.SerializeToString())
-
-    async def _raw_send_and_recv(
-        self,
-        msg: pb.MessageV1,
-        timeout: float = 5.0,
-    ) -> pb.MessageV1:
-        """Low-level send + receive without busy-wait retry logic.
-
-        Factored out from :meth:`send_and_recv` so the busy-wait loop can
-        call it without infinite recursion.
-        """
-        data = msg.SerializeToString()
-        loop = asyncio.get_running_loop()
-        response_bytes = await loop.run_in_executor(
-            self._executor,
-            self._native.send_and_recv,
-            data,
-            timeout,
-        )
-        response = pb.MessageV1()
-        response.ParseFromString(response_bytes)
-        return response
-
-    async def send_and_recv(
-        self,
-        msg: pb.MessageV1,
-        timeout: float = 5.0,
-    ) -> pb.MessageV1:
-        """Send a request and await the matching response.
-
-        If the proxy returns a ``busy_response``, polls with
-        :class:`pb.PingCommand` every second until the session becomes active,
-        then re-sends the original message.
-
-        :raises TimeoutError: If the device remains busy longer than
-            ``max_busy_wait`` seconds.
-        """
-        response = await self._raw_send_and_recv(msg, timeout)
-
-        if response.HasField("busy_response"):
-            logger.info("Device busy, waiting for session to become active...")
-            start_time = time.monotonic()
-            while True:
-                elapsed = time.monotonic() - start_time
-                if elapsed >= self._max_busy_wait:
-                    logger.warning("Device busy timeout after %.1fs (max_busy_wait=%.1fs)", elapsed, self._max_busy_wait)
-                    raise TimeoutError(
-                        f"Device busy for {elapsed:.1f}s, exceeded max wait "
-                        f"of {self._max_busy_wait}s"
-                    )
-                await asyncio.sleep(1.0)
-                ping_msg = self._new_message(pb.PingCommand())
-                ping_response = await self._raw_send_and_recv(ping_msg, timeout)
-                if ping_response.HasField("busy_response"):
-                    logger.info("Still waiting... (%.0fs elapsed)", time.monotonic() - start_time)
-                else:
-                    logger.info("Session active, proceeding.")
-                    break
-            response = await self._raw_send_and_recv(msg, timeout)
-
-        return response
-
     def register_callback(self, field_number: int, callback: Callable) -> None:
         """Register a callback for a specific message field number.
 
@@ -254,24 +183,6 @@ class AsyncControlChannel:
 
     def unregister_callback(self, field_number: int) -> None:
         self._native.unregister_callback(field_number)
-
-    @staticmethod
-    def _new_message(body) -> pb.MessageV1:
-        """Build a :class:`pb.MessageV1` wrapping *body* in the correct oneof field."""
-        msg = pb.MessageV1(id=str(uuid4()))
-        fields = msg.DESCRIPTOR.oneofs_by_name["kind"].fields
-        for field in fields:
-            if field.message_type == body.DESCRIPTOR:
-                getattr(msg, field.name).CopyFrom(body)
-                return msg
-        raise ValueError(f"No MessageV1 oneof field for {type(body).__name__}")
-
-    @staticmethod
-    def _to_result(response: pb.MessageV1) -> Result:
-        """Convert a response message to a :class:`~pybrid.base.result.Result`."""
-        if response.HasField("error_message"):
-            return Result.failure(response.error_message.description)
-        return Result.success()
 
     async def extract(
         self,
@@ -359,23 +270,6 @@ class AsyncControlChannel:
             return Result.success()
         except RuntimeError as e:
             return Result.failure(str(e))
-
-    async def register_external_entities(
-        self,
-        entities: dict[str, tuple[int, int, int, int]],
-        timeout: float = 5.0,
-    ) -> Result:
-        """Send a ``RegisterExternalEntitiesCommand`` with the given entity map.
-
-        No C++ convenience method exists — builds protobuf in Python.
-        """
-        cmd = pb.RegisterExternalEntitiesCommand()
-        for mac, ip_octets in entities.items():
-            addr = pb.Address(data=bytes(ip_octets))
-            cmd.entities[mac].CopyFrom(addr)
-        msg = self._new_message(cmd)
-        response = await self.send_and_recv(msg, timeout)
-        return self._to_result(response)
 
     async def reset(
         self,
