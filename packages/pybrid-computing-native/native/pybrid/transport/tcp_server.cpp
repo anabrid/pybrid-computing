@@ -169,7 +169,7 @@ void TCPServer::do_accept() {
 
             // Release the native handle so it can be adopted by a different
             // io_context in TCPTransport::from_accepted().
-            int native_handle = static_cast<int>(socket->native_handle());
+            NativeSocketHandle native_handle = socket->native_handle();
             socket->release();
 
             {
