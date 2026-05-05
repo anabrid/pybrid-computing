@@ -41,7 +41,7 @@ std::unique_ptr<TCPTransport> TCPTransport::from_accepted(
     transport->remote_port_ = accepted.remote_port;
 
     // Asio now owns the fd; prevent the destructor from double-closing it.
-    accepted.native_handle = -1;
+    accepted.native_handle = invalid_native_socket();
 
     transport->socket_->set_option(asio::ip::tcp::no_delay(true), ec);
     transport->socket_->set_option(asio::socket_base::keep_alive(true), ec);

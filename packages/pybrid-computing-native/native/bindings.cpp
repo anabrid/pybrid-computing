@@ -59,7 +59,7 @@ PYBIND11_MODULE(_impl, m) {
     py::class_<AcceptedSocket>(m, "AcceptedSocket",
         "Information about an accepted TCP connection.")
         .def(py::init<>())
-        .def(py::init<int, const std::string&, uint16_t>(),
+        .def(py::init<NativeSocketHandle, const std::string&, uint16_t>(),
              py::arg("native_handle"), py::arg("remote_host"), py::arg("remote_port"))
         .def_readonly("native_handle", &AcceptedSocket::native_handle,
                       "Native socket file descriptor")
