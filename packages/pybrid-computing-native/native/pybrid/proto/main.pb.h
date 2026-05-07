@@ -25522,6 +25522,7 @@ class DependencyInfo final : public ::google::protobuf::Message
   enum : int {
     kEntityIdsFieldNumber = 1,
     kTracesFieldNumber = 2,
+    kActiveLanesFieldNumber = 3,
   };
   // repeated .pb.EntityId entity_ids = 1;
   int entity_ids_size() const;
@@ -25557,11 +25558,21 @@ class DependencyInfo final : public ::google::protobuf::Message
   const ::pb::Trace& traces(int index) const;
   ::pb::Trace* PROTOBUF_NONNULL add_traces();
   const ::google::protobuf::RepeatedPtrField<::pb::Trace>& traces() const;
+  // uint32 active_lanes = 3;
+  void clear_active_lanes() ;
+  ::uint32_t active_lanes() const;
+  void set_active_lanes(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_active_lanes() const;
+  void _internal_set_active_lanes(::uint32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pb.DependencyInfo)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    2, 0,
                                    2>
       _table_;
@@ -25581,9 +25592,11 @@ class DependencyInfo final : public ::google::protobuf::Message
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
         const DependencyInfo& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::RepeatedPtrField< ::pb::EntityId > entity_ids_;
     ::google::protobuf::RepeatedPtrField< ::pb::Trace > traces_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::uint32_t active_lanes_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -32827,6 +32840,30 @@ inline ::google::protobuf::RepeatedPtrField<::pb::Trace>* PROTOBUF_NONNULL
 DependencyInfo::_internal_mutable_traces() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.traces_;
+}
+
+// uint32 active_lanes = 3;
+inline void DependencyInfo::clear_active_lanes() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.active_lanes_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000001U;
+}
+inline ::uint32_t DependencyInfo::active_lanes() const {
+  // @@protoc_insertion_point(field_get:pb.DependencyInfo.active_lanes)
+  return _internal_active_lanes();
+}
+inline void DependencyInfo::set_active_lanes(::uint32_t value) {
+  _internal_set_active_lanes(value);
+  _impl_._has_bits_[0] |= 0x00000001U;
+  // @@protoc_insertion_point(field_set:pb.DependencyInfo.active_lanes)
+}
+inline ::uint32_t DependencyInfo::_internal_active_lanes() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.active_lanes_;
+}
+inline void DependencyInfo::_internal_set_active_lanes(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.active_lanes_ = value;
 }
 
 // -------------------------------------------------------------------

@@ -286,12 +286,14 @@ class Trace(_message.Message):
     def __init__(self, source: _Optional[_Union[TraceLane, _Mapping]] = ..., sink: _Optional[_Union[TraceLane, _Mapping]] = ..., sink_upscaled: _Optional[bool] = ...) -> None: ...
 
 class DependencyInfo(_message.Message):
-    __slots__ = ("entity_ids", "traces")
+    __slots__ = ("entity_ids", "traces", "active_lanes")
     ENTITY_IDS_FIELD_NUMBER: _ClassVar[int]
     TRACES_FIELD_NUMBER: _ClassVar[int]
+    ACTIVE_LANES_FIELD_NUMBER: _ClassVar[int]
     entity_ids: _containers.RepeatedCompositeFieldContainer[EntityId]
     traces: _containers.RepeatedCompositeFieldContainer[Trace]
-    def __init__(self, entity_ids: _Optional[_Iterable[_Union[EntityId, _Mapping]]] = ..., traces: _Optional[_Iterable[_Union[Trace, _Mapping]]] = ...) -> None: ...
+    active_lanes: int
+    def __init__(self, entity_ids: _Optional[_Iterable[_Union[EntityId, _Mapping]]] = ..., traces: _Optional[_Iterable[_Union[Trace, _Mapping]]] = ..., active_lanes: _Optional[int] = ...) -> None: ...
 
 class BPLSwitchConfig(_message.Message):
     __slots__ = ("muxes",)

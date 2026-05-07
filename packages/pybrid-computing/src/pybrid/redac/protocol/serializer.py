@@ -324,6 +324,8 @@ class REDACSerializer(Serializer):
         traces = []
         carrier2node_map: typing.Dict[Loc, int] = dict()
 
+        active_lanes = 0
+
         def loc2carrier_idx(loc: Loc) -> int:
             carrier_loc = loc.carrier()
             if carrier_loc in carrier2node_map:
@@ -342,6 +344,9 @@ class REDACSerializer(Serializer):
             dependency_info.entity_ids.append(pb.EntityId(path=str(carrier.path)))
 
         def add_sink(src_loc: Loc, sink_loc: Loc, upscaled: bool):
+            nonlocal active_lanes
+            active_lanes |= 1 << sink_loc.lane_id()
+            active_lanes |= 1 << src_loc.lane_id()
             traces.append(pb.Trace(
                 source=loc2trace_lane(src_loc),
                 sink=loc2trace_lane(sink_loc),
@@ -384,13 +389,7 @@ class REDACSerializer(Serializer):
                 if trace.source.carrier == carrier_idx or trace.sink.carrier == carrier_idx:
                     config.traces.append(trace)
 
-        item = pb.Item()
-        config = item.dependency_info
-        config.CopyFrom(dependency_info)
-        for trace in traces:
-            config.traces.append(trace)
-
-        pass
+            config.active_lanes = active_lanes
 
     def serialize_additional(self, computer: AnalogComputer):
         self.serialize_dependency_info(computer)
