@@ -195,38 +195,53 @@ bool TCPTransport::connect(const std::string& host, uint16_t port,
         throw std::runtime_error("Invalid IP address: " + host);
     }
 
-    std::lock_guard<std::mutex> lock(socket_mutex_);
-
-    socket_ = std::make_unique<asio::ip::tcp::socket>(io_);
+    {
+        std::lock_guard<std::mutex> lock(socket_mutex_);
+        socket_ = std::make_unique<asio::ip::tcp::socket>(io_);
+    }
 
     asio::ip::tcp::endpoint endpoint(addr, port);
 
+    // move ownership into the future to sync cleanup, avoid dangling future
+    // that could otherwise cause a segfault when the connection attept times out
     std::promise<asio::error_code> connect_promise;
     auto connect_future = connect_promise.get_future();
 
-    asio::post(io_, [this, endpoint, &connect_promise]() {
+    asio::post(io_, [this, endpoint, p = std::move(connect_promise)]() mutable {
         socket_->async_connect(
             endpoint,
-            [&connect_promise](const asio::error_code& ec) {
-                connect_promise.set_value(ec);
+            [this, p = std::move(p)](const asio::error_code& ec) mutable {
+                if (ec) {
+                    std::lock_guard<std::mutex> lock(socket_mutex_);
+                    if (socket_) {
+                        asio::error_code dummy;
+                        socket_->close(dummy);
+                        socket_.reset();
+                    }
+                }
+                p.set_value(ec);
             });
     });
 
     auto timeout = std::chrono::duration<double>(timeout_secs);
     if (connect_future.wait_for(timeout) == std::future_status::timeout) {
-        asio::error_code ec;
-        socket_->cancel(ec);
-        socket_->close(ec);
-        socket_.reset();
+        asio::post(io_, [this]() {
+            std::lock_guard<std::mutex> lock(socket_mutex_);
+            if (socket_) {
+                asio::error_code ec;
+                socket_->cancel(ec);
+            }
+        });
         return false;
     }
 
     asio::error_code ec = connect_future.get();
     if (ec) {
-        socket_.reset();
+        // Handler already closed and reset socket_ on the error path.
         return false;
     }
 
+    std::lock_guard<std::mutex> lock(socket_mutex_);
     socket_->set_option(asio::ip::tcp::no_delay(true));
     socket_->set_option(asio::socket_base::keep_alive(true));
 
