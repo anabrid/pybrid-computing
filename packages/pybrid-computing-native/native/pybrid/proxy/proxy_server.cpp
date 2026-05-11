@@ -568,6 +568,9 @@ void ProxyServer::dispatch_message(ClientSession& session, const pb::MessageV1& 
         case pb::MessageV1::kPingCommandFieldNumber:
             handle_ping(session);
             break;
+        case pb::MessageV1::kGetOverloadStatusCommandFieldNumber:
+            handle_get_overload_status(session, msg);
+            break;
         default:
             if(debug_)
             {

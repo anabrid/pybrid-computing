@@ -108,8 +108,11 @@ public:
     void reset(
         bool keep_calibration = true,
         bool sync = true,
+        bool overload_reset = false,
+        bool circuit_reset = false,
         double timeout_secs = TURN_TIMEOUT_SECS);
     bool authenticate(const std::string& token, double timeout_secs = TURN_TIMEOUT_SECS);
+    bool overload_status_request(pb::OverloadStatus& ol_status, double timeout_secs = TURN_TIMEOUT_SECS);
 
     /// upload commands for OTA updates
     size_t update_begin(size_t new_size, std::string new_sha256,

@@ -1048,11 +1048,13 @@ Raises:
     RuntimeError: On timeout, if the response is an error, or if parsing fails.
 )doc")
         .def("reset",
-            [](ControlChannel& self, bool keep_calibration, bool sync, double timeout) {
+            [](ControlChannel& self, bool keep_calibration, bool sync,
+               bool overload_reset, bool circuit_reset, double timeout) {
                 py::gil_scoped_release release;
-                self.reset(keep_calibration, sync, timeout);
+                self.reset(keep_calibration, sync, overload_reset, circuit_reset, timeout);
             },
             py::arg("keep_calibration") = true, py::arg("sync") = true,
+            py::arg("overload_reset") = false, py::arg("circuit_reset") = false,
             py::arg("timeout") = 5.0,
             R"doc(
 Send a ResetCommand and wait for the reset_response.
@@ -1062,6 +1064,8 @@ Releases the GIL while waiting for the response.
 Args:
     keep_calibration: If true, calibration data is preserved across reset (default: True).
     sync:             If true, synchronisation is enabled during reset (default: True).
+    overload_reset:   If true, clear latched overload flags on the device (default: False).
+    circuit_reset:    If true, clear the currently programmed circuit (default: False).
     timeout:          Maximum time to wait in seconds (default: 5.0).
 
 Raises:
@@ -1091,6 +1095,37 @@ Returns:
 
 Raises:
     RuntimeError: On timeout.
+)doc")
+        .def("overload_status_request",
+            [](ControlChannel& self, double timeout) {
+                pb::OverloadStatus status;
+                bool global_overload;
+                {
+                    py::gil_scoped_release release;
+                    global_overload = self.overload_status_request(status, timeout);
+                }
+                std::string serialized;
+                status.SerializeToString(&serialized);
+                return py::make_tuple(global_overload, py::bytes(serialized));
+            },
+            py::arg("timeout") = 5.0,
+            R"doc(
+Send a GetOverloadStatusCommand and return the device's overload status.
+
+Releases the GIL while waiting for the response.
+
+Args:
+    timeout: Maximum time to wait in seconds (default: 5.0).
+
+Returns:
+    A ``(global_overload, status_bytes)`` tuple where ``global_overload`` is
+    ``True`` if any element on the device is currently overloaded, and
+    ``status_bytes`` are the serialized ``pb.OverloadStatus`` bytes.
+
+Raises:
+    RuntimeError: On timeout, if the response is an error, or if the
+        response does not contain a ``GetOverloadStatusResponse`` with a
+        populated ``status`` field.
 )doc")
         .def("update_begin",
             [](ControlChannel& self, size_t new_size,

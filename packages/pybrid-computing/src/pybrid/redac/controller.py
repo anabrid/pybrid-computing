@@ -309,9 +309,20 @@ class Controller(BaseController):
         result = await session.execute()
         return result[0] if result else run
 
-    async def reset(self, keep_calibration: bool = True, sync: bool = True):
+    async def reset(
+        self,
+        keep_calibration: bool = True,
+        sync: bool = True,
+        overload_reset: bool = False,
+        circuit_reset: bool = False,
+    ):
         """Reset all carrier boards to initial configuration."""
         for conn in self.connection_manager.get_unique_connections():
             if hasattr(conn, "control") and conn.control is not None:
-                result = await conn.control.reset(keep_calibration=keep_calibration, sync=sync)
+                result = await conn.control.reset(
+                    keep_calibration=keep_calibration,
+                    sync=sync,
+                    overload_reset=overload_reset,
+                    circuit_reset=circuit_reset,
+                )
                 result.raise_on_error()

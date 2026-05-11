@@ -35,7 +35,7 @@ from uuid import uuid4
 import numpy as np
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.redac.carrier import Carrier
+from pybrid.redac.carrier import Carrier, Entity
 from pybrid.redac.run import Run, RunConfig, DAQConfig
 from pybrid.redac.entities import Path
 from pybrid.util.updater import UpdaterUtils
@@ -88,6 +88,12 @@ def _drain_output_queue(output_queue) -> list[bytes]:
 class SessionCommand(ABC):
     pass
 
+@dataclass
+class ResetCommand(SessionCommand):
+    keep_calibration: bool
+    sync: bool
+    overload_reset: bool = False
+    circuit_reset: bool = False
 
 @dataclass
 class SetConfigCommand(SessionCommand):
@@ -132,6 +138,19 @@ class Session:
     @property
     def controller(self) -> "BaseController":
         return self._controller
+    
+    def reset(
+        self,
+        keep_calibration: bool = True,
+        sync: bool = True,
+        overload_reset: bool = False,
+        circuit_reset: bool = False) -> "Session":
+        self._pipeline.append(ResetCommand(
+            keep_calibration=keep_calibration,
+            sync=sync,
+            overload_reset=overload_reset,
+            circuit_reset=circuit_reset))
+        return self
 
     def set_config(self, computer: "AnalogComputer") -> "Session":
         """:returns: ``self`` so calls can be chained."""
@@ -250,6 +269,8 @@ class Session:
                         self.runs.append(run)
                     elif isinstance(cmd, FirmwareUpdateCommand):
                         await self._execute_upload(cmd)
+                    elif isinstance(cmd, ResetCommand):
+                        await self._execute_reset(cmd)
                     else: 
                         print(f"[Session] Skipping unknown command of type {type(cmd).__name__}")
 
@@ -260,6 +281,21 @@ class Session:
             await _run_pipeline()
 
         return self.runs
+    
+    async def _execute_reset(self, cmd:ResetCommand) -> None:
+        unique_conns = self._controller.connection_manager.get_unique_connections()
+        for conn in unique_conns:
+            if conn.control is None:
+                raise NotImplementedError(
+                    "Running reset requires the native C++ extensions "
+                    "(pybrid-computing-native). The control channel is not available "
+                    "in this environment."
+                )
+            await conn.control.reset(
+                keep_calibration=cmd.keep_calibration,
+                sync=cmd.sync,
+                overload_reset=cmd.overload_reset,
+                circuit_reset=cmd.circuit_reset)
 
     async def _execute_calibrate(self, cmd: CalibrateCommand) -> None:
         """Run calibration over all devices.
@@ -591,6 +627,21 @@ class Session:
             try:
                 async with asyncio.timeout(run_timeout):
                     await run_state.wait_all(RunState.DONE)
+
+                # retrieve overloaded elements
+                overload_status = await conn.control.overload_status_request()
+                is_overloaded = overload_status.global_overload
+
+                run.flags.overloaded = None
+
+                if is_overloaded:
+                    run.flags.overloaded = []
+
+                    # store overloaded elements in list
+                    for element in overload_status.elements:
+                        if element.overload:
+                            run.flags.overloaded.append(Path((element.entity.path, element.idx)))
+                    
             finally:
                 # Signal drain to stop and await it — always run, even on timeout or error.
                 # This ensures the drain task is never orphaned.

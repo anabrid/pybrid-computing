@@ -276,6 +276,8 @@ class AsyncControlChannel:
         *,
         keep_calibration: bool = True,
         sync: bool = True,
+        overload_reset: bool = False,
+        circuit_reset: bool = False,
         timeout: float = 5.0,
     ) -> Result:
         loop = asyncio.get_running_loop()
@@ -285,6 +287,8 @@ class AsyncControlChannel:
                 self._native.reset,
                 keep_calibration,
                 sync,
+                overload_reset,
+                circuit_reset,
                 timeout,
             )
             return Result.success()
@@ -303,6 +307,33 @@ class AsyncControlChannel:
             return Result.success() if success else Result.failure("authentication rejected")
         except RuntimeError as e:
             return Result.failure(str(e))
+
+    async def overload_status_request(
+        self,
+        timeout: float = 5.0,
+    ) -> pb.OverloadStatus:
+        """Query the device for its current overload status.
+
+        Args:
+            timeout: Maximum time to wait for the response in seconds.
+
+        Returns:
+            The :class:`pb.OverloadStatus` reported by the device. The
+            ``global_overload`` field is ``True`` if any element is currently
+            overloaded.
+
+        :raises RuntimeError: On timeout, or if the response is an error or
+            does not carry a populated status.
+        """
+        loop = asyncio.get_running_loop()
+        _, status_bytes = await loop.run_in_executor(
+            self._executor,
+            self._native.overload_status_request,
+            timeout,
+        )
+        status = pb.OverloadStatus()
+        status.ParseFromString(status_bytes)
+        return status
 
     async def update_begin(
         self,

@@ -342,7 +342,8 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
 
     effective_op_time = op_time if op_time is not None else run_.config.op_time / 1_000_000_000
     timeout = max(effective_op_time + 3, 3)
-    session.calibrate()
+    session.calibrate(gain=True, offset=True)
+    session,reset(keep_calibration=True, overload_reset=True, circuit_reset=False)
     session.run(run_.config, daq=run_.daq, timeout=timeout)
     results = await session.execute()
     if results:
