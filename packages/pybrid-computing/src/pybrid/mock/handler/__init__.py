@@ -11,6 +11,7 @@ from pybrid.mock.handler.extract import ExtractHandler
 from pybrid.mock.handler.udp_streaming import UDPStreamingHandler
 from pybrid.mock.handler.start_run import StartRunHandler
 from pybrid.mock.handler.calibration import CalibrationHandler
+from pybrid.mock.handler.get_overload_status import GetOverloadStatusHandler
 
 __all__ = [
     "BaseHandler",
@@ -20,4 +21,5 @@ __all__ = [
     "UDPStreamingHandler",
     "StartRunHandler",
     "CalibrationHandler",
+    "GetOverloadStatusHandler",
 ]

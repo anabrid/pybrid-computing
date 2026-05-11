@@ -74,7 +74,7 @@ class TestAsyncControlChannelUnit:
         channel = AsyncControlChannel(native)
         await channel.reset(keep_calibration=False, sync=True)
 
-        native.reset.assert_called_once_with(False, True, 5.0)
+        native.reset.assert_called_once_with(False, True, False, False, 5.0)
 
     async def test_authenticate(self):
         """authenticate() delegates to native.authenticate() and returns Result on success."""

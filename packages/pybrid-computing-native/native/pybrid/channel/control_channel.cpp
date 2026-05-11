@@ -600,13 +600,20 @@ void ControlChannel::start_run_request(
     }
 }
 
-void ControlChannel::reset(bool keep_calibration, bool sync, double timeout_secs) {
+void ControlChannel::reset(
+    bool keep_calibration,
+    bool sync,
+    bool overload_reset,
+    bool circuit_reset,
+    double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
 
     pb::ResetCommand* reset_command = msg.mutable_reset_command();
     reset_command->set_keep_calibration(keep_calibration);
     reset_command->set_sync(sync);
+    reset_command->set_overload_reset(overload_reset);
+    reset_command->set_circuit_reset(circuit_reset);
 
     pb::MessageV1 response = send_and_recv(msg, timeout_secs);
 
@@ -630,6 +637,37 @@ bool ControlChannel::authenticate(const std::string& token, double timeout_secs)
         throw std::runtime_error(response.error_message().description());
     }
     return true;
+}
+
+bool ControlChannel::overload_status_request(pb::OverloadStatus& ol_status, double timeout_secs)
+{
+    pb::MessageV1 msg;
+    msg.set_id(utils::generate_uuid());
+    msg.mutable_get_overload_status_command();
+
+    pb::MessageV1 response = send_and_recv(msg, timeout_secs);
+
+    if (response.has_error_message())
+    {
+        throw std::runtime_error(response.error_message().description());
+    }
+    
+    if (!response.has_get_overload_status_response())
+    {
+        throw std::runtime_error("Unexpected answer message to GetOverloadStatusRequest");
+    }
+
+    // retrieve elements
+    const pb::GetOverloadStatusResponse& res = response.get_overload_status_response();
+
+    if (!res.has_status())
+    {
+        throw std::runtime_error("Status element not set in overload status response.");
+    }
+
+    const pb::OverloadStatus& status = res.status();
+    ol_status.CopyFrom(status);
+    return status.global_overload();
 }
 
 size_t ControlChannel::update_begin(size_t new_size, std::string new_sha256,

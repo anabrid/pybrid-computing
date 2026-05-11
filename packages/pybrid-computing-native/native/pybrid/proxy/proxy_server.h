@@ -103,6 +103,7 @@ private:
     void handle_udp_streaming(ClientSession& client, const pb::MessageV1& msg);
     void handle_ping(ClientSession& client);
     void handle_update(ClientSession& client, const pb::MessageV1& msg);
+    void handle_get_overload_status(ClientSession& client, const pb::MessageV1& msg);
 
     /// True iff every registered backend reports HEALTHY.
     bool all_backends_healthy() const;

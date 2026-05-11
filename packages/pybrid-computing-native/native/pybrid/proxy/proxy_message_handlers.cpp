@@ -463,6 +463,56 @@ void ProxyServer::handle_update(
     client.send(response);
 }
 
+void ProxyServer::handle_get_overload_status(
+    ClientSession& client, const pb::MessageV1& msg) {
+    auto targets = backend_handler_.targets();
+
+    auto result = backend_handler_.broadcast_to_backends(targets,
+        [](BackendDevice&) {
+            pb::MessageV1 req;
+            req.set_id(utils::generate_uuid());
+            req.mutable_get_overload_status_command();
+            return req;
+        },
+        ProxyBackendHandler::BACKEND_REQUEST_TIMEOUT_SECS,
+        /*include_responses=*/true);
+
+    pb::MessageV1 response;
+    response.set_id(msg.id());
+
+    if (result.had_error) {
+        response.mutable_error_message()->set_description(result.error_text);
+        client.send(response);
+        return;
+    }
+
+    pb::OverloadStatus* merged =
+        response.mutable_get_overload_status_response()->mutable_status();
+    bool any_overload = false;
+
+    for (const auto& backend_resp : result.responses) {
+        if (!backend_resp.has_get_overload_status_response() ||
+            !backend_resp.get_overload_status_response().has_status()) {
+            // A backend responded without the expected payload: surface a clear
+            // proxy-level error rather than returning a half-populated status.
+            response.clear_get_overload_status_response();
+            response.mutable_error_message()->set_description(
+                "Backend returned no overload status");
+            client.send(response);
+            return;
+        }
+        const pb::OverloadStatus& status =
+            backend_resp.get_overload_status_response().status();
+        any_overload = any_overload || status.global_overload();
+        for (const auto& element : status.elements()) {
+            *merged->add_elements() = element;
+        }
+    }
+
+    merged->set_global_overload(any_overload);
+    client.send(response);
+}
+
 void ProxyServer::send_error_to_client(
     ClientSession& client,
     const std::string& request_id,

@@ -90,6 +90,7 @@ class DummyDAC:
             UDPStreamingHandler,
             StartRunHandler,
             CalibrationHandler,
+            GetOverloadStatusHandler,
         )
 
         calibration_field = pb.MessageV1.DESCRIPTOR.fields_by_name[
@@ -102,6 +103,7 @@ class DummyDAC:
             pb.MessageV1.EXTRACT_COMMAND_FIELD_NUMBER: ExtractHandler(self),
             pb.MessageV1.UDP_DATA_STREAMING_COMMAND_FIELD_NUMBER: UDPStreamingHandler(self),
             pb.MessageV1.START_RUN_COMMAND_FIELD_NUMBER: StartRunHandler(self),
+            pb.MessageV1.GET_OVERLOAD_STATUS_COMMAND_FIELD_NUMBER: GetOverloadStatusHandler(self),
             calibration_field: CalibrationHandler(self),
         }
 
