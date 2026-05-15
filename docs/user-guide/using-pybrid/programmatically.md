@@ -30,7 +30,7 @@ and from the [protobuf](../../developer-guide/data-and-messaging-protocol.md)
 binary format that is both sent over the wire and stored on disk (see also
 [file formats](./file-formats.md)).
 - `Entity` is the common base class for every configurable hardware component.
-Entities are hierarchical — each has a list of `children` — and addressable via
+Entities are hierarchical (each has a list of `children`) and addressable via
 a `/`-separated path beginning with its carrier's MAC address, e.g.
 `AA-BB-CC-DD-EE-FF/0/M0` refers to the M0 block of cluster 0 on the carrier with
 MAC `AA-BB-CC-DD-EE-FF`.
@@ -127,7 +127,7 @@ async with controller:
     # ... interact with the device ...
 ```
 
-For multiple LUCIDACs, simply call `add_device()` multiple times — the
+For multiple LUCIDACs, simply call `add_device()` multiple times; the
 controller's computer model will then expose all of them as carriers. Note
 that, in order to operate multiple LUCIDACs synchronously, they must be wired
 together via a flatband cable as described in the LUCIDAC manual:

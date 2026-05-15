@@ -36,9 +36,9 @@ The recommended reading path depends on your use case:
 - **[REDAC](https://anabrid.com/redac)** is a modular analog computer system built from carrier boards, each containing clusters of computational blocks. This architecture allows scaling from small to large analog computing setups.
 
 - The **simulator** serves as a method of validation. Given a hardware specification
-(see notes on architecture) it replicates device behaviour including a 
-very simoplified error model on a mathematical level. By going through the compiler
-and being able to simulator with _limits_, it is well suited for development of circuits.
+(see notes on architecture) it replicates device behaviour including a
+very simplified error model on a mathematical level. By going through the compiler
+and being able to simulate with _limits_, it is well suited for development of circuits.
 
 ## A Note on Openness
 

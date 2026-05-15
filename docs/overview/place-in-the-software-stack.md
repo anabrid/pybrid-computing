@@ -10,11 +10,15 @@ the level they need. To make that possible, each layer of the stack
 exposes its own interface, and users enter at whichever layer matches
 their use case.
 
+This software stack has been christened LUCISTACK and is covered by its own
+[documentation](https://anabrid.github.io/lucistack/) which outlines all the
+layers in the stack and their used abstractions. This page only recaps the necessary
+context to understand `pybrid`'s function in the stack.
+
 ```mermaid
 block-beta
     columns 1
     L6["<b>LUCIHUB</b><br/><small>(cloud access, REST API, job scheduling)</small>"]
-    L5["<b>libredac-app</b><br/><small>(curated applications and algorithms)</small>"]
     L4["<b>redacc</b><br/><small>(compiler collection: ODEs → configs, simulator)</small>"]
     L3["<b>pybrid-computing</b><br/><small>(runtime + assembly, entity model, CLI)</small>"]
     L2["<b>protobuf protocol</b><br/><small>(wire format, specified by pybrid)</small>"]
@@ -71,12 +75,6 @@ computers. `redacc` also ships a simulator that replays a configuration
 mathematically, so users can verify their circuits without a physical
 device in the loop.
 
-The **`libredac-app`** library is a curated collection of applications
-and algorithms that run on the `REDAC`. Each entry uses the stack below
-to turn a concrete problem, such as a PDE solver, a control loop or a
-benchmark, into a runnable circuit, and serves both as a set of
-examples and as a baseline for new applications.
-
 Finally, **`LUCIHUB`** is the cloud-based access system. It fronts one
 or more physical devices behind a REST API and a distributed,
 worker-based scheduler with a central database for jobs and users.
@@ -94,7 +92,6 @@ protocol, while the rest are ordinary Python or REST calls.
 ```mermaid
 flowchart LR
     LUCIHUB["<b>LUCIHUB</b>"]
-    LIBAPP["<b>libredac-app</b>"]
     REDACC["<b>redacc</b>"]
     PYBRID["<b>pybrid-computing</b>"]:::me
     HC["<b>hybrid-controller</b><br/>firmware"]
@@ -102,8 +99,6 @@ flowchart LR
 
     LUCIHUB -- "jobs, circuits" --> PYBRID
     LUCIHUB -- "ODE sources" --> REDACC
-    LIBAPP -- "Python API" --> PYBRID
-    LIBAPP -- "compile calls" --> REDACC
     PYBRID -- "hardware spec" --> REDACC
     REDACC -- "configurations" --> PYBRID
     PYBRID -- "commands, configs (protobuf)" --> HC
@@ -120,9 +115,6 @@ device's own hardware specification, samples, and error reports.
 compiler a hardware specification (so `redacc` knows what the target
 can actually do), and `redacc` hands back a configuration compiled from
 an ODE system.
-- `libredac-app` sits on top of both. An application may build a
-circuit directly against the `pybrid` API, or let `redacc` generate one
-from a higher-level description, depending on what fits the problem.
 - `LUCIHUB` also consumes both, but at the service level: it accepts
 circuits from its REST clients and routes them through `pybrid` to a
 device, or routes ODE sources through `redacc` first and then the same
@@ -141,7 +133,7 @@ Python abstractions on top, but the specification itself is
 language-neutral: any implementation that matches it can drive the
 device without `pybrid` in the loop.
 - The assembly side is the
-[entity object representation](../user-guide/using-pybrid/programmatically.md).
+[entity object representation](../developer-guide/device-object-representation.md).
 `pybrid`'s `Serializer` takes a hardware specification sent back by the
 device and turns it into a Python object tree that mirrors the
 `REDAC`'s architectural layout (carriers, clusters, blocks, lanes).
@@ -149,8 +141,9 @@ Modifying that tree is how users build configurations at the lowest
 programmable level the device exposes, short of writing protobuf
 messages by hand.
 
-Everything higher up in the stack (`redacc`, `libredac-app`, `LUCIHUB`)
-is optional, and everything lower down (firmware, hardware) is fixed.
+Everything higher up in the stack (`redacc`, `LUCIHUB`)
+is optional, and everything lower down (firmware, hardware) is absolutely required 
+for operating the analog computer.
 `pybrid` is the narrow waist that the rest of the stack relies on, and
 the layer users reach for when they want to address the hardware
 directly.

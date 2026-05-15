@@ -1,18 +1,18 @@
 # Public and Developer Version
 
-`pybrid`, in the form of the packages `python-computing` and `python-computing-native`
+`pybrid`, in the form of the packages `pybrid-computing` and `pybrid-computing-native`,
 is available in two versions: the public/stable and the internal/private version.
-The latter is reserved for anabrid employyes and project partners with an API.
+The latter is reserved for anabrid employees and project partners with an API.
 
 Please note that all up-to-date versions of anabrid products, including
 `pybrid`, are always compatible. Reverting even only one of the packages to an older
-version can lead to majpr **incompatibilities**.
+version can lead to major **incompatibilities**.
 
-!!! warning `Protobuf` versioning
+!!! warning "Protobuf versioning"
 
     While the protobuf protocol has an internal version number and versioning infrastructure,
-    in the current - development - phase, its version is still pinned to 0.1.0. 
-    During this phase, only _version bundles_ of all packages that use the underlying 
+    in the current (development) phase its version is still pinned to 0.1.0.
+    During this phase, only _version bundles_ of all packages that use the underlying
     protocol version are compatible. In doubt, please always use the most recent build
     across the full stack.
 
@@ -35,7 +35,7 @@ both packages can now be installed simply through PyPi, i.e.,
 uv pip install pybrid-computing pyredacc
 ```
 
-That's it! Updates can generally be retrieves with `uv pip install -U`.
+That's it! Updates can generally be retrieved with `uv pip install -U`.
 
 ## Installing internal versions
 

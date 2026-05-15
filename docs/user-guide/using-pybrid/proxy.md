@@ -70,7 +70,7 @@ uv run pybrid proxy \
     --port 5732
 ```
 
-Further options control behavior rather than topology:
+Further options control behaviour rather than topology:
 
 - `--session-timeout` (seconds, default `10.0`) sets how long a
   session may stay idle, that is, receive no traffic at all, before
