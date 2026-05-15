@@ -34,12 +34,6 @@ class UnknownEntityTypeError(ValueError):
     pass
 
 
-class EntityTypeRegistryError(ValueError):
-    """Exception for errors inside the :class:`EntityType` registry."""
-
-    pass
-
-
 class EntityClass(Enum):
     """Entity class differentiates between carrier boards, different function blocks and so on. Max 5bit = 31."""
 
