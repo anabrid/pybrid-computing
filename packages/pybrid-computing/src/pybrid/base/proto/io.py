@@ -5,6 +5,7 @@ from pybrid.base.proto.versioning import ProtoVersioning
 
 logger = logging.getLogger(__name__)
 
+
 class ProtoIO:
     """
     Provides IO routines for the protobuf, such as loading and storing
@@ -18,7 +19,9 @@ class ProtoIO:
         files conform to the latest version.
         """
         if not path.endswith(".apb"):
-            raise Exception("Unknown file extension for config, only .apb is supported.")
+            raise Exception(
+                "Unknown file extension for config, only .apb is supported."
+            )
 
         try:
             apb_config = pb.File()
@@ -33,13 +36,12 @@ class ProtoIO:
         return apb_config.module
 
     @classmethod
-    def store_module(cls, module: pb.Module, path: str):
+    def store_module(
+        cls, module: pb.Module, path: str, version=ProtoVersioning.current()
+    ):
         """
         Stores a pb file as .apb file (binary). Uses the latest version.
         """
-        pb_file = pb.File(
-            version=ProtoVersioning.current(),
-            module=module
-        )
+        pb_file = pb.File(version=version, module=module)
         with open(path, "wb") as f:
             f.write(pb_file.SerializeToString())

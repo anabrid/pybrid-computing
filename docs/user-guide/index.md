@@ -3,7 +3,7 @@
 This section provides in-depth guides for using pybrid to design circuits, run computations, and manage devices from a user's perspective. If you are a developer wanting to modify or
 extend pybrid, please refer to the [Developer section](../developer-guide/index.md).
 
-Please note that programing with `pybrid` means low-level programming, compared
+Please note that programming with `pybrid` means low-level programming, compared
 to assembly language for digital computers. On an analog computer, you are not moving
 data in and out to/from registers, but you are connecting compute elements, coefficients
 and input/output signals. Programming (or _configuring_) an analog computer
@@ -23,6 +23,6 @@ to [the further usage guide](./using-pybrid/index.md).
 The [Getting Started](./getting-started/building-your-first-circuit.md) section takes users step-by-step through installing and setting up pybrid,
 connecting to their device all the way to defining and running their first circuit.
 Take this section as a "hands-on" tutorial - many concepts are being mentioned
-and shown by example that are onlt explained later in both the
+and shown by example that are only explained later in both the
 [hardware architecture](../hardware-architecture/index.md) and the
 [developer's guide](../developer-guide/index.md).
