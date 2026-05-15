@@ -17,9 +17,7 @@
 
 namespace anabrid::pybrid::native {
 
-ProxyServer::ProxyServer(bool requires_auth)
-    : backend_handler_(&log_mutex_),
-      requires_auth_(requires_auth) {
+ProxyServer::ProxyServer(bool requires_auth) : backend_handler_(&log_mutex_), requires_auth_(requires_auth) {
     if (requires_auth_) {
         const char* env = std::getenv("PYBRID_AUTHENTICATION");
         if (!env || std::string(env).empty()) {
@@ -37,9 +35,8 @@ ProxyServer::~ProxyServer() {
     }
 }
 
-void ProxyServer::add_backend(const std::string& host, uint16_t port,
-                              std::optional<uint32_t> stack,
-                              std::optional<uint32_t> carrier) {
+void ProxyServer::add_backend(
+    const std::string& host, uint16_t port, std::optional<uint32_t> stack, std::optional<uint32_t> carrier) {
     if (running_.load()) {
         throw std::logic_error("ProxyServer::add_backend(): must be called before start()");
     }
@@ -66,11 +63,9 @@ void ProxyServer::start(const std::string& host, uint16_t port) {
     // Order matters: backend_handler_.start() builds path_to_backend_ and
     // pins the backend topology; the reconnect loop iterates that topology.
     // Spawn the reconnect thread only AFTER the handler reports started.
-    backend_handler_.start(
-        run_coordinator_,
-        [this](ClientSession& sess, const std::string& desc) {
-            send_error_to_client(sess, "", desc);
-        });
+    backend_handler_.start(run_coordinator_, [this](ClientSession& sess, const std::string& desc) {
+        send_error_to_client(sess, "", desc);
+    });
 
     reconnect_thread_ = std::thread(&ProxyServer::reconnect_loop, this);
     server_thread_ = std::thread(&ProxyServer::server_loop, this);
@@ -148,9 +143,8 @@ int ProxyServer::get_backend_health(size_t index) const {
 // the wire is a ping, send pong and return true (the caller drops the
 // transport). If it is anything else, move it into out_pending so it can
 // be carried into the queued session and processed by poll_queued().
-bool ProxyServer::peek_for_ping(TCPTransport& transport,
-                                double timeout_secs,
-                                std::optional<pb::MessageV1>& out_pending) {
+bool ProxyServer::peek_for_ping(
+    TCPTransport& transport, double timeout_secs, std::optional<pb::MessageV1>& out_pending) {
     out_pending.reset();
     std::vector<uint8_t> buf(RECV_BUFFER_SIZE);
     RecvResult result = transport.recv(buf.data(), buf.size(), timeout_secs);
@@ -187,8 +181,7 @@ void ProxyServer::server_loop() {
     while (running_.load()) {
         AcceptedSocket sock = server_.accept(ACCEPT_POLL_TIMEOUT_SECS);
         if (sock.is_valid() && running_.load()) {
-            std::string peer_addr =
-                sock.remote_host + ":" + std::to_string(sock.remote_port);
+            std::string peer_addr = sock.remote_host + ":" + std::to_string(sock.remote_port);
 
             auto transport = TCPTransport::from_accepted(std::move(sock));
             if (!transport) {
@@ -209,12 +202,10 @@ void ProxyServer::server_loop() {
                 std::lock_guard<std::mutex> lock(deque_mutex_);
                 size_t total = session_deque_.size() + (active_ ? 1 : 0);
                 if (total < max_sessions_) {
-                    auto session = std::make_shared<ClientSession>(
-                        std::move(transport), std::move(pending));
+                    auto session = std::make_shared<ClientSession>(std::move(transport), std::move(pending));
                     session->peer_address_ = peer_addr;
                     if (debug_) {
-                        std::cerr << "[ProxyServer] DEBUG: Client connected from "
-                                  << peer_addr << " (session "
+                        std::cerr << "[ProxyServer] DEBUG: Client connected from " << peer_addr << " (session "
                                   << session->session_id_ << ")\n";
                     }
                     session_deque_.push_back(std::move(session));
@@ -224,8 +215,7 @@ void ProxyServer::server_loop() {
 
             if (!admit) {
                 if (debug_) {
-                    std::cerr << "[ProxyServer] DEBUG: Client " << peer_addr
-                              << " rejected (server overloaded)\n";
+                    std::cerr << "[ProxyServer] DEBUG: Client " << peer_addr << " rejected (server overloaded)\n";
                 }
                 pb::MessageV1 error_msg;
                 error_msg.mutable_error_message()->set_description("Server overloaded");
@@ -264,8 +254,7 @@ void ProxyServer::poll_queued() {
 
         std::optional<pb::MessageV1> msg = s->take_pending_first_message();
         if (!msg.has_value()) {
-            RecvResult result = s->transport()->recv(
-                buf.data(), buf.size(), PRE_ADMIT_RECV_TIMEOUT_SECS);
+            RecvResult result = s->transport()->recv(buf.data(), buf.size(), PRE_ADMIT_RECV_TIMEOUT_SECS);
             if (result.status == RecvStatus::Disconnected) {
                 to_drop.push_back(s);
                 continue;
@@ -330,8 +319,7 @@ void ProxyServer::session_loop() {
         {
             std::lock_guard<std::mutex> lock(deque_mutex_);
             // Drop disconnected fronts (clients gave up while we slept).
-            while (!session_deque_.empty() &&
-                   !session_deque_.front()->is_connected()) {
+            while (!session_deque_.empty() && !session_deque_.front()->is_connected()) {
                 session_deque_.pop_front();
             }
             if (!session_deque_.empty() && all_backends_healthy()) {
@@ -354,26 +342,24 @@ void ProxyServer::session_loop() {
 
         if (debug_) {
             std::lock_guard<std::mutex> lk(log_mutex_);
-            std::cerr << "[ProxyServer] DEBUG: Session " << sess->session_id_
-                      << " (" << sess->peer_address_ << ") made active\n";
+            std::cerr << "[ProxyServer] DEBUG: Session " << sess->session_id_ << " (" << sess->peer_address_
+                      << ") made active\n";
         }
 
         try {
             run_active_dispatch(*sess);
         } catch (const std::exception& e) {
             std::lock_guard<std::mutex> lk(log_mutex_);
-            std::cerr << "[ProxyServer] Session " << sess->session_id_
-                      << " ended with error: " << e.what() << "\n";
+            std::cerr << "[ProxyServer] Session " << sess->session_id_ << " ended with error: " << e.what() << "\n";
         } catch (...) {
             std::lock_guard<std::mutex> lk(log_mutex_);
-            std::cerr << "[ProxyServer] Session " << sess->session_id_
-                      << " ended with unknown error\n";
+            std::cerr << "[ProxyServer] Session " << sess->session_id_ << " ended with unknown error\n";
         }
 
         if (debug_) {
             std::lock_guard<std::mutex> lk(log_mutex_);
-            std::cerr << "[ProxyServer] DEBUG: Session " << sess->session_id_
-                      << " (" << sess->peer_address_ << ") ended\n";
+            std::cerr << "[ProxyServer] DEBUG: Session " << sess->session_id_ << " (" << sess->peer_address_
+                      << ") ended\n";
         }
 
         if (sess->is_connected()) {
@@ -411,8 +397,7 @@ void ProxyServer::run_active_dispatch(ClientSession& session) {
     while (running_.load() && session.is_connected()) {
         if (session.done_received.load(std::memory_order_acquire)) {
             auto last = session.last_activity;
-            double elapsed = std::chrono::duration<double>(
-                std::chrono::steady_clock::now() - last).count();
+            double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - last).count();
             if (elapsed >= session_timeout_secs_) break;
         }
 
@@ -433,23 +418,19 @@ void ProxyServer::run_active_dispatch(ClientSession& session) {
             if (backend->control && !backend->control->is_connected()) {
                 {
                     std::lock_guard<std::mutex> lk(log_mutex_);
-                    std::cerr << "[ProxyServer] Backend " << backend->host
-                              << ":" << backend->port
-                              << " disconnected during session "
-                              << session.session_id_ << "\n";
+                    std::cerr << "[ProxyServer] Backend " << backend->host << ":" << backend->port
+                              << " disconnected during session " << session.session_id_ << "\n";
                 }
                 backend_handler_.set_backend_health(*backend, BackendHealth::DEAD);
                 backend_lost = true;
             }
         }
         if (backend_lost) {
-            send_error_to_client(session, "",
-                "Cluster degraded: one or more backends disconnected");
+            send_error_to_client(session, "", "Cluster degraded: one or more backends disconnected");
             break;
         }
 
-        RecvResult result = session.transport()->recv(
-            buf.data(), buf.size(), RECV_TIMEOUT_SECS);
+        RecvResult result = session.transport()->recv(buf.data(), buf.size(), RECV_TIMEOUT_SECS);
         if (result.status == RecvStatus::Disconnected) break;
         if (result.status != RecvStatus::Success || result.bytes == 0) continue;
 
@@ -473,11 +454,8 @@ void ProxyServer::run_active_dispatch(ClientSession& session) {
 void ProxyServer::reconnect_loop() {
     while (running_.load(std::memory_order_acquire)) {
         // Interruptible sleep: poll running_ in short intervals.
-        for (int i = 0;
-             i < 5 && running_.load(std::memory_order_acquire);
-             ++i) {
-            std::this_thread::sleep_for(
-                ProxyBackendHandler::RECONNECT_POLL_INTERVAL / 5);
+        for (int i = 0; i < 5 && running_.load(std::memory_order_acquire); ++i) {
+            std::this_thread::sleep_for(ProxyBackendHandler::RECONNECT_POLL_INTERVAL / 5);
         }
         if (!running_.load(std::memory_order_acquire)) break;
 
@@ -501,8 +479,7 @@ void ProxyServer::reconnect_loop() {
                     // No session owns the control channels — safe to send
                     // an active probe via Envelope-level GenericMessage ping.
                     try {
-                        backend->control->ping(
-                            ProxyBackendHandler::PING_PROBE_TIMEOUT_SECS);
+                        backend->control->ping(ProxyBackendHandler::PING_PROBE_TIMEOUT_SECS);
                         continue;
                     } catch (...) {
                         // Ping failed — fall through to DEAD + reconnect.
@@ -513,19 +490,15 @@ void ProxyServer::reconnect_loop() {
                 }
                 {
                     std::lock_guard<std::mutex> lock(log_mutex_);
-                    std::cerr << "[ProxyServer] Backend " << backend->host
-                              << ":" << backend->port
+                    std::cerr << "[ProxyServer] Backend " << backend->host << ":" << backend->port
                               << " failed liveness probe\n";
                 }
-                backend_handler_.set_backend_health(*backend,
-                                                    BackendHealth::DEAD);
+                backend_handler_.set_backend_health(*backend, BackendHealth::DEAD);
             }
 
-            bool ok = backend_handler_.reconnect_backend(
-                *backend, ProxyBackendHandler::RECONNECT_ATTEMPT_TIMEOUT);
+            bool ok = backend_handler_.reconnect_backend(*backend, ProxyBackendHandler::RECONNECT_ATTEMPT_TIMEOUT);
             if (ok) {
-                backend_handler_.set_backend_health(*backend,
-                                                    BackendHealth::HEALTHY);
+                backend_handler_.set_backend_health(*backend, BackendHealth::HEALTHY);
             }
         }
     }
@@ -534,48 +507,25 @@ void ProxyServer::reconnect_loop() {
 void ProxyServer::dispatch_message(ClientSession& session, const pb::MessageV1& msg) {
     int kind = utils::get_kind_field_number(msg);
 
-    if (requires_auth_ && !session.authenticated_ &&
-        kind != pb::MessageV1::kAuthRequestFieldNumber) {
+    if (requires_auth_ && !session.authenticated_ && kind != pb::MessageV1::kAuthRequestFieldNumber) {
         send_error_to_client(session, msg.id(), "Authentication required");
         return;
     }
 
     switch (kind) {
-        case pb::MessageV1::kResetCommandFieldNumber:
-            handle_reset(session, msg);
-            break;
-        case pb::MessageV1::kExtractCommandFieldNumber:
-            handle_extract(session, msg);
-            break;
-        case pb::MessageV1::kConfigCommandFieldNumber:
-            handle_config(session, msg);
-            break;
-        case pb::MessageV1::kStartRunCommandFieldNumber:
-            handle_start_run(session, msg);
-            break;
-        case pb::MessageV1::kAuthRequestFieldNumber:
-            handle_auth(session, msg);
-            break;
-        case pb::MessageV1::kCalibrationCommandFieldNumber:
-            handle_calibrate(session, msg);
-            break;
-        case pb::MessageV1::kUdpDataStreamingCommandFieldNumber:
-            handle_udp_streaming(session, msg);
-            break;
-        case pb::MessageV1::kUpdateCommandFieldNumber:
-            handle_update(session, msg);
-            break;
-        case pb::MessageV1::kPingCommandFieldNumber:
-            handle_ping(session);
-            break;
-        case pb::MessageV1::kGetOverloadStatusCommandFieldNumber:
-            handle_get_overload_status(session, msg);
-            break;
+        case pb::MessageV1::kResetCommandFieldNumber: handle_reset(session, msg); break;
+        case pb::MessageV1::kExtractCommandFieldNumber: handle_extract(session, msg); break;
+        case pb::MessageV1::kConfigCommandFieldNumber: handle_config(session, msg); break;
+        case pb::MessageV1::kStartRunCommandFieldNumber: handle_start_run(session, msg); break;
+        case pb::MessageV1::kAuthRequestFieldNumber: handle_auth(session, msg); break;
+        case pb::MessageV1::kCalibrationCommandFieldNumber: handle_calibrate(session, msg); break;
+        case pb::MessageV1::kUdpDataStreamingCommandFieldNumber: handle_udp_streaming(session, msg); break;
+        case pb::MessageV1::kUpdateCommandFieldNumber: handle_update(session, msg); break;
+        case pb::MessageV1::kPingCommandFieldNumber: handle_ping(session); break;
+        case pb::MessageV1::kGetOverloadStatusCommandFieldNumber: handle_get_overload_status(session, msg); break;
         default:
-            if(debug_)
-            {
-                std::cerr << "Unhandled message type received: " <<
-                    kind << ", ignoring..." << std::endl;
+            if (debug_) {
+                std::cerr << "Unhandled message type received: " << kind << ", ignoring..." << std::endl;
             }
             break;
     }

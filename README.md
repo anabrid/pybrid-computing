@@ -307,7 +307,7 @@ protocol is possible through the CLI:
 pybrid dummy --host <HOST IP, defaults to 0.0.0.0> --port <BIND PORT, defaults to 5732>
 ```
 
-The DummyDAC will behave similar to a LUCIDAC, but ignore the input circuit you sent it. 
+The DummyDAC will behave similar to a LUCIDAC, but ignore the input circuit you sent it.
 Instead, it always samples from a shifted sine wave function.
 
 #### Testing with real devices

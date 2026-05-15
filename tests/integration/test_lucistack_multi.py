@@ -16,11 +16,10 @@ All tests spin up their own DummyDAC instances in ``lucidac_mode=True``.
 
 import pytest
 
-from pybrid.mock import DummyDAC, DummyDACConfig
-from pybrid.lucipy.computer import LucipyWrapper as LUCIStack
 from pybrid.lucipy.circuits import Circuit
+from pybrid.lucipy.computer import LucipyWrapper as LUCIStack
+from pybrid.mock import DummyDAC, DummyDACConfig
 from tests.conftest import get_test_port
-
 
 # We reserve test port indices 100..109 for multi-device tests so they
 # never collide with single-device tests (which use indices 0..9).
@@ -58,9 +57,7 @@ class TestLUCIStackMultiDevice:
             )
 
             # Wrapper should contain exactly 3 endpoints
-            assert len(luci._endpoints) == 3, (
-                "Wrapper should have 3 registered endpoints"
-            )
+            assert len(luci._endpoints) == 3, "Wrapper should have 3 registered endpoints"
 
             # Each device should be reachable by its index
             for idx, expected_port in enumerate([dp0, dp1, dp2]):
@@ -105,9 +102,7 @@ class TestLUCIStackMultiDevice:
             # Each device should have a circuit
             for idx in range(3):
                 stored = luci._circuits.get(idx)
-                assert stored is not None, (
-                    f"Device {idx} should have a circuit after broadcast"
-                )
+                assert stored is not None, f"Device {idx} should have a circuit after broadcast"
 
             # All stored copies should be independent objects
             s0 = luci._circuits.get(0)

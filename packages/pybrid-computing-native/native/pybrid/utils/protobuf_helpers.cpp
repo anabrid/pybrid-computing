@@ -9,13 +9,11 @@ namespace anabrid::pybrid::native::utils {
 
 int get_kind_field_number(const pb::MessageV1& msg) {
     const google::protobuf::Descriptor* descriptor = msg.GetDescriptor();
-    const google::protobuf::OneofDescriptor* kind_oneof =
-        descriptor->FindOneofByName("kind");
+    const google::protobuf::OneofDescriptor* kind_oneof = descriptor->FindOneofByName("kind");
     if (!kind_oneof) return 0;
 
     const google::protobuf::Reflection* reflection = msg.GetReflection();
-    const google::protobuf::FieldDescriptor* active =
-        reflection->GetOneofFieldDescriptor(msg, kind_oneof);
+    const google::protobuf::FieldDescriptor* active = reflection->GetOneofFieldDescriptor(msg, kind_oneof);
     return active ? active->number() : 0;
 }
 

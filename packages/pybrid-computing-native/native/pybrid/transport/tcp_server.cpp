@@ -5,8 +5,7 @@
 
 namespace anabrid::pybrid::native {
 
-TCPServer::TCPServer()
-    : work_guard_(asio::make_work_guard(io_)) {}
+TCPServer::TCPServer() : work_guard_(asio::make_work_guard(io_)) {}
 
 TCPServer::~TCPServer() {
     stop();
@@ -115,8 +114,7 @@ AcceptedSocket TCPServer::accept(double timeout_secs) {
         return AcceptedSocket();
     }
 
-    auto deadline = std::chrono::steady_clock::now() +
-                    std::chrono::duration<double>(timeout_secs);
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout_secs);
 
     while (running_) {
         if (!pending_.empty()) {
@@ -146,42 +144,40 @@ void TCPServer::do_accept() {
 
     auto socket = std::make_shared<asio::ip::tcp::socket>(io_);
 
-    acceptor_->async_accept(
-        *socket,
-        [this, socket](const asio::error_code& ec) {
-            if (ec) {
-                if (running_) {
-                    do_accept();
-                }
-                return;
-            }
-
-            asio::error_code peer_ec;
-            auto remote_endpoint = socket->remote_endpoint(peer_ec);
-
-            std::string remote_host;
-            uint16_t remote_port = 0;
-
-            if (!peer_ec) {
-                remote_host = remote_endpoint.address().to_string();
-                remote_port = remote_endpoint.port();
-            }
-
-            // Release the native handle so it can be adopted by a different
-            // io_context in TCPTransport::from_accepted().
-            NativeSocketHandle native_handle = socket->native_handle();
-            socket->release();
-
-            {
-                std::lock_guard<std::mutex> lock(pending_mutex_);
-                pending_.emplace(native_handle, remote_host, remote_port);
-            }
-            pending_cv_.notify_one();
-
+    acceptor_->async_accept(*socket, [this, socket](const asio::error_code& ec) {
+        if (ec) {
             if (running_) {
                 do_accept();
             }
-        });
+            return;
+        }
+
+        asio::error_code peer_ec;
+        auto remote_endpoint = socket->remote_endpoint(peer_ec);
+
+        std::string remote_host;
+        uint16_t remote_port = 0;
+
+        if (!peer_ec) {
+            remote_host = remote_endpoint.address().to_string();
+            remote_port = remote_endpoint.port();
+        }
+
+        // Release the native handle so it can be adopted by a different
+        // io_context in TCPTransport::from_accepted().
+        NativeSocketHandle native_handle = socket->native_handle();
+        socket->release();
+
+        {
+            std::lock_guard<std::mutex> lock(pending_mutex_);
+            pending_.emplace(native_handle, remote_host, remote_port);
+        }
+        pending_cv_.notify_one();
+
+        if (running_) {
+            do_accept();
+        }
+    });
 }
 
-} // namespace anabrid::pybrid::native
+}  // namespace anabrid::pybrid::native

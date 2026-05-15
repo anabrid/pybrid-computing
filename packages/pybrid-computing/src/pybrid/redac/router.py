@@ -1,15 +1,16 @@
 import typing
-from typing import Dict, Set, List
+from typing import Dict, List, Set
 
 from pybrid.redac.blocks import TBlock
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.carrier import Carrier
-from pybrid.redac.entities import Path, Loc
+from pybrid.redac.entities import Loc, Path
 
 
 class RoutingException(Exception):
     def __init__(self, message: str = ""):
         self.message = message
+
 
 class Routing:
     carrier_t_blocks: Dict[Loc, TBlock] = {}
@@ -41,6 +42,7 @@ class Routing:
 
     def find_bpl_t_block(self, loc: Loc, idx: int) -> BackplaneTBlock:
         return self.bpl_t_blocks.get(loc.stack(), {}).get(idx, self.bpl_dummy)
+
 
 class Router(Routing):
 
@@ -85,8 +87,8 @@ class Router(Routing):
         output_t_block = self.find_carrier_t_block(src)
         input_t_block = self.find_carrier_t_block(dst)
 
-        #sector 0 is connect to backplane
-        #cluster 0-2 are sector 1-3
+        # sector 0 is connect to backplane
+        # cluster 0-2 are sector 1-3
         output_t_block.connect(src.cluster_id() + 1, 0, offset_lane_id)
         input_t_block.connect(0, dst.cluster_id() + 1, offset_lane_id)
 
@@ -109,7 +111,6 @@ class Router(Routing):
             bpl_t_block = self.find_bpl_t_block(src, partition)
             bpl_t_block.connect(src.carrier_id(), dst.carrier_id(), mod_dst_lane)
 
-
     def route(self, src: Loc, dst: Loc):
         assert src.carrier_id() < 7 and dst.carrier_id() < 7
         assert src.cluster_id() < 3 and dst.cluster_id() < 3
@@ -125,8 +126,8 @@ class Router(Routing):
 
 class Tracer(Routing):
 
-    #loc is a lane in a cluster after a the t block searching for the coef source
-    #loc here is stack / carrier / cluster_id / lane
+    # loc is a lane in a cluster after a the t block searching for the coef source
+    # loc here is stack / carrier / cluster_id / lane
     def find_coef(self, loc: Loc) -> typing.Optional[Loc]:
 
         visited = set()
@@ -180,5 +181,5 @@ class Tracer(Routing):
                 loc = current_stack / prev_carrier_id / 0 / loc.lane_id()
                 continue
             else:
-                #external
+                # external
                 raise RoutingException("Connections between stacks not implemented yet!")

@@ -17,19 +17,21 @@ inversion, delivering the true mathematical value to the receiving device.
 Requires connecting analog inputs/outputs 0-3 pairwise (e.g. output 0 from LUCIDAC
 0 connected to input 0 of LUCIDAC 1, ...).
 """
-from pybrid.lucipy import LUCIDAC, time_series
+
+import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-import random
+
+from pybrid.lucipy import LUCIDAC, time_series
 
 slow = True
 F = 0.2
 A = 5
 B = 0.1666
 
-N = 8   # number of Lorenz-96 variables
-K = 4   # variables per device
+N = 8  # number of Lorenz-96 variables
+K = 4  # variables per device
 
 # Generate stack of two LUCIDACs - enter IP addresses here or leave empty
 # to use auto-discover.
@@ -57,10 +59,10 @@ outx = [[l[d].output(port=p) for p in range(K)] for d in range(2)]
 inx = [[l[d].input(port=p) for p in range(K)] for d in range(2)]
 
 for d in range(2):
-    l[d].connect(x[K * d], outx[d][0], weight=-1.0)      # pre-inverted +x[K*d]
-    l[d].connect(x[K * d + 2], outx[d][1])               # raw -x[K*d+2]
+    l[d].connect(x[K * d], outx[d][0], weight=-1.0)  # pre-inverted +x[K*d]
+    l[d].connect(x[K * d + 2], outx[d][1])  # raw -x[K*d+2]
     l[d].connect(x[K * d + 3], outx[d][2], weight=-1.0)  # pre-inverted +x[K*d+3]
-    l[d].connect(x[K * d + 3], outx[d][3])               # raw -x[K*d+3]
+    l[d].connect(x[K * d + 3], outx[d][3])  # raw -x[K*d+3]
 
 # ACL input lookup: maps (signal_index, desired_sign) to input element on
 # device d. The sign indicates what the physical ACL input carries:
@@ -68,7 +70,7 @@ for d in range(2):
 acl = [{} for _ in range(2)]
 for d in range(2):
     od = 1 - d
-    acl[d][(K * od, +1)]     = inx[d][0]  # port 0 receives +x[K*od]
+    acl[d][(K * od, +1)] = inx[d][0]  # port 0 receives +x[K*od]
     acl[d][(K * od + 2, -1)] = inx[d][1]  # port 1 receives -x[K*od+2]
     acl[d][(K * od + 3, +1)] = inx[d][2]  # port 2 receives +x[K*od+3]
     acl[d][(K * od + 3, -1)] = inx[d][3]  # port 3 receives -x[K*od+3]
@@ -140,19 +142,22 @@ ax_line.set_title("All Signals")
 random.seed(42)
 for row, col in [(1, 0), (1, 1), (2, 0), (2, 1)]:
     sel = random.sample(range(n_signals), 3)
-    ax3d = fig.add_subplot(gs[row, col], projection='3d')
+    ax3d = fig.add_subplot(gs[row, col], projection="3d")
     ax3d.plot(
-        run.data[sel[0]], run.data[sel[1]], run.data[sel[2]],
-        ls="-", marker="+", markersize=1.5,
+        run.data[sel[0]],
+        run.data[sel[1]],
+        run.data[sel[2]],
+        ls="-",
+        marker="+",
+        markersize=1.5,
     )
     ax3d.set_xlabel("")
     ax3d.set_ylabel("")
     ax3d.set_zlabel("")
-    ax3d.tick_params(axis='both', which='both', pad=0, labelsize=7)
+    ax3d.tick_params(axis="both", which="both", pad=0, labelsize=7)
     ax3d.set_box_aspect(None, zoom=1.25)
     label = f"Signals {sel[0]} / {sel[1]} / {sel[2]}"
-    ax3d.text2D(-0.22, 0.5, label, transform=ax3d.transAxes,
-                rotation=90, va="center", ha="center", fontsize=10)
+    ax3d.text2D(-0.22, 0.5, label, transform=ax3d.transAxes, rotation=90, va="center", ha="center", fontsize=10)
 
 plt.tight_layout()
 plt.show()

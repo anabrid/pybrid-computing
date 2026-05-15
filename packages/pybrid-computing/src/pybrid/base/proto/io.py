@@ -19,9 +19,7 @@ class ProtoIO:
         files conform to the latest version.
         """
         if not path.endswith(".apb"):
-            raise Exception(
-                "Unknown file extension for config, only .apb is supported."
-            )
+            raise Exception("Unknown file extension for config, only .apb is supported.")
 
         try:
             apb_config = pb.File()
@@ -36,9 +34,7 @@ class ProtoIO:
         return apb_config.module
 
     @classmethod
-    def store_module(
-        cls, module: pb.Module, path: str, version=ProtoVersioning.current()
-    ):
+    def store_module(cls, module: pb.Module, path: str, version=ProtoVersioning.current()):
         """
         Stores a pb file as .apb file (binary). Uses the latest version.
         """

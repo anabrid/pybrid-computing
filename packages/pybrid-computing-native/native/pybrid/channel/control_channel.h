@@ -31,10 +31,7 @@ class ControlChannel {
 public:
     /// @throws std::runtime_error if the connection fails.
     static std::unique_ptr<ControlChannel> create(
-        const std::string& host,
-        uint16_t port,
-        double timeout_secs = 5.0,
-        std::uint32_t max_busy_wait_secs = 60);
+        const std::string& host, uint16_t port, double timeout_secs = 5.0, std::uint32_t max_busy_wait_secs = 60);
 
     ~ControlChannel();
 
@@ -100,11 +97,10 @@ public:
         bool configuration = false,
         bool calibration = false,
         double timeout_secs = TURN_TIMEOUT_SECS);
-    void calibrate(const std::string& leader, bool math, bool gain, bool offset, double timeout_secs = TURN_TIMEOUT_SECS);
+    void calibrate(
+        const std::string& leader, bool math, bool gain, bool offset, double timeout_secs = TURN_TIMEOUT_SECS);
     bool set_module(const pb::Module& module, double timeout_secs = TURN_TIMEOUT_SECS);
-    void start_run_request(
-        const pb::StartRunCommand& run_command,
-        double timeout_secs = TURN_TIMEOUT_SECS);
+    void start_run_request(const pb::StartRunCommand& run_command, double timeout_secs = TURN_TIMEOUT_SECS);
     void reset(
         bool keep_calibration = true,
         bool sync = true,
@@ -115,10 +111,13 @@ public:
     bool overload_status_request(pb::OverloadStatus& ol_status, double timeout_secs = TURN_TIMEOUT_SECS);
 
     /// upload commands for OTA updates
-    size_t update_begin(size_t new_size, std::string new_sha256,
-        double timeout_secs, bool verbose = false);
-    void update_write_full(size_t new_size, size_t max_chunk_size, std::vector<uint8_t>& new_data,
-        double timeout_secs = TURN_TIMEOUT_SECS, bool verbose = false);
+    size_t update_begin(size_t new_size, std::string new_sha256, double timeout_secs, bool verbose = false);
+    void update_write_full(
+        size_t new_size,
+        size_t max_chunk_size,
+        std::vector<uint8_t>& new_data,
+        double timeout_secs = TURN_TIMEOUT_SECS,
+        bool verbose = false);
     void update_verify(double timeout_secs = TURN_TIMEOUT_SECS, bool verbose = false);
     void update_commit(double timeout_secs = TURN_TIMEOUT_SECS, bool verbose = false);
     void update_abort(double timeout_secs = TURN_TIMEOUT_SECS);

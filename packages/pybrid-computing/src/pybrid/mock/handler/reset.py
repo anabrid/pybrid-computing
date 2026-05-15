@@ -23,9 +23,7 @@ class ResetHandler(BaseHandler):
     Clears stored configuration state.
     """
 
-    async def handle(
-        self, cmd: pb.ResetCommand, connection: "ClientConnection"
-    ) -> pb.ResetResponse:
+    async def handle(self, cmd: pb.ResetCommand, connection: "ClientConnection") -> pb.ResetResponse:
         """
         Handle a reset command by clearing stored configuration.
 

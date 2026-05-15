@@ -20,28 +20,21 @@ All tests are mock-only — no real network or hardware required.
 """
 
 import asyncio
+from unittest.mock import AsyncMock, MagicMock, call, patch
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, call
-
-from pybrid.redac.session import (
-    Session,
-    SessionCommand,
-    SetConfigCommand,
-    RunCommand,
-    FirmwareUpdateCommand,
-)
-
-from pybrid.redac.run import Run, RunConfig, RunState
-from pybrid.redac.entities import Path, Loc
-from pybrid.redac.channel import DeviceConnection
-from pybrid.redac.connection import ConnectionManager
-from pybrid.redac.carrier import Carrier, ADCChannel
-from pybrid.redac.cluster import Cluster
-from pybrid.redac.blocks import UBlock, CBlock, IBlock
-from pybrid.base.hybrid.controller import BaseController
-from pybrid.base.result import Result
 
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.base.hybrid.controller import BaseController
+from pybrid.base.result import Result
+from pybrid.redac.blocks import CBlock, IBlock, UBlock
+from pybrid.redac.carrier import ADCChannel, Carrier
+from pybrid.redac.channel import DeviceConnection
+from pybrid.redac.cluster import Cluster
+from pybrid.redac.connection import ConnectionManager
+from pybrid.redac.entities import Loc, Path
+from pybrid.redac.run import Run, RunConfig, RunState
+from pybrid.redac.session import FirmwareUpdateCommand, RunCommand, Session, SessionCommand, SetConfigCommand
 
 
 def _make_mock_control_channel() -> AsyncMock:
@@ -75,10 +68,7 @@ def _make_carrier_with_adc(mac: str, num_adc_channels: int = 2) -> Carrier:
         iblock=IBlock(path=cluster_path / "I"),
         shblock=None,
     )
-    adc_config = [
-        ADCChannel(index=i, probe=i)
-        for i in range(num_adc_channels)
-    ]
+    adc_config = [ADCChannel(index=i, probe=i) for i in range(num_adc_channels)]
     return Carrier(
         path=carrier_path,
         location=Loc.new_carrier(0, 0),
@@ -185,9 +175,7 @@ class TestSessionConfigDistribution:
 
     @pytest.mark.asyncio
     async def test_config_sent_to_all_unique_connections(self):
-        session, ctrl = _make_session(
-            paths=["AA-BB-CC-DD-EE-01", "BB-BB-CC-DD-EE-02"]
-        )
+        session, ctrl = _make_session(paths=["AA-BB-CC-DD-EE-01", "BB-BB-CC-DD-EE-02"])
         comp = MagicMock()
         serializer_instance = ctrl.computer.get_serializer()()
         serializer_instance.serialize.return_value = pb.Module()
@@ -243,8 +231,10 @@ class TestSessionSequentialExecution:
 
         session.set_config(comp1).run(cfg1).set_config(comp2).run(cfg2)
 
-        with patch.object(session, "_execute_set_config", new=fake_set_config), \
-             patch.object(session, "_execute_run", new=fake_run):
+        with (
+            patch.object(session, "_execute_set_config", new=fake_set_config),
+            patch.object(session, "_execute_run", new=fake_run),
+        ):
             await session.execute()
 
         assert execution_order == ["set_config", "run", "set_config", "run"]
@@ -268,8 +258,10 @@ class TestSessionDistributedRunState:
             orig_init(self_inner, run, paths)
             captured_states.append(list(self_inner.get_involved_paths()))
 
-        with patch.object(DistributedRunState, "__init__", capturing_init), \
-             patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)):
+        with (
+            patch.object(DistributedRunState, "__init__", capturing_init),
+            patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)),
+        ):
             session.run(RunConfig())
             await session.execute()
 
@@ -280,9 +272,7 @@ class TestSessionDistributedRunState:
 
     @pytest.mark.asyncio
     async def test_entities_specified_restricts_paths(self):
-        session, ctrl = _make_session(
-            paths=["AA-BB-CC-DD-EE-01", "BB-BB-CC-DD-EE-02"]
-        )
+        session, ctrl = _make_session(paths=["AA-BB-CC-DD-EE-01", "BB-BB-CC-DD-EE-02"])
         target_path = Path.parse("AA-BB-CC-DD-EE-01")
 
         captured_states = []
@@ -295,8 +285,10 @@ class TestSessionDistributedRunState:
             orig_init(self_inner, run, paths)
             captured_states.append(list(self_inner.get_involved_paths()))
 
-        with patch.object(DistributedRunState, "__init__", capturing_init), \
-             patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)):
+        with (
+            patch.object(DistributedRunState, "__init__", capturing_init),
+            patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)),
+        ):
             session.run(RunConfig(), entities={target_path})
             await session.execute()
 
@@ -360,8 +352,10 @@ class TestSessionNativeSync:
             orig_init(self_inner, run, paths)
             captured_runs.append(run)
 
-        with patch.object(DistributedRunState, "__init__", capturing_init), \
-             patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)):
+        with (
+            patch.object(DistributedRunState, "__init__", capturing_init),
+            patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)),
+        ):
             session.run(RunConfig())
             await session.execute()
 
@@ -401,14 +395,15 @@ class TestSessionLock:
         session1.set_config(comp)
         session2.set_config(comp)
 
-        with patch.object(session1, "_execute_set_config", new=slow_set_config), \
-             patch.object(session2, "_execute_set_config", new=fast_set_config):
+        with (
+            patch.object(session1, "_execute_set_config", new=slow_set_config),
+            patch.object(session2, "_execute_set_config", new=fast_set_config),
+        ):
             await asyncio.gather(session1.execute(), session2.execute())
 
         # session1 must completely finish before session2 starts
         assert execution_order.index("session1_end") < execution_order.index("session2_start"), (
-            "Session2 must not start executing until session1 has finished: "
-            f"got order {execution_order}"
+            "Session2 must not start executing until session1 has finished: " f"got order {execution_order}"
         )
 
 
@@ -526,9 +521,7 @@ class TestSessionErrorPropagation:
 
         # Override the mock control channel to return a failure Result
         conn = list(ctrl.connection_manager.get_unique_connections())[0]
-        conn.control.set_module = AsyncMock(
-            return_value=Result.failure("config mismatch")
-        )
+        conn.control.set_module = AsyncMock(return_value=Result.failure("config mismatch"))
 
         session.set_config(MagicMock())
 
@@ -542,9 +535,7 @@ class TestSessionErrorPropagation:
 
         # Override start_run_request to return a failure Result
         for conn in ctrl.connection_manager.get_unique_connections():
-            conn.control.start_run_request = AsyncMock(
-                return_value=Result.failure("run rejected")
-            )
+            conn.control.start_run_request = AsyncMock(return_value=Result.failure("run rejected"))
 
         from pybrid.redac.controller import DistributedRunState
 
@@ -556,6 +547,7 @@ class TestSessionErrorPropagation:
 
 import struct
 import time
+
 import numpy as np
 
 
@@ -584,7 +576,13 @@ def _make_op_blob(
 
     has_probes = 1
     header = struct.pack(
-        "<IIIIII", path_len, sample_count, channel_count, 0, 0, has_probes,
+        "<IIIIII",
+        path_len,
+        sample_count,
+        channel_count,
+        0,
+        0,
+        has_probes,
     )
 
     probe_bytes = struct.pack(f"<{channel_count}I", *probe_indices)
@@ -655,8 +653,8 @@ class TestContinuousDrain:
     @pytest.mark.asyncio
     async def test_listener_receives_data_before_run_completes(self):
         """At least one SampleListener.receive() call must happen before wait_all(DONE) resolves."""
-        from pybrid.redac.controller import DistributedRunState
         from pybrid.base.hybrid.listeners import SampleListener
+        from pybrid.redac.controller import DistributedRunState
 
         ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         blob = _make_op_blob(ENTITY_PATH, channel_count=2, sample_count=3, values=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
@@ -681,7 +679,6 @@ class TestContinuousDrain:
         done_resolved_at: list[float] = []
 
         async def slow_wait_all(self_inner, state):
-            from pybrid.redac.run import RunState
             if state == RunState.DONE:
                 await asyncio.sleep(0.3)
                 done_resolved_at.append(time.monotonic())
@@ -722,15 +719,13 @@ class TestContinuousDrain:
 
         assert len(runs) == 1
         run = runs[0]
-        assert len(run.data) == 0, (
-            f"Expected empty run.data for an empty queue, got {run.data}"
-        )
+        assert len(run.data) == 0, f"Expected empty run.data for an empty queue, got {run.data}"
 
     @pytest.mark.asyncio
     async def test_drain_final_sweep_after_done(self):
         """A blob arriving after DONE (during the settling window) must be captured in the final sweep."""
-        from pybrid.redac.controller import DistributedRunState
         from pybrid.base.hybrid.listeners import SampleListener
+        from pybrid.redac.controller import DistributedRunState
 
         ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         blob = _make_op_blob(ENTITY_PATH, channel_count=1, sample_count=2, values=[[7.0, 8.0]])
@@ -754,18 +749,15 @@ class TestContinuousDrain:
         run = runs[0]
 
         # ADC channel 0 on carrier AA-BB-CC-DD-EE-01 → probe 0
-        assert len(run.data) >= 1, (
-            f"Expected at least 1 probe in run.data after final sweep; got {run.data}"
-        )
-        assert run.data[0] == [7.0, 8.0], (
-            f"Unexpected values at probe 0: {run.data[0]}"
-        )
+        assert len(run.data) >= 1, f"Expected at least 1 probe in run.data after final sweep; got {run.data}"
+        assert run.data[0] == [7.0, 8.0], f"Unexpected values at probe 0: {run.data[0]}"
         assert len(received_data) >= 1, "FakeListener must have received the final blob"
 
     @pytest.mark.asyncio
     async def test_drain_blob_parse_error_does_not_kill_task(self):
         """A corrupted blob must be skipped with a warning; subsequent valid blobs must still be processed."""
         import logging
+
         from pybrid.redac.controller import DistributedRunState
 
         ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
@@ -781,7 +773,7 @@ class TestContinuousDrain:
                 session,
                 "_parse_sample_blob",
                 wraps=session._parse_sample_blob,
-            ) as mock_parse:
+            ):
                 session.run(RunConfig())
 
                 warning_logged = []
@@ -795,15 +787,11 @@ class TestContinuousDrain:
         run = runs[0]
 
         # Valid blob data must still be present at probe 0
-        assert len(run.data) >= 1, (
-            f"Valid blob data missing from run.data; got {run.data}"
-        )
+        assert len(run.data) >= 1, f"Valid blob data missing from run.data; got {run.data}"
         assert run.data[0] == [9.0, 10.0]
 
         # Warning must have been logged for the corrupted blob
-        assert warning_logged, (
-            "Expected a warning log entry for the corrupted blob; none was recorded."
-        )
+        assert warning_logged, "Expected a warning log entry for the corrupted blob; none was recorded."
 
     @pytest.mark.asyncio
     async def test_data_correctness_preserved_with_concurrent_drain(self):
@@ -834,17 +822,13 @@ class TestContinuousDrain:
         run = runs[0]
 
         # ADC channel 0 on carrier AA-BB-CC-DD-EE-01 → probe 0
-        assert len(run.data) >= 1, (
-            f"Expected at least 1 probe in run.data; got {run.data}"
-        )
+        assert len(run.data) >= 1, f"Expected at least 1 probe in run.data; got {run.data}"
 
         expected_values = [float(i * 3 + j) for i in range(N_BLOBS) for j in range(3)]
         actual_values = run.data[0]
 
         assert actual_values == expected_values, (
-            f"Data mismatch!\n"
-            f"  Expected: {expected_values}\n"
-            f"  Got:      {actual_values}"
+            f"Data mismatch!\n" f"  Expected: {expected_values}\n" f"  Got:      {actual_values}"
         )
 
     @pytest.mark.asyncio
@@ -856,13 +840,17 @@ class TestContinuousDrain:
         ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         per_channel = [[float(ch * 10 + s) for s in range(3)] for ch in range(NUM_CHANNELS)]
         blob = _make_op_blob(
-            ENTITY_PATH, channel_count=NUM_CHANNELS, sample_count=3,
-            values=per_channel, probe_indices=list(range(NUM_CHANNELS)),
+            ENTITY_PATH,
+            channel_count=NUM_CHANNELS,
+            sample_count=3,
+            values=per_channel,
+            probe_indices=list(range(NUM_CHANNELS)),
         )
 
         output_queue = _make_mock_output_queue([blob])
         session, ctrl = _make_session_with_queue(
-            output_queue, paths=["AA-BB-CC-DD-EE-01"],
+            output_queue,
+            paths=["AA-BB-CC-DD-EE-01"],
         )
 
         with patch.object(DistributedRunState, "wait_all", new=AsyncMock(return_value=None)):
@@ -870,16 +858,16 @@ class TestContinuousDrain:
             runs = await session.execute()
 
         run = runs[0]
-        assert len(run.data) == NUM_CHANNELS, (
-            f"Expected {NUM_CHANNELS} probes in run.data, got {len(run.data)}: {run.data}"
-        )
+        assert (
+            len(run.data) == NUM_CHANNELS
+        ), f"Expected {NUM_CHANNELS} probes in run.data, got {len(run.data)}: {run.data}"
         for probe_idx in range(NUM_CHANNELS):
-            assert run.data[probe_idx] is not None, (
-                f"run.data[{probe_idx}] is None — probe {probe_idx} received no data"
-            )
-            assert run.data[probe_idx] == per_channel[probe_idx], (
-                f"Probe {probe_idx}: expected {per_channel[probe_idx]}, got {run.data[probe_idx]}"
-            )
+            assert (
+                run.data[probe_idx] is not None
+            ), f"run.data[{probe_idx}] is None — probe {probe_idx} received no data"
+            assert (
+                run.data[probe_idx] == per_channel[probe_idx]
+            ), f"Probe {probe_idx}: expected {per_channel[probe_idx]}, got {run.data[probe_idx]}"
 
     @pytest.mark.asyncio
     async def test_empty_controller_adc_config_uses_blob_probes(self):
@@ -891,8 +879,11 @@ class TestContinuousDrain:
         ENTITY_PATH = "/AA-BB-CC-DD-EE-01"
         per_channel = [[1.0, 2.0], [3.0, 4.0]]
         blob = _make_op_blob(
-            ENTITY_PATH, channel_count=NUM_CHANNELS, sample_count=2,
-            values=per_channel, probe_indices=[0, 1],
+            ENTITY_PATH,
+            channel_count=NUM_CHANNELS,
+            sample_count=2,
+            values=per_channel,
+            probe_indices=[0, 1],
         )
 
         # Controller has EMPTY adc_config (state right after add_device).

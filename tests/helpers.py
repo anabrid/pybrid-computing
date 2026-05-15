@@ -20,11 +20,11 @@ Categories:
 """
 
 import asyncio
-from uuid import uuid4
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
-from pybrid.redac.run import Run, RunConfig, RunState, DAQConfig
 from pybrid.redac.controller import DistributedRunState
+from pybrid.redac.run import DAQConfig, Run, RunConfig, RunState
 
 if TYPE_CHECKING:
     from pybrid.redac.controller import Controller
@@ -68,5 +68,3 @@ async def execute_run(
     async with asyncio.timeout(timeout):
         await run_state.wait_all(RunState.DONE)
     return run_state, run
-
-

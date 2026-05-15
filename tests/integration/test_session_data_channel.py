@@ -26,10 +26,11 @@ import pytest
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.controller import Controller as REDACController
-from pybrid.redac.run import RunConfig, DAQConfig
+from pybrid.redac.run import DAQConfig, RunConfig
 
 try:
     from pybrid.native._impl import ControlChannel as _NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -66,12 +67,8 @@ def _parse_blob_header(blob: bytes) -> tuple[int, int, int, int]:
         [8:12]  channel_count    (uint32 LE)
         [12:16] sample_type      (uint32 LE; 0=OP, 1=OP_END)
     """
-    assert len(blob) >= BLOB_HEADER_SIZE, (
-        f"Blob is too short to contain header: {len(blob)} < {BLOB_HEADER_SIZE}"
-    )
-    entity_path_len, sample_count, channel_count, sample_type = struct.unpack_from(
-        "<IIII", blob, 0
-    )
+    assert len(blob) >= BLOB_HEADER_SIZE, f"Blob is too short to contain header: {len(blob)} < {BLOB_HEADER_SIZE}"
+    entity_path_len, sample_count, channel_count, sample_type = struct.unpack_from("<IIII", blob, 0)
     return entity_path_len, sample_count, channel_count, sample_type
 
 
@@ -92,7 +89,6 @@ def _drain_ibuffer(output_queue) -> list[bytes]:
             break
         blobs.append(bytes(buf[:n]))
     return blobs
-
 
 
 @pytest.mark.asyncio
@@ -133,9 +129,7 @@ async def test_session_run_populates_data_via_data_channel():
             # Every probe entry in run.data must have at least one sample.
             for idx, samples in enumerate(run.data):
                 if samples is not None:
-                    assert len(samples) > 0, (
-                        f"run.data[{idx}] is empty; expected at least one sample."
-                    )
+                    assert len(samples) > 0, f"run.data[{idx}] is empty; expected at least one sample."
 
 
 @pytest.mark.asyncio
@@ -314,7 +308,6 @@ async def test_sample_listeners_invoked_from_data_channel():
             ctrl.unregister_listener(listener)
 
         assert len(runs) == 1
-        run = runs[0]
 
         assert received_chunks, (
             "SampleListener.receive() was never called during or after the run; "
@@ -324,9 +317,7 @@ async def test_sample_listeners_invoked_from_data_channel():
 
         # Each chunk must be non-trivially sized (not None, not an empty container).
         for chunk in received_chunks:
-            assert chunk is not None, (
-                "SampleListener received a None chunk — expected actual sample data."
-            )
+            assert chunk is not None, "SampleListener received a None chunk — expected actual sample data."
 
 
 # Longer OP time so spread samples have time to be picked up by continuous drain.
@@ -376,9 +367,7 @@ async def test_concurrent_streaming_delivers_samples_during_op():
             )
 
             execute_start = time.monotonic()
-            runs = await asyncio.wait_for(
-                session.execute(), timeout=_STREAMING_RUN_TIMEOUT
-            )
+            runs = await asyncio.wait_for(session.execute(), timeout=_STREAMING_RUN_TIMEOUT)
             execute_end = time.monotonic()
 
             ctrl.unregister_listener(listener)

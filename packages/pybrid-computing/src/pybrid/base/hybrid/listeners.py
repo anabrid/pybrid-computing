@@ -3,6 +3,7 @@ from typing import Dict, List
 
 from pybrid.redac.entities import Path
 
+
 class SampleListener(ABC):
     """Base class for adapters that stream samples from a running computation.
 

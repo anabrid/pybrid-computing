@@ -37,23 +37,17 @@ class ExtractHandler(BaseHandler):
         )
         if self.server.config.error_stage == DummyDACErrorStage.AT_EXTRACT:
             logger.debug("EXTRACT: Error injection active (AT_EXTRACT)")
-            return pb.ErrorMessage(
-                description=self.server.config.error_message or "Extract error"
-            )
+            return pb.ErrorMessage(description=self.server.config.error_message or "Extract error")
 
         items: list[pb.Item] = []
 
         if cmd.specification:
             entity_tree = self.server._build_entity_tree()
-            spec_item = pb.Item(
-                entity_specification=pb.EntitySpecification(entity=entity_tree)
-            )
+            spec_item = pb.Item(entity_specification=pb.EntitySpecification(entity=entity_tree))
             items.append(spec_item)
 
         if cmd.configuration:
-            items.extend(self._filter_configs_by_path(
-                cmd.entity.path if cmd.HasField("entity") else ""
-            ))
+            items.extend(self._filter_configs_by_path(cmd.entity.path if cmd.HasField("entity") else ""))
 
         logger.debug("EXTRACT: Returning %d items", len(items))
         return pb.ExtractResponse(module=pb.Module(items=items))
@@ -66,9 +60,6 @@ class ExtractHandler(BaseHandler):
         if not path:
             return list(self.server._stored_config.items)
 
-        normalized_path = path if path.startswith('/') else f'/{path}'
+        normalized_path = path if path.startswith("/") else f"/{path}"
 
-        return [
-            c for c in self.server._stored_config.items
-            if c.entity.path.startswith(normalized_path)
-        ]
+        return [c for c in self.server._stored_config.items if c.entity.path.startswith(normalized_path)]

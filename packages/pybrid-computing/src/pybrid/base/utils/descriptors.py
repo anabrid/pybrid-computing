@@ -6,7 +6,7 @@
 class Validator:
 
     def __set_name__(self, owner, name):
-        self._name = '_' + name
+        self._name = "_" + name
 
     def __get__(self, instance, owner=None):
         if instance is None:
@@ -25,8 +25,7 @@ class Validator:
         self.validate(instance, value_)
         setattr(instance, self._name, value_)
 
-    def set_default(self, instance, name, owner):
-        ...
+    def set_default(self, instance, name, owner): ...
 
     def parse(self, instance, value):
         return value

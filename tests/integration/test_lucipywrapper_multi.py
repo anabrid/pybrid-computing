@@ -20,11 +20,10 @@ import logging
 
 import pytest
 
+from pybrid.lucipy.circuits import Circuit
+from pybrid.lucipy.computer import LucipyWrapper
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from tests.conftest import get_test_port
-
-from pybrid.lucipy.computer import LucipyWrapper
-from pybrid.lucipy.circuits import Circuit
 
 # Suppress harmless DummyDAC protocol errors during run tests.
 _PROTOCOL_LOGGER = "pybrid.redac.protocol.protocol"
@@ -65,12 +64,10 @@ class TestLucipyWrapperMultiDevice:
 
             await wrapper._ensure_controller()
 
-            assert wrapper._controller is not None, (
-                "Controller should be initialized"
-            )
-            assert len(wrapper._controller.computer.carriers) == 2, (
-                "Two-device wrapper should discover exactly 2 carriers"
-            )
+            assert wrapper._controller is not None, "Controller should be initialized"
+            assert (
+                len(wrapper._controller.computer.carriers) == 2
+            ), "Two-device wrapper should discover exactly 2 carriers"
 
             await wrapper.close()
 
@@ -105,21 +102,11 @@ class TestLucipyWrapperMultiDevice:
             c0 = wrapper.create_circuit(0)
             c1 = wrapper.create_circuit(1)
 
-            assert 0 in wrapper._circuits, (
-                "Circuit for device 0 should be stored in _circuits"
-            )
-            assert 1 in wrapper._circuits, (
-                "Circuit for device 1 should be stored in _circuits"
-            )
-            assert wrapper._circuits[0] is c0, (
-                "Circuit 0 should be stored by reference"
-            )
-            assert wrapper._circuits[1] is c1, (
-                "Circuit 1 should be stored by reference"
-            )
-            assert c0 is not c1, (
-                "Circuits for different devices must be distinct objects"
-            )
+            assert 0 in wrapper._circuits, "Circuit for device 0 should be stored in _circuits"
+            assert 1 in wrapper._circuits, "Circuit for device 1 should be stored in _circuits"
+            assert wrapper._circuits[0] is c0, "Circuit 0 should be stored by reference"
+            assert wrapper._circuits[1] is c1, "Circuit 1 should be stored by reference"
+            assert c0 is not c1, "Circuits for different devices must be distinct objects"
 
             await wrapper.close()
 
@@ -159,9 +146,7 @@ class TestLucipyWrapperMultiDevice:
 
             # The stored circuit sees the mutation (same object)
             stored = wrapper._circuits[0]
-            assert stored._integrators_used[0] is True, (
-                "Mutation on returned circuit must be visible in _circuits"
-            )
+            assert stored._integrators_used[0] is True, "Mutation on returned circuit must be visible in _circuits"
 
             await wrapper.close()
 
@@ -239,17 +224,14 @@ class TestLucipyWrapperMultiDeviceDefaults:
             c0.probe(i0, adc_channel=0)
 
             # Device 1 should have auto-received a default circuit
-            assert 1 in wrapper._circuits, (
-                "Device 1 should have an auto-populated default circuit"
-            )
+            assert 1 in wrapper._circuits, "Device 1 should have an auto-populated default circuit"
 
             # Verify default circuit has the correct MAC
             expected_mac = wrapper._controller.computer.carriers[1].path.to_mac()
             default_circuit = wrapper._circuits[1]
             default_mac = default_circuit._lucidac.entities[0].path.to_mac()
             assert default_mac == expected_mac, (
-                f"Default circuit MAC {default_mac} should match "
-                f"carrier 1 MAC {expected_mac}"
+                f"Default circuit MAC {default_mac} should match " f"carrier 1 MAC {expected_mac}"
             )
 
             await wrapper.close()
@@ -288,8 +270,7 @@ class TestLucipyWrapperMultiDeviceDefaults:
             expected_mac = wrapper._controller.computer.carriers[0].path.to_mac()
             circuit_mac = c._lucidac.entities[0].path.to_mac()
             assert circuit_mac == expected_mac, (
-                f"Default create_circuit() should target device 0 "
-                f"(MAC {expected_mac}), got {circuit_mac}"
+                f"Default create_circuit() should target device 0 " f"(MAC {expected_mac}), got {circuit_mac}"
             )
             assert wrapper._circuits[0] is c
 
@@ -332,11 +313,7 @@ class TestLucipyWrapperMultiDeviceDefaults:
             await wrapper._ensure_controller()
 
             # The user's circuit must not have been replaced
-            assert wrapper._circuits[0] is c0, (
-                "Explicit circuit for device 0 must not be overwritten by defaults"
-            )
-            assert c0._integrators_used[0] is True, (
-                "User's circuit mutations must be preserved"
-            )
+            assert wrapper._circuits[0] is c0, "Explicit circuit for device 0 must not be overwritten by defaults"
+            assert c0._integrators_used[0] is True, "User's circuit mutations must be preserved"
 
             await wrapper.close()

@@ -20,8 +20,8 @@ public:
     /// UUID is assigned at construction for session tracking.
     /// pending_first_message carries a message already consumed from the
     /// transport during the accept-time peek (anything other than ping).
-    explicit ClientSession(std::unique_ptr<TCPTransport> transport,
-                           std::optional<pb::MessageV1> pending_first_message = std::nullopt);
+    explicit ClientSession(
+        std::unique_ptr<TCPTransport> transport, std::optional<pb::MessageV1> pending_first_message = std::nullopt);
 
     ~ClientSession();
 
@@ -41,12 +41,10 @@ public:
     /// Stash a message back into the pending slot for the next dispatch pass.
     /// Lock-free: ownership of pending_first_message_ transfers from
     /// server_thread_ to session_thread_ at the deque pop, never concurrently.
-    void stash_first_message(pb::MessageV1 msg) {
-        pending_first_message_ = std::move(msg);
-    }
+    void stash_first_message(pb::MessageV1 msg) { pending_first_message_ = std::move(msg); }
 
     std::string session_id_;
-    std::string peer_address_;   ///< Set by ProxyServer after construction; for logging only.
+    std::string peer_address_;  ///< Set by ProxyServer after construction; for logging only.
 
     /// True while this is the front-of-queue (active) session.
     std::atomic<bool> active{false};

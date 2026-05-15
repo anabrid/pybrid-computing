@@ -73,11 +73,13 @@ class _UDPSender:
 
 
 # Message types that are routed through data_transport when available.
-_RUN_DATA_KINDS = frozenset({
-    "run_data_message",
-    "run_data_end_message",
-    "run_state_change_message",
-})
+_RUN_DATA_KINDS = frozenset(
+    {
+        "run_data_message",
+        "run_data_end_message",
+        "run_state_change_message",
+    }
+)
 
 
 class ClientConnection:
@@ -141,9 +143,7 @@ class ClientConnection:
             if field.message_type == body.DESCRIPTOR:
                 getattr(msg, field.name).CopyFrom(body)
                 return msg
-        raise ValueError(
-            f"No MessageV1 oneof field for {type(body).__name__}"
-        )
+        raise ValueError(f"No MessageV1 oneof field for {type(body).__name__}")
 
     def register_callback(
         self,
@@ -212,9 +212,7 @@ class ClientConnection:
     def __await__(self):
         """Await the receive loop task (wait until client disconnects)."""
         if self._recv_task is None:
-            raise RuntimeError(
-                "ClientConnection must be started with 'async with' before awaiting."
-            )
+            raise RuntimeError("ClientConnection must be started with 'async with' before awaiting.")
         return self._recv_task.__await__()
 
     async def stop(self) -> None:
@@ -306,9 +304,7 @@ class ClientConnection:
         if field_number not in self._callbacks:
             if kind not in self._warned_unknown:
                 self._warned_unknown.add(kind)
-                logger.warning(
-                    "No callback registered for message type '%s'.", kind
-                )
+                logger.warning("No callback registered for message type '%s'.", kind)
             return
 
         callback, extra_args, extra_kwargs = self._callbacks[field_number]
@@ -321,9 +317,7 @@ class ClientConnection:
         except Exception as exc:
             logger.exception("Error in callback for '%s': %s", kind, exc)
             if not is_notification:
-                err_msg = ClientConnection.new_message(
-                    pb.ErrorMessage(description=repr(exc)), id=msg.id
-                )
+                err_msg = ClientConnection.new_message(pb.ErrorMessage(description=repr(exc)), id=msg.id)
                 await self.send_message(err_msg)
             return
 

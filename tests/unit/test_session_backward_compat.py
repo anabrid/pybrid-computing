@@ -27,17 +27,17 @@ All tests use mocks — no real network or hardware required.
 
 import asyncio
 import warnings
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from pybrid.redac.controller import Controller as REDACController
-from pybrid.redac.session import Session, SetConfigCommand, RunCommand
-from pybrid.redac.run import Run, RunConfig
-from pybrid.redac.channel import DeviceConnection
-from pybrid.redac.entities import Path
-from pybrid.base.result import Result
+import pytest
 
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.base.result import Result
+from pybrid.redac.channel import DeviceConnection
+from pybrid.redac.controller import Controller as REDACController
+from pybrid.redac.entities import Path
+from pybrid.redac.run import Run, RunConfig
+from pybrid.redac.session import RunCommand, Session, SetConfigCommand
 
 
 def _make_controller(**kwargs) -> REDACController:
@@ -73,8 +73,10 @@ class TestSetComputerDelegation:
         mock_computer = MagicMock()
 
         # Patch Session.execute to track calls without side-effects
-        with patch.object(Session, "execute", new=AsyncMock(return_value=[])) as mock_exec, \
-             warnings.catch_warnings(record=True):
+        with (
+            patch.object(Session, "execute", new=AsyncMock(return_value=[])) as mock_exec,
+            warnings.catch_warnings(record=True),
+        ):
             warnings.simplefilter("always")
             await ctrl.set_computer(mock_computer)
 
@@ -93,8 +95,7 @@ class TestSetComputerDelegation:
             captured_session = self_inner
             return []
 
-        with patch.object(Session, "execute", capture_execute), \
-             warnings.catch_warnings(record=True):
+        with patch.object(Session, "execute", capture_execute), warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             await ctrl.set_computer(mock_computer)
 
@@ -123,10 +124,9 @@ class TestStartAndAwaitRunDelegation:
             captured_session = self_inner
             return [returned_run]
 
-        with patch.object(Session, "execute", capture_execute), \
-             warnings.catch_warnings(record=True):
+        with patch.object(Session, "execute", capture_execute), warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
-            result = await ctrl.start_and_await_run(run=run, timeout=50)
+            await ctrl.start_and_await_run(run=run, timeout=50)
 
         assert captured_session is not None
         run_cmds = [c for c in captured_session._pipeline if isinstance(c, RunCommand)]
@@ -143,8 +143,7 @@ class TestStartAndAwaitRunDelegation:
         async def fake_execute(self_inner, **kwargs):
             return [completed_run]
 
-        with patch.object(Session, "execute", fake_execute), \
-             warnings.catch_warnings(record=True):
+        with patch.object(Session, "execute", fake_execute), warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             result = await ctrl.start_and_await_run(run=run)
 
@@ -169,8 +168,7 @@ class TestForwardSetConfigDelegation:
             captured_session = self_inner
             return []
 
-        with patch.object(Session, "execute", capture_execute), \
-             warnings.catch_warnings(record=True):
+        with patch.object(Session, "execute", capture_execute), warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             await ctrl.forward_set_config(config_cmd)
 
@@ -184,11 +182,14 @@ class TestDeprecationWarnings:
     """All three deprecated shims must emit DeprecationWarning on use."""
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("method_name,call_kwargs,mock_return", [
-        ("set_computer", {"computer": None}, []),
-        ("start_and_await_run", {"run": None}, [None]),
-        ("forward_set_config", {"cmd": None}, []),
-    ])
+    @pytest.mark.parametrize(
+        "method_name,call_kwargs,mock_return",
+        [
+            ("set_computer", {"computer": None}, []),
+            ("start_and_await_run", {"run": None}, [None]),
+            ("forward_set_config", {"cmd": None}, []),
+        ],
+    )
     async def test_deprecated_method_emits_warning(self, method_name, call_kwargs, mock_return):
         ctrl = _make_controller()
         _inject_fake_connections(ctrl, ["AA-BB-CC-DD-EE-01"])
@@ -210,9 +211,7 @@ class TestDeprecationWarnings:
                 await getattr(ctrl, method_name)(**call_kwargs)
 
         dep_warnings = [w for w in caught if issubclass(w.category, DeprecationWarning)]
-        assert len(dep_warnings) >= 1, (
-            f"controller.{method_name}() must emit at least one DeprecationWarning"
-        )
+        assert len(dep_warnings) >= 1, f"controller.{method_name}() must emit at least one DeprecationWarning"
 
 
 class TestDefaultSessionReuse:
@@ -231,7 +230,7 @@ class TestDefaultSessionReuse:
         # create_session() must not touch _default_session
         new_session = ctrl.create_session()
 
-        assert ctrl._default_session is sentinel_session, (
-            "create_session() must not overwrite controller._default_session"
-        )
+        assert (
+            ctrl._default_session is sentinel_session
+        ), "create_session() must not overwrite controller._default_session"
         assert new_session is not sentinel_session

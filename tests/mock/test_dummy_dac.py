@@ -17,11 +17,12 @@ from uuid import uuid4
 import pytest
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode, DummyDACErrorStage
+from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACErrorStage, DummyDACMacMode
 from pybrid.redac.control import AsyncControlChannel
 
 try:
     from pybrid.native._impl import ControlChannel as NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -121,9 +122,7 @@ async def test_fewer_samples_error_injection():
                 loop.call_soon_threadsafe(done_event.set)
 
         channel.register_callback(pb.MessageV1.RUN_DATA_MESSAGE_FIELD_NUMBER, on_data)
-        channel.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change
-        )
+        channel.register_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change)
 
         try:
             cmd = _make_run_command(FEWER_SAMPLES_OP_TIME_NS, num_channels=4, sample_rate=sample_rate)
@@ -157,18 +156,16 @@ async def test_drop_takeoff_state():
             if new_state == pb.RunState.DONE:
                 loop.call_soon_threadsafe(done_event.set)
 
-        channel.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change
-        )
+        channel.register_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change)
 
         try:
             cmd = _make_run_command(RUN_OP_TIME_NS)
             await asyncio.wait_for(channel.start_run_request(cmd), timeout=OP_TIMEOUT)
             await asyncio.wait_for(done_event.wait(), timeout=RUN_TIMEOUT)
 
-            assert pb.RunState.TAKE_OFF not in states, (
-                f"TAKE_OFF should be suppressed by DROP_TAKEOFF_STATE, got states: {states}"
-            )
+            assert (
+                pb.RunState.TAKE_OFF not in states
+            ), f"TAKE_OFF should be suppressed by DROP_TAKEOFF_STATE, got states: {states}"
             assert pb.RunState.IC in states, f"IC missing from states: {states}"
             assert pb.RunState.DONE in states, f"DONE missing from states: {states}"
         finally:
@@ -194,18 +191,14 @@ async def test_drop_done_state():
             if new_state == pb.RunState.OP_END:
                 loop.call_soon_threadsafe(op_end_event.set)
 
-        channel.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change
-        )
+        channel.register_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change)
 
         try:
             cmd = _make_run_command(RUN_OP_TIME_NS)
             await asyncio.wait_for(channel.start_run_request(cmd), timeout=OP_TIMEOUT)
             await asyncio.wait_for(op_end_event.wait(), timeout=RUN_TIMEOUT)
 
-            assert pb.RunState.DONE not in states, (
-                f"DONE should be suppressed by DROP_DONE_STATE, got states: {states}"
-            )
+            assert pb.RunState.DONE not in states, f"DONE should be suppressed by DROP_DONE_STATE, got states: {states}"
             assert pb.RunState.TAKE_OFF in states, f"TAKE_OFF missing from states: {states}"
             assert pb.RunState.OP_END in states, f"OP_END missing from states: {states}"
         finally:
@@ -230,9 +223,7 @@ async def test_during_run_error():
             if new_state == pb.RunState.ERROR:
                 loop.call_soon_threadsafe(error_event.set)
 
-        channel.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change
-        )
+        channel.register_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change)
 
         try:
             cmd = _make_run_command(RUN_OP_TIME_NS)
@@ -240,9 +231,9 @@ async def test_during_run_error():
             await asyncio.wait_for(error_event.wait(), timeout=RUN_TIMEOUT)
 
             assert pb.RunState.ERROR in states, f"ERROR state missing: {states}"
-            assert pb.RunState.DONE not in states, (
-                f"DONE should not appear after DURING_RUN error, got states: {states}"
-            )
+            assert (
+                pb.RunState.DONE not in states
+            ), f"DONE should not appear after DURING_RUN error, got states: {states}"
         finally:
             await channel.stop()
 
@@ -255,17 +246,15 @@ async def test_physical_mac_mode():
         port = server.port
         channel = await _make_channel(port)
         try:
-            module = await asyncio.wait_for(
-                channel.extract(specification=True, recursive=True), timeout=OP_TIMEOUT
-            )
+            module = await asyncio.wait_for(channel.extract(specification=True, recursive=True), timeout=OP_TIMEOUT)
             root_entity = module.items[0].entity_specification.entity
             # Entity ids use the firmware wire format with a leading '/'.
-            mac_pattern = re.compile(r'^/?[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$')
+            mac_pattern = re.compile(r"^/?[0-9A-Fa-f]{2}(-[0-9A-Fa-f]{2}){5}$")
             for carrier in root_entity.children:
                 mac = carrier.id
-                assert not mac.lstrip("/").startswith("00-00-00-00-00-"), (
-                    f"Physical MAC should not start with virtual prefix, got: {mac}"
-                )
+                assert not mac.lstrip("/").startswith(
+                    "00-00-00-00-00-"
+                ), f"Physical MAC should not start with virtual prefix, got: {mac}"
                 assert mac_pattern.match(mac), f"Invalid MAC format: {mac}"
         finally:
             await channel.stop()
@@ -295,6 +284,7 @@ async def test_extract_error_injection():
                 )
         finally:
             await channel.stop()
+
 
 @_native_skipif
 @pytest.mark.asyncio
@@ -331,9 +321,7 @@ async def test_complete_run_cycle():
             nonlocal data_end_count
             data_end_count += 1
 
-        channel.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change
-        )
+        channel.register_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change)
         channel.register_callback(pb.MessageV1.RUN_DATA_MESSAGE_FIELD_NUMBER, on_data)
         channel.register_callback(pb.MessageV1.RUN_DATA_END_MESSAGE_FIELD_NUMBER, on_data_end)
 
@@ -351,13 +339,11 @@ async def test_complete_run_cycle():
 
             # Verify minimum expected sample count.
             total_samples = sum(msg.data.sample_count for msg in data_messages)
-            assert total_samples >= min_expected_total_samples, (
-                f"Expected at least {min_expected_total_samples} samples, got {total_samples}"
-            )
+            assert (
+                total_samples >= min_expected_total_samples
+            ), f"Expected at least {min_expected_total_samples} samples, got {total_samples}"
 
             # Verify data-end count matches number of carriers.
-            assert data_end_count == NUM_CARRIERS, (
-                f"Expected {NUM_CARRIERS} RunDataEndMessages, got {data_end_count}"
-            )
+            assert data_end_count == NUM_CARRIERS, f"Expected {NUM_CARRIERS} RunDataEndMessages, got {data_end_count}"
         finally:
             await channel.stop()

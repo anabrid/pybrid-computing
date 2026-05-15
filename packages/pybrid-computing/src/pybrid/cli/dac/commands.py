@@ -6,22 +6,22 @@ import asyncio
 import json
 import logging
 import math
+from ipaddress import ip_network
 
 import asyncclick as click
 import matplotlib.pyplot as plt
 
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.base.proto.io import ProtoIO
 from pybrid.cli.base import cli
 from pybrid.cli.dac.backend import expand_args, parse_backend_spec
 from pybrid.lucidac.controller import Controller as LUCIDACController
+from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.data import DatExporter
 from pybrid.redac.detect import detect_in_network
 from pybrid.redac.display import TreeDisplay
-from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
-from pybrid.redac.run import Run, RunState, RunError
-from pybrid.base.proto.io import ProtoIO
-from ipaddress import ip_network
+from pybrid.redac.run import Run, RunError, RunState
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,7 @@ async def display(obj):
     """
     controller: REDACController = obj["controller"]
     click.echo(TreeDisplay().render(controller.computer))
+
 
 @click.command()
 @click.pass_obj
@@ -93,6 +94,7 @@ async def reset(obj, keep_calibration, sync):
     controller: REDACController = obj["controller"]
     await controller.reset(keep_calibration=keep_calibration, sync=sync)
 
+
 @click.command()
 @click.pass_obj
 # Run options
@@ -100,14 +102,18 @@ async def reset(obj, keep_calibration, sync):
 @click.option("--sample-rate", type=int, default=None, help="Sample rate in Hz.")
 @click.option("--ic-time", type=int, default=None, help="IC time in nanoseconds.")
 # Configuration options
-@click.option("--config-file", "-c", type=str, help="Path to a config (.apb) file to set up the device and start the run.")
+@click.option(
+    "--config-file", "-c", type=str, help="Path to a config (.apb) file to set up the device and start the run."
+)
 # Output options
 @click.option("--output", "-o", type=click.File("wt"), default="-", help="File to write data to.")
-@click.option("--plot",
+@click.option(
+    "--plot",
     is_flag=True,
     default=False,
     show_default=True,
-    help="Use matplotlib to draw a simple plot of the returned data")
+    help="Use matplotlib to draw a simple plot of the returned data",
+)
 async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, output, plot):
     """
     Start a run (computation) and wait until it is complete. Wires the configuration
@@ -142,7 +148,7 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
     effective_op_time = op_time if op_time is not None else run_.config.op_time / 1_000_000_000
     timeout = max(effective_op_time + 3, 3)
     session.calibrate(gain=True, offset=True)
-    session,reset(keep_calibration=True, overload_reset=True, circuit_reset=False)
+    session, reset(keep_calibration=True, overload_reset=True, circuit_reset=False)
     session.run(run_.config, daq=run_.daq, timeout=timeout)
     results = await session.execute()
     if results:
@@ -161,28 +167,26 @@ async def run(obj, op_time: float, sample_rate: int, ic_time, config_file: str, 
             plt.figure(figsize=(10, 6))
             for channel_ix, channel_data in enumerate(run_.data):
                 plt.plot(channel_data, label=str(channel_ix))
-            plt.xlabel('Sample Index')
-            plt.ylabel('Value')
-            plt.title('Run Data')
+            plt.xlabel("Sample Index")
+            plt.ylabel("Value")
+            plt.title("Run Data")
             plt.legend()
             plt.grid(True)
             plt.show()
         else:
             click.echo("No data available to plot.")
 
+
 @cli.command()
 @click.pass_obj
-@click.argument(
-    "filename",
-    type=str,
-    default="report.pdf")
+@click.argument("filename", type=str, default="report.pdf")
 async def report(obj, filename: str):
     """
     Create a calibration report for an attached device and export as PDF.
     """
     controller: REDACController | LUCIDACController = obj["controller"]
 
-    from pybrid.util.reporter import Reporter, sin_test, mul_test, lane_test, itor_test
+    from pybrid.util.reporter import Reporter, itor_test, lane_test, mul_test, sin_test
 
     reporter = Reporter(output=filename)
     reporter.drawString("Device Report", 24)
@@ -193,15 +197,14 @@ async def report(obj, filename: str):
         await itor_test(controller, reporter)
     reporter.save()
 
+
 @cli.command("read-apb")
-@click.argument(
-    "filename",
-    type=str
-)
+@click.argument("filename", type=str)
 async def read_apb(filename: str):
     """Converts an APB file into human-readable JSON for debugging purposes."""
     apb = ProtoIO.load_module(filename, skip_update=True)
     print(apb)
+
 
 @cli.command("reset-usb")
 @click.option(
@@ -236,7 +239,9 @@ async def reset_usb(tag_filter: str, dry_run: bool):
 
     result = subprocess.run(
         [tycmd, "list", "--output", "json"],
-        capture_output=True, text=True, timeout=10,
+        capture_output=True,
+        text=True,
+        timeout=10,
     )
     if result.returncode != 0:
         click.echo(f"Error: tycmd list failed: {result.stderr.strip()}", err=True)
@@ -257,15 +262,18 @@ async def reset_usb(tag_filter: str, dry_run: bool):
             click.echo(f"Resetting {tag}...")
             r = subprocess.run(
                 [tycmd, "reset", "--board", tag],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True,
+                text=True,
+                timeout=10,
             )
             if r.returncode != 0:
                 click.echo(f"  Warning: reset failed for {tag}: {r.stderr.strip()}", err=True)
             else:
-                click.echo(f"  Done.")
+                click.echo("  Done.")
 
     if not dry_run:
         click.echo(f"Reset {len(matches)} board(s).")
+
 
 @click.command()
 @click.argument("firmware", type=str)
@@ -280,6 +288,7 @@ async def update(obj, firmware: str):
     session = controller.create_session()
     session.set_firmware(firmware, verbose=True)
     await session.execute()
+
 
 @cli.command()
 @click.argument("host", type=str)
@@ -311,6 +320,7 @@ async def ping(host: str, port: int, timeout: float, count: int):
     finally:
         cc.stop()
 
+
 @cli.command()
 @click.pass_obj
 async def detect(obj):
@@ -318,8 +328,9 @@ async def detect(obj):
     Detect devices in local network.
     """
     print("Detecting network devices...")
-    for (host, port, name) in await detect_in_network(ip_network("0.0.0.0/0")):
+    for host, port, name in await detect_in_network(ip_network("0.0.0.0/0")):
         print(f"{host:15}:{port:4} {name}")
+
 
 @cli.command()
 @click.option(
@@ -397,7 +408,9 @@ async def proxy(listen: str, port: int, backend: tuple[str, ...], session_timeou
 
     has_any_location = any(s.stack is not None for s in specs)
     if not has_any_location:
-        click.echo("Warning: Without REDAC addresses, all carriers will be treated equal. For LUCIDACs, you can safely ignore this warning. When using a REDAC, this means that pybrid will not be able to route signals automatically.")
+        click.echo(
+            "Warning: Without REDAC addresses, all carriers will be treated equal. For LUCIDACs, you can safely ignore this warning. When using a REDAC, this means that pybrid will not be able to route signals automatically."
+        )
 
     proxy_server = ProxyServer(auth)
     if debug:
@@ -468,7 +481,7 @@ async def dummy(host: str, port: int, virtual: bool):
     click.echo(f"Starting DummyDAC server on {host}:{port} using {addr_method} addressing...")
     click.echo("Press Ctrl+C to stop.")
 
-    async with DummyDAC(host, port, config) as server:
+    async with DummyDAC(host, port, config):
         # Keep the server running until interrupted
         try:
             while True:

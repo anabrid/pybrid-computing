@@ -4,9 +4,9 @@ import typing
 
 import matplotlib.pyplot as plt
 
-from pybrid.base.hybrid import BaseRun, AnalogComputer
+from pybrid.base.hybrid import AnalogComputer, BaseRun
 from pybrid.base.hybrid.programs import StateInheritingRuns
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.redac import REDAC, DAQConfig, Run, RunConfig
 
 
 class UserProgram(StateInheritingRuns):

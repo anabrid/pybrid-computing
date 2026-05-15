@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 
 from pybrid.base.hybrid.programs import SingleRun
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
+from pybrid.redac import REDAC, DAQConfig, Path, Run, RunConfig
 from pybrid.redac.entities import Loc
 
 

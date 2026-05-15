@@ -74,9 +74,7 @@ class TestREDACMultiCluster:
 
             # Verify all clusters were addressed
             # (No error means configuration was accepted)
-            assert len(cluster_paths) >= 1, (
-                f"Configured {len(cluster_paths)} clusters successfully"
-            )
+            assert len(cluster_paths) >= 1, f"Configured {len(cluster_paths)} clusters successfully"
 
     async def test_parallel_cluster_run(self, redac_endpoint):
         host, port = redac_endpoint
@@ -92,8 +90,8 @@ class TestREDACMultiCluster:
             run = Run(
                 id_=uuid4(),
                 config=RunConfig(
-                    ic_time=10_000,      # 10us
-                    op_time=100_000,     # 100us
+                    ic_time=10_000,  # 10us
+                    op_time=100_000,  # 100us
                 ),
             )
 
@@ -105,8 +103,7 @@ class TestREDACMultiCluster:
             device_paths = set(ctrl.devices.keys())
 
             assert involved_paths == device_paths, (
-                f"Run should involve all device paths. "
-                f"Involved: {involved_paths}, Devices: {device_paths}"
+                f"Run should involve all device paths. " f"Involved: {involved_paths}, Devices: {device_paths}"
             )
 
             # Wait for all carriers to complete
@@ -115,17 +112,11 @@ class TestREDACMultiCluster:
                     await run_state.wait_all(RunState.DONE)
             except asyncio.TimeoutError:
                 reached_done, not_done = run_state.status(RunState.DONE)
-                pytest.fail(
-                    f"Not all carriers completed. "
-                    f"DONE: {len(reached_done)}/{len(involved_paths)}"
-                )
+                pytest.fail(f"Not all carriers completed. " f"DONE: {len(reached_done)}/{len(involved_paths)}")
 
             # Verify all paths reached DONE
             reached_done, not_done = run_state.status(RunState.DONE)
-            assert len(not_done) == 0, (
-                f"All carriers should reach DONE state. "
-                f"Not done: {not_done}"
-            )
+            assert len(not_done) == 0, f"All carriers should reach DONE state. " f"Not done: {not_done}"
 
     async def test_cluster_isolation(self, redac_endpoint):
         host, port = redac_endpoint
@@ -162,9 +153,7 @@ class TestREDACMultiCluster:
 
             # Both configurations should have succeeded independently
             # (Test passes if no exception was raised)
-            assert first_cluster_path != second_cluster_path, (
-                "Clusters should have distinct paths"
-            )
+            assert first_cluster_path != second_cluster_path, "Clusters should have distinct paths"
 
 
 @pytest.mark.asyncio
@@ -180,9 +169,7 @@ class TestMultiCarrierDummyDAC:
         async with Controller() as ctrl:
             await ctrl.add_device("127.0.0.1", dummy_dac_virtual.port)
 
-            assert len(ctrl.computer.carriers) >= 2, (
-                "DummyDAC should have at least 2 carriers"
-            )
+            assert len(ctrl.computer.carriers) >= 2, "DummyDAC should have at least 2 carriers"
 
             run = Run(
                 id_=uuid4(),
@@ -190,9 +177,9 @@ class TestMultiCarrierDummyDAC:
             )
 
             import warnings
+
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", DeprecationWarning)
                 completed_run = await ctrl.start_and_await_run(run)
 
             assert completed_run.state == RunState.DONE
-

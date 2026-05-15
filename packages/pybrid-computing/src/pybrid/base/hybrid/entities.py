@@ -2,9 +2,9 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import typing
+import uuid
 from dataclasses import dataclass
 from typing import Iterable
-import uuid
 
 
 class EntityDoesNotExist(Exception):
@@ -18,10 +18,8 @@ class Path(tuple):
     def __get_pydantic_core_schema__(cls, _source_type, _handler):
         """Pydantic v2 schema generation"""
         from pydantic_core import core_schema
-        return core_schema.no_info_before_validator_function(
-            cls._pydantic_validate,
-            core_schema.any_schema()
-        )
+
+        return core_schema.no_info_before_validator_function(cls._pydantic_validate, core_schema.any_schema())
 
     @classmethod
     def _pydantic_validate(cls, value):
@@ -119,6 +117,7 @@ class Path(tuple):
 
 
 next_unique_id = 0
+
 
 @dataclass(kw_only=True)
 class Entity:

@@ -2,11 +2,12 @@
 #   pybrid redac -h <host> user-program path/to/this/file.py
 import typing
 from itertools import cycle
+
 import matplotlib.pyplot as plt
 
-from pybrid.base.hybrid import BaseRun, AnalogComputer
+from pybrid.base.hybrid import AnalogComputer, BaseRun
 from pybrid.base.hybrid.programs import RunEvaluateReconfigureLoop
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.redac import REDAC, DAQConfig, Run, RunConfig
 
 decay_rate = iter(cycle(map(lambda x: x / 100.0, reversed(range(0, 100, 5)))))
 figure, axes = plt.subplots()

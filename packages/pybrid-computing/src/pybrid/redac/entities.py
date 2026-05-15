@@ -117,7 +117,7 @@ class EntityType:
 
         def register_(obj):
             if entity_type in _ENTITY_TYPE_REGISTRY:
-                raise EntityTypeRegistryError("Entity type is already registered.")
+                raise ValueError("Entity type is already registered.")
             _ENTITY_TYPE_REGISTRY[entity_type] = obj
             return obj
 
@@ -148,9 +148,10 @@ class EntityType:
                 return entity_type
         raise UnknownEntityTypeError(f"No EntityType registered for {target_cls}")
 
+
 @dataclass
 class Loc:
-    path : typing.List[int]
+    path: typing.List[int]
 
     def __init__(self, args: typing.List[int]):
         self.path = args
@@ -165,7 +166,7 @@ class Loc:
     def is_stack(self) -> bool:
         return len(self.path) == 1
 
-    def stack(self) -> 'Loc':
+    def stack(self) -> "Loc":
         assert len(self.path) >= 1
         return Loc(self.path[:1])
 
@@ -179,7 +180,7 @@ class Loc:
     def is_carrier(self) -> bool:
         return len(self.path) == 2
 
-    def carrier(self) -> 'Loc':
+    def carrier(self) -> "Loc":
         assert len(self.path) >= 2
         return Loc(self.path[:2])
 
@@ -193,7 +194,7 @@ class Loc:
     def is_cluster(self) -> bool:
         return len(self.path) == 3
 
-    def cluster(self) -> 'Loc':
+    def cluster(self) -> "Loc":
         assert len(self.path) >= 3
         return Loc(self.path[:3])
 
@@ -207,7 +208,7 @@ class Loc:
     def is_lane(self) -> bool:
         return len(self.path) == 4
 
-    def lane(self) -> 'Loc':
+    def lane(self) -> "Loc":
         assert len(self.path) >= 4
         return Loc(self.path[:4])
 
@@ -221,7 +222,8 @@ class Loc:
         return self.path < other.path
 
     def __str__(self):
-        return '/'.join([str(val) for val in self.path])
+        return "/".join([str(val) for val in self.path])
+
 
 class Path(BasePath):
     """
@@ -275,7 +277,7 @@ class Path(BasePath):
         Raises IndexError if path is not of sufficient depth.
         """
         return Path(self[:4])
-    
+
     def to_mac(self):
         """
         Converts a set mac address back into the standard addressing format,
@@ -308,4 +310,3 @@ class Entity(BaseEntity):
 
     def apply_partial_configuration(self, attribute, value):
         raise NotImplementedError
-

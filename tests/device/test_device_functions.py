@@ -26,7 +26,7 @@ import pytest
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.proto.io import ProtoIO
 from pybrid.redac.controller import Controller
-from pybrid.redac.run import Run, RunConfig, DAQConfig, RunState
+from pybrid.redac.run import DAQConfig, Run, RunConfig, RunState
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ class TestHarmonicOscillatorOnDevice:
     """
     Tests basic properties of the samples generated for a harmonic oscillator circuit on analog devices.
     This is not a hardcore test for accuracy and should ONLY be understood as basic test
-    that the device basic functions work as intended. 
+    that the device basic functions work as intended.
 
     If either of those tests go wrong, there is a MASSIVE issue within the codebase,
     device or configuration!
@@ -74,12 +74,12 @@ class TestHarmonicOscillatorOnDevice:
             run = Run(
                 id_=uuid4(),
                 config=RunConfig(
-                    ic_time=100_000,       # 100us IC time
-                    op_time=10_000_000,    # 10ms OP time (several oscillation periods)
+                    ic_time=100_000,  # 100us IC time
+                    op_time=10_000_000,  # 10ms OP time (several oscillation periods)
                 ),
                 daq=DAQConfig(
-                    num_channels=2,        # Sample x and v
-                    sample_rate=25_000,   # 10kHz
+                    num_channels=2,  # Sample x and v
+                    sample_rate=25_000,  # 10kHz
                     sample_op=True,
                     sample_op_end=True,
                 ),
@@ -106,20 +106,18 @@ class TestHarmonicOscillatorOnDevice:
                     data_array = np.array(values)
 
                     # Basic sanity checks
-                    assert not np.all(np.isnan(data_array)), (
-                        f"Channel {channel} should not have all NaN values"
-                    )
+                    assert not np.all(np.isnan(data_array)), f"Channel {channel} should not have all NaN values"
 
                     # For harmonic oscillator, check amplitude is roughly preserved
                     # The initial condition v(0) = -0.42 should result in amplitude ~0.42
                     max_amplitude = np.max(data_array)
                     min_amplitude = np.min(data_array)
-                    assert max_amplitude > 0.4 and max_amplitude < 0.5, (
-                        f"Maximum amplitude {max_amplitude} not in [0.4, 0.5]"
-                    )
-                    assert min_amplitude > -0.5 and min_amplitude < -0.4, (
-                        f"Minimum amplitude {min_amplitude} not in [-0.5, -0.4]"
-                    )
+                    assert (
+                        max_amplitude > 0.4 and max_amplitude < 0.5
+                    ), f"Maximum amplitude {max_amplitude} not in [0.4, 0.5]"
+                    assert (
+                        min_amplitude > -0.5 and min_amplitude < -0.4
+                    ), f"Minimum amplitude {min_amplitude} not in [-0.5, -0.4]"
                     break
 
     async def test_harmonic_frequency(self, any_device_endpoint, harmonic_pb_config):
@@ -168,12 +166,11 @@ class TestHarmonicOscillatorOnDevice:
 
                     # Perform FFT
                     fft_result = np.fft.fft(data_array)
-                    freqs = np.fft.fftfreq(len(data_array),
-                                           d=1.0/run.daq.sample_rate)
+                    freqs = np.fft.fftfreq(len(data_array), d=1.0 / run.daq.sample_rate)
 
                     # Find dominant frequency
-                    positive_freqs = freqs[:len(freqs)//2]
-                    magnitudes = np.abs(fft_result[:len(freqs)//2])
+                    positive_freqs = freqs[: len(freqs) // 2]
+                    magnitudes = np.abs(fft_result[: len(freqs) // 2])
 
                     # Skip DC component
                     if len(magnitudes) > 1:
@@ -186,18 +183,14 @@ class TestHarmonicOscillatorOnDevice:
                         expected_freq = 10000 / (2 * math.pi)
                         freq_tolerance = 0.05  # 5% tolerance
 
-                        assert dominant_freq > 0, (
-                            "Dominant frequency should be positive"
-                        )
+                        assert dominant_freq > 0, "Dominant frequency should be positive"
                         assert abs(dominant_freq - expected_freq) / expected_freq < freq_tolerance, (
                             f"Measured frequency {dominant_freq:.1f} Hz differs from "
                             f"expected {expected_freq:.1f} Hz by more than {freq_tolerance*100}%"
                         )
                     break
 
-    async def test_data_collection_infrastructure(
-        self, any_device_endpoint, harmonic_pb_config
-    ):
+    async def test_data_collection_infrastructure(self, any_device_endpoint, harmonic_pb_config):
         host, port, device_type = any_device_endpoint
 
         # DAQ configuration parameters
@@ -219,7 +212,7 @@ class TestHarmonicOscillatorOnDevice:
             # Map virtual addresses to physical only for LUCIDAC
             # Simulator and REDAC use virtual addresses directly
             if device_type == "lucidac":
-                pb_file = Addressing.virtual_to_physical(ctrl.computer, harmonic_pb_config)
+                pb_file = Addressing.virtual_to_physical(ctrl.computer, harmonic_pb_config)  # noqa: F821
             else:
                 pb_file = harmonic_pb_config
 
@@ -249,20 +242,16 @@ class TestHarmonicOscillatorOnDevice:
                 pytest.fail("Data collection run timed out")
 
             # Verify run completed
-            assert run.state == RunState.DONE, (
-                f"Run should be in DONE state, got {run.state}"
-            )
+            assert run.state == RunState.DONE, f"Run should be in DONE state, got {run.state}"
 
             # Verify data was collected
-            assert hasattr(run, 'data'), "Run should have data attribute"
+            assert hasattr(run, "data"), "Run should have data attribute"
             assert isinstance(run.data, dict), "Run.data should be a dictionary"
             assert len(run.data) > 0, "No DAQ data collected - circuit may have failed"
 
             # Verify number of channels matches requested
             actual_channels = len(run.data)
-            assert actual_channels == 1, (
-                f"Expected 1 channel, got {actual_channels}"
-            )
+            assert actual_channels == 1, f"Expected 1 channel, got {actual_channels}"
 
             # Verify sample count is roughly as expected for each channel
             for channel, values in run.data.items():
@@ -280,9 +269,5 @@ class TestHarmonicOscillatorOnDevice:
                 )
 
             # Final values dictionary should exist
-            assert hasattr(run, 'final_values'), (
-                "Run should have final_values attribute"
-            )
-            assert isinstance(run.final_values, dict), (
-                "Run.final_values should be a dictionary"
-            )
+            assert hasattr(run, "final_values"), "Run should have final_values attribute"
+            assert isinstance(run.final_values, dict), "Run.final_values should be a dictionary"

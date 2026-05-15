@@ -7,15 +7,12 @@ import gc
 import os
 import threading
 
-import pytest
 import psutil
+import pytest
 
 try:
-    from pybrid.native._impl import (
-        ControlChannel,
-        ProxyServer,
-        _client_session_alive_count,
-    )
+    from pybrid.native._impl import ControlChannel, ProxyServer, _client_session_alive_count
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -31,9 +28,9 @@ pytestmark = pytest.mark.skipif(
 )
 
 LOCALHOST = "127.0.0.1"
-CONNECT_TIMEOUT = 5.0   # seconds per ControlChannel.create() call
-WARMUP_ROUNDS = 10      # first-touch allocations settle
-MAIN_ROUNDS = 200       # iterations for the growth measurement
+CONNECT_TIMEOUT = 5.0  # seconds per ControlChannel.create() call
+WARMUP_ROUNDS = 10  # first-touch allocations settle
+MAIN_ROUNDS = 200  # iterations for the growth measurement
 
 # A 50 MiB absolute cap: the pre-fix leak grew by hundreds of MiB over 200
 # connections; this bound is generous enough to tolerate normal allocator
@@ -48,6 +45,7 @@ def _start_dummy_dac(
     port_holder: list,
 ) -> threading.Thread:
     """Launch DummyDAC in a background daemon thread on an OS-assigned port."""
+
     def _run() -> None:
         async def _async_run() -> None:
             async with DummyDAC(LOCALHOST, 0, config) as dac:
@@ -121,9 +119,9 @@ def test_proxy_rss_bounded_under_reconnects():
             gc.collect()
 
         gc.collect()
-        assert _client_session_alive_count() == 0, (
-            f"ClientSession leak: {_client_session_alive_count()} sessions still alive after reconnect loop"
-        )
+        assert (
+            _client_session_alive_count() == 0
+        ), f"ClientSession leak: {_client_session_alive_count()} sessions still alive after reconnect loop"
 
         final = process.memory_info().rss
 

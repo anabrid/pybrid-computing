@@ -26,7 +26,7 @@ import pytest
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.proto.io import ProtoIO
 from pybrid.redac.controller import Controller
-from pybrid.redac.run import Run, RunConfig, DAQConfig, RunError, RunState
+from pybrid.redac.run import DAQConfig, Run, RunConfig, RunError, RunState
 from tests.conftest import get_device_endpoint
 
 
@@ -139,15 +139,16 @@ class TestErrorPropagation:
                 except Exception as e:
                     # Expected - configuration was rejected
                     # Verify we got a meaningful error, not a connection failure
-                    assert "sample" in str(e).lower() or "rate" in str(e).lower() or \
-                           "invalid" in str(e).lower() or "error" in str(e).lower() or \
-                           isinstance(e, (ValueError, RuntimeError, RunError)), \
-                        f"Expected meaningful error, got: {type(e).__name__}: {e}"
+                    assert (
+                        "sample" in str(e).lower()
+                        or "rate" in str(e).lower()
+                        or "invalid" in str(e).lower()
+                        or "error" in str(e).lower()
+                        or isinstance(e, (ValueError, RuntimeError, RunError))
+                    ), f"Expected meaningful error, got: {type(e).__name__}: {e}"
 
                 # Verify controller is still operational
-                assert len(ctrl.devices) >= 1, (
-                    "Controller should still have devices after error"
-                )
+                assert len(ctrl.devices) >= 1, "Controller should still have devices after error"
 
             # Cleanup pending futures before restoring handler
             await _cleanup_pending_futures()
@@ -196,9 +197,7 @@ class TestErrorPropagation:
                     pass
 
                 # Verify controller is still operational
-                assert len(ctrl.devices) >= 1, (
-                    "Controller should still have devices after error"
-                )
+                assert len(ctrl.devices) >= 1, "Controller should still have devices after error"
 
             # Cleanup pending futures before restoring handler
             await _cleanup_pending_futures()
@@ -291,9 +290,7 @@ class TestErrorPropagation:
 
                 if error_caught:
                     # Verify error message has content
-                    assert len(error_message) > 0, (
-                        "Error message should not be empty"
-                    )
+                    assert len(error_message) > 0, "Error message should not be empty"
                 else:
                     # Hardware may accept negative values (interpreted as unsigned)
                     # This is acceptable behavior
@@ -351,7 +348,7 @@ def harmonic_pb_config_with_portconfig():
                 pb.PortConfig.AclState.INTERNAL,
                 pb.PortConfig.AclState.INTERNAL,
             ]
-        )
+        ),
     )
     pb_file.module.items.append(port_config)
 
@@ -389,7 +386,7 @@ def harmonic_pb_config_with_switchconfig():
                 pb.Mux(state=0),
                 pb.Mux(state=0),
             ]
-        )
+        ),
     )
     pb_file.module.items.append(switch_config)
 
@@ -440,14 +437,10 @@ class TestUnavailableHardwareErrorPropagation:
             )
 
             # Verify error message is not empty and contains useful info
-            assert len(error_message) > 0, (
-                "Error message should not be empty"
-            )
+            assert len(error_message) > 0, "Error message should not be empty"
 
             # Verify controller is still operational after error
-            assert len(ctrl.devices) >= 1, (
-                "Controller should still have devices after config error"
-            )
+            assert len(ctrl.devices) >= 1, "Controller should still have devices after config error"
 
     @pytest.mark.lucidac
     async def test_lucidac_switchconfig_for_unavailable_hardware_error_propagation(
@@ -484,11 +477,7 @@ class TestUnavailableHardwareErrorPropagation:
             )
 
             # Verify error message is not empty and contains useful info
-            assert len(error_message) > 0, (
-                "Error message should not be empty"
-            )
+            assert len(error_message) > 0, "Error message should not be empty"
 
             # Verify controller is still operational after error
-            assert len(ctrl.devices) >= 1, (
-                "Controller should still have devices after config error"
-            )
+            assert len(ctrl.devices) >= 1, "Controller should still have devices after config error"

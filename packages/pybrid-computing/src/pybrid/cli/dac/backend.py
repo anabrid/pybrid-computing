@@ -49,9 +49,7 @@ def parse_backend_spec(raw: str) -> BackendSpec:
     if location_part:
         parts = location_part.split("/")
         if len(parts) != 2:
-            raise ValueError(
-                f"Invalid backend spec {raw!r}: location must be STACK/CARRIER, got {location_part!r}"
-            )
+            raise ValueError(f"Invalid backend spec {raw!r}: location must be STACK/CARRIER, got {location_part!r}")
         stack = int(parts[0])
         carrier = int(parts[1])
 

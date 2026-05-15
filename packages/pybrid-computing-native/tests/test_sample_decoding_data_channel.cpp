@@ -108,27 +108,21 @@ public:
      *
      * @return Number of items.
      */
-    size_t len() const override {
-        return m_items.size();
-    }
+    size_t len() const override { return m_items.size(); }
 
     /**
      * @brief Get the total byte size of item data in the buffer.
      *
      * @return Total bytes.
      */
-    size_t size() const override {
-        return m_total_bytes;
-    }
+    size_t size() const override { return m_total_bytes; }
 
     /**
      * @brief Indicates whether this buffer enforces exact capacity constraints.
      *
      * @return true (mock buffer has exact capacity tracking).
      */
-    bool has_exact_capacity() const override {
-        return true;
-    }
+    bool has_exact_capacity() const override { return true; }
 
     // =========================================================================
     // Test Helpers
@@ -149,18 +143,14 @@ public:
      *
      * @return Reference to the vector of all items.
      */
-    const std::vector<std::vector<uint8_t>>& items() const {
-        return m_items;
-    }
+    const std::vector<std::vector<uint8_t>>& items() const { return m_items; }
 
     /**
      * @brief Get the number of items pushed.
      *
      * @return Number of items pushed.
      */
-    size_t push_count() const {
-        return m_items.size();
-    }
+    size_t push_count() const { return m_items.size(); }
 
     /**
      * @brief Clear all captured items.
@@ -175,9 +165,7 @@ public:
      *
      * @param full If true, put() will throw and try_put() will return false.
      */
-    void set_simulate_full(bool full) {
-        m_simulate_full = full;
-    }
+    void set_simulate_full(bool full) { m_simulate_full = full; }
 
 private:
     std::vector<std::vector<uint8_t>> m_items;
@@ -247,10 +235,7 @@ protected:
      * @return Built blob as byte vector.
      */
     std::vector<uint8_t> build_blob(
-        const std::string& entity_path,
-        const std::vector<double>& samples,
-        uint32_t channel_count
-    ) {
+        const std::string& entity_path, const std::vector<double>& samples, uint32_t channel_count) {
         return DecodedSampleBlob::build(entity_path, samples, channel_count);
     }
 };
@@ -401,7 +386,7 @@ TEST_F(DecodedSampleBlobTest, ManySamplesAndChannels) {
  * where aligned_samples_offset accounts for header, path, and padding.
  */
 TEST_F(DecodedSampleBlobTest, BlobSizeIsCorrect) {
-    std::string entity_path = "/MAC/Carrier0/ADC0";  // 18 chars
+    std::string entity_path = "/MAC/Carrier0/ADC0";      // 18 chars
     std::vector<double> samples = {1.0, 2.0, 3.0, 4.0};  // 4 doubles
 
     std::vector<uint8_t> blob = build_blob(entity_path, samples, 2);
@@ -423,8 +408,7 @@ TEST_F(DecodedSampleBlobTest, ProbeIndicesStoredAndRetrieved) {
     std::vector<double> samples = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
     std::vector<uint32_t> probes = {5, 3, 7};
 
-    auto blob = DecodedSampleBlob::build(entity_path, samples, 3,
-        DecodedSampleBlob::SAMPLE_TYPE_OP, 0, probes);
+    auto blob = DecodedSampleBlob::build(entity_path, samples, 3, DecodedSampleBlob::SAMPLE_TYPE_OP, 0, probes);
     const auto* hdr = DecodedSampleBlob::header(blob.data());
 
     EXPECT_EQ(hdr->has_probes, 1u);
@@ -465,16 +449,12 @@ TEST_F(DecodedSampleBlobTest, SampleTypeStoredInHeader) {
     std::vector<double> samples = {1.0, 2.0};
 
     // Test OP type
-    auto blob_op = DecodedSampleBlob::build(
-        entity_path, samples, 1, DecodedSampleBlob::SAMPLE_TYPE_OP);
-    EXPECT_EQ(DecodedSampleBlob::header(blob_op.data())->sample_type,
-              DecodedSampleBlob::SAMPLE_TYPE_OP);
+    auto blob_op = DecodedSampleBlob::build(entity_path, samples, 1, DecodedSampleBlob::SAMPLE_TYPE_OP);
+    EXPECT_EQ(DecodedSampleBlob::header(blob_op.data())->sample_type, DecodedSampleBlob::SAMPLE_TYPE_OP);
 
     // Test OP_END type
-    auto blob_op_end = DecodedSampleBlob::build(
-        entity_path, samples, 1, DecodedSampleBlob::SAMPLE_TYPE_OP_END);
-    EXPECT_EQ(DecodedSampleBlob::header(blob_op_end.data())->sample_type,
-              DecodedSampleBlob::SAMPLE_TYPE_OP_END);
+    auto blob_op_end = DecodedSampleBlob::build(entity_path, samples, 1, DecodedSampleBlob::SAMPLE_TYPE_OP_END);
+    EXPECT_EQ(DecodedSampleBlob::header(blob_op_end.data())->sample_type, DecodedSampleBlob::SAMPLE_TYPE_OP_END);
 }
 
 // =============================================================================
@@ -490,9 +470,7 @@ TEST_F(DecodedSampleBlobTest, SampleTypeStoredInHeader) {
  */
 class SampleDecodingDataChannelTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        mock_buffer = std::make_unique<MockBuffer>();
-    }
+    void SetUp() override { mock_buffer = std::make_unique<MockBuffer>(); }
 
     /**
      * @brief Helper to create a serialized RunDataMessage with float32 data.
@@ -509,8 +487,7 @@ protected:
         const std::vector<float>& samples,
         uint32_t channel_count,
         double gain = 1.0,
-        double offset = 0.0
-    ) {
+        double offset = 0.0) {
         pb::MessageV1 msg;
         auto* run_data = msg.mutable_run_data_message();
 
@@ -571,8 +548,7 @@ protected:
         const std::vector<int16_t>& samples,
         uint32_t channel_count,
         double gain,
-        double offset
-    ) {
+        double offset) {
         pb::MessageV1 msg;
         auto* run_data = msg.mutable_run_data_message();
 
@@ -630,8 +606,7 @@ protected:
         const std::vector<uint16_t>& samples,
         uint32_t channel_count,
         double gain,
-        double offset
-    ) {
+        double offset) {
         pb::MessageV1 msg;
         auto* run_data = msg.mutable_run_data_message();
 
@@ -683,10 +658,7 @@ protected:
      * @return Serialized protobuf bytes.
      */
     std::vector<uint8_t> create_run_data_message_no_scaling(
-        const std::string& entity_path,
-        const std::vector<float>& samples,
-        uint32_t channel_count
-    ) {
+        const std::string& entity_path, const std::vector<float>& samples, uint32_t channel_count) {
         pb::MessageV1 msg;
         auto* run_data = msg.mutable_run_data_message();
 
@@ -736,8 +708,7 @@ protected:
         const std::vector<double>& samples,
         uint32_t channel_count,
         double gain = 1.0,
-        double offset = 0.0
-    ) {
+        double offset = 0.0) {
         pb::MessageV1 msg;
         auto* run_data = msg.mutable_run_data_message();
 
@@ -794,8 +765,7 @@ protected:
         const std::vector<float>& samples,
         uint32_t channel_count,
         const std::vector<double>& gains,
-        const std::vector<double>& offsets
-    ) {
+        const std::vector<double>& offsets) {
         pb::MessageV1 msg;
         auto* run_data = msg.mutable_run_data_message();
 
@@ -860,8 +830,7 @@ protected:
         uint32_t scaling_channels,
         uint32_t wire_channels,
         const std::vector<double>& gains,
-        const std::vector<double>& offsets
-    ) {
+        const std::vector<double>& offsets) {
         // real_samples is column-major for scaling_channels channels.
         // We need to expand to wire_channels by inserting padding (0.0f)
         // for the extra channels at every sample point.
@@ -869,8 +838,7 @@ protected:
         std::vector<float> wire_samples(sample_count * wire_channels, 0.0f);
         for (uint32_t s = 0; s < sample_count; ++s) {
             for (uint32_t ch = 0; ch < scaling_channels; ++ch) {
-                wire_samples[s * wire_channels + ch] =
-                    real_samples[s * scaling_channels + ch];
+                wire_samples[s * wire_channels + ch] = real_samples[s * scaling_channels + ch];
             }
         }
 
@@ -934,8 +902,7 @@ protected:
         const std::string& run_id,
         uint32_t chunk,
         double gain = 1.0,
-        double offset = 0.0
-    ) {
+        double offset = 0.0) {
         pb::MessageV1 msg;
         auto* run_data = msg.mutable_run_data_message();
 
@@ -993,8 +960,7 @@ protected:
         const std::string& run_id,
         uint32_t chunk,
         double gain = 1.0,
-        double offset = 0.0
-    ) {
+        double offset = 0.0) {
         pb::MessageV1 msg;
         auto* run_data_end = msg.mutable_run_data_end_message();
 
@@ -1055,8 +1021,7 @@ TEST_F(SampleDecodingDataChannelTest, DecodesRunDataMessageAndPushesToQueue) {
 
     // Wire (col-major, 2ch x 2samp): [ch0_s0, ch1_s0, ch0_s1, ch1_s1]
     std::vector<float> samples = {1.0f, 2.0f, 3.0f, 4.0f};
-    std::vector<uint8_t> message = create_float32_run_data_message(
-        "/MAC/Carrier0/ADC0", samples, 2);
+    std::vector<uint8_t> message = create_float32_run_data_message("/MAC/Carrier0/ADC0", samples, 2);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1091,8 +1056,7 @@ TEST_F(SampleDecodingDataChannelTest, AppliesDaqScalingToSamples) {
     // Gain: 2.0, Offset: 10.0
     // Expected: [12.0, 14.0, 16.0, 18.0]
     std::vector<float> raw_samples = {1.0f, 2.0f, 3.0f, 4.0f};
-    std::vector<uint8_t> message = create_float32_run_data_message(
-        "/MAC/ADC", raw_samples, 1, 2.0, 10.0);
+    std::vector<uint8_t> message = create_float32_run_data_message("/MAC/ADC", raw_samples, 1, 2.0, 10.0);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1122,13 +1086,21 @@ TEST_F(SampleDecodingDataChannelTest, HandlesMultipleChannelsCorrectly) {
     // Col-major: sample points interleaved
     //   s0: [10, 20, 30, 40], s1: [11, 21, 31, 41], s2: [12, 22, 32, 42]
     std::vector<float> samples = {
-        10.0f, 20.0f, 30.0f, 40.0f,   // sample point 0
-        11.0f, 21.0f, 31.0f, 41.0f,   // sample point 1
-        12.0f, 22.0f, 32.0f, 42.0f,   // sample point 2
+        10.0f,
+        20.0f,
+        30.0f,
+        40.0f,  // sample point 0
+        11.0f,
+        21.0f,
+        31.0f,
+        41.0f,  // sample point 1
+        12.0f,
+        22.0f,
+        32.0f,
+        42.0f,  // sample point 2
     };
 
-    std::vector<uint8_t> message = create_float32_run_data_message(
-        "/MAC/ADC", samples, 4);
+    std::vector<uint8_t> message = create_float32_run_data_message("/MAC/ADC", samples, 4);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1137,7 +1109,7 @@ TEST_F(SampleDecodingDataChannelTest, HandlesMultipleChannelsCorrectly) {
     const auto& blob = mock_buffer->last_item();
     const auto* header = DecodedSampleBlob::header(blob.data());
 
-    EXPECT_EQ(header->sample_count, 3u);   // 12 / 4 = 3
+    EXPECT_EQ(header->sample_count, 3u);  // 12 / 4 = 3
     EXPECT_EQ(header->channel_count, 4u);
 
     // Output stays col-major (same order as input, scaling=1.0 identity)
@@ -1173,8 +1145,7 @@ TEST_F(SampleDecodingDataChannelTest, DecodesInt16SignedDataCorrectly) {
     // Gain: 0.001, Offset: 0.0
     // Expected: [0.0, 1.0, -1.0, 32.767]
     std::vector<int16_t> raw_samples = {0, 1000, -1000, 32767};
-    std::vector<uint8_t> message = create_int16_signed_run_data_message(
-        "/MAC/ADC", raw_samples, 1, 0.001, 0.0);
+    std::vector<uint8_t> message = create_int16_signed_run_data_message("/MAC/ADC", raw_samples, 1, 0.001, 0.0);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1203,8 +1174,7 @@ TEST_F(SampleDecodingDataChannelTest, DecodesInt16UnsignedDataCorrectly) {
     // Gain: 0.001, Offset: -32.768
     // Expected: [-32.768, -31.768, 0.0, 32.767]
     std::vector<uint16_t> raw_samples = {0, 1000, 32768, 65535};
-    std::vector<uint8_t> message = create_int16_unsigned_run_data_message(
-        "/MAC/ADC", raw_samples, 1, 0.001, -32.768);
+    std::vector<uint8_t> message = create_int16_unsigned_run_data_message("/MAC/ADC", raw_samples, 1, 0.001, -32.768);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1227,8 +1197,7 @@ TEST_F(SampleDecodingDataChannelTest, HandlesNullOutputQueueGracefully) {
     // Do NOT set output queue - it remains nullptr
 
     std::vector<float> samples = {1.0f, 2.0f};
-    std::vector<uint8_t> message = create_float32_run_data_message(
-        "/MAC/ADC", samples, 1);
+    std::vector<uint8_t> message = create_float32_run_data_message("/MAC/ADC", samples, 1);
 
     // Should not crash
     channel.test_handle_data_message(message.data(), message.size());
@@ -1280,15 +1249,11 @@ TEST_F(SampleDecodingDataChannelTest, RejectsMissingChannelsEntries) {
     channel.set_output_queue(mock_buffer.get());
 
     std::vector<float> samples = {1.0f, 2.0f, 3.0f, 4.0f};
-    std::vector<uint8_t> message = create_run_data_message_no_scaling(
-        "/MAC/ADC", samples, 1);
+    std::vector<uint8_t> message = create_run_data_message_no_scaling("/MAC/ADC", samples, 1);
 
     // decode_daq_data now throws when channels_size() == 0;
     // handle_data_message does not catch, so we expect the exception to propagate.
-    EXPECT_THROW(
-        channel.test_handle_data_message(message.data(), message.size()),
-        std::runtime_error
-    );
+    EXPECT_THROW(channel.test_handle_data_message(message.data(), message.size()), std::runtime_error);
 
     EXPECT_EQ(mock_buffer->push_count(), 0u);
 }
@@ -1302,8 +1267,7 @@ TEST_F(SampleDecodingDataChannelTest, PreservesEntityPathInOutputBlob) {
 
     std::string entity_path = "/00:11:22:33:44:55/Carrier0/ADC0";
     std::vector<float> samples = {1.0f, 2.0f};
-    std::vector<uint8_t> message = create_float32_run_data_message(
-        entity_path, samples, 1);
+    std::vector<uint8_t> message = create_float32_run_data_message(entity_path, samples, 1);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1432,8 +1396,7 @@ TEST_F(SampleDecodingDataChannelTest, ProcessesMultipleMessagesSequentially) {
     // Process three messages
     for (int i = 0; i < 3; ++i) {
         std::vector<float> samples = {static_cast<float>(i), static_cast<float>(i + 1)};
-        std::vector<uint8_t> message = create_float32_run_data_message(
-            "/MAC/ADC" + std::to_string(i), samples, 1);
+        std::vector<uint8_t> message = create_float32_run_data_message("/MAC/ADC" + std::to_string(i), samples, 1);
 
         channel.test_handle_data_message(message.data(), message.size());
     }
@@ -1512,8 +1475,7 @@ TEST_F(SampleDecodingDataChannelTest, ProbeIndicesEmbeddedInOutputBlob) {
 
     // 2 channels, 2 samples each
     std::vector<float> samples = {1.0f, 2.0f, 3.0f, 4.0f};
-    std::vector<uint8_t> message = create_float32_run_data_message(
-        "/MAC/ADC", samples, 2);
+    std::vector<uint8_t> message = create_float32_run_data_message("/MAC/ADC", samples, 2);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1601,8 +1563,7 @@ TEST_F(SampleDecodingDataChannelTest, DecodesDouble64DataCorrectly) {
         1e-15  // Very small number
     };
 
-    std::vector<uint8_t> message = create_double64_run_data_message(
-        "/MAC/ADC", raw_samples, 1, 1.0, 0.0);
+    std::vector<uint8_t> message = create_double64_run_data_message("/MAC/ADC", raw_samples, 1, 1.0, 0.0);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1631,8 +1592,7 @@ TEST_F(SampleDecodingDataChannelTest, DecodesDouble64DataWithScaling) {
 
     std::vector<double> raw_samples = {1.0, 2.0, 3.0};
     // gain=2.5, offset=0.5
-    std::vector<uint8_t> message = create_double64_run_data_message(
-        "/MAC/ADC", raw_samples, 1, 2.5, 0.5);
+    std::vector<uint8_t> message = create_double64_run_data_message("/MAC/ADC", raw_samples, 1, 2.5, 0.5);
 
     channel.test_handle_data_message(message.data(), message.size());
 
@@ -1663,8 +1623,8 @@ TEST_F(SampleDecodingDataChannelTest, FiltersExtraWireChannelsByScaling) {
     //   s0: ch0=1.0, ch1=2.0, ch2=3.0
     //   s1: ch0=4.0, ch1=5.0, ch2=6.0
     std::vector<float> real_samples = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
-    std::vector<double> gains   = {1.0, 1.0, 1.0};
-    std::vector<double> offsets  = {0.0, 0.0, 0.0};
+    std::vector<double> gains = {1.0, 1.0, 1.0};
+    std::vector<double> offsets = {0.0, 0.0, 0.0};
 
     std::vector<uint8_t> message = create_run_data_message_with_extra_wire_channels(
         "/MAC/ADC", real_samples, 3, 4, gains, offsets);
@@ -1703,8 +1663,8 @@ TEST_F(SampleDecodingDataChannelTest, FiltersExtraWireChannelsWithScaling) {
     // 2 meaningful channels, 4 wire channels.
     // 1 sample: s0: ch0=1.0, ch1=2.0
     std::vector<float> real_samples = {1.0f, 2.0f};
-    std::vector<double> gains   = {2.0, 0.5};
-    std::vector<double> offsets  = {10.0, -1.0};
+    std::vector<double> gains = {2.0, 0.5};
+    std::vector<double> offsets = {10.0, -1.0};
 
     std::vector<uint8_t> message = create_run_data_message_with_extra_wire_channels(
         "/MAC/ADC", real_samples, 2, 4, gains, offsets);
@@ -1742,8 +1702,7 @@ TEST_F(SampleDecodingDataChannelTest, ChunkPassthrough_OpBlob) {
 
     std::vector<float> samples = {1.0f, 2.0f, 3.0f, 4.0f};
 
-    auto message = create_float32_run_data_message_with_chunk(
-        "/MAC/Carrier0", samples, 2, "run-chunk42", 42);
+    auto message = create_float32_run_data_message_with_chunk("/MAC/Carrier0", samples, 2, "run-chunk42", 42);
     channel.test_handle_data_message(message.data(), message.size());
 
     ASSERT_EQ(mock_buffer->push_count(), 1u);
@@ -1765,8 +1724,7 @@ TEST_F(SampleDecodingDataChannelTest, ChunkPassthrough_OpEndBlob) {
 
     std::vector<float> samples = {1.0f, 2.0f};
 
-    auto message = create_float32_run_data_end_message_with_chunk(
-        "/MAC/Carrier0", samples, 1, "run-chunk7", 7);
+    auto message = create_float32_run_data_end_message_with_chunk("/MAC/Carrier0", samples, 1, "run-chunk7", 7);
     channel.test_handle_data_message(message.data(), message.size());
 
     ASSERT_EQ(mock_buffer->push_count(), 1u);
@@ -1790,8 +1748,7 @@ TEST_F(SampleDecodingDataChannelTest, ChunkPassthrough_Sequential) {
     std::vector<float> samples = {1.0f, 2.0f, 3.0f, 4.0f};
 
     for (uint32_t chunk = 0; chunk < 3; ++chunk) {
-        auto message = create_float32_run_data_message_with_chunk(
-            "/MAC/Carrier0", samples, 2, "run-seq", chunk);
+        auto message = create_float32_run_data_message_with_chunk("/MAC/Carrier0", samples, 2, "run-seq", chunk);
         channel.test_handle_data_message(message.data(), message.size());
     }
 
@@ -1800,8 +1757,7 @@ TEST_F(SampleDecodingDataChannelTest, ChunkPassthrough_Sequential) {
     for (uint32_t i = 0; i < 3; ++i) {
         const auto& blob = mock_buffer->items()[i];
         const auto* header = DecodedSampleBlob::header(blob.data());
-        EXPECT_EQ(header->chunk_number, i)
-            << "Blob " << i << " has wrong chunk_number";
+        EXPECT_EQ(header->chunk_number, i) << "Blob " << i << " has wrong chunk_number";
         EXPECT_EQ(header->sample_type, DecodedSampleBlob::SAMPLE_TYPE_OP);
     }
 }
@@ -1859,8 +1815,7 @@ TEST_F(DecodedSampleBlobTest, ChunkNumberStoredInHeader) {
     std::string entity_path = "/MAC/ADC";
     std::vector<double> samples = {1.0, 2.0};
 
-    auto blob = DecodedSampleBlob::build(entity_path, samples, 1,
-        DecodedSampleBlob::SAMPLE_TYPE_OP, 99);
+    auto blob = DecodedSampleBlob::build(entity_path, samples, 1, DecodedSampleBlob::SAMPLE_TYPE_OP, 99);
     const auto* header = DecodedSampleBlob::header(blob.data());
     EXPECT_EQ(header->chunk_number, 99u);
 }

@@ -12,21 +12,21 @@ This script:
 import os
 import shutil
 import sys
-from pathlib import Path
-from typing import List, Dict, Any
 import tomllib
-from jinja2 import Template
+from pathlib import Path
+from typing import Any, Dict, List
 
+from jinja2 import Template
 
 # Files to exclude from Cython compilation (keep as .py)
 EXCLUDE_FROM_COMPILATION = [
-    "__init__.py",           # Keep all __init__.py as Python
-    "main_pb2.py",          # Protobuf-generated files
+    "__init__.py",  # Keep all __init__.py as Python
+    "main_pb2.py",  # Protobuf-generated files
 ]
 
 # Patterns to exclude
 EXCLUDE_PATTERNS = [
-    "*_pb2.py",             # All protobuf-generated files
+    "*_pb2.py",  # All protobuf-generated files
 ]
 
 
@@ -104,8 +104,7 @@ def extract_metadata(pyproject_path: Path) -> Dict[str, Any]:
     # Extract entry points
     if "scripts" in project:
         metadata["entry_points"]["console_scripts"] = [
-            f"{name} = {target}"
-            for name, target in project["scripts"].items()
+            f"{name} = {target}" for name, target in project["scripts"].items()
         ]
 
     return metadata
@@ -131,7 +130,7 @@ def generate_build_pyproject_toml(output_path: Path, metadata: Dict[str, Any]):
     """Generate a minimal pyproject.toml for the build directory with Cython as a build requirement."""
     # Format dependencies as TOML array
     deps_toml = "[\n"
-    for dep in metadata['install_requires']:
+    for dep in metadata["install_requires"]:
         deps_toml += f'    "{dep}",\n'
     deps_toml += "]"
 
@@ -157,15 +156,15 @@ dependencies = {deps_toml}
 """
 
     # Add console scripts if they exist
-    if metadata['entry_points'].get('console_scripts'):
-        for script in metadata['entry_points']['console_scripts']:
-            name, target = script.split(' = ')
+    if metadata["entry_points"].get("console_scripts"):
+        for script in metadata["entry_points"]["console_scripts"]:
+            name, target = script.split(" = ")
             pyproject_content += f'{name} = "{target}"\n'
 
     with open(output_path, "w") as f:
         f.write(pyproject_content)
 
-    print(f"Generated pyproject.toml with Cython build requirement")
+    print("Generated pyproject.toml with Cython build requirement")
 
 
 def main():
@@ -178,9 +177,9 @@ def main():
     output_setup = project_root / "build-temp" / "setup.py"
     pyproject_path = project_root / "pyproject.toml"
 
-    print("="*70)
+    print("=" * 70)
     print("Preparing pybrid-computing for Cython compilation")
-    print("="*70)
+    print("=" * 70)
 
     # Verify source directory exists
     if not source_dir.exists():
@@ -193,29 +192,29 @@ def main():
         sys.exit(1)
 
     # Step 1: Copy and transform package
-    print(f"\nStep 1: Copying and transforming package...")
+    print("\nStep 1: Copying and transforming package...")
     print(f"  Source: {source_dir}")
     print(f"  Build:  {build_dir}")
     pyx_modules = copy_and_transform_package(source_dir, build_dir)
     print(f"\n  Converted {len(pyx_modules)} modules to .pyx")
 
     # Step 2: Extract metadata
-    print(f"\nStep 2: Extracting metadata from pyproject.toml...")
+    print("\nStep 2: Extracting metadata from pyproject.toml...")
     metadata = extract_metadata(pyproject_path)
     print(f"  Package: {metadata['name']} v{metadata['version']}")
     print(f"  Dependencies: {len(metadata['install_requires'])}")
 
     # Step 3: Generate pyproject.toml with build requirements
-    print(f"\nStep 3: Generating pyproject.toml with build requirements...")
+    print("\nStep 3: Generating pyproject.toml with build requirements...")
     output_pyproject = project_root / "build-temp" / "pyproject.toml"
     generate_build_pyproject_toml(output_pyproject, metadata)
 
     # Step 4: Generate setup.py
-    print(f"\nStep 4: Generating setup.py...")
+    print("\nStep 4: Generating setup.py...")
     generate_setup_py(template_path, output_setup, metadata, pyx_modules)
 
     # Copy additional files
-    print(f"\nStep 5: Copying additional files...")
+    print("\nStep 5: Copying additional files...")
     files_to_copy = ["README.md", "LICENSE"]
     for filename in files_to_copy:
         src = project_root / filename
@@ -224,9 +223,9 @@ def main():
             shutil.copy2(src, dst)
             print(f"  Copied: {filename}")
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Preparation complete!")
-    print("="*70)
+    print("=" * 70)
     print(f"\nBuild directory: {project_root / 'build-temp'}")
     print(f"Setup.py: {output_setup}")
     print(f"Extensions: {len(pyx_modules)}")

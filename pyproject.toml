@@ -25,6 +25,8 @@ dev = [
   "pytest-asyncio>=1.2.0",
   "psutil>=5.9",
   "black>=25.9.0",
+  "ruff>=0.7.0",
+  "pre-commit>=4.0.0",
   "sphinx>=8.2.3",
   "sphinx-autobuild>=2025.8.25",
   "sphinx-click~=6.1.0",
@@ -42,9 +44,61 @@ docs = [
 
 [tool.black]
 line-length = 120
+target-version = ["py311"]
+force-exclude = '''
+(
+    /\.venv/
+  | /build/
+  | /dist/
+  | _pb2\.pyi?$
+  | _pb2_grpc\.py$
+)
+'''
 
-[tool.isort]
-profile = "black"
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = [
+  "**/proto/*_pb2.py",
+  "**/proto/*_pb2.pyi",
+  "**/proto/*_pb2_grpc.py",
+  "packages/pybrid-computing-native/native/pybrid/proto/**",
+  "build",
+  "dist",
+  ".venv",
+]
+
+[tool.ruff.lint]
+# Conservative initial ruleset: enforce import sorting (I), whitespace and
+# basic syntax hygiene (E, W) and the pyflakes bug-finding checks (F).
+# Stylistic rule families (`B` bugbear, `UP` pyupgrade, `SIM` simplify, `N`
+# naming) are left off for now and can be opted into incrementally without
+# blocking the release.
+select = ["E", "F", "W", "I"]
+ignore = [
+  # Black handles line length; ruff only warns on lines black cannot wrap.
+  "E501",
+  # `from foo import *` and unused re-exports are intentional in public API.
+  "F401",
+  "F403",
+  "F405",
+  # Ambiguous variable names (l, I, O) appear in math-heavy code.
+  "E741",
+  # Assigning to lambda is occasionally used for clarity in computations.
+  "E731",
+  # Imports after sys.path manipulation are used in scripts and examples.
+  "E402",
+  # Comparisons to True/False with `==` appear in legacy validator code.
+  "E712",
+  # Bare `except:` is rare but intentional in transport teardown paths.
+  "E722",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401", "F403"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pybrid"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

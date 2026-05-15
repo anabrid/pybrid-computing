@@ -71,4 +71,4 @@ private:
     std::condition_variable pending_cv_;
 };
 
-} // namespace anabrid::pybrid::native
+}  // namespace anabrid::pybrid::native

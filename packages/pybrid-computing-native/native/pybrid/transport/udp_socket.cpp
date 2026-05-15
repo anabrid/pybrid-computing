@@ -7,11 +7,11 @@
 namespace anabrid::pybrid::native {
 
 UDPSocket::UDPSocket(BufferType buffer_type)
-    : work_guard_(asio::make_work_guard(io_)),
-      recv_queue_(Factory::create(buffer_type)),
-      buffer_type_(buffer_type) {}
+    : work_guard_(asio::make_work_guard(io_)), recv_queue_(Factory::create(buffer_type)), buffer_type_(buffer_type) {}
 
-UDPSocket::~UDPSocket() { stop(); }
+UDPSocket::~UDPSocket() {
+    stop();
+}
 
 void UDPSocket::start() {
     bool expected = false;
@@ -19,8 +19,7 @@ void UDPSocket::start() {
         if (running_) {
             return;
         }
-        throw std::runtime_error(
-            "UDPSocket cannot be restarted after stopping");
+        throw std::runtime_error("UDPSocket cannot be restarted after stopping");
     }
 
     running_ = true;
@@ -60,7 +59,9 @@ void UDPSocket::stop() {
     }
 }
 
-bool UDPSocket::is_running() const { return running_; }
+bool UDPSocket::is_running() const {
+    return running_;
+}
 
 RecvResult UDPSocket::recv(void* buffer, size_t max_len, double timeout_secs) {
     UDPQueueEntry entry;
@@ -80,8 +81,7 @@ RecvResult UDPSocket::recv(void* buffer, size_t max_len, double timeout_secs) {
         return {0, RecvStatus::Disconnected};
     }
 
-    auto deadline = std::chrono::steady_clock::now() +
-                    std::chrono::duration<double>(timeout_secs);
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout_secs);
 
     std::unique_lock<std::mutex> lock(recv_cv_mutex_);
     while (running_ && bound_) {
@@ -117,8 +117,8 @@ bool UDPSocket::send(const void* data, size_t len) {
     }
 
     if (len > MAX_UDP_PACKET_SIZE) {
-        throw std::runtime_error("Packet too large: " + std::to_string(len) +
-                                 " bytes (max: " + std::to_string(MAX_UDP_PACKET_SIZE) + ")");
+        throw std::runtime_error(
+            "Packet too large: " + std::to_string(len) + " bytes (max: " + std::to_string(MAX_UDP_PACKET_SIZE) + ")");
     }
 
     std::lock_guard<std::mutex> lock(socket_mutex_);
@@ -127,8 +127,7 @@ bool UDPSocket::send(const void* data, size_t len) {
     }
 
     asio::error_code ec;
-    size_t sent = socket_->send_to(
-        asio::buffer(data, len), remote_endpoint_, 0, ec);
+    size_t sent = socket_->send_to(asio::buffer(data, len), remote_endpoint_, 0, ec);
 
     if (ec) {
         throw std::runtime_error("UDP send failed: " + ec.message());
@@ -138,9 +137,13 @@ bool UDPSocket::send(const void* data, size_t len) {
     return sent == len;
 }
 
-std::string UDPSocket::name() const { return name_; }
+std::string UDPSocket::name() const {
+    return name_;
+}
 
-void UDPSocket::set_name(const std::string& name) { name_ = name; }
+void UDPSocket::set_name(const std::string& name) {
+    name_ = name;
+}
 
 uint16_t UDPSocket::bind(uint16_t port) {
     if (bound_) {
@@ -208,17 +211,18 @@ void UDPSocket::disconnect() {
     remote_endpoint_ = asio::ip::udp::endpoint();
 }
 
-bool UDPSocket::is_connected() const { return connected_; }
+bool UDPSocket::is_connected() const {
+    return connected_;
+}
 
-bool UDPSocket::send_to(const void* data, size_t len,
-                           const std::string& host, uint16_t port) {
+bool UDPSocket::send_to(const void* data, size_t len, const std::string& host, uint16_t port) {
     if (!bound_) {
         throw std::runtime_error("UDP socket not bound");
     }
 
     if (len > MAX_UDP_PACKET_SIZE) {
-        throw std::runtime_error("Packet too large: " + std::to_string(len) +
-                                 " bytes (max: " + std::to_string(MAX_UDP_PACKET_SIZE) + ")");
+        throw std::runtime_error(
+            "Packet too large: " + std::to_string(len) + " bytes (max: " + std::to_string(MAX_UDP_PACKET_SIZE) + ")");
     }
 
     asio::error_code ec;
@@ -292,14 +296,12 @@ void UDPSocket::start_receive() {
     }
 
     socket_->async_receive_from(
-        asio::buffer(recv_buffer_), sender_endpoint_,
-        [this](const asio::error_code& ec, size_t bytes_received) {
+        asio::buffer(recv_buffer_), sender_endpoint_, [this](const asio::error_code& ec, size_t bytes_received) {
             handle_receive(ec, bytes_received);
         });
 }
 
-void UDPSocket::handle_receive(const asio::error_code& ec,
-                                  size_t bytes_received) {
+void UDPSocket::handle_receive(const asio::error_code& ec, size_t bytes_received) {
     if (ec) {
         if (ec == asio::error::operation_aborted) {
             return;
@@ -314,8 +316,7 @@ void UDPSocket::handle_receive(const asio::error_code& ec,
     bytes_received_.fetch_add(bytes_received, std::memory_order_relaxed);
 
     UDPQueueEntry entry;
-    entry.data_len = static_cast<uint16_t>(
-        std::min(bytes_received, static_cast<size_t>(UINT16_MAX)));
+    entry.data_len = static_cast<uint16_t>(std::min(bytes_received, static_cast<size_t>(UINT16_MAX)));
     std::memcpy(entry.data.data(), recv_buffer_.data(), entry.data_len);
 
     {

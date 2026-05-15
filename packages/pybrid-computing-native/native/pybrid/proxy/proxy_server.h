@@ -55,9 +55,11 @@ public:
     /// the cached entity tree for clients to discover physical rack position.
     /// @throws std::runtime_error on connection or extract/reset failure.
     /// @throws std::logic_error if called after start().
-    void add_backend(const std::string& host, uint16_t port,
-                     std::optional<uint32_t> stack = std::nullopt,
-                     std::optional<uint32_t> carrier = std::nullopt);
+    void add_backend(
+        const std::string& host,
+        uint16_t port,
+        std::optional<uint32_t> stack = std::nullopt,
+        std::optional<uint32_t> carrier = std::nullopt);
 
     /// Bind and start accepting client connections.
     /// @throws std::runtime_error if bind fails or no backends were added.
@@ -90,8 +92,7 @@ private:
     void reconnect_loop();
     void poll_queued();
     void run_active_dispatch(ClientSession& session);
-    static bool peek_for_ping(TCPTransport& transport, double timeout_secs,
-                              std::optional<pb::MessageV1>& out_pending);
+    static bool peek_for_ping(TCPTransport& transport, double timeout_secs, std::optional<pb::MessageV1>& out_pending);
     void dispatch_message(ClientSession& session, const pb::MessageV1& msg);
 
     void handle_reset(ClientSession& client, const pb::MessageV1& msg);
@@ -108,10 +109,7 @@ private:
     /// True iff every registered backend reports HEALTHY.
     bool all_backends_healthy() const;
 
-    void send_error_to_client(
-        ClientSession& client,
-        const std::string& request_id,
-        const std::string& error_text);
+    void send_error_to_client(ClientSession& client, const std::string& request_id, const std::string& error_text);
 
     TCPServer server_;
     std::thread server_thread_;

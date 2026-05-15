@@ -5,10 +5,9 @@
 """Device connection grouping control and data channels."""
 
 from dataclasses import dataclass
+from typing import Any
 
 from pybrid.native import SampleDecodingDataChannel
-
-from typing import Any
 
 ControlChannel = Any
 

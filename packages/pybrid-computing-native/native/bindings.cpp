@@ -1,21 +1,21 @@
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/functional.h>
 
 #include <chrono>
 #include <optional>
 
 #include "pybrid/buffer.h"
-#include "pybrid/lockfree_buffer.h"
-#include "pybrid/transport/tcp_transport.h"
-#include "pybrid/transport/tcp_server.h"
-#include "pybrid/transport/udp_socket.h"
+#include "pybrid/channel/control_channel.h"
 #include "pybrid/channel/data_channel.h"
 #include "pybrid/channel/sample_decoding_data_channel.h"
-#include "pybrid/channel/control_channel.h"
+#include "pybrid/lockfree_buffer.h"
+#include "pybrid/proto/main.pb.h"
 #include "pybrid/proxy/proxy_server.h"
 #include "pybrid/proxy/proxy_session.h"
-#include "pybrid/proto/main.pb.h"
+#include "pybrid/transport/tcp_server.h"
+#include "pybrid/transport/tcp_transport.h"
+#include "pybrid/transport/udp_socket.h"
 
 namespace py = pybind11;
 using namespace anabrid::pybrid::native;
@@ -24,16 +24,11 @@ PYBIND11_MODULE(_impl, m) {
     m.doc() = "Native transport layer for high-performance UDP/TCP networking";
 
     // MessageTooLargeError derives from ValueError for semantic clarity
-    static py::exception<MessageTooLargeError> exc_message_too_large(
-        m, "MessageTooLargeError", PyExc_ValueError
-    );
-    static py::exception<BufferFullError> exc_buffer_full(
-        m, "BufferFullError", PyExc_RuntimeError
-    );
+    static py::exception<MessageTooLargeError> exc_message_too_large(m, "MessageTooLargeError", PyExc_ValueError);
+    static py::exception<BufferFullError> exc_buffer_full(m, "BufferFullError", PyExc_RuntimeError);
 
     py::enum_<BufferType>(m, "BufferType", "Available buffer implementation types")
-        .value("LockFree", BufferType::LockFree,
-               "Lock-free buffer using moodycamel::ConcurrentQueue (default)");
+        .value("LockFree", BufferType::LockFree, "Lock-free buffer using moodycamel::ConcurrentQueue (default)");
 
     py::enum_<RecvStatus>(m, "RecvStatus", "Status codes for receive operations")
         .value("Success", RecvStatus::Success, "Data received successfully")
@@ -41,10 +36,8 @@ PYBIND11_MODULE(_impl, m) {
         .value("Disconnected", RecvStatus::Disconnected, "Connection closed");
 
     py::class_<RecvResult>(m, "RecvResult", "Result from a receive operation")
-        .def_readonly("bytes", &RecvResult::bytes,
-                      "Bytes received (>0 on success, 0 otherwise)")
-        .def_readonly("status", &RecvResult::status,
-                      "Status code indicating outcome")
+        .def_readonly("bytes", &RecvResult::bytes, "Bytes received (>0 on success, 0 otherwise)")
+        .def_readonly("status", &RecvResult::status, "Status code indicating outcome")
         .def("__repr__", [](const RecvResult& r) {
             std::string status_str;
             switch (r.status) {
@@ -52,62 +45,46 @@ PYBIND11_MODULE(_impl, m) {
                 case RecvStatus::Timeout: status_str = "Timeout"; break;
                 case RecvStatus::Disconnected: status_str = "Disconnected"; break;
             }
-            return "<RecvResult bytes=" + std::to_string(r.bytes) +
-                   " status=" + status_str + ">";
+            return "<RecvResult bytes=" + std::to_string(r.bytes) + " status=" + status_str + ">";
         });
 
-    py::class_<AcceptedSocket>(m, "AcceptedSocket",
-        "Information about an accepted TCP connection.")
+    py::class_<AcceptedSocket>(m, "AcceptedSocket", "Information about an accepted TCP connection.")
         .def(py::init<>())
-        .def(py::init<NativeSocketHandle, const std::string&, uint16_t>(),
-             py::arg("native_handle"), py::arg("remote_host"), py::arg("remote_port"))
-        .def_readonly("native_handle", &AcceptedSocket::native_handle,
-                      "Native socket file descriptor")
-        .def_readonly("remote_host", &AcceptedSocket::remote_host,
-                      "Remote peer IP address")
-        .def_readonly("remote_port", &AcceptedSocket::remote_port,
-                      "Remote peer port")
-        .def("is_valid", &AcceptedSocket::is_valid,
-             "Check if this accepted socket contains a valid handle")
+        .def(
+            py::init<NativeSocketHandle, const std::string&, uint16_t>(),
+            py::arg("native_handle"),
+            py::arg("remote_host"),
+            py::arg("remote_port"))
+        .def_readonly("native_handle", &AcceptedSocket::native_handle, "Native socket file descriptor")
+        .def_readonly("remote_host", &AcceptedSocket::remote_host, "Remote peer IP address")
+        .def_readonly("remote_port", &AcceptedSocket::remote_port, "Remote peer port")
+        .def("is_valid", &AcceptedSocket::is_valid, "Check if this accepted socket contains a valid handle")
         .def("__repr__", [](const AcceptedSocket& s) {
-            return "<AcceptedSocket handle=" + std::to_string(s.native_handle) +
-                   " remote=" + s.remote_host + ":" + std::to_string(s.remote_port) + ">";
+            return "<AcceptedSocket handle=" + std::to_string(s.native_handle) + " remote=" + s.remote_host + ":" +
+                   std::to_string(s.remote_port) + ">";
         });
 
     py::class_<UDPStats>(m, "UDPStats", "Statistics for UDP transport monitoring")
-        .def_readonly("queue_size", &UDPStats::queue_size,
-                      "Current items in receive queue")
-        .def_readonly("packets_received", &UDPStats::packets_received,
-                      "Total packets received")
-        .def_readonly("packets_dropped", &UDPStats::packets_dropped,
-                      "Packets dropped due to full queue")
-        .def_readonly("bytes_sent", &UDPStats::bytes_sent,
-                      "Total bytes sent")
-        .def_readonly("bytes_received", &UDPStats::bytes_received,
-                      "Total bytes received")
+        .def_readonly("queue_size", &UDPStats::queue_size, "Current items in receive queue")
+        .def_readonly("packets_received", &UDPStats::packets_received, "Total packets received")
+        .def_readonly("packets_dropped", &UDPStats::packets_dropped, "Packets dropped due to full queue")
+        .def_readonly("bytes_sent", &UDPStats::bytes_sent, "Total bytes sent")
+        .def_readonly("bytes_received", &UDPStats::bytes_received, "Total bytes received")
         .def("__repr__", [](const UDPStats& s) {
             return "<UDPStats queue=" + std::to_string(s.queue_size) +
                    " pkts_recv=" + std::to_string(s.packets_received) +
-                   " pkts_drop=" + std::to_string(s.packets_dropped) +
-                   " bytes_sent=" + std::to_string(s.bytes_sent) +
+                   " pkts_drop=" + std::to_string(s.packets_dropped) + " bytes_sent=" + std::to_string(s.bytes_sent) +
                    " bytes_recv=" + std::to_string(s.bytes_received) + ">";
         });
 
     py::class_<TCPStats>(m, "TCPStats", "Statistics for TCP transport monitoring")
-        .def_readonly("recv_queue_size", &TCPStats::recv_queue_size,
-                      "Current items in receive queue")
-        .def_readonly("send_queue_size", &TCPStats::send_queue_size,
-                      "Current items in send queue")
-        .def_readonly("bytes_sent", &TCPStats::bytes_sent,
-                      "Total bytes sent")
-        .def_readonly("bytes_received", &TCPStats::bytes_received,
-                      "Total bytes received")
-        .def_readonly("messages_sent", &TCPStats::messages_sent,
-                      "Total messages sent")
-        .def_readonly("messages_received", &TCPStats::messages_received,
-                      "Total messages received")
-        .def_readonly("messages_dropped", &TCPStats::messages_dropped,
-                      "Messages dropped due to full receive queue")
+        .def_readonly("recv_queue_size", &TCPStats::recv_queue_size, "Current items in receive queue")
+        .def_readonly("send_queue_size", &TCPStats::send_queue_size, "Current items in send queue")
+        .def_readonly("bytes_sent", &TCPStats::bytes_sent, "Total bytes sent")
+        .def_readonly("bytes_received", &TCPStats::bytes_received, "Total bytes received")
+        .def_readonly("messages_sent", &TCPStats::messages_sent, "Total messages sent")
+        .def_readonly("messages_received", &TCPStats::messages_received, "Total messages received")
+        .def_readonly("messages_dropped", &TCPStats::messages_dropped, "Messages dropped due to full receive queue")
         .def("__repr__", [](const TCPStats& s) {
             return "<TCPStats recv_queue=" + std::to_string(s.recv_queue_size) +
                    " send_queue=" + std::to_string(s.send_queue_size) +
@@ -116,8 +93,10 @@ PYBIND11_MODULE(_impl, m) {
                    " msgs_dropped=" + std::to_string(s.messages_dropped) + ">";
         });
 
-    py::class_<UDPSocket>(m, "UDPSocket",
-                             R"doc(
+    py::class_<UDPSocket>(
+        m,
+        "UDPSocket",
+        R"doc(
 High-performance UDP socket with single-port binding.
 
 Provides a UDP networking layer using standalone Asio that runs independently
@@ -144,16 +123,18 @@ Context Manager:
     ...     socket.start()
     ...     # use socket
 )doc")
-        .def(py::init<BufferType>(), py::arg("buffer_type") = BufferType::LockFree,
-             "Construct a UDPSocket with specified buffer type")
-        .def("start", &UDPSocket::start,
-             "Start the io_context thread.")
-        .def("stop", &UDPSocket::stop,
-             "Stop the io_context and join the thread.")
-        .def("is_running", &UDPSocket::is_running,
-             "Check if the transport is running.")
-        .def("bind", &UDPSocket::bind, py::arg("port") = 0,
-             R"doc(
+        .def(
+            py::init<BufferType>(),
+            py::arg("buffer_type") = BufferType::LockFree,
+            "Construct a UDPSocket with specified buffer type")
+        .def("start", &UDPSocket::start, "Start the io_context thread.")
+        .def("stop", &UDPSocket::stop, "Stop the io_context and join the thread.")
+        .def("is_running", &UDPSocket::is_running, "Check if the transport is running.")
+        .def(
+            "bind",
+            &UDPSocket::bind,
+            py::arg("port") = 0,
+            R"doc(
 Bind to a UDP port.
 
 Args:
@@ -165,12 +146,14 @@ Returns:
 Raises:
     RuntimeError: If bind fails or already bound.
 )doc")
-        .def("close", &UDPSocket::close,
-             "Close the bound UDP socket.")
-        .def("local_port", &UDPSocket::local_port,
-             "Get the local port number (0 if not bound).")
-        .def("connect", &UDPSocket::connect, py::arg("host"), py::arg("port"),
-             R"doc(
+        .def("close", &UDPSocket::close, "Close the bound UDP socket.")
+        .def("local_port", &UDPSocket::local_port, "Get the local port number (0 if not bound).")
+        .def(
+            "connect",
+            &UDPSocket::connect,
+            py::arg("host"),
+            py::arg("port"),
+            R"doc(
 Set the remote endpoint for connected mode.
 
 After calling connect(), send() can be used instead of send_to().
@@ -182,10 +165,8 @@ Args:
 Raises:
     RuntimeError: If host is invalid.
 )doc")
-        .def("disconnect", &UDPSocket::disconnect,
-             "Clear the remote endpoint.")
-        .def("is_connected", &UDPSocket::is_connected,
-             "Check if a remote endpoint is set.")
+        .def("disconnect", &UDPSocket::disconnect, "Clear the remote endpoint.")
+        .def("is_connected", &UDPSocket::is_connected, "Check if a remote endpoint is set.")
         .def(
             "recv",
             [](UDPSocket& self, py::buffer buf, double timeout) {
@@ -197,7 +178,8 @@ Raises:
                 }
                 return result;
             },
-            py::arg("buffer"), py::arg("timeout"),
+            py::arg("buffer"),
+            py::arg("timeout"),
             R"doc(
 Receive a UDP packet into a buffer.
 
@@ -256,12 +238,13 @@ Raises:
 )doc")
         .def(
             "send_to",
-            [](UDPSocket& self, py::bytes data, const std::string& host,
-               uint16_t port) {
+            [](UDPSocket& self, py::bytes data, const std::string& host, uint16_t port) {
                 std::string_view sv = data;
                 return self.send_to(sv.data(), sv.size(), host, port);
             },
-            py::arg("data"), py::arg("host"), py::arg("port"),
+            py::arg("data"),
+            py::arg("host"),
+            py::arg("port"),
             R"doc(
 Send data to a specific destination.
 
@@ -279,22 +262,18 @@ Raises:
     RuntimeError: If not bound or host is invalid.
 )doc")
         .def("name", &UDPSocket::name, "Get the transport's name.")
-        .def("set_name", &UDPSocket::set_name, py::arg("name"),
-             "Set the transport's name.")
-        .def("remote_host", &UDPSocket::remote_host,
-             "Get the connected remote host address.")
-        .def("remote_port", &UDPSocket::remote_port,
-             "Get the connected remote port.")
-        .def("stats", &UDPSocket::stats,
-             "Get current transport statistics.")
-        .def("__enter__", [](UDPSocket& self) -> UDPSocket& {
-            return self;
-        })
-        .def("__exit__",
-             [](UDPSocket& self, py::object /*exc_type*/,
-                py::object /*exc_val*/, py::object /*exc_tb*/) { self.stop(); });
+        .def("set_name", &UDPSocket::set_name, py::arg("name"), "Set the transport's name.")
+        .def("remote_host", &UDPSocket::remote_host, "Get the connected remote host address.")
+        .def("remote_port", &UDPSocket::remote_port, "Get the connected remote port.")
+        .def("stats", &UDPSocket::stats, "Get current transport statistics.")
+        .def("__enter__", [](UDPSocket& self) -> UDPSocket& { return self; })
+        .def("__exit__", [](UDPSocket& self, py::object /*exc_type*/, py::object /*exc_val*/, py::object /*exc_tb*/) {
+            self.stop();
+        });
 
-    py::class_<TCPServer>(m, "TCPServer",
+    py::class_<TCPServer>(
+        m,
+        "TCPServer",
         R"doc(
 TCP server that accepts connections and returns socket handles.
 
@@ -316,8 +295,11 @@ Example:
     ...     server.stop()
 )doc")
         .def(py::init<>())
-        .def("bind", &TCPServer::bind, py::arg("port") = 0,
-             R"doc(
+        .def(
+            "bind",
+            &TCPServer::bind,
+            py::arg("port") = 0,
+            R"doc(
 Bind to a TCP port.
 
 Args:
@@ -329,23 +311,23 @@ Returns:
 Raises:
     RuntimeError: If bind fails or already bound.
 )doc")
-        .def("start", &TCPServer::start,
-             "Start accepting connections.")
-        .def("stop", &TCPServer::stop,
-             "Stop accepting and close server socket.")
-        .def("is_running", &TCPServer::is_running,
-             "Check if the server is running.")
-        .def("local_port", &TCPServer::local_port,
-             "Get the local port number.")
-        .def("accept", [](TCPServer& self, double timeout) {
-            AcceptedSocket accepted;
-            {
-                py::gil_scoped_release release;
-                accepted = self.accept(timeout);
-            }
-            return accepted;
-        }, py::arg("timeout"), py::return_value_policy::move,
-           R"doc(
+        .def("start", &TCPServer::start, "Start accepting connections.")
+        .def("stop", &TCPServer::stop, "Stop accepting and close server socket.")
+        .def("is_running", &TCPServer::is_running, "Check if the server is running.")
+        .def("local_port", &TCPServer::local_port, "Get the local port number.")
+        .def(
+            "accept",
+            [](TCPServer& self, double timeout) {
+                AcceptedSocket accepted;
+                {
+                    py::gil_scoped_release release;
+                    accepted = self.accept(timeout);
+                }
+                return accepted;
+            },
+            py::arg("timeout"),
+            py::return_value_policy::move,
+            R"doc(
 Accept the next pending connection.
 
 Blocks until a connection is available or timeout expires.
@@ -358,12 +340,12 @@ Returns:
     AcceptedSocket with valid handle, or invalid socket on timeout.
 )doc")
         .def("__enter__", [](TCPServer& self) -> TCPServer& { return self; })
-        .def("__exit__", [](TCPServer& self, py::object, py::object, py::object) {
-            self.stop();
-        });
+        .def("__exit__", [](TCPServer& self, py::object, py::object, py::object) { self.stop(); });
 
-    py::class_<TCPTransport>(m, "TCPTransport",
-                             R"doc(
+    py::class_<TCPTransport>(
+        m,
+        "TCPTransport",
+        R"doc(
 High-performance TCP transport with varint message framing.
 
 Provides a TCP networking layer using standalone Asio that runs independently
@@ -389,18 +371,16 @@ Context Manager:
     ...     transport.connect("127.0.0.1", 8080)
     ...     # use transport
 )doc")
-        .def(py::init<BufferType>(), py::arg("buffer_type") = BufferType::LockFree,
-             "Construct a TCPTransport with specified buffer type")
-        .def("start", &TCPTransport::start,
-             "Start the io_context thread.")
-        .def("stop", &TCPTransport::stop,
-             "Stop the io_context and join the thread.")
-        .def("is_running", &TCPTransport::is_running,
-             "Check if the transport is running.")
+        .def(
+            py::init<BufferType>(),
+            py::arg("buffer_type") = BufferType::LockFree,
+            "Construct a TCPTransport with specified buffer type")
+        .def("start", &TCPTransport::start, "Start the io_context thread.")
+        .def("stop", &TCPTransport::stop, "Stop the io_context and join the thread.")
+        .def("is_running", &TCPTransport::is_running, "Check if the transport is running.")
         .def(
             "connect",
-            [](TCPTransport& self, const std::string& host, uint16_t port,
-               double timeout) {
+            [](TCPTransport& self, const std::string& host, uint16_t port, double timeout) {
                 bool result;
                 {
                     py::gil_scoped_release release;
@@ -408,7 +388,9 @@ Context Manager:
                 }
                 return result;
             },
-            py::arg("host"), py::arg("port"), py::arg("timeout") = DEFAULT_TCP_CONNECT_TIMEOUT,
+            py::arg("host"),
+            py::arg("port"),
+            py::arg("timeout") = DEFAULT_TCP_CONNECT_TIMEOUT,
             R"doc(
 Connect to a TCP server.
 
@@ -425,10 +407,8 @@ Returns:
 Raises:
     RuntimeError: If already connected or transport not running.
 )doc")
-        .def("disconnect", &TCPTransport::disconnect,
-             "Disconnect the TCP connection. No-op if not connected.")
-        .def("is_connected", &TCPTransport::is_connected,
-             "Check if TCP is connected.")
+        .def("disconnect", &TCPTransport::disconnect, "Disconnect the TCP connection. No-op if not connected.")
+        .def("is_connected", &TCPTransport::is_connected, "Check if TCP is connected.")
         .def(
             "recv",
             [](TCPTransport& self, py::buffer buf, double timeout) {
@@ -440,7 +420,8 @@ Raises:
                 }
                 return result;
             },
-            py::arg("buffer"), py::arg("timeout"),
+            py::arg("buffer"),
+            py::arg("timeout"),
             R"doc(
 Receive a TCP message into a buffer.
 
@@ -521,27 +502,25 @@ Returns:
     True if queue drained, False if timeout.
 )doc")
         .def("name", &TCPTransport::name, "Get the transport's name.")
-        .def("set_name", &TCPTransport::set_name, py::arg("name"),
-             "Set the transport's name.")
-        .def("remote_host", &TCPTransport::remote_host,
-             "Get the connected remote host address.")
-        .def("remote_port", &TCPTransport::remote_port,
-             "Get the connected remote port.")
-        .def("local_host", &TCPTransport::local_host,
-             "Get the local host address.")
-        .def("local_port", &TCPTransport::local_port,
-             "Get the local port.")
-        .def("stats", &TCPTransport::stats,
-             "Get current transport statistics.")
-        .def_static("from_accepted", [](AcceptedSocket& accepted, BufferType buffer_type) {
-            auto transport = TCPTransport::from_accepted(std::move(accepted), buffer_type);
-            if (!transport) {
-                throw std::runtime_error("Failed to create transport from accepted socket");
-            }
-            return transport.release();  // pybind11 takes ownership
-        }, py::arg("accepted"), py::arg("buffer_type") = BufferType::LockFree,
-           py::return_value_policy::take_ownership,
-           R"doc(
+        .def("set_name", &TCPTransport::set_name, py::arg("name"), "Set the transport's name.")
+        .def("remote_host", &TCPTransport::remote_host, "Get the connected remote host address.")
+        .def("remote_port", &TCPTransport::remote_port, "Get the connected remote port.")
+        .def("local_host", &TCPTransport::local_host, "Get the local host address.")
+        .def("local_port", &TCPTransport::local_port, "Get the local port.")
+        .def("stats", &TCPTransport::stats, "Get current transport statistics.")
+        .def_static(
+            "from_accepted",
+            [](AcceptedSocket& accepted, BufferType buffer_type) {
+                auto transport = TCPTransport::from_accepted(std::move(accepted), buffer_type);
+                if (!transport) {
+                    throw std::runtime_error("Failed to create transport from accepted socket");
+                }
+                return transport.release();  // pybind11 takes ownership
+            },
+            py::arg("accepted"),
+            py::arg("buffer_type") = BufferType::LockFree,
+            py::return_value_policy::take_ownership,
+            R"doc(
 Create a TCPTransport from an accepted connection.
 
 Factory method for server-side connections. Creates a new TCPTransport
@@ -563,12 +542,11 @@ Example:
     ...     transport = TCPTransport.from_accepted(accepted)
     ...     transport.start()
 )doc")
-        .def("__enter__", [](TCPTransport& self) -> TCPTransport& {
-            return self;
-        })
-        .def("__exit__",
-             [](TCPTransport& self, py::object /*exc_type*/,
-                py::object /*exc_val*/, py::object /*exc_tb*/) { self.stop(); });
+        .def("__enter__", [](TCPTransport& self) -> TCPTransport& { return self; })
+        .def(
+            "__exit__", [](TCPTransport& self, py::object /*exc_type*/, py::object /*exc_val*/, py::object /*exc_tb*/) {
+                self.stop();
+            });
 
     py::enum_<pb::RunState>(m, "RunState", "Run state of the analog computer")
         .value("NEW", pb::NEW)
@@ -581,92 +559,121 @@ Example:
         .value("OP_END", pb::OP_END)
         .value("TMP_HALT", pb::TMP_HALT);
 
-    py::class_<DataChannel>(m, "DataChannel",
-        "Abstract base class for data streaming channels")
-        .def("set_udp_endpoint", &DataChannel::set_udp_endpoint,
-             py::arg("host"), py::arg("port"),
-             "Set the remote UDP endpoint to receive data from.")
-        .def("set_udp_bind_port", &DataChannel::set_udp_bind_port,
-             py::arg("port"),
-             "Set the local UDP port to bind to.")
-        .def("set_tcp_transport", &DataChannel::set_tcp_transport,
-             py::arg("transport"), py::keep_alive<1, 2>(),
-             "Set the TCP transport for fallback mode.")
-        .def("set_control_response_callback", [](DataChannel& self, py::function callback) {
-            self.set_control_response_callback([callback](std::vector<uint8_t> data) {
-                py::gil_scoped_acquire acquire;
-                callback(py::bytes(reinterpret_cast<const char*>(data.data()), data.size()));
-            });
-        }, py::arg("callback"),
-           "Set callback for control responses received during TCP fallback.")
-        .def("set_control_channel", &DataChannel::set_control_channel,
-             py::arg("cc"), py::keep_alive<1, 2>(),
-             "Set the ControlChannel used for UDP negotiation. Must be called before start().")
-        .def("set_negotiation_timeout", &DataChannel::set_negotiation_timeout,
-             py::arg("secs"),
-             "Set the negotiation timeout in seconds for negotiate_udp() (default: 5.0).")
-        .def("negotiate_udp", [](DataChannel& self, uint16_t local_port) {
-            bool result;
-            {
+    py::class_<DataChannel>(m, "DataChannel", "Abstract base class for data streaming channels")
+        .def(
+            "set_udp_endpoint",
+            &DataChannel::set_udp_endpoint,
+            py::arg("host"),
+            py::arg("port"),
+            "Set the remote UDP endpoint to receive data from.")
+        .def(
+            "set_udp_bind_port", &DataChannel::set_udp_bind_port, py::arg("port"), "Set the local UDP port to bind to.")
+        .def(
+            "set_tcp_transport",
+            &DataChannel::set_tcp_transport,
+            py::arg("transport"),
+            py::keep_alive<1, 2>(),
+            "Set the TCP transport for fallback mode.")
+        .def(
+            "set_control_response_callback",
+            [](DataChannel& self, py::function callback) {
+                self.set_control_response_callback([callback](std::vector<uint8_t> data) {
+                    py::gil_scoped_acquire acquire;
+                    callback(py::bytes(reinterpret_cast<const char*>(data.data()), data.size()));
+                });
+            },
+            py::arg("callback"),
+            "Set callback for control responses received during TCP fallback.")
+        .def(
+            "set_control_channel",
+            &DataChannel::set_control_channel,
+            py::arg("cc"),
+            py::keep_alive<1, 2>(),
+            "Set the ControlChannel used for UDP negotiation. Must be called before start().")
+        .def(
+            "set_negotiation_timeout",
+            &DataChannel::set_negotiation_timeout,
+            py::arg("secs"),
+            "Set the negotiation timeout in seconds for negotiate_udp() (default: 5.0).")
+        .def(
+            "negotiate_udp",
+            [](DataChannel& self, uint16_t local_port) {
+                bool result;
+                {
+                    py::gil_scoped_release release;
+                    result = self.negotiate_udp(local_port);
+                }
+                return result;
+            },
+            py::arg("local_port"),
+            "Send UdpDataStreamingCommand through the control channel.")
+        .def(
+            "start",
+            [](DataChannel& self) {
                 py::gil_scoped_release release;
-                result = self.negotiate_udp(local_port);
-            }
-            return result;
-        }, py::arg("local_port"),
-           "Send UdpDataStreamingCommand through the control channel.")
-        .def("start", [](DataChannel& self) {
-            py::gil_scoped_release release;
-            self.start();
-        }, "Start the receive loop.")
-        .def("stop", [](DataChannel& self) {
-            // Swap callbacks into locals while the GIL is held and the io
-            // thread is still live.  The swap is serialized with the io thread
-            // via DataChannel::m_callback_mutex.  After stop() joins the
-            // thread, the locals destruct here with the GIL held.
-            std::function<void(pb::RunState)> s;
-            std::function<void(const std::string&)> e;
-            std::function<void(std::vector<uint8_t>)> c;
-            self.swap_python_callbacks(s, e, c);
-            {
+                self.start();
+            },
+            "Start the receive loop.")
+        .def(
+            "stop",
+            [](DataChannel& self) {
+                // Swap callbacks into locals while the GIL is held and the io
+                // thread is still live.  The swap is serialized with the io thread
+                // via DataChannel::m_callback_mutex.  After stop() joins the
+                // thread, the locals destruct here with the GIL held.
+                std::function<void(pb::RunState)> s;
+                std::function<void(const std::string&)> e;
+                std::function<void(std::vector<uint8_t>)> c;
+                self.swap_python_callbacks(s, e, c);
+                {
+                    py::gil_scoped_release release;
+                    self.stop();
+                }
+                // s, e, c destruct here — GIL held, io thread joined.
+            },
+            "Stop the receive loop.")
+        .def(
+            "reconnect",
+            [](DataChannel& self) {
                 py::gil_scoped_release release;
-                self.stop();
-            }
-            // s, e, c destruct here — GIL held, io thread joined.
-        }, "Stop the receive loop.")
-        .def("reconnect", [](DataChannel& self) {
-            py::gil_scoped_release release;
-            self.reconnect();
-        }, "Tear down the UDP receive loop and restart it. "
-           "The control channel must already be reconnected. "
-           "Blocks on control-channel round-trips, so dispatch via run_in_executor.")
-        .def("is_running", &DataChannel::is_running,
-             "Check if the receive loop is running.")
-        .def("is_using_tcp_fallback", &DataChannel::is_using_tcp_fallback,
-             "Check if currently using TCP fallback.")
-        .def("current_run_state", &DataChannel::current_run_state,
-             "Get the current run state.")
-        .def("on_run_state_change", [](DataChannel& self, py::function callback) {
-            self.on_run_state_change([callback](pb::RunState state) {
-                py::gil_scoped_acquire acquire;
-                callback(state);
-            });
-        }, py::arg("callback"),
-           "Register callback for run state changes.")
-        .def("on_error", [](DataChannel& self, py::function callback) {
-            self.on_error([callback](const std::string& msg) {
-                py::gil_scoped_acquire acquire;
-                callback(msg);
-            });
-        }, py::arg("callback"),
-           "Register callback for errors.");
+                self.reconnect();
+            },
+            "Tear down the UDP receive loop and restart it. "
+            "The control channel must already be reconnected. "
+            "Blocks on control-channel round-trips, so dispatch via run_in_executor.")
+        .def("is_running", &DataChannel::is_running, "Check if the receive loop is running.")
+        .def("is_using_tcp_fallback", &DataChannel::is_using_tcp_fallback, "Check if currently using TCP fallback.")
+        .def("current_run_state", &DataChannel::current_run_state, "Get the current run state.")
+        .def(
+            "on_run_state_change",
+            [](DataChannel& self, py::function callback) {
+                self.on_run_state_change([callback](pb::RunState state) {
+                    py::gil_scoped_acquire acquire;
+                    callback(state);
+                });
+            },
+            py::arg("callback"),
+            "Register callback for run state changes.")
+        .def(
+            "on_error",
+            [](DataChannel& self, py::function callback) {
+                self.on_error([callback](const std::string& msg) {
+                    py::gil_scoped_acquire acquire;
+                    callback(msg);
+                });
+            },
+            py::arg("callback"),
+            "Register callback for errors.");
 
-    py::class_<SampleDecodingDataChannel, DataChannel>(m,
-        "SampleDecodingDataChannel",
-        "DataChannel that decodes samples and pushes to queue (direct mode)")
+    py::class_<SampleDecodingDataChannel, DataChannel>(
+        m, "SampleDecodingDataChannel", "DataChannel that decodes samples and pushes to queue (direct mode)")
         .def(py::init<>())
-        .def("set_output_queue", &SampleDecodingDataChannel::set_output_queue,
-             py::arg("queue"), py::keep_alive<1, 2>(),
-             "Set the output queue for decoded sample blobs.")
+        .def(
+            "set_output_queue",
+            &SampleDecodingDataChannel::set_output_queue,
+            py::arg("queue"),
+            py::keep_alive<1, 2>(),
+            "Set the output queue for decoded sample blobs.")
         .def("__enter__", [](SampleDecodingDataChannel& self) -> SampleDecodingDataChannel& { return self; })
         .def("__exit__", [](SampleDecodingDataChannel& self, py::object, py::object, py::object) {
             std::function<void(pb::RunState)> s;
@@ -679,7 +686,9 @@ Example:
             }
         });
 
-    py::class_<ControlChannel>(m, "ControlChannel",
+    py::class_<ControlChannel>(
+        m,
+        "ControlChannel",
         R"doc(
 TCP-based control channel with request-response correlation.
 
@@ -702,18 +711,19 @@ Context Manager:
 )doc")
 
         // Factory method — release GIL during connection
-        .def_static("create",
-            [](const std::string& host, uint16_t port, double timeout,
-               std::uint32_t max_busy_wait_secs) {
+        .def_static(
+            "create",
+            [](const std::string& host, uint16_t port, double timeout, std::uint32_t max_busy_wait_secs) {
                 std::unique_ptr<ControlChannel> channel;
                 {
                     py::gil_scoped_release release;
-                    channel = ControlChannel::create(host, port, timeout,
-                                                     max_busy_wait_secs);
+                    channel = ControlChannel::create(host, port, timeout, max_busy_wait_secs);
                 }
                 return channel.release();  // pybind11 takes ownership
             },
-            py::arg("host"), py::arg("port"), py::arg("timeout") = 5.0,
+            py::arg("host"),
+            py::arg("port"),
+            py::arg("timeout") = 5.0,
             py::arg("max_busy_wait_secs") = 60u,
             py::return_value_policy::take_ownership,
             R"doc(
@@ -736,9 +746,9 @@ Returns:
 Raises:
     RuntimeError: If the connection fails within the timeout.
 )doc")
-        .def("start", &ControlChannel::start,
-             "Start the recv thread. Must be called after create().")
-        .def("stop",
+        .def("start", &ControlChannel::start, "Start the recv thread. Must be called after create().")
+        .def(
+            "stop",
             [](ControlChannel& self) {
                 // Clear py::function captures while the GIL is held so their
                 // destructors see a refcount-safe state.
@@ -747,7 +757,8 @@ Raises:
                 self.stop();
             },
             "Stop the recv thread and close the transport. Blocks until the thread exits.")
-        .def("stop_recv_thread",
+        .def(
+            "stop_recv_thread",
             [](ControlChannel& self) {
                 py::gil_scoped_release release;
                 self.stop_recv_thread();
@@ -759,15 +770,14 @@ Used when DataChannel takes over the TCP transport for fallback streaming.
 After this call, send_and_recv() still works if responses are routed back
 via on_tcp_response().
 )doc")
-        .def("reconnect",
+        .def(
+            "reconnect",
             [](ControlChannel& self, double interval, py::object timeout) {
-                std::chrono::milliseconds interval_ms{
-                    static_cast<long>(interval * 1000.0)};
+                std::chrono::milliseconds interval_ms{static_cast<long>(interval * 1000.0)};
                 std::optional<std::chrono::milliseconds> timeout_opt;
                 if (!timeout.is_none()) {
                     double t = py::cast<double>(timeout);
-                    timeout_opt = std::chrono::milliseconds{
-                        static_cast<long>(t * 1000.0)};
+                    timeout_opt = std::chrono::milliseconds{static_cast<long>(t * 1000.0)};
                 }
                 bool ok;
                 {
@@ -795,15 +805,13 @@ Args:
 Returns:
     True on successful reconnect, False on timeout or cancellation.
 )doc")
-        .def("cancel_reconnect",
-            [](ControlChannel& self) {
-                self.cancel_reconnect();
-            },
+        .def(
+            "cancel_reconnect",
+            [](ControlChannel& self) { self.cancel_reconnect(); },
             "Cancel an in-flight reconnect() call from another thread.")
-        .def("cancel_send_and_recv",
-            [](ControlChannel& self) {
-                self.cancel_send_and_recv();
-            },
+        .def(
+            "cancel_send_and_recv",
+            [](ControlChannel& self) { self.cancel_send_and_recv(); },
             R"doc(
 Cancel an in-flight busy-wait inside send_and_recv().
 
@@ -811,24 +819,20 @@ Wakes the condition-variable sleep used between busy-response retries so the
 pending ``send_and_recv`` call terminates with a RuntimeError instead of
 waiting for the next poll. Safe to call from any thread.
 )doc")
-        .def_property("max_busy_wait_secs",
+        .def_property(
+            "max_busy_wait_secs",
             [](const ControlChannel& self) { return self.max_busy_wait_secs(); },
-            [](ControlChannel& self, std::uint32_t secs) {
-                self.set_max_busy_wait_secs(secs);
-            },
+            [](ControlChannel& self, std::uint32_t secs) { self.set_max_busy_wait_secs(secs); },
             R"doc(
 Per-instance cap (seconds) on the cumulative busy-retry wait inside
 ``send_and_recv``.
 )doc")
-        .def("remote_host", &ControlChannel::remote_host,
-             "Get the remote host address (empty if not connected).")
-        .def("remote_port", &ControlChannel::remote_port,
-             "Get the remote port number (0 if not connected).")
-        .def("is_connected", &ControlChannel::is_connected,
-             "Check if the underlying TCPTransport is connected.")
-        .def("is_running", &ControlChannel::is_running,
-             "Check if the recv thread is running.")
-        .def("send",
+        .def("remote_host", &ControlChannel::remote_host, "Get the remote host address (empty if not connected).")
+        .def("remote_port", &ControlChannel::remote_port, "Get the remote port number (0 if not connected).")
+        .def("is_connected", &ControlChannel::is_connected, "Check if the underlying TCPTransport is connected.")
+        .def("is_running", &ControlChannel::is_running, "Check if the recv thread is running.")
+        .def(
+            "send",
             [](ControlChannel& self, py::bytes data) {
                 std::string_view sv = data;
                 pb::MessageV1 msg;
@@ -847,7 +851,8 @@ Args:
 Raises:
     RuntimeError: If the transport is not connected or parsing fails.
 )doc")
-        .def("send_and_recv",
+        .def(
+            "send_and_recv",
             [](ControlChannel& self, py::bytes data, double timeout) {
                 std::string_view sv = data;
                 pb::MessageV1 msg;
@@ -863,7 +868,8 @@ Raises:
                 response.SerializeToString(&serialized);
                 return py::bytes(serialized);
             },
-            py::arg("data"), py::arg("timeout") = 5.0,
+            py::arg("data"),
+            py::arg("timeout") = 5.0,
             R"doc(
 Send a serialized MessageV1 and block until the matching response arrives.
 
@@ -880,7 +886,8 @@ Returns:
 Raises:
     RuntimeError: If timeout expires, transport disconnects, or parsing fails.
 )doc")
-        .def("register_callback",
+        .def(
+            "register_callback",
             [](ControlChannel& self, int field_number, py::function callback) {
                 self.register_callback(field_number, [callback](pb::MessageV1& msg) {
                     std::string serialized;
@@ -889,7 +896,8 @@ Raises:
                     callback(py::bytes(serialized));
                 });
             },
-            py::arg("field_number"), py::arg("callback"),
+            py::arg("field_number"),
+            py::arg("callback"),
             R"doc(
 Register a callback for a specific protobuf kind field number.
 
@@ -901,10 +909,13 @@ Args:
     field_number: The oneof `kind` field number to register for.
     callback:     Callable receiving serialized MessageV1 bytes.
 )doc")
-        .def("unregister_callback", &ControlChannel::unregister_callback,
-             py::arg("field_number"),
-             "Unregister a previously registered callback for a kind field number.")
-        .def("on_tcp_response",
+        .def(
+            "unregister_callback",
+            &ControlChannel::unregister_callback,
+            py::arg("field_number"),
+            "Unregister a previously registered callback for a kind field number.")
+        .def(
+            "on_tcp_response",
             [](ControlChannel& self, py::bytes data) {
                 std::string_view sv = data;
                 std::vector<uint8_t> vec(sv.begin(), sv.end());
@@ -920,25 +931,32 @@ to this channel.
 Args:
     data: Raw serialized bytes of a pb::Envelope containing a MessageV1.
 )doc")
-        .def("transport", &ControlChannel::transport,
-             py::return_value_policy::reference_internal,
-             "Get a reference to the underlying TCPTransport.")
-        .def("ping",
+        .def(
+            "transport",
+            &ControlChannel::transport,
+            py::return_value_policy::reference_internal,
+            "Get a reference to the underlying TCPTransport.")
+        .def(
+            "ping",
             [](ControlChannel& self, double timeout) {
                 py::gil_scoped_release release;
                 self.ping(timeout);
             },
             py::arg("timeout") = 5.0,
             "Send an Envelope-level GenericMessage ping and wait for the response.")
-        .def("extract",
-            [](ControlChannel& self, const std::string& entity_path,
-               bool recursive, bool specification,
-               bool configuration, bool calibration, double timeout) {
+        .def(
+            "extract",
+            [](ControlChannel& self,
+               const std::string& entity_path,
+               bool recursive,
+               bool specification,
+               bool configuration,
+               bool calibration,
+               double timeout) {
                 pb::Module module;
                 {
                     py::gil_scoped_release release;
-                    module = self.extract(entity_path, recursive, specification,
-                                          configuration, calibration, timeout);
+                    module = self.extract(entity_path, recursive, specification, configuration, calibration, timeout);
                 }
                 std::string serialized;
                 module.SerializeToString(&serialized);
@@ -969,7 +987,8 @@ Returns:
 Raises:
     RuntimeError: On timeout or if the response contains an error.
 )doc")
-        .def("calibrate",
+        .def(
+            "calibrate",
             [](ControlChannel& self, const std::string& leader, bool math, bool gain, bool offset, double timeout) {
                 {
                     py::gil_scoped_release release;
@@ -991,7 +1010,8 @@ Args:
     offset:     Enable offset calibration (default: False).
     timeout:    Maximum time to wait in seconds (default: 5.0).
 )doc")
-        .def("set_module",
+        .def(
+            "set_module",
             [](ControlChannel& self, py::bytes data, double timeout) {
                 std::string_view sv = data;
                 pb::Module module;
@@ -1005,7 +1025,8 @@ Args:
                 }
                 return result;
             },
-            py::arg("module_bytes"), py::arg("timeout") = 5.0,
+            py::arg("module_bytes"),
+            py::arg("timeout") = 5.0,
             R"doc(
 Send a ConfigCommand with the given module and return success.
 
@@ -1021,7 +1042,8 @@ Returns:
 Raises:
     RuntimeError: On timeout or if parsing fails.
 )doc")
-        .def("start_run_request",
+        .def(
+            "start_run_request",
             [](ControlChannel& self, py::bytes data, double timeout) {
                 std::string_view sv = data;
                 pb::StartRunCommand command;
@@ -1033,7 +1055,8 @@ Raises:
                     self.start_run_request(command, timeout);
                 }
             },
-            py::arg("command_bytes"), py::arg("timeout") = 5.0,
+            py::arg("command_bytes"),
+            py::arg("timeout") = 5.0,
             R"doc(
 Send a StartRunCommand and wait for the start_run_response.
 
@@ -1047,14 +1070,21 @@ Args:
 Raises:
     RuntimeError: On timeout, if the response is an error, or if parsing fails.
 )doc")
-        .def("reset",
-            [](ControlChannel& self, bool keep_calibration, bool sync,
-               bool overload_reset, bool circuit_reset, double timeout) {
+        .def(
+            "reset",
+            [](ControlChannel& self,
+               bool keep_calibration,
+               bool sync,
+               bool overload_reset,
+               bool circuit_reset,
+               double timeout) {
                 py::gil_scoped_release release;
                 self.reset(keep_calibration, sync, overload_reset, circuit_reset, timeout);
             },
-            py::arg("keep_calibration") = true, py::arg("sync") = true,
-            py::arg("overload_reset") = false, py::arg("circuit_reset") = false,
+            py::arg("keep_calibration") = true,
+            py::arg("sync") = true,
+            py::arg("overload_reset") = false,
+            py::arg("circuit_reset") = false,
             py::arg("timeout") = 5.0,
             R"doc(
 Send a ResetCommand and wait for the reset_response.
@@ -1071,7 +1101,8 @@ Args:
 Raises:
     RuntimeError: On timeout or if the response contains an error.
 )doc")
-        .def("authenticate",
+        .def(
+            "authenticate",
             [](ControlChannel& self, const std::string& token, double timeout) {
                 bool result;
                 {
@@ -1080,7 +1111,8 @@ Raises:
                 }
                 return result;
             },
-            py::arg("token"), py::arg("timeout") = 5.0,
+            py::arg("token"),
+            py::arg("timeout") = 5.0,
             R"doc(
 Send an AuthRequest with a bearer token and return success.
 
@@ -1096,7 +1128,8 @@ Returns:
 Raises:
     RuntimeError: On timeout.
 )doc")
-        .def("overload_status_request",
+        .def(
+            "overload_status_request",
             [](ControlChannel& self, double timeout) {
                 pb::OverloadStatus status;
                 bool global_overload;
@@ -1127,9 +1160,9 @@ Raises:
         response does not contain a ``GetOverloadStatusResponse`` with a
         populated ``status`` field.
 )doc")
-        .def("update_begin",
-            [](ControlChannel& self, size_t new_size,
-               const std::string& new_sha256, double timeout, bool verbose) {
+        .def(
+            "update_begin",
+            [](ControlChannel& self, size_t new_size, const std::string& new_sha256, double timeout, bool verbose) {
                 size_t chunk_size;
                 {
                     py::gil_scoped_release release;
@@ -1137,7 +1170,9 @@ Raises:
                 }
                 return chunk_size;
             },
-            py::arg("new_size"), py::arg("new_sha256"), py::arg("timeout") = 5.0,
+            py::arg("new_size"),
+            py::arg("new_sha256"),
+            py::arg("timeout") = 5.0,
             py::arg("verbose") = false,
             R"doc(
 Begin an OTA update and return the chunk size advertised by the device.
@@ -1154,28 +1189,32 @@ Returns:
 Raises:
     RuntimeError: On timeout, error response, or missing acknowledgement.
 )doc")
-        .def("update_write_full",
-            [](ControlChannel& self, size_t new_size, size_t max_chunk_size,
-               py::buffer data, double timeout, bool verbose) {
+        .def(
+            "update_write_full",
+            [](ControlChannel& self,
+               size_t new_size,
+               size_t max_chunk_size,
+               py::buffer data,
+               double timeout,
+               bool verbose) {
                 py::buffer_info info = data.request(/*writable=*/false);
                 if (info.ndim != 1 || info.itemsize != 1) {
-                    throw std::runtime_error(
-                        "update_write_full(): data must be a 1-D byte buffer");
+                    throw std::runtime_error("update_write_full(): data must be a 1-D byte buffer");
                 }
                 if (static_cast<size_t>(info.size) < new_size) {
-                    throw std::runtime_error(
-                        "update_write_full(): buffer smaller than new_size");
+                    throw std::runtime_error("update_write_full(): buffer smaller than new_size");
                 }
                 std::vector<uint8_t> vec(
-                    static_cast<const uint8_t*>(info.ptr),
-                    static_cast<const uint8_t*>(info.ptr) + new_size);
+                    static_cast<const uint8_t*>(info.ptr), static_cast<const uint8_t*>(info.ptr) + new_size);
                 {
                     py::gil_scoped_release release;
                     self.update_write_full(new_size, max_chunk_size, vec, timeout, verbose);
                 }
             },
-            py::arg("new_size"), py::arg("max_chunk_size"),
-            py::arg("data"), py::arg("timeout") = 5.0,
+            py::arg("new_size"),
+            py::arg("max_chunk_size"),
+            py::arg("data"),
+            py::arg("timeout") = 5.0,
             py::arg("verbose") = false,
             R"doc(
 Stream the firmware image to the device in chunks.
@@ -1193,7 +1232,8 @@ Args:
 Raises:
     RuntimeError: On timeout, error response, or if the device rejects a chunk.
 )doc")
-        .def("update_verify",
+        .def(
+            "update_verify",
             [](ControlChannel& self, double timeout, bool verbose) {
                 py::gil_scoped_release release;
                 self.update_verify(timeout, verbose);
@@ -1210,7 +1250,8 @@ Args:
 Raises:
     RuntimeError: On timeout or if the device reports a hash mismatch.
 )doc")
-        .def("update_commit",
+        .def(
+            "update_commit",
             [](ControlChannel& self, double timeout, bool verbose) {
                 py::gil_scoped_release release;
                 self.update_commit(timeout, verbose);
@@ -1227,7 +1268,8 @@ Args:
 Raises:
     RuntimeError: On timeout or error response.
 )doc")
-        .def("update_abort",
+        .def(
+            "update_abort",
             [](ControlChannel& self, double timeout) {
                 py::gil_scoped_release release;
                 self.update_abort(timeout);
@@ -1242,12 +1284,10 @@ Args:
 Raises:
     RuntimeError: On timeout or error response.
 )doc")
-        .def("__enter__", [](ControlChannel& self) -> ControlChannel& {
-            return self;
-        })
-        .def("__exit__",
-            [](ControlChannel& self, py::object /*exc_type*/,
-               py::object /*exc_val*/, py::object /*exc_tb*/) {
+        .def("__enter__", [](ControlChannel& self) -> ControlChannel& { return self; })
+        .def(
+            "__exit__",
+            [](ControlChannel& self, py::object /*exc_type*/, py::object /*exc_val*/, py::object /*exc_tb*/) {
                 // Clear py::function captures while the GIL is held so their
                 // destructors see a refcount-safe state.
                 self.clear_callbacks();
@@ -1255,7 +1295,9 @@ Raises:
                 self.stop();
             });
 
-    py::class_<ProxyServer>(m, "ProxyServer",
+    py::class_<ProxyServer>(
+        m,
+        "ProxyServer",
         R"doc(
 Thin C++ relay between backend REDAC devices and TCP clients.
 
@@ -1272,14 +1314,20 @@ Example:
     >>> proxy.stop()
 )doc")
         .def(py::init<bool>(), py::arg("requires_auth") = false)
-        .def("add_backend",
-            [](ProxyServer& self, const std::string& host, uint16_t port,
-               std::optional<uint32_t> stack, std::optional<uint32_t> carrier) {
+        .def(
+            "add_backend",
+            [](ProxyServer& self,
+               const std::string& host,
+               uint16_t port,
+               std::optional<uint32_t> stack,
+               std::optional<uint32_t> carrier) {
                 py::gil_scoped_release release;
                 self.add_backend(host, port, stack, carrier);
             },
-            py::arg("host"), py::arg("port"),
-            py::arg("stack") = py::none(), py::arg("carrier") = py::none(),
+            py::arg("host"),
+            py::arg("port"),
+            py::arg("stack") = py::none(),
+            py::arg("carrier") = py::none(),
             R"doc(
 Connect to a backend device and prepare it for proxying.
 
@@ -1297,12 +1345,14 @@ Args:
 Raises:
     RuntimeError: If connection or handshake fails.
 )doc")
-        .def("start",
+        .def(
+            "start",
             [](ProxyServer& self, const std::string& host, uint16_t port) {
                 py::gil_scoped_release release;
                 self.start(host, port);
             },
-            py::arg("host") = "0.0.0.0", py::arg("port") = 0,
+            py::arg("host") = "0.0.0.0",
+            py::arg("port") = 0,
             R"doc(
 Bind the server and start accepting client connections.
 
@@ -1313,19 +1363,20 @@ Args:
 Raises:
     RuntimeError: If bind fails or no backends have been added.
 )doc")
-        .def("stop",
+        .def(
+            "stop",
             [](ProxyServer& self) {
                 py::gil_scoped_release release;
                 self.stop();
             },
             "Stop the proxy server. Blocks until all threads exit.")
-        .def("is_running", &ProxyServer::is_running,
-             "Check whether the proxy server is running.")
-        .def("local_port", &ProxyServer::local_port,
-             "Get the local port the server is bound to.")
-        .def("set_session_timeout", &ProxyServer::set_session_timeout,
-             py::arg("secs"),
-             R"doc(
+        .def("is_running", &ProxyServer::is_running, "Check whether the proxy server is running.")
+        .def("local_port", &ProxyServer::local_port, "Get the local port the server is bound to.")
+        .def(
+            "set_session_timeout",
+            &ProxyServer::set_session_timeout,
+            py::arg("secs"),
+            R"doc(
 Set the session idle timeout in seconds.
 
 After a RunStateChangeMessage(DONE) is forwarded, the session expires if no
@@ -1335,9 +1386,11 @@ Must be called before start().
 Args:
     secs: Timeout in seconds. Must be positive.
 )doc")
-        .def("set_max_sessions", &ProxyServer::set_max_sessions,
-             py::arg("n"),
-             R"doc(
+        .def(
+            "set_max_sessions",
+            &ProxyServer::set_max_sessions,
+            py::arg("n"),
+            R"doc(
 Set the maximum number of concurrent client sessions.
 
 When this limit is reached, new connections are rejected with an
@@ -1347,9 +1400,11 @@ Must be called before start().
 Args:
     n: Maximum concurrent sessions. Must be at least 1.
 )doc")
-        .def("set_debug", &ProxyServer::set_debug,
-             py::arg("enabled"),
-             R"doc(
+        .def(
+            "set_debug",
+            &ProxyServer::set_debug,
+            py::arg("enabled"),
+            R"doc(
 Enable or disable verbose debug logging to stderr.
 
 When enabled, the proxy logs session lifecycle events: client connect/
@@ -1359,35 +1414,40 @@ errors from devices, and proxy-internal errors.
 Args:
     enabled: True to enable debug logging, False to disable.
 )doc")
-        .def("set_backend_health_for_test",
-             [](ProxyServer& self, size_t index, int health_int) {
-                 self.set_backend_health_for_test(index, health_int);
-             },
-             py::arg("index"), py::arg("health"),
-             "Test-only: force a backend's health to "
-             "HEALTHY(0)/REBOOTING(1)/DEAD(2).")
-        .def("get_backend_health",
-             [](const ProxyServer& self, size_t index) {
-                 return self.get_backend_health(index);
-             },
-             py::arg("index"),
-             "Return the backend's health as int: "
-             "0=HEALTHY, 1=REBOOTING, 2=DEAD. Raises IndexError if "
-             "index is out of range.")
+        .def(
+            "set_backend_health_for_test",
+            [](ProxyServer& self, size_t index, int health_int) {
+                self.set_backend_health_for_test(index, health_int);
+            },
+            py::arg("index"),
+            py::arg("health"),
+            "Test-only: force a backend's health to "
+            "HEALTHY(0)/REBOOTING(1)/DEAD(2).")
+        .def(
+            "get_backend_health",
+            [](const ProxyServer& self, size_t index) { return self.get_backend_health(index); },
+            py::arg("index"),
+            "Return the backend's health as int: "
+            "0=HEALTHY, 1=REBOOTING, 2=DEAD. Raises IndexError if "
+            "index is out of range.")
         .def("__enter__", [](ProxyServer& self) -> ProxyServer& { return self; })
         .def("__exit__", [](ProxyServer& self, py::object, py::object, py::object) {
             py::gil_scoped_release release;
             self.stop();
         });
 
-    m.def("_client_session_alive_count", &ClientSession::alive_count,
-          "Test-only: count of currently live ClientSession objects.");
-    m.def("_client_session_alive_peak", &ClientSession::alive_peak,
-          "Test-only: peak number of concurrently live ClientSession objects.");
+    m.def(
+        "_client_session_alive_count",
+        &ClientSession::alive_count,
+        "Test-only: count of currently live ClientSession objects.");
+    m.def(
+        "_client_session_alive_peak",
+        &ClientSession::alive_peak,
+        "Test-only: peak number of concurrently live ClientSession objects.");
 
-    py::class_<IBuffer>(m, "IBuffer",
-        "Abstract base class for variable-sized item buffers")
-        .def("put",
+    py::class_<IBuffer>(m, "IBuffer", "Abstract base class for variable-sized item buffers")
+        .def(
+            "put",
             [](IBuffer& self, py::bytes data) {
                 std::string_view sv = data;
                 self.put(sv.size(), sv.data());
@@ -1403,7 +1463,8 @@ Raises:
     BufferFullError: If buffer cannot accept the item.
     MessageTooLargeError: If item exceeds maximum slot size.
 )doc")
-        .def("get",
+        .def(
+            "get",
             [](IBuffer& self, py::buffer buf, int buffer_size) {
                 py::buffer_info info = buf.request(/*writable=*/true);
                 size_t available = static_cast<size_t>(info.size * info.itemsize);
@@ -1411,7 +1472,8 @@ Raises:
                 if (limit > available) limit = available;
                 return self.get(info.ptr, limit);
             },
-            py::arg("buffer"), py::arg("buffer_size"),
+            py::arg("buffer"),
+            py::arg("buffer_size"),
             R"doc(
 Get the next item from the buffer.
 
@@ -1422,12 +1484,12 @@ Args:
 Returns:
     Number of bytes retrieved, or 0 if empty or buffer too small.
 )doc")
-        .def("len", &IBuffer::len,
-             "Get the number of items currently in the buffer.")
-        .def("size", &IBuffer::size,
-             "Get the total byte size of item data in the buffer.");
+        .def("len", &IBuffer::len, "Get the number of items currently in the buffer.")
+        .def("size", &IBuffer::size, "Get the total byte size of item data in the buffer.");
 
-    py::class_<LockFreeBuffer<>, IBuffer>(m, "LockFreeBuffer",
+    py::class_<LockFreeBuffer<>, IBuffer>(
+        m,
+        "LockFreeBuffer",
         R"doc(
 Lock-free unbounded MPMC buffer for variable-sized items.
 
@@ -1447,7 +1509,9 @@ Example:
     // Larger slot variant for decoded sample blobs (up to 65536 bytes per slot).
     // Used as the output queue for SampleDecodingDataChannel, where blobs can be
     // significantly larger than 512 bytes (e.g. 4 channels * 100 samples * 8 bytes).
-    py::class_<LockFreeBuffer<65536>, IBuffer>(m, "SampleLockFreeBuffer",
+    py::class_<LockFreeBuffer<65536>, IBuffer>(
+        m,
+        "SampleLockFreeBuffer",
         R"doc(
 Lock-free unbounded MPMC buffer with large slots for decoded sample blobs.
 

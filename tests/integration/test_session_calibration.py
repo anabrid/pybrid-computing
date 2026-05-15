@@ -17,10 +17,11 @@ import pytest
 
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.controller import Controller as REDACController
-from pybrid.redac.run import RunConfig, DAQConfig
+from pybrid.redac.run import DAQConfig, RunConfig
 
 try:
     from pybrid.native._impl import ControlChannel as _NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -73,11 +74,10 @@ async def test_calibrated_run_scales_sample_data():
     assert run_cal.data, "Calibrated run produced no sample data"
 
     # Both runs must have the same number of probes.
-    assert len(run_uncal.data) == len(run_cal.data), (
-        "Probe count differs between calibrated and uncalibrated runs"
-    )
+    assert len(run_uncal.data) == len(run_cal.data), "Probe count differs between calibrated and uncalibrated runs"
 
     from pybrid.mock.handler.start_run import StartRunHandler
+
     expected_scale = StartRunHandler.CALIBRATION_SCALE
 
     for idx, (uncal_samples, cal_samples) in enumerate(zip(run_uncal.data, run_cal.data)):
@@ -85,9 +85,9 @@ async def test_calibrated_run_scales_sample_data():
             continue
         uncal_arr = np.array(uncal_samples, dtype=np.float64)
         cal_arr = np.array(cal_samples, dtype=np.float64)
-        assert len(uncal_arr) == len(cal_arr), (
-            f"Sample count mismatch for probe {idx}: {len(uncal_arr)} vs {len(cal_arr)}"
-        )
+        assert len(uncal_arr) == len(
+            cal_arr
+        ), f"Sample count mismatch for probe {idx}: {len(uncal_arr)} vs {len(cal_arr)}"
 
         if np.allclose(uncal_arr, 0, atol=1e-6):
             continue
@@ -96,7 +96,9 @@ async def test_calibrated_run_scales_sample_data():
         valid = ~np.isnan(ratio)
         assert valid.any(), f"No non-zero samples to compare for probe {idx}"
         np.testing.assert_allclose(
-            ratio[valid], expected_scale, atol=1e-4,
+            ratio[valid],
+            expected_scale,
+            atol=1e-4,
             err_msg=f"Calibrated/uncalibrated ratio for probe {idx} should be {expected_scale}",
         )
 
@@ -128,6 +130,7 @@ async def test_calibrated_run_scales_final_values():
     assert run_cal.final_values, "Calibrated run produced no final_values"
 
     from pybrid.mock.handler.start_run import StartRunHandler
+
     expected_scale = StartRunHandler.CALIBRATION_SCALE
 
     common_paths = set(run_uncal.final_values) & set(run_cal.final_values)

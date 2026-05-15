@@ -8,13 +8,7 @@ from enum import Enum
 from uuid import UUID, uuid4
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.base.hybrid import (
-    BaseRun,
-    BaseRunConfig,
-    BaseRunFlags,
-    BaseRunState,
-    BaseDAQConfig,
-)
+from pybrid.base.hybrid import BaseDAQConfig, BaseRun, BaseRunConfig, BaseRunFlags, BaseRunState
 from pybrid.base.utils.descriptors import Validator
 from pybrid.redac.entities import Path
 from pybrid.redac.partitioning import PartitionConfig
@@ -138,7 +132,7 @@ class DAQConfig(BaseDAQConfig):
 class CalibrationConfig:
     #: Whether to calibrate before starting the run
     enabled: bool = True
-    #path of leader of the calibration process
+    # path of leader of the calibration process
     leader: None | Path = None
 
 

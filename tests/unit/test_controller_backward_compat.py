@@ -21,12 +21,12 @@ All tests use mocks — no real network connections are made.
 """
 
 import warnings
-
-import pytest
 from unittest.mock import MagicMock, patch
 
-from pybrid.redac.controller import Controller as REDACController
+import pytest
+
 from pybrid.redac.channel import DeviceConnection
+from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.entities import Path
 
 
@@ -60,9 +60,9 @@ class TestProtocolsShim:
             _ = ctrl.protocols
 
         deprecation_warnings = [w for w in caught if issubclass(w.category, DeprecationWarning)]
-        assert len(deprecation_warnings) >= 1, (
-            "Accessing controller.protocols must emit at least one DeprecationWarning"
-        )
+        assert (
+            len(deprecation_warnings) >= 1
+        ), "Accessing controller.protocols must emit at least one DeprecationWarning"
 
     def test_protocols_shim_reflects_connections(self):
         """protocols reflects live connection_manager state: empty before injection, non-empty after."""
@@ -79,9 +79,7 @@ class TestProtocolsShim:
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             after = ctrl.protocols
-            assert after and len(list(after)) > 0, (
-                "protocols must reflect newly added connections"
-            )
+            assert after and len(list(after)) > 0, "protocols must reflect newly added connections"
 
 
 class TestDevicesShim:
@@ -109,6 +107,4 @@ class TestDevicesShim:
             _ = ctrl.devices
 
         deprecation_warnings = [w for w in caught if issubclass(w.category, DeprecationWarning)]
-        assert len(deprecation_warnings) >= 1, (
-            "Accessing controller.devices must emit at least one DeprecationWarning"
-        )
+        assert len(deprecation_warnings) >= 1, "Accessing controller.devices must emit at least one DeprecationWarning"

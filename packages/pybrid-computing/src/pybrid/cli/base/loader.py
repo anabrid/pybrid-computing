@@ -12,9 +12,7 @@ logger = logging.getLogger(__name__)
 def load_cli_plugins():
     logger.debug("Loading CLI plugins...")
     cli_namespace = importlib.import_module("pybrid.cli")
-    cli_plugins = pkgutil.iter_modules(
-        cli_namespace.__path__, cli_namespace.__name__ + "."
-    )
+    cli_plugins = pkgutil.iter_modules(cli_namespace.__path__, cli_namespace.__name__ + ".")
     for plugin in cli_plugins:
         # pybrid.cli.base itself is found this way, ignore it
         if plugin.name == "pybrid.cli.base":

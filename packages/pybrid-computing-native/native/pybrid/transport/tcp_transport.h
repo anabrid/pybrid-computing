@@ -51,8 +51,7 @@ public:
     /// cleared to prevent double-close; on failure, the destructor closes it.
     /// Caller must call start() after construction.
     static std::unique_ptr<TCPTransport> from_accepted(
-        AcceptedSocket accepted,
-        BufferType buffer_type = BufferType::LockFree);
+        AcceptedSocket accepted, BufferType buffer_type = BufferType::LockFree);
 
     ~TCPTransport() override;
 
@@ -71,8 +70,7 @@ public:
     void set_name(const std::string& name) override;
 
     /// @throws std::runtime_error if not running or already connected.
-    bool connect(const std::string& host, uint16_t port,
-                 double timeout_secs = DEFAULT_TCP_CONNECT_TIMEOUT);
+    bool connect(const std::string& host, uint16_t port, double timeout_secs = DEFAULT_TCP_CONNECT_TIMEOUT);
 
     void disconnect();
     bool is_connected() const;
@@ -90,8 +88,7 @@ public:
 
     // Avoid churning reallocate-free on back-to-back small runs; only shrink
     // after a real burst has grown the reassembly buffer.
-    static constexpr size_t TCP_RECV_BUFFER_RESET_THRESHOLD =
-        4 * (MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE);
+    static constexpr size_t TCP_RECV_BUFFER_RESET_THRESHOLD = 4 * (MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE);
 
     // Post a closure onto io_ that shrinks recv_buffer_ back to its initial capacity.
     void reset_buffers();

@@ -3,18 +3,14 @@
 
 import pytest
 
-from pybrid.base.hybrid.serializer import Serializer, Deserializer
+from pybrid.base.hybrid.serializer import Deserializer, Serializer
 from pybrid.base.proto import main_pb2 as pb
+from pybrid.base.utils.addressing import AddressingMap
+from pybrid.redac.blocks import CBlock, IBlock, MIntBlock, UBlock
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.cluster import Cluster
-from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
 from pybrid.redac.entities import Path
-from pybrid.base.utils.addressing import AddressingMap
-
-from tests.integration.test_serialization import (
-    make_test_lucidac,
-    make_test_redac_with_mblock,
-)
+from tests.integration.test_serialization import make_test_lucidac, make_test_redac_with_mblock
 
 
 def _make_lucidac_with_config():
@@ -44,8 +40,8 @@ class TestFullBundleRoundtrip:
 
         module = Serializer.serialize(serializer, computer)
 
-        spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
-        config_entries = [c for c in module.items if c.WhichOneof('kind') != 'entity_specification']
+        spec_entries = [c for c in module.items if c.WhichOneof("kind") == "entity_specification"]
+        config_entries = [c for c in module.items if c.WhichOneof("kind") != "entity_specification"]
 
         assert len(spec_entries) > 0, "Full module must include entity_specification (spec) entries"
         assert len(config_entries) > 0, "Full module must include operational config entries"
@@ -55,7 +51,7 @@ class TestFullBundleRoundtrip:
         serializer = computer.get_serializer()()
 
         module = Serializer.serialize(serializer, computer)
-        spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
+        spec_entries = [c for c in module.items if c.WhichOneof("kind") == "entity_specification"]
 
         # Each computer.entities entry should produce one spec entry
         entity_paths = {str(e.path) for e in computer.entities}
@@ -71,8 +67,8 @@ class TestFullBundleRoundtrip:
         module = Serializer.serialize(serializer, computer)
 
         # Separate spec from config entries
-        spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
-        config_entries = [c for c in module.items if c.WhichOneof('kind') != 'entity_specification']
+        spec_entries = [c for c in module.items if c.WhichOneof("kind") == "entity_specification"]
+        config_entries = [c for c in module.items if c.WhichOneof("kind") != "entity_specification"]
 
         # Rebuild entity tree from spec entries
         deser = deserializer_cls()
@@ -84,6 +80,7 @@ class TestFullBundleRoundtrip:
 
         # Create a fresh computer with the rebuilt structure
         from pybrid.lucidac.computer import LUCIDAC
+
         fresh_computer = LUCIDAC(entities=restored_carriers)
 
         # Apply configuration onto the fresh computer
@@ -106,18 +103,17 @@ class TestFullBundleRoundtrip:
         deserializer_cls = computer.get_deserializer()
 
         module = Serializer.serialize(serializer, computer)
-        spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
-        config_entries = [c for c in module.items if c.WhichOneof('kind') != 'entity_specification']
+        spec_entries = [c for c in module.items if c.WhichOneof("kind") == "entity_specification"]
+        config_entries = [c for c in module.items if c.WhichOneof("kind") != "entity_specification"]
 
         deser = deserializer_cls()
         restored_carriers = [
-            deser.deserialize_specification(
-                c.entity_specification.entity, Path.parse(c.entity.path)
-            )
+            deser.deserialize_specification(c.entity_specification.entity, Path.parse(c.entity.path))
             for c in spec_entries
         ]
 
         from pybrid.lucidac.computer import LUCIDAC
+
         fresh_computer = LUCIDAC(entities=restored_carriers)
         deser.computer = fresh_computer
         deser.deserialize_configuration(config_entries)
@@ -134,17 +130,16 @@ class TestFullBundleRoundtrip:
         deserializer_cls = computer.get_deserializer()
 
         module = Serializer.serialize(serializer, computer)
-        spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
+        spec_entries = [c for c in module.items if c.WhichOneof("kind") == "entity_specification"]
 
         deser = deserializer_cls()
         restored_carriers = [
-            deser.deserialize_specification(
-                c.entity_specification.entity, Path.parse(c.entity.path)
-            )
+            deser.deserialize_specification(c.entity_specification.entity, Path.parse(c.entity.path))
             for c in spec_entries
         ]
 
         from pybrid.lucidac.computer import LUCIDAC
+
         fresh_computer = LUCIDAC(entities=restored_carriers)
 
         assert len(fresh_computer.carriers) == len(computer.carriers)
@@ -274,8 +269,8 @@ class TestMixedBundleOrdering:
         serializer = computer.get_serializer()()
         module = Serializer.serialize(serializer, computer)
 
-        spec_entries = [c for c in module.items if c.WhichOneof('kind') == 'entity_specification']
-        config_entries = [c for c in module.items if c.WhichOneof('kind') != 'entity_specification']
+        spec_entries = [c for c in module.items if c.WhichOneof("kind") == "entity_specification"]
+        config_entries = [c for c in module.items if c.WhichOneof("kind") != "entity_specification"]
 
         # Interleave: config, spec, config, spec, ...
         interleaved = []
@@ -296,9 +291,9 @@ class TestMixedBundleOrdering:
         interleaved, spec_entries, config_entries = self._make_interleaved_module(computer)
 
         # Verify interleaving is actually mixed
-        kinds = [c.WhichOneof('kind') for c in interleaved]
+        kinds = [c.WhichOneof("kind") for c in interleaved]
         has_config_before_spec = any(
-            kinds[i] != 'entity_specification' and kinds[j] == 'entity_specification'
+            kinds[i] != "entity_specification" and kinds[j] == "entity_specification"
             for i in range(len(kinds))
             for j in range(i + 1, len(kinds))
         )
@@ -313,12 +308,11 @@ class TestMixedBundleOrdering:
         deserializer_cls = computer.get_deserializer()
         deser = deserializer_cls()
         restored_carriers = [
-            deser.deserialize_specification(
-                c.entity_specification.entity, Path.parse(c.entity.path)
-            )
+            deser.deserialize_specification(c.entity_specification.entity, Path.parse(c.entity.path))
             for c in spec_entries
         ]
         from pybrid.lucidac.computer import LUCIDAC
+
         fresh_computer = LUCIDAC(entities=restored_carriers)
         deser.computer = fresh_computer
 
@@ -340,18 +334,17 @@ class TestMixedBundleOrdering:
         deserializer_cls = computer.get_deserializer()
 
         ordered_module = Serializer.serialize(serializer, computer)
-        spec_entries = [c for c in ordered_module.items if c.WhichOneof('kind') == 'entity_specification']
-        config_entries = [c for c in ordered_module.items if c.WhichOneof('kind') != 'entity_specification']
+        spec_entries = [c for c in ordered_module.items if c.WhichOneof("kind") == "entity_specification"]
+        config_entries = [c for c in ordered_module.items if c.WhichOneof("kind") != "entity_specification"]
 
         def rebuild_from_spec(spec_entries):
             deser = deserializer_cls()
             carriers = [
-                deser.deserialize_specification(
-                    c.entity_specification.entity, Path.parse(c.entity.path)
-                )
+                deser.deserialize_specification(c.entity_specification.entity, Path.parse(c.entity.path))
                 for c in spec_entries
             ]
             from pybrid.lucidac.computer import LUCIDAC
+
             return LUCIDAC(entities=carriers), deser
 
         # Ordered: spec first, then config
@@ -366,10 +359,7 @@ class TestMixedBundleOrdering:
         Deserializer.deserialize(deser2, pb.Module(items=interleaved_items))
 
         for i in range(32):
-            assert (
-                ordered_computer.carriers[0].clusters[0].cblock.elements[i].computation.factor
-                == pytest.approx(
-                    interleaved_computer.carriers[0].clusters[0].cblock.elements[i].computation.factor,
-                    rel=1e-6,
-                )
+            assert ordered_computer.carriers[0].clusters[0].cblock.elements[i].computation.factor == pytest.approx(
+                interleaved_computer.carriers[0].clusters[0].cblock.elements[i].computation.factor,
+                rel=1e-6,
             )

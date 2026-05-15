@@ -6,7 +6,8 @@
 
 import asyncio
 import logging
-from asyncio import StreamReader, StreamWriter, Server
+from asyncio import Server, StreamReader, StreamWriter
+
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.mock.config import DummyDACConfig, DummyDACMacMode
 from pybrid.mock.connection import ClientConnection
@@ -84,18 +85,16 @@ class DummyDAC:
         :return: Dictionary mapping field numbers to handler instances.
         """
         from pybrid.mock.handler import (
-            ResetHandler,
+            CalibrationHandler,
             ConfigHandler,
             ExtractHandler,
-            UDPStreamingHandler,
-            StartRunHandler,
-            CalibrationHandler,
             GetOverloadStatusHandler,
+            ResetHandler,
+            StartRunHandler,
+            UDPStreamingHandler,
         )
 
-        calibration_field = pb.MessageV1.DESCRIPTOR.fields_by_name[
-            "calibration_command"
-        ].number
+        calibration_field = pb.MessageV1.DESCRIPTOR.fields_by_name["calibration_command"].number
 
         return {
             pb.MessageV1.RESET_COMMAND_FIELD_NUMBER: ResetHandler(self),
@@ -188,31 +187,91 @@ class DummyDAC:
                         version=version,
                         eui="00-00-00-00-00-00-00",
                         children=[
-                            pb.Entity(id="/M0", class_=pb.Entity.Class.M_BLOCK, type=1, variant=1, version=version,
-                                      eui="00-04-A3-0B-00-16-92-1B"),
-                            pb.Entity(id="/M1", class_=pb.Entity.Class.M_BLOCK, type=2, variant=1, version=version,
-                                      eui="00-04-A3-0B-00-16-7D-6D"),
-                            pb.Entity(id="/U", class_=pb.Entity.Class.U_BLOCK, type=1, variant=1, version=version,
-                                      eui="00-04-A3-0B-00-15-76-7A"),
-                            pb.Entity(id="/C", class_=pb.Entity.Class.C_BLOCK, type=1, variant=1, version=version,
-                                      eui="FF-FF-D8-47-8F-3F-8E-F5"),
-                            pb.Entity(id="/I", class_=pb.Entity.Class.I_BLOCK, type=1, variant=1, version=version,
-                                      eui="00-04-A3-0B-00-15-3D-F5"),
-                            pb.Entity(id="/SH", class_=pb.Entity.Class.SH_BLOCK, type=1, variant=1, version=version,
-                                      eui="00-04-A3-0B-00-16-94-9F"),
+                            pb.Entity(
+                                id="/M0",
+                                class_=pb.Entity.Class.M_BLOCK,
+                                type=1,
+                                variant=1,
+                                version=version,
+                                eui="00-04-A3-0B-00-16-92-1B",
+                            ),
+                            pb.Entity(
+                                id="/M1",
+                                class_=pb.Entity.Class.M_BLOCK,
+                                type=2,
+                                variant=1,
+                                version=version,
+                                eui="00-04-A3-0B-00-16-7D-6D",
+                            ),
+                            pb.Entity(
+                                id="/U",
+                                class_=pb.Entity.Class.U_BLOCK,
+                                type=1,
+                                variant=1,
+                                version=version,
+                                eui="00-04-A3-0B-00-15-76-7A",
+                            ),
+                            pb.Entity(
+                                id="/C",
+                                class_=pb.Entity.Class.C_BLOCK,
+                                type=1,
+                                variant=1,
+                                version=version,
+                                eui="FF-FF-D8-47-8F-3F-8E-F5",
+                            ),
+                            pb.Entity(
+                                id="/I",
+                                class_=pb.Entity.Class.I_BLOCK,
+                                type=1,
+                                variant=1,
+                                version=version,
+                                eui="00-04-A3-0B-00-15-3D-F5",
+                            ),
+                            pb.Entity(
+                                id="/SH",
+                                class_=pb.Entity.Class.SH_BLOCK,
+                                type=1,
+                                variant=1,
+                                version=version,
+                                eui="00-04-A3-0B-00-16-94-9F",
+                            ),
                         ],
                     ),
-                    pb.Entity(id="/CTRL", class_=pb.Entity.Class.CTRL_BLOCK, type=1, variant=1, version=version,
-                              eui="00-04-A3-0B-00-16-7E-05"),
-                    *(
-                        [pb.Entity(id="/T", class_=pb.Entity.Class.T_BLOCK, type=1, variant=1, version=version,
-                                   eui="00-04-A3-0B-00-16-7E-10")]
-                        if not self.config.lucidac_mode else []
+                    pb.Entity(
+                        id="/CTRL",
+                        class_=pb.Entity.Class.CTRL_BLOCK,
+                        type=1,
+                        variant=1,
+                        version=version,
+                        eui="00-04-A3-0B-00-16-7E-05",
                     ),
                     *(
-                        [pb.Entity(id="/FP", class_=pb.Entity.Class.FRONT_PANEL, type=1, variant=1, version=version,
-                                   eui="00-00-00-00-00-00-00")]
-                        if self.config.lucidac_mode else []
+                        [
+                            pb.Entity(
+                                id="/T",
+                                class_=pb.Entity.Class.T_BLOCK,
+                                type=1,
+                                variant=1,
+                                version=version,
+                                eui="00-04-A3-0B-00-16-7E-10",
+                            )
+                        ]
+                        if not self.config.lucidac_mode
+                        else []
+                    ),
+                    *(
+                        [
+                            pb.Entity(
+                                id="/FP",
+                                class_=pb.Entity.Class.FRONT_PANEL,
+                                type=1,
+                                variant=1,
+                                version=version,
+                                eui="00-00-00-00-00-00-00",
+                            )
+                        ]
+                        if self.config.lucidac_mode
+                        else []
                     ),
                 ],
             )
@@ -230,9 +289,7 @@ class DummyDAC:
 
         :return: The DummyDAC instance itself (not a tuple).
         """
-        self._server = await asyncio.start_server(
-            self._client_connected, self.host, self.port
-        )
+        self._server = await asyncio.start_server(self._client_connected, self.host, self.port)
         await self._server.__aenter__()
         logger.info(
             "DummyDAC server started on %s:%d with MACs %s",
@@ -294,18 +351,12 @@ class DummyDAC:
 
         # Register handlers for each command type
         for field_number, handler in self._handlers.items():
-            connection.register_callback(
-                field_number,
-                handler.handle,
-                extra_args=[connection]
-            )
+            connection.register_callback(field_number, handler.handle, extra_args=[connection])
 
         # Start connection recv loop and wait for it to complete
         try:
             async with connection:
-                logger.debug(
-                    "DummyDAC: Connection started for %s. Waiting for messages...", peer
-                )
+                logger.debug("DummyDAC: Connection started for %s. Waiting for messages...", peer)
                 await connection
         except ConnectionError:
             # Client closed the connection - this is expected

@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass, field
 
-from pybrid.redac.blocks.block import SwitchingBlock, SignalConnectionError
+from pybrid.redac.blocks.block import SignalConnectionError, SwitchingBlock
 from pybrid.redac.entities import EntityClass, EntityType
 
 

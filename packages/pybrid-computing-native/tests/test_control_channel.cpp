@@ -173,8 +173,7 @@ TEST_F(ControlChannelTest, SendAndRecvCorrelation) {
 
     // Send request from a background thread so we can serve it.
     std::future<pb::MessageV1> response_future = std::async(
-        std::launch::async,
-        [&]() { return channel->send_and_recv(request, 5.0); });
+        std::launch::async, [&]() { return channel->send_and_recv(request, 5.0); });
 
     // Server receives the request and checks the id.
     pb::MessageV1 received = server_recv_message(5.0);
@@ -245,12 +244,10 @@ TEST_F(ControlChannelTest, CallbackDispatch) {
     std::atomic<bool> callback_called{false};
     pb::RunState received_new_state = pb::NEW;
 
-    channel->register_callback(
-        pb::MessageV1::kRunStateChangeMessageFieldNumber,
-        [&](pb::MessageV1& msg) {
-            received_new_state = msg.run_state_change_message().new_();
-            callback_called.store(true, std::memory_order_release);
-        });
+    channel->register_callback(pb::MessageV1::kRunStateChangeMessageFieldNumber, [&](pb::MessageV1& msg) {
+        received_new_state = msg.run_state_change_message().new_();
+        callback_called.store(true, std::memory_order_release);
+    });
 
     channel->start();
 
@@ -262,8 +259,7 @@ TEST_F(ControlChannelTest, CallbackDispatch) {
 
     // Wait up to 2 s for the callback to fire.
     auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-    while (!callback_called.load(std::memory_order_acquire) &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (!callback_called.load(std::memory_order_acquire) && std::chrono::steady_clock::now() < deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
@@ -284,11 +280,9 @@ TEST_F(ControlChannelTest, UnregisterCallback) {
 
     std::atomic<int> call_count{0};
 
-    channel->register_callback(
-        pb::MessageV1::kRunStateChangeMessageFieldNumber,
-        [&](pb::MessageV1& /* msg */) {
-            call_count.fetch_add(1, std::memory_order_relaxed);
-        });
+    channel->register_callback(pb::MessageV1::kRunStateChangeMessageFieldNumber, [&](pb::MessageV1& /* msg */) {
+        call_count.fetch_add(1, std::memory_order_relaxed);
+    });
 
     // Unregister before any message arrives.
     channel->unregister_callback(pb::MessageV1::kRunStateChangeMessageFieldNumber);
@@ -327,8 +321,7 @@ TEST_F(ControlChannelTest, StopBreaksPendingPromises) {
 
     // Start send_and_recv in background with a long timeout.
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return channel->send_and_recv(request, 10.0); });
+        std::launch::async, [&]() { return channel->send_and_recv(request, 10.0); });
 
     // Wait for the server to receive the request (confirms send completed).
     server_recv_message(5.0);
@@ -354,11 +347,9 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
 
     // --- Sub-case a: notification dispatched to callback ---
     std::atomic<bool> notif_received{false};
-    channel->register_callback(
-        pb::MessageV1::kExtractResponseFieldNumber,
-        [&](pb::MessageV1& /* msg */) {
-            notif_received.store(true, std::memory_order_release);
-        });
+    channel->register_callback(pb::MessageV1::kExtractResponseFieldNumber, [&](pb::MessageV1& /* msg */) {
+        notif_received.store(true, std::memory_order_release);
+    });
 
     // Build a notification envelope (empty id → notification).
     pb::MessageV1 notif_msg;
@@ -370,8 +361,7 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
     std::string notif_bytes;
     ASSERT_TRUE(notif_env.SerializeToString(&notif_bytes));
 
-    channel->on_tcp_response(
-        std::vector<uint8_t>(notif_bytes.begin(), notif_bytes.end()));
+    channel->on_tcp_response(std::vector<uint8_t>(notif_bytes.begin(), notif_bytes.end()));
 
     EXPECT_TRUE(notif_received.load());
 
@@ -387,8 +377,7 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
     cmd_inject->set_specification(true);
 
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return channel->send_and_recv(request, 5.0); });
+        std::launch::async, [&]() { return channel->send_and_recv(request, 5.0); });
 
     // Drain the request on the server side so the send completes.
     server_recv_message(5.0);
@@ -404,8 +393,7 @@ TEST_F(ControlChannelTest, OnTcpResponse) {
     std::string resp_bytes;
     ASSERT_TRUE(resp_env.SerializeToString(&resp_bytes));
 
-    channel->on_tcp_response(
-        std::vector<uint8_t>(resp_bytes.begin(), resp_bytes.end()));
+    channel->on_tcp_response(std::vector<uint8_t>(resp_bytes.begin(), resp_bytes.end()));
 
     pb::MessageV1 result = fut.get();
     EXPECT_EQ(result.id(), req_id);
@@ -417,8 +405,7 @@ namespace {
 
 class BusyReplyScript {
 public:
-    BusyReplyScript(TCPTransport* transport, int busy_count)
-        : transport_(transport), busy_count_(busy_count) {}
+    BusyReplyScript(TCPTransport* transport, int busy_count) : transport_(transport), busy_count_(busy_count) {}
 
     void run(int turns_to_run) {
         for (int i = 0; i < turns_to_run; ++i) {
@@ -450,8 +437,7 @@ public:
             } else {
                 auto* mod = reply.mutable_extract_response()->mutable_module();
                 auto* item = mod->add_items();
-                item->mutable_entity_specification()
-                    ->mutable_entity()->set_id("/real-response");
+                item->mutable_entity_specification()->mutable_entity()->set_id("/real-response");
             }
 
             pb::Envelope out;
@@ -506,18 +492,15 @@ TEST_F(ControlChannelTest, BusyRetry_NoBusy_ReturnsImmediately) {
 
     server_thread.join();
 
-    EXPECT_LT(std::chrono::duration<double>(elapsed).count(), 1.0)
-        << "No-busy case must not wait for the retry tick";
+    EXPECT_LT(std::chrono::duration<double>(elapsed).count(), 1.0) << "No-busy case must not wait for the retry tick";
     ASSERT_TRUE(response.has_extract_response());
     EXPECT_EQ(response.id(), original_id);
-    EXPECT_EQ(response.extract_response().module().items(0)
-              .entity_specification().entity().id(), "/real-response");
+    EXPECT_EQ(response.extract_response().module().items(0).entity_specification().entity().id(), "/real-response");
 }
 
 TEST_F(ControlChannelTest, BusyRetry_SingleBusy_RetriesWithFreshIdAndReturnsFollowUp) {
     // Cap the busy-wait low so a hang surfaces as a timeout in the test runner.
-    auto channel = ControlChannel::create(
-        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/10);
+    auto channel = ControlChannel::create("127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/10);
     accept_one();
     channel->start();
 
@@ -535,8 +518,7 @@ TEST_F(ControlChannelTest, BusyRetry_SingleBusy_RetriesWithFreshIdAndReturnsFoll
     } catch (const std::runtime_error&) {
         threw = true;
     }
-    auto elapsed_secs = std::chrono::duration<double>(
-        std::chrono::steady_clock::now() - t0).count();
+    auto elapsed_secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
     script.stop();
     channel->stop();
@@ -551,19 +533,16 @@ TEST_F(ControlChannelTest, BusyRetry_SingleBusy_RetriesWithFreshIdAndReturnsFoll
     auto ids = script.observed_ids();
     ASSERT_EQ(ids.size(), 2u);
     EXPECT_EQ(ids[0], original_id);
-    EXPECT_NE(ids[1], original_id)
-        << "Retry must carry a regenerated MessageV1 id";
+    EXPECT_NE(ids[1], original_id) << "Retry must carry a regenerated MessageV1 id";
     EXPECT_FALSE(ids[1].empty());
 
     ASSERT_TRUE(response.has_extract_response());
     EXPECT_FALSE(response.has_busy_response());
-    EXPECT_EQ(response.extract_response().module().items(0)
-              .entity_specification().entity().id(), "/real-response");
+    EXPECT_EQ(response.extract_response().module().items(0).entity_specification().entity().id(), "/real-response");
 }
 
 TEST_F(ControlChannelTest, BusyRetry_ExceedsMaxWait_Throws) {
-    auto channel = ControlChannel::create(
-        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/2);
+    auto channel = ControlChannel::create("127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/2);
     accept_one();
     channel->start();
 
@@ -582,8 +561,7 @@ TEST_F(ControlChannelTest, BusyRetry_ExceedsMaxWait_Throws) {
         threw = true;
         error_msg = e.what();
     }
-    auto elapsed_secs = std::chrono::duration<double>(
-        std::chrono::steady_clock::now() - t0).count();
+    auto elapsed_secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
     script.stop();
     // Stopping the channel releases the server-side recv loop.
@@ -594,8 +572,7 @@ TEST_F(ControlChannelTest, BusyRetry_ExceedsMaxWait_Throws) {
     EXPECT_GE(elapsed_secs, 1.5);
     EXPECT_LT(elapsed_secs, 6.0);
 
-    EXPECT_NE(error_msg.find("busy"), std::string::npos)
-        << "Error message must mention busy state: " << error_msg;
+    EXPECT_NE(error_msg.find("busy"), std::string::npos) << "Error message must mention busy state: " << error_msg;
     // Must mention both an elapsed value (e.g. "2.0s" or "2.1s") and the
     // configured cap ("max wait of 2s"). The elapsed value must be non-zero.
     EXPECT_NE(error_msg.find("max wait of 2s"), std::string::npos)
@@ -616,8 +593,7 @@ TEST_F(ControlChannelTest, BusyRetry_MaxWaitIsPerInstance) {
     short_server.bind(0);
     short_server.start();
 
-    auto short_channel = ControlChannel::create(
-        "127.0.0.1", short_server.local_port(), 5.0, /*max_busy_wait_secs=*/1);
+    auto short_channel = ControlChannel::create("127.0.0.1", short_server.local_port(), 5.0, /*max_busy_wait_secs=*/1);
     AcceptedSocket accepted = short_server.accept(5.0);
     ASSERT_TRUE(accepted.is_valid());
     auto short_server_transport = TCPTransport::from_accepted(std::move(accepted));
@@ -629,11 +605,8 @@ TEST_F(ControlChannelTest, BusyRetry_MaxWaitIsPerInstance) {
     std::thread t([&] { script.run(1000); });
 
     auto t0 = std::chrono::steady_clock::now();
-    EXPECT_THROW(
-        short_channel->send_and_recv(make_extract_request(), 60.0),
-        std::runtime_error);
-    auto elapsed = std::chrono::duration<double>(
-        std::chrono::steady_clock::now() - t0).count();
+    EXPECT_THROW(short_channel->send_and_recv(make_extract_request(), 60.0), std::runtime_error);
+    auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
     EXPECT_LT(elapsed, 4.0) << "1-s cap must fire faster than default 60 s";
 
@@ -645,8 +618,7 @@ TEST_F(ControlChannelTest, BusyRetry_MaxWaitIsPerInstance) {
 }
 
 TEST_F(ControlChannelTest, BusyRetry_CancelUnblocksPromptly) {
-    auto channel = ControlChannel::create(
-        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/30);
+    auto channel = ControlChannel::create("127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/30);
     accept_one();
     channel->start();
 
@@ -670,8 +642,7 @@ TEST_F(ControlChannelTest, BusyRetry_CancelUnblocksPromptly) {
         threw = true;
         error_msg = e.what();
     }
-    auto elapsed = std::chrono::duration<double>(
-        std::chrono::steady_clock::now() - t0).count();
+    auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
     canceller.join();
     script.stop();
@@ -679,8 +650,7 @@ TEST_F(ControlChannelTest, BusyRetry_CancelUnblocksPromptly) {
     if (server_thread.joinable()) server_thread.join();
 
     ASSERT_TRUE(threw) << "Expected std::runtime_error from cancel";
-    EXPECT_LT(elapsed, 2.0)
-        << "Cancel must unblock before the next busy-poll tick";
+    EXPECT_LT(elapsed, 2.0) << "Cancel must unblock before the next busy-poll tick";
 
     EXPECT_NE(error_msg.find("cancelled"), std::string::npos)
         << "Error message must mention cancellation: " << error_msg;
@@ -697,13 +667,10 @@ enum class CommandKind {
     RawSendAndRecv,
 };
 
-class BusyRetryWrapperTest
-    : public ControlChannelTest,
-      public ::testing::WithParamInterface<CommandKind> {};
+class BusyRetryWrapperTest : public ControlChannelTest, public ::testing::WithParamInterface<CommandKind> {};
 
 TEST_P(BusyRetryWrapperTest, EveryWrapperInheritsRetry) {
-    auto channel = ControlChannel::create(
-        "127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/15);
+    auto channel = ControlChannel::create("127.0.0.1", server_port(), 5.0, /*max_busy_wait_secs=*/15);
     accept_one();
     channel->start();
 
@@ -713,28 +680,20 @@ TEST_P(BusyRetryWrapperTest, EveryWrapperInheritsRetry) {
 
     auto invoke = [&](CommandKind kind) {
         switch (kind) {
-            case CommandKind::Extract:
-                channel->extract("/", true, true, false, false, 15.0);
-                break;
+            case CommandKind::Extract: channel->extract("/", true, true, false, false, 15.0); break;
             case CommandKind::SetModule: {
                 pb::Module m;
                 channel->set_module(m, 15.0);
                 break;
             }
-            case CommandKind::Reset:
-                channel->reset(true, true, 15.0);
-                break;
-            case CommandKind::Authenticate:
-                channel->authenticate("token", 15.0);
-                break;
+            case CommandKind::Reset: channel->reset(true, true, 15.0); break;
+            case CommandKind::Authenticate: channel->authenticate("token", 15.0); break;
             case CommandKind::StartRun: {
                 pb::StartRunCommand run;
                 channel->start_run_request(run, 15.0);
                 break;
             }
-            case CommandKind::RawSendAndRecv:
-                channel->send_and_recv(make_extract_request(), 15.0);
-                break;
+            case CommandKind::RawSendAndRecv: channel->send_and_recv(make_extract_request(), 15.0); break;
         }
     };
 
@@ -747,8 +706,7 @@ TEST_P(BusyRetryWrapperTest, EveryWrapperInheritsRetry) {
     } catch (...) {
         threw = true;
     }
-    auto elapsed = std::chrono::duration<double>(
-        std::chrono::steady_clock::now() - t0).count();
+    auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
     script.stop();
     channel->stop();
@@ -768,7 +726,8 @@ TEST_P(BusyRetryWrapperTest, EveryWrapperInheritsRetry) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    AllWrappers, BusyRetryWrapperTest,
+    AllWrappers,
+    BusyRetryWrapperTest,
     ::testing::Values(
         CommandKind::Extract,
         CommandKind::SetModule,
@@ -798,10 +757,7 @@ TEST(UtilsTest, GenerateUuidFormat) {
 
     // UUID v4 pattern: xxxxxxxx-xxxx-4xxx-[89ab]xxx-xxxxxxxxxxxx.
     static const std::regex uuid_v4_re(
-        R"([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})",
-        std::regex_constants::icase);
-    EXPECT_TRUE(std::regex_match(uuid1, uuid_v4_re))
-        << "Generated UUID does not match v4 format: " << uuid1;
-    EXPECT_TRUE(std::regex_match(uuid2, uuid_v4_re))
-        << "Generated UUID does not match v4 format: " << uuid2;
+        R"([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})", std::regex_constants::icase);
+    EXPECT_TRUE(std::regex_match(uuid1, uuid_v4_re)) << "Generated UUID does not match v4 format: " << uuid1;
+    EXPECT_TRUE(std::regex_match(uuid2, uuid_v4_re)) << "Generated UUID does not match v4 format: " << uuid2;
 }

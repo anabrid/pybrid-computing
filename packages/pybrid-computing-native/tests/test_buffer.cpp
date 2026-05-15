@@ -28,8 +28,7 @@ using namespace anabrid::pybrid::native;
  */
 class SimpleBarrier {
 public:
-    explicit SimpleBarrier(std::size_t count)
-        : m_count(count), m_waiting(0), m_generation(0) {}
+    explicit SimpleBarrier(std::size_t count) : m_count(count), m_waiting(0), m_generation(0) {}
 
     void arrive_and_wait() {
         std::unique_lock<std::mutex> lock(m_mutex);
@@ -61,8 +60,7 @@ struct TestItem {
     uint32_t sequence_number;
 
     bool operator==(const TestItem& other) const {
-        return producer_id == other.producer_id &&
-               sequence_number == other.sequence_number;
+        return producer_id == other.producer_id && sequence_number == other.sequence_number;
     }
 
     bool operator<(const TestItem& other) const {
@@ -378,11 +376,11 @@ TYPED_TEST(BufferConcurrencyTest, MultipleProducersSingleConsumer) {
         }
     });
 
-    for (auto& t : producers) t.join();
+    for (auto& t : producers)
+        t.join();
     consumer.join();
 
-    EXPECT_EQ(received_items.size(),
-              static_cast<size_t>(NUM_PRODUCERS * ITEMS_PER_PRODUCER));
+    EXPECT_EQ(received_items.size(), static_cast<size_t>(NUM_PRODUCERS * ITEMS_PER_PRODUCER));
 
     // Verify per-producer ordering
     std::vector<std::vector<uint32_t>> per_producer(NUM_PRODUCERS);
@@ -393,8 +391,7 @@ TYPED_TEST(BufferConcurrencyTest, MultipleProducersSingleConsumer) {
     for (int p = 0; p < NUM_PRODUCERS; ++p) {
         EXPECT_EQ(per_producer[p].size(), static_cast<size_t>(ITEMS_PER_PRODUCER));
         for (int i = 0; i < ITEMS_PER_PRODUCER; ++i) {
-            EXPECT_EQ(per_producer[p][i], static_cast<uint32_t>(i))
-                << "Producer " << p << " seq mismatch";
+            EXPECT_EQ(per_producer[p][i], static_cast<uint32_t>(i)) << "Producer " << p << " seq mismatch";
         }
     }
 }
@@ -457,7 +454,8 @@ TYPED_TEST(BufferConcurrencyTest, SingleProducerMultipleConsumers) {
     }
 
     producer.join();
-    for (auto& t : consumers) t.join();
+    for (auto& t : consumers)
+        t.join();
 
     EXPECT_EQ(total_received.load(), NUM_ITEMS);
     EXPECT_EQ(received_set.size(), static_cast<size_t>(NUM_ITEMS));
@@ -524,8 +522,10 @@ TYPED_TEST(BufferConcurrencyTest, MultipleProducersMultipleConsumers) {
         });
     }
 
-    for (auto& t : producers) t.join();
-    for (auto& t : consumers) t.join();
+    for (auto& t : producers)
+        t.join();
+    for (auto& t : consumers)
+        t.join();
 
     const int TOTAL_ITEMS = NUM_PRODUCERS * ITEMS_PER_PRODUCER;
     EXPECT_EQ(total_received.load(), TOTAL_ITEMS);
@@ -559,8 +559,7 @@ TYPED_TEST(BufferConcurrencyTest, HighContention) {
                         successful_puts++;
                     }
                 } else {
-                    size_t received =
-                        this->buffer->get(&recv_item, sizeof(TestItem));
+                    size_t received = this->buffer->get(&recv_item, sizeof(TestItem));
                     if (received > 0) {
                         successful_gets++;
                     }
@@ -569,7 +568,8 @@ TYPED_TEST(BufferConcurrencyTest, HighContention) {
         });
     }
 
-    for (auto& t : threads) t.join();
+    for (auto& t : threads)
+        t.join();
 
     EXPECT_FALSE(stop.load());
 
@@ -592,9 +592,7 @@ TYPED_TEST(BufferConcurrencyTest, HighContention) {
 
 class LockFreeBufferSpecificTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        buffer = std::make_unique<LockFreeBuffer<256>>();
-    }
+    void SetUp() override { buffer = std::make_unique<LockFreeBuffer<256>>(); }
 
     std::unique_ptr<LockFreeBuffer<256>> buffer;
 };
@@ -706,8 +704,7 @@ TEST_F(LockFreeBufferSpecificTest, RepeatedFillDrain) {
             size_t received = buffer->get(recv_buffer, sizeof(recv_buffer));
             EXPECT_EQ(received, sizeof(data)) << "Cycle " << cycle;
             for (size_t j = 0; j < sizeof(data); ++j) {
-                EXPECT_EQ(recv_buffer[j], 'A' + cycle)
-                    << "Cycle " << cycle << " byte " << j;
+                EXPECT_EQ(recv_buffer[j], 'A' + cycle) << "Cycle " << cycle << " byte " << j;
             }
         }
 

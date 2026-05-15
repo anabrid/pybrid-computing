@@ -3,8 +3,9 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from pybrid.base.hybrid.programs import SingleRun
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.redac import REDAC, DAQConfig, Run, RunConfig
 
 
 class UserProgram(SingleRun):
@@ -15,7 +16,7 @@ class UserProgram(SingleRun):
     def set_configuration(self, run: Run, computer: REDAC):
         # Reference to first cluster on first carrier board
         cluster = computer.carriers[0].clusters[0]
-        omega = 2.* 3.141 * 0.5
+        omega = 2.0 * 3.141 * 0.5
         # Configure harmonic oscillator
         cluster.route(0, 0, -1.0 * omega, 1)
         cluster.route(1, 1, 1.0 * omega, 0)
@@ -36,6 +37,7 @@ class UserProgram(SingleRun):
             plt.xlabel("'Time' t")
             plt.show()
         self.print("Done.")
+
 
 def time_series(sample_rate, sample_count):
     sample_period_micros = 1_000_000 // sample_rate

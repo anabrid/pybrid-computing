@@ -38,15 +38,10 @@ class ConfigHandler(BaseHandler):
         :param connection: The client connection (unused but required by callback signature).
         :return: A ConfigResponse on success or ErrorMessage if error injection is active.
         """
-        logger.debug(
-            "CONFIG: Received module with %d items",
-            len(cmd.module.items)
-        )
+        logger.debug("CONFIG: Received module with %d items", len(cmd.module.items))
         if self.server.config.error_stage == DummyDACErrorStage.AT_CONFIGURE:
             logger.debug("CONFIG: Error injection active (AT_CONFIGURE)")
-            return pb.ErrorMessage(
-                description=self.server.config.error_message or "Configuration error"
-            )
+            return pb.ErrorMessage(description=self.server.config.error_message or "Configuration error")
         self.server._stored_config = cmd.module
         logger.debug("CONFIG: Stored %d configurations", len(cmd.module.items))
         return pb.ConfigResponse()

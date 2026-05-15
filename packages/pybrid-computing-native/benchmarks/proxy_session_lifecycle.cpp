@@ -22,21 +22,21 @@
 #include <thread>
 #include <vector>
 
+#include "pybrid/proto/main.pb.h"
 #include "pybrid/proxy/proxy_server.h"
 #include "pybrid/proxy/proxy_session.h"
-#include "pybrid/proto/main.pb.h"
 #include "pybrid/transport/tcp_server.h"
 #include "pybrid/transport/tcp_transport.h"
 
 using namespace anabrid::pybrid::native;
 
-static constexpr int    N_CLIENTS        = 100;
-static constexpr size_t ALIVE_TOLERANCE  = 2;
-static constexpr int    QUIESCENCE_MS    = 500;
+static constexpr int N_CLIENTS = 100;
+static constexpr size_t ALIVE_TOLERANCE = 2;
+static constexpr int QUIESCENCE_MS = 500;
 static constexpr double HANDSHAKE_TIMEOUT = 10.0;
-static constexpr size_t RECV_BUF         = 65536;
+static constexpr size_t RECV_BUF = 65536;
 
-static const std::string CARRIER_MAC  = "aa-bb-cc-dd-ee-ff";
+static const std::string CARRIER_MAC = "aa-bb-cc-dd-ee-ff";
 static const std::string CARRIER_PATH = "/" + CARRIER_MAC;
 
 // Minimal mock backend — serves the three-message add_backend() handshake
@@ -59,18 +59,15 @@ struct MockBackend {
 
     void accept_and_handshake() {
         AcceptedSocket sock = server.accept(HANDSHAKE_TIMEOUT);
-        if (!sock.is_valid())
-            throw std::runtime_error("MockBackend: accept timed out");
+        if (!sock.is_valid()) throw std::runtime_error("MockBackend: accept timed out");
         transport = TCPTransport::from_accepted(std::move(sock));
-        if (!transport)
-            throw std::runtime_error("MockBackend: from_accepted returned null");
+        if (!transport) throw std::runtime_error("MockBackend: from_accepted returned null");
         transport->start();
 
         auto recv_msg = [&]() -> pb::MessageV1 {
             std::vector<uint8_t> buf(RECV_BUF);
             RecvResult r = transport->recv(buf.data(), buf.size(), HANDSHAKE_TIMEOUT);
-            if (r.status != RecvStatus::Success || r.bytes == 0)
-                throw std::runtime_error("MockBackend: recv failed");
+            if (r.status != RecvStatus::Success || r.bytes == 0) throw std::runtime_error("MockBackend: recv failed");
             pb::Envelope env;
             if (!env.ParseFromArray(buf.data(), static_cast<int>(r.bytes)))
                 throw std::runtime_error("MockBackend: parse failed");
@@ -123,8 +120,7 @@ int main() {
 
     // Start the backend handshake on a background thread before add_backend()
     // so the proxy's synchronous connect call does not race with accept().
-    std::future<void> handshake = std::async(
-        std::launch::async, [&]() { backend.accept_and_handshake(); });
+    std::future<void> handshake = std::async(std::launch::async, [&]() { backend.accept_and_handshake(); });
     proxy->add_backend("127.0.0.1", backend.port());
     handshake.get();
 
@@ -141,13 +137,12 @@ int main() {
         }
 
         struct sockaddr_in addr{};
-        addr.sin_family      = AF_INET;
-        addr.sin_port        = htons(proxy_port);
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(proxy_port);
         ::inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
 
         if (::connect(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0) {
-            std::cerr << "FAIL: connect() on iteration " << i
-                      << ": " << strerror(errno) << "\n";
+            std::cerr << "FAIL: connect() on iteration " << i << ": " << strerror(errno) << "\n";
             ::close(fd);
             return 1;
         }
@@ -162,17 +157,15 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(QUIESCENCE_MS));
 
     const size_t alive_after = ClientSession::alive_count();
-    const size_t peak        = ClientSession::alive_peak();
+    const size_t peak = ClientSession::alive_peak();
 
     proxy->stop();
 
     bool ok = true;
 
     if (alive_after > baseline + ALIVE_TOLERANCE) {
-        std::cerr << "FAIL: sessions leaked — alive_count went from "
-                  << baseline << " to " << alive_after
-                  << " after " << N_CLIENTS << " connections (tolerance "
-                  << ALIVE_TOLERANCE << ")\n";
+        std::cerr << "FAIL: sessions leaked — alive_count went from " << baseline << " to " << alive_after << " after "
+                  << N_CLIENTS << " connections (tolerance " << ALIVE_TOLERANCE << ")\n";
         ok = false;
     }
 
@@ -184,8 +177,7 @@ int main() {
 
     if (ok) {
         std::cout << "PASS: " << N_CLIENTS << " connect/disconnect cycles, "
-                  << "peak=" << peak << ", alive_after=" << alive_after
-                  << " (baseline=" << baseline << ")\n";
+                  << "peak=" << peak << ", alive_after=" << alive_after << " (baseline=" << baseline << ")\n";
         return 0;
     }
     return 1;

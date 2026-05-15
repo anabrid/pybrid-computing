@@ -13,6 +13,7 @@ Tests the internal lane allocation mechanisms:
 """
 
 import pytest
+
 from pybrid.lucipy.circuits import Circuit
 
 
@@ -53,18 +54,20 @@ class TestConstantMBlockOutput:
         cluster = circuit.to_computer().entities[0].clusters[0]
 
         assert cluster.ublock.outputs[11] == 15, (
-            f"Constant on lane 11 should use M-block output 15, "
-            f"got {cluster.ublock.outputs[11]}"
+            f"Constant on lane 11 should use M-block output 15, " f"got {cluster.ublock.outputs[11]}"
         )
 
 
 class TestWeightSplitting:
     """Tests for weight splitting across multiple lanes."""
 
-    @pytest.mark.parametrize("weight,expected_lanes", [
-        (24.0, 3),
-        (-20.0, 3),
-    ])
+    @pytest.mark.parametrize(
+        "weight,expected_lanes",
+        [
+            (24.0, 3),
+            (-20.0, 3),
+        ],
+    )
     def test_weight_splitting(self, weight, expected_lanes):
         """Weight splitting allocates ceil(|weight|/8) lanes, including negative weights."""
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -74,9 +77,7 @@ class TestWeightSplitting:
         circuit.connect(i0, i1, weight=weight)
 
         used_count = sum(circuit._general_lanes_used)
-        assert used_count == expected_lanes, (
-            f"weight={weight} should use {expected_lanes} lanes, got {used_count}"
-        )
+        assert used_count == expected_lanes, f"weight={weight} should use {expected_lanes} lanes, got {used_count}"
 
 
 class TestLaneExhaustion:

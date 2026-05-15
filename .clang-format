@@ -1,0 +1,59 @@
+# clang-format config tuned to the existing pybrid-computing-native style.
+# The goal is minimal churn when applied to the current sources: 4-space
+# indent, attached braces, left-aligned pointers, 120-column limit, access
+# specifiers flush to the class brace.
+---
+Language: Cpp
+Standard: c++20
+
+BasedOnStyle: Google
+
+ColumnLimit: 120
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+
+AccessModifierOffset: -4
+NamespaceIndentation: None
+FixNamespaceComments: true
+
+PointerAlignment: Left
+DerivePointerAlignment: false
+ReferenceAlignment: Pointer
+
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortBlocksOnASingleLine: Empty
+
+PenaltyReturnTypeOnItsOwnLine: 10000
+PenaltyBreakAssignment: 100
+
+# Preserve manually-grouped include blocks (system / pybind11 / project).
+SortIncludes: CaseSensitive
+IncludeBlocks: Preserve
+
+Cpp11BracedListStyle: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpacesInAngles: Never
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignTrailingComments: true
+BinPackArguments: false
+BinPackParameters: false
+
+EmptyLineBeforeAccessModifier: LogicalBlock
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1

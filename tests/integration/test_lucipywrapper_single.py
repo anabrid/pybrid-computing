@@ -17,12 +17,11 @@ import os
 
 import pytest
 
-from pybrid.mock import DummyDAC, DummyDACConfig
-from tests.conftest import get_test_port
-
-from pybrid.lucipy.computer import LucipyWrapper
 from pybrid.lucipy import LUCIDAC
 from pybrid.lucipy.circuits import Circuit
+from pybrid.lucipy.computer import LucipyWrapper
+from pybrid.mock import DummyDAC, DummyDACConfig
+from tests.conftest import get_test_port
 
 # DummyDAC returns a smaller data array than real hardware for the OP_END
 # final-values callback.  The controller's handle_run_data_end tries to
@@ -50,19 +49,14 @@ class TestLucipyWrapperSingleDevice:
 
             # The new wrapper uses lazy init via _ensure_controller()
             if not hasattr(wrapper, "_ensure_controller"):
-                pytest.fail(
-                    "LucipyWrapper._ensure_controller() not yet implemented "
-                    "(still using old LUCIStack API)"
-                )
+                pytest.fail("LucipyWrapper._ensure_controller() not yet implemented " "(still using old LUCIStack API)")
 
             await wrapper._ensure_controller()
 
-            assert wrapper._controller is not None, (
-                "Controller should be initialized after _ensure_controller()"
-            )
-            assert len(wrapper._controller.computer.carriers) == 1, (
-                "Single-device wrapper should discover exactly 1 carrier"
-            )
+            assert wrapper._controller is not None, "Controller should be initialized after _ensure_controller()"
+            assert (
+                len(wrapper._controller.computer.carriers) == 1
+            ), "Single-device wrapper should discover exactly 1 carrier"
 
             await wrapper.close()
 
@@ -80,9 +74,8 @@ class TestLucipyWrapperSingleDevice:
             # The LUCIDAC alias must resolve to LucipyWrapper.
             try:
                 from pybrid.lucipy.computer import LucipyWrapper as _NewWrapper
-                assert isinstance(luci, _NewWrapper), (
-                    "LUCIDAC alias should create a LucipyWrapper instance"
-                )
+
+                assert isinstance(luci, _NewWrapper), "LUCIDAC alias should create a LucipyWrapper instance"
             except ImportError:
                 pytest.fail(
                     "pybrid.lucipy.computer.LucipyWrapper not yet available "
@@ -107,18 +100,13 @@ class TestLucipyWrapperSingleDevice:
                 # The wrapper should have resolved the endpoint from env
                 if not hasattr(wrapper, "_ensure_controller"):
                     pytest.fail(
-                        "LucipyWrapper._ensure_controller() not yet "
-                        "implemented (still using old LUCIStack API)"
+                        "LucipyWrapper._ensure_controller() not yet " "implemented (still using old LUCIStack API)"
                     )
 
                 await wrapper._ensure_controller()
 
-                assert wrapper._controller is not None, (
-                    "Controller should be initialized via env var endpoint"
-                )
-                assert len(wrapper._controller.computer.carriers) == 1, (
-                    "Env var endpoint should resolve to 1 carrier"
-                )
+                assert wrapper._controller is not None, "Controller should be initialized via env var endpoint"
+                assert len(wrapper._controller.computer.carriers) == 1, "Env var endpoint should resolve to 1 carrier"
 
                 await wrapper.close()
 
@@ -140,16 +128,11 @@ class TestLucipyWrapperSingleDevice:
             wrapper = LucipyWrapper(f"tcp://127.0.0.1:{dac_port}")
 
             if not hasattr(wrapper, "_ensure_controller"):
-                pytest.fail(
-                    "LucipyWrapper._ensure_controller() not yet implemented "
-                    "(still using old LUCIStack API)"
-                )
+                pytest.fail("LucipyWrapper._ensure_controller() not yet implemented " "(still using old LUCIStack API)")
 
             await wrapper._ensure_controller()
             assert wrapper._controller is not None
 
             await wrapper.close()
 
-            assert wrapper._controller is None, (
-                "After close(), _controller should be None"
-            )
+            assert wrapper._controller is None, "After close(), _controller should be None"

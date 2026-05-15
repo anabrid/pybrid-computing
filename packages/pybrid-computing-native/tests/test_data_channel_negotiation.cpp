@@ -93,8 +93,7 @@ protected:
      */
     void accept_one(double timeout_secs = 5.0) {
         AcceptedSocket accepted = server_.accept(timeout_secs);
-        ASSERT_TRUE(accepted.is_valid())
-            << "Mock device server did not accept a connection in time";
+        ASSERT_TRUE(accepted.is_valid()) << "Mock device server did not accept a connection in time";
 
         server_transport_ = TCPTransport::from_accepted(std::move(accepted));
         ASSERT_NE(server_transport_, nullptr);
@@ -184,19 +183,15 @@ TEST_F(DataChannelNegotiationTest, NegotiateUdpAccepted) {
 
     // Launch start() on a background thread so we can service the negotiation
     // from the "device" side concurrently.
-    std::future<void> start_future = std::async(std::launch::async, [&]() {
-        data_channel.start();
-    });
+    std::future<void> start_future = std::async(std::launch::async, [&]() { data_channel.start(); });
 
     // --- Device side: receive the UdpDataStreamingCommand ---
     pb::MessageV1 negotiation_request = server_recv_message(5.0);
     ASSERT_TRUE(negotiation_request.has_udp_data_streaming_command())
         << "Expected UdpDataStreamingCommand on the control TCP channel";
 
-    const uint32_t negotiated_port =
-        negotiation_request.udp_data_streaming_command().port();
-    EXPECT_GT(negotiated_port, 0u)
-        << "UdpDataStreamingCommand must carry a non-zero local port";
+    const uint32_t negotiated_port = negotiation_request.udp_data_streaming_command().port();
+    EXPECT_GT(negotiated_port, 0u) << "UdpDataStreamingCommand must carry a non-zero local port";
 
     // Device accepts: reply with SuccessMessage, correlated by UUID.
     pb::MessageV1 response;
@@ -260,14 +255,10 @@ TEST_F(DataChannelNegotiationTest, NegotiateUdpRefused) {
     // We also pre-wire the control response callback so that control responses
     // that arrive on the shared TCP stream are routed back to the ControlChannel.
     data_channel.set_control_response_callback(
-        [&ctrl](std::vector<uint8_t> data) {
-            ctrl->on_tcp_response(std::move(data));
-        });
+        [&ctrl](std::vector<uint8_t> data) { ctrl->on_tcp_response(std::move(data)); });
 
     // Run start() in background to allow concurrent server-side handling.
-    std::future<void> start_future = std::async(std::launch::async, [&]() {
-        data_channel.start();
-    });
+    std::future<void> start_future = std::async(std::launch::async, [&]() { data_channel.start(); });
 
     // --- Device side: receive the UdpDataStreamingCommand and refuse it ---
     pb::MessageV1 negotiation_request = server_recv_message(5.0);
@@ -285,8 +276,7 @@ TEST_F(DataChannelNegotiationTest, NegotiateUdpRefused) {
 
     // Assertions: DataChannel must have fallen back to TCP.
     EXPECT_TRUE(data_channel.is_running());
-    EXPECT_TRUE(data_channel.is_using_tcp_fallback())
-        << "DataChannel must switch to TCP fallback after UDP is refused";
+    EXPECT_TRUE(data_channel.is_using_tcp_fallback()) << "DataChannel must switch to TCP fallback after UDP is refused";
 
     data_channel.stop();
 }
@@ -351,9 +341,7 @@ TEST_F(DataChannelNegotiationTest, NegotiateUdpTimeout) {
 
     // Run start() in the background so we can time it from this thread.
     auto wall_start = std::chrono::steady_clock::now();
-    std::future<void> start_future = std::async(std::launch::async, [&]() {
-        data_channel.start();
-    });
+    std::future<void> start_future = std::async(std::launch::async, [&]() { data_channel.start(); });
 
     // --- Device side: drain the command but never reply ---
     pb::MessageV1 negotiation_request = server_recv_message(5.0);
@@ -368,21 +356,17 @@ TEST_F(DataChannelNegotiationTest, NegotiateUdpTimeout) {
     double elapsed_secs = std::chrono::duration<double>(elapsed).count();
 
     // The timeout was set to 1 second; allow up to 5 s for test machinery.
-    EXPECT_GE(elapsed_secs, 0.9)
-        << "start() returned too quickly — timeout may not have fired";
-    EXPECT_LT(elapsed_secs, 5.0)
-        << "start() took too long — possible hang in negotiate_udp()";
+    EXPECT_GE(elapsed_secs, 0.9) << "start() returned too quickly — timeout may not have fired";
+    EXPECT_LT(elapsed_secs, 5.0) << "start() took too long — possible hang in negotiate_udp()";
 
     // The on_error() callback must have been invoked.
     EXPECT_TRUE(error_received.load(std::memory_order_acquire))
         << "on_error() must be called when UDP negotiation times out";
-    EXPECT_FALSE(error_message.empty())
-        << "Error message must be non-empty on negotiation timeout";
+    EXPECT_FALSE(error_message.empty()) << "Error message must be non-empty on negotiation timeout";
 
     // Without require_udp, the channel falls back to TCP after a timeout —
     // it stays running in TCP fallback mode.
-    EXPECT_TRUE(data_channel.is_running())
-        << "DataChannel must be running in TCP fallback after negotiation timeout";
+    EXPECT_TRUE(data_channel.is_running()) << "DataChannel must be running in TCP fallback after negotiation timeout";
     EXPECT_TRUE(data_channel.is_using_tcp_fallback())
         << "DataChannel must have fallen back to TCP after negotiation timeout";
 

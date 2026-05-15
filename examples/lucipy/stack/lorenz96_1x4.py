@@ -11,11 +11,13 @@ https://analogparadigm.com/downloads/alpaca_61.pdf):
 
 with cyclic indices (mod N) and parameters A, B, F below.
 """
-from pybrid.lucipy import LUCIDAC, time_series
+
+import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-import random
+
+from pybrid.lucipy import LUCIDAC, time_series
 
 slow = True
 F = 0.2
@@ -35,12 +37,12 @@ m = [l0.mul() for _ in range(N)]
 # Wire Lorenz-96: dx_i/dt = A*(x_{i+1} - x_{i-2})*x_{i-1} + B*x_i + F
 # Integrator outputs are inverted (-x_i), so weight=-1 recovers +x_i.
 for i in range(N):
-    l0.connect(x[(i+1) % N], m[i].a, weight=-1.0)  # +x_{i+1}
-    l0.connect(x[(i-2) % N], m[i].a)                # -x_{i-2}
-    l0.connect(x[(i-1) % N], m[i].b, weight=-1.0)   # +x_{i-1}
+    l0.connect(x[(i + 1) % N], m[i].a, weight=-1.0)  # +x_{i+1}
+    l0.connect(x[(i - 2) % N], m[i].a)  # -x_{i-2}
+    l0.connect(x[(i - 1) % N], m[i].b, weight=-1.0)  # +x_{i-1}
     l0.connect(m[i], x[i], weight=A)
     l0.connect(x[i], x[i], weight=B)
-    l0.connect(c0,   x[i], weight=F)
+    l0.connect(c0, x[i], weight=F)
 
 for i in range(N):
     l0.probe(x[i], adc_channel=i)
@@ -73,19 +75,22 @@ ax_line.set_title("All Signals")
 random.seed(42)
 for row, col in [(1, 0), (1, 1), (2, 0), (2, 1)]:
     idx = random.sample(range(n_signals), 3)
-    ax3d = fig.add_subplot(gs[row, col], projection='3d')
+    ax3d = fig.add_subplot(gs[row, col], projection="3d")
     ax3d.plot(
-        run.data[idx[0]], run.data[idx[1]], run.data[idx[2]],
-        ls="-", marker="+", markersize=1.5,
+        run.data[idx[0]],
+        run.data[idx[1]],
+        run.data[idx[2]],
+        ls="-",
+        marker="+",
+        markersize=1.5,
     )
     ax3d.set_xlabel("")
     ax3d.set_ylabel("")
     ax3d.set_zlabel("")
-    ax3d.tick_params(axis='both', which='both', pad=0, labelsize=7)
+    ax3d.tick_params(axis="both", which="both", pad=0, labelsize=7)
     ax3d.set_box_aspect(None, zoom=1.25)
     label = f"Signals {idx[0]} / {idx[1]} / {idx[2]}"
-    ax3d.text2D(-0.22, 0.5, label, transform=ax3d.transAxes,
-                rotation=90, va="center", ha="center", fontsize=10)
+    ax3d.text2D(-0.22, 0.5, label, transform=ax3d.transAxes, rotation=90, va="center", ha="center", fontsize=10)
 
 plt.tight_layout()
 plt.show()

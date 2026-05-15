@@ -23,7 +23,7 @@ import pytest
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.run import Run, RunConfig, RunState
 from pybrid.sim.controller import Controller as SimController
-from tests.conftest import get_device_endpoint, simulator_endpoint
+from tests.conftest import get_device_endpoint
 
 
 @pytest.fixture
@@ -68,12 +68,8 @@ class TestLUCIDACBasic:
         async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
-            assert len(ctrl.devices) >= 1, (
-                "Controller should have at least one device registered"
-            )
-            assert len(ctrl.protocols) >= 1, (
-                "Controller should have at least one protocol active"
-            )
+            assert len(ctrl.devices) >= 1, "Controller should have at least one device registered"
+            assert len(ctrl.protocols) >= 1, "Controller should have at least one protocol active"
 
     async def test_describe(self, lucidac_endpoint):
         host, port = lucidac_endpoint
@@ -94,9 +90,7 @@ class TestLUCIDACBasic:
 
             # Check computer structure was populated
             assert ctrl.computer is not None, "Computer should be initialized"
-            assert len(ctrl.computer.carriers) >= 1, (
-                "Computer should have at least one carrier"
-            )
+            assert len(ctrl.computer.carriers) >= 1, "Computer should have at least one carrier"
 
     async def test_simple_run(self, lucidac_endpoint):
         host, port = lucidac_endpoint
@@ -108,8 +102,8 @@ class TestLUCIDACBasic:
             run = Run(
                 id_=uuid4(),
                 config=RunConfig(
-                    ic_time=10_000,      # 10us IC time
-                    op_time=100_000,     # 100us OP time
+                    ic_time=10_000,  # 10us IC time
+                    op_time=100_000,  # 100us OP time
                 ),
             )
 
@@ -118,9 +112,7 @@ class TestLUCIDACBasic:
 
             # Verify run state tracking was set up
             involved_paths = list(run_state.get_involved_paths())
-            assert len(involved_paths) >= 1, (
-                "Run should involve at least one device path"
-            )
+            assert len(involved_paths) >= 1, "Run should involve at least one device path"
 
             # Wait for run to complete (with timeout)
             try:
@@ -129,8 +121,7 @@ class TestLUCIDACBasic:
             except asyncio.TimeoutError:
                 reached_done, not_done = run_state.status(RunState.DONE)
                 pytest.fail(
-                    f"Run did not complete within timeout. "
-                    f"DONE reached: {len(reached_done)}/{len(involved_paths)}"
+                    f"Run did not complete within timeout. " f"DONE reached: {len(reached_done)}/{len(involved_paths)}"
                 )
 
     async def test_reset_device(self, lucidac_endpoint):
@@ -145,9 +136,7 @@ class TestLUCIDACBasic:
             await ctrl.reset(keep_calibration=True, sync=False)
 
             # Verify controller state is still valid
-            assert len(ctrl.devices) == initial_device_count, (
-                "Device count should remain unchanged after reset"
-            )
+            assert len(ctrl.devices) == initial_device_count, "Device count should remain unchanged after reset"
 
 
 @pytest.mark.device
@@ -160,12 +149,8 @@ class TestREDACBasic:
         async with REDACController() as ctrl:
             await ctrl.add_device(host, port)
 
-            assert len(ctrl.devices) >= 1, (
-                "Controller should have at least one device registered"
-            )
-            assert len(ctrl.protocols) >= 1, (
-                "Controller should have at least one protocol active"
-            )
+            assert len(ctrl.devices) >= 1, "Controller should have at least one device registered"
+            assert len(ctrl.protocols) >= 1, "Controller should have at least one protocol active"
 
     async def test_multi_carrier(self, redac_endpoint):
         host, port = redac_endpoint
@@ -175,23 +160,18 @@ class TestREDACBasic:
 
             # REDAC typically has multiple carriers
             num_devices = len(ctrl.devices)
-            num_protocols = len(ctrl.protocols)
 
             assert num_devices >= 1, "Should have at least one carrier"
 
             # Verify protocol->path mapping consistency
-            total_managed_paths = sum(
-                len(paths) for paths in ctrl.protocols.values()
-            )
+            total_managed_paths = sum(len(paths) for paths in ctrl.protocols.values())
             assert total_managed_paths == num_devices, (
-                f"Protocol managed paths ({total_managed_paths}) should match "
-                f"device count ({num_devices})"
+                f"Protocol managed paths ({total_managed_paths}) should match " f"device count ({num_devices})"
             )
 
             # Verify computer carriers match devices
             assert len(ctrl.computer.carriers) == num_devices, (
-                f"Computer carriers ({len(ctrl.computer.carriers)}) should "
-                f"match device count ({num_devices})"
+                f"Computer carriers ({len(ctrl.computer.carriers)}) should " f"match device count ({num_devices})"
             )
 
     async def test_describe(self, redac_endpoint):
@@ -205,9 +185,7 @@ class TestREDACBasic:
 
             for carrier in ctrl.computer.carriers:
                 assert carrier.path is not None, "Carrier should have path"
-                assert len(carrier.clusters) >= 0, (
-                    "Carrier should have clusters list"
-                )
+                assert len(carrier.clusters) >= 0, "Carrier should have clusters list"
 
 
 def configure_harmonic_oscillator(computer):
@@ -258,8 +236,8 @@ def configure_harmonic_oscillator(computer):
     # Configure IBlock outputs (integrator inputs)
     if cluster.iblock:
         cluster.iblock.outputs = [[] for _ in range(16)]
-        cluster.iblock.outputs[0] = [0]   # Integrator 0 input from lane 0
-        cluster.iblock.outputs[1] = [8]   # Integrator 1 input from lane 8
+        cluster.iblock.outputs[0] = [0]  # Integrator 0 input from lane 0
+        cluster.iblock.outputs[1] = [8]  # Integrator 1 input from lane 8
 
 
 @pytest.mark.device
@@ -272,12 +250,8 @@ class TestSimulatorBasic:
         async with SimController() as ctrl:
             await ctrl.add_device(host, port)
 
-            assert len(ctrl.devices) >= 1, (
-                "Controller should have at least one device registered"
-            )
-            assert len(ctrl.protocols) >= 1, (
-                "Controller should have at least one protocol active"
-            )
+            assert len(ctrl.devices) >= 1, "Controller should have at least one device registered"
+            assert len(ctrl.protocols) >= 1, "Controller should have at least one protocol active"
 
     async def test_describe(self, simulator_endpoint):
         host, port = simulator_endpoint
@@ -298,9 +272,7 @@ class TestSimulatorBasic:
 
             # Check computer structure was populated
             assert ctrl.computer is not None, "Computer should be initialized"
-            assert len(ctrl.computer.carriers) >= 1, (
-                "Computer should have at least one carrier"
-            )
+            assert len(ctrl.computer.carriers) >= 1, "Computer should have at least one carrier"
 
     async def test_simple_run(self, simulator_endpoint):
         host, port = simulator_endpoint
@@ -318,8 +290,8 @@ class TestSimulatorBasic:
             run = Run(
                 id_=uuid4(),
                 config=RunConfig(
-                    ic_time=10_000,      # 10us IC time
-                    op_time=100_000,     # 100us OP time
+                    ic_time=10_000,  # 10us IC time
+                    op_time=100_000,  # 100us OP time
                 ),
             )
 
@@ -328,9 +300,7 @@ class TestSimulatorBasic:
 
             # Verify run state tracking was set up
             involved_paths = list(run_state.get_involved_paths())
-            assert len(involved_paths) >= 1, (
-                "Run should involve at least one device path"
-            )
+            assert len(involved_paths) >= 1, "Run should involve at least one device path"
 
             # Wait for run to complete (with timeout)
             try:
@@ -339,8 +309,7 @@ class TestSimulatorBasic:
             except asyncio.TimeoutError:
                 reached_done, not_done = run_state.status(RunState.DONE)
                 pytest.fail(
-                    f"Run did not complete within timeout. "
-                    f"DONE reached: {len(reached_done)}/{len(involved_paths)}"
+                    f"Run did not complete within timeout. " f"DONE reached: {len(reached_done)}/{len(involved_paths)}"
                 )
 
     async def test_reset_device(self, simulator_endpoint):
@@ -355,6 +324,4 @@ class TestSimulatorBasic:
             await ctrl.reset(keep_calibration=True, sync=False)
 
             # Verify controller state is still valid
-            assert len(ctrl.devices) == initial_device_count, (
-                "Device count should remain unchanged after reset"
-            )
+            assert len(ctrl.devices) == initial_device_count, "Device count should remain unchanged after reset"

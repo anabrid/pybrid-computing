@@ -6,8 +6,8 @@ import logging
 import typing
 from dataclasses import dataclass
 
-from pybrid.redac.carrier import Carrier
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
+from pybrid.redac.carrier import Carrier
 from pybrid.redac.entities import Entity
 
 logger = logging.getLogger(__name__)
@@ -29,4 +29,3 @@ class Device(Entity):
     @property
     def children(self):
         yield from self.carriers
-

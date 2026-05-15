@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
 
-#include <atomic>
-#include <chrono>
-#include <cstring>
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
-#include <random>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <atomic>
+#include <chrono>
+#include <cstring>
+#include <random>
 #include <thread>
 #include <type_traits>
-#include <unistd.h>
 #include <vector>
 
 #include "pybrid/transport/accepted_socket.h"
@@ -70,9 +70,7 @@ TEST_F(VarintTest, EncodeMultipleBytes) {
 TEST_F(VarintTest, DecodeRoundTrip) {
     uint8_t buf[MAX_VARINT_SIZE];
 
-    std::vector<uint64_t> test_values = {0,      1,        127,  128,
-                                         255,    256,      1000, 0xFFFF,
-                                         0xFFFFFFFF, 0xFFFFFFFFFFFFFFFF};
+    std::vector<uint64_t> test_values = {0, 1, 127, 128, 255, 256, 1000, 0xFFFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFFFF};
 
     for (uint64_t expected : test_values) {
         size_t encoded_len = encode_varint(expected, buf);
@@ -125,8 +123,7 @@ protected:
         // Create a simple echo server for testing
         server_io_ = std::make_unique<asio::io_context>();
         server_acceptor_ = std::make_unique<asio::ip::tcp::acceptor>(
-            *server_io_,
-            asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 0));
+            *server_io_, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 0));
 
         server_port_ = server_acceptor_->local_endpoint().port();
         server_running_ = true;
@@ -147,8 +144,7 @@ protected:
 private:
     void run_echo_server() {
         try {
-            server_acceptor_->async_accept([this](const asio::error_code& ec,
-                                                   asio::ip::tcp::socket socket) {
+            server_acceptor_->async_accept([this](const asio::error_code& ec, asio::ip::tcp::socket socket) {
                 if (!ec && server_running_) {
                     handle_client(std::move(socket));
                 }
@@ -166,17 +162,15 @@ private:
         do_read(client, buffer);
     }
 
-    void do_read(std::shared_ptr<asio::ip::tcp::socket> socket,
-                 std::shared_ptr<std::vector<uint8_t>> buffer) {
+    void do_read(std::shared_ptr<asio::ip::tcp::socket> socket, std::shared_ptr<std::vector<uint8_t>> buffer) {
         socket->async_read_some(
-            asio::buffer(*buffer),
-            [this, socket, buffer](const asio::error_code& ec, size_t bytes) {
+            asio::buffer(*buffer), [this, socket, buffer](const asio::error_code& ec, size_t bytes) {
                 if (!ec && server_running_) {
                     // Echo back what we received
                     asio::async_write(
-                        *socket, asio::buffer(buffer->data(), bytes),
-                        [this, socket, buffer](const asio::error_code& ec2,
-                                               size_t /*bytes2*/) {
+                        *socket,
+                        asio::buffer(buffer->data(), bytes),
+                        [this, socket, buffer](const asio::error_code& ec2, size_t /*bytes2*/) {
                             if (!ec2 && server_running_) {
                                 do_read(socket, buffer);
                             }
@@ -419,8 +413,7 @@ TEST_F(TCPTransportTest, ConnectAlreadyConnected) {
     ASSERT_TRUE(transport.connect("127.0.0.1", server_port(), 5.0));
 
     // Second connect should throw
-    EXPECT_THROW(transport.connect("127.0.0.1", server_port(), 5.0),
-                 std::runtime_error);
+    EXPECT_THROW(transport.connect("127.0.0.1", server_port(), 5.0), std::runtime_error);
 
     transport.stop();
 }
@@ -589,8 +582,7 @@ TEST_F(UDPSocketTest, SendReceiveLoopback) {
 
     // Send a packet
     const char* test_data = "Hello, UDP!";
-    EXPECT_TRUE(sender.send_to(test_data, std::strlen(test_data),
-                               "127.0.0.1", recv_port));
+    EXPECT_TRUE(sender.send_to(test_data, std::strlen(test_data), "127.0.0.1", recv_port));
 
     // Receive the packet
     std::vector<uint8_t> recv_buf(65536);
@@ -635,8 +627,7 @@ TEST_F(AcceptedSocketTest, DestructorClosesFd) {
         EXPECT_TRUE(sock.is_valid());
     }
 
-    EXPECT_TRUE(fd_is_closed(fd))
-        << "Expected fd " << fd << " to be closed after AcceptedSocket destructor";
+    EXPECT_TRUE(fd_is_closed(fd)) << "Expected fd " << fd << " to be closed after AcceptedSocket destructor";
 }
 
 // Moving an AcceptedSocket transfers fd ownership; the moved-from object
@@ -661,8 +652,7 @@ TEST_F(AcceptedSocketTest, MoveTransfersFd) {
     // After b is destroyed the fd must be closed.
     { AcceptedSocket sink = std::move(b); }
 
-    EXPECT_TRUE(fd_is_closed(fd))
-        << "Expected fd " << fd << " to be closed after move-target AcceptedSocket destroyed";
+    EXPECT_TRUE(fd_is_closed(fd)) << "Expected fd " << fd << " to be closed after move-target AcceptedSocket destroyed";
 }
 
 // Move-assignment must close the previously held fd and steal the source fd.
@@ -678,8 +668,7 @@ TEST_F(AcceptedSocketTest, MoveAssignmentClosesExistingFd) {
     a = std::move(b);
 
     // fd1 must have been closed by the assignment (a dropped its old resource).
-    EXPECT_TRUE(fd_is_closed(fd1))
-        << "Expected fd1 to be closed after move-assignment replaced it";
+    EXPECT_TRUE(fd_is_closed(fd1)) << "Expected fd1 to be closed after move-assignment replaced it";
 
     // a now owns fd2.
     EXPECT_EQ(a.native_handle, fd2);
@@ -756,9 +745,8 @@ TEST_F(TCPServerPendingDrainTest, DestructorClosesPendingFds) {
         int cfd = client_fds[i];
         char buf[16];
         ssize_t n = ::recv(cfd, buf, sizeof(buf), 0);
-        EXPECT_EQ(n, 0)
-            << "Client " << i << " expected EOF (0) after server destruction, got " << n
-            << " (errno=" << errno << " " << strerror(errno) << ")";
+        EXPECT_EQ(n, 0) << "Client " << i << " expected EOF (0) after server destruction, got " << n
+                        << " (errno=" << errno << " " << strerror(errno) << ")";
         ::close(cfd);
     }
 }
@@ -793,8 +781,7 @@ TEST_F(UDPSocketResetBuffersTest, ResetBuffersReleasesBackingAfterBurst) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     // The queue must have grown: at least some packets arrived.
-    EXPECT_GT(receiver.recv_queue_len(), 0u)
-        << "No packets arrived in recv_queue_ before reset — burst did not work";
+    EXPECT_GT(receiver.recv_queue_len(), 0u) << "No packets arrived in recv_queue_ before reset — burst did not work";
 
     // reset_buffers() swaps in a fresh buffer; in-flight entries are discarded.
     receiver.reset_buffers();
@@ -843,8 +830,7 @@ TEST_F(UDPSocketResetBuffersTest, ResetBuffersSafeWithConcurrentReceives) {
     sender_thread.join();
 
     // Socket must still be in a usable state (no crash, io thread alive).
-    EXPECT_TRUE(receiver.is_running())
-        << "UDPSocket not running after concurrent reset_buffers() — io thread crashed";
+    EXPECT_TRUE(receiver.is_running()) << "UDPSocket not running after concurrent reset_buffers() — io thread crashed";
 
     sender.stop();
     receiver.stop();
@@ -857,8 +843,7 @@ TEST_F(UDPSocketResetBuffersTest, ResetBuffersSafeWithConcurrentReceives) {
 // Helper that creates a loopback pair: a TCPServer listening on an ephemeral
 // port and a client TCPTransport connected to it.  Returns the server-side
 // transport (from_accepted) and the client transport.
-static std::pair<std::unique_ptr<TCPTransport>, std::unique_ptr<TCPTransport>>
-make_loopback_pair() {
+static std::pair<std::unique_ptr<TCPTransport>, std::unique_ptr<TCPTransport>> make_loopback_pair() {
     TCPServer server;
     uint16_t port = server.bind(0);
     server.start();
@@ -939,8 +924,7 @@ TEST_F(TCPTransportResetBuffersTest, ResetBuffersShrinksRecvBufferVector) {
         << "recv_buffer_ capacity did not shrink to initial after reset_buffers()";
 
     // Transport must still be functional after reset.
-    EXPECT_TRUE(server_side->is_running())
-        << "TCPTransport not running after reset_buffers()";
+    EXPECT_TRUE(server_side->is_running()) << "TCPTransport not running after reset_buffers()";
 
     client->stop();
     server_side->stop();

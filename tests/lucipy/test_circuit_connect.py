@@ -16,22 +16,14 @@ These tests verify that connect(source, target, weight) correctly:
 Uses DummyDAC-independent unit tests; no hardware required.
 """
 
-import math
 import copy
+import math
 import warnings
+
 import pytest
 
-from pybrid.lucipy.circuits import (
-    Circuit,
-    Integrator,
-    Multiplier,
-    _MulInput,
-    Identity,
-    Constant,
-    Input,
-    Output,
-)
 from pybrid.lucidac.computer import LUCIDAC
+from pybrid.lucipy.circuits import Circuit, Constant, Identity, Input, Integrator, Multiplier, Output, _MulInput
 
 
 class TestConnectBasic:
@@ -50,10 +42,7 @@ class TestConnectBasic:
 
         # Find the lane that was allocated for this connection.
         # UBlock: outputs[lane] should be the source output (i0.lane = i0.id = 0)
-        allocated_lanes = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == i0.lane
-        ]
+        allocated_lanes = [lane for lane in range(24) if cluster.ublock.outputs[lane] == i0.lane]
         assert len(allocated_lanes) >= 1, (
             f"Expected at least 1 lane with UBlock output pointing to integrator {i0.id} "
             f"(lane {i0.lane}), found none"
@@ -63,16 +52,11 @@ class TestConnectBasic:
 
         # CBlock: coefficient at this lane should be 1.0
         c_factor = cluster.cblock.elements[lane].computation.factor
-        assert c_factor == pytest.approx(1.0), (
-            f"CBlock coefficient at lane {lane} should be 1.0, got {c_factor}"
-        )
+        assert c_factor == pytest.approx(1.0), f"CBlock coefficient at lane {lane} should be 1.0, got {c_factor}"
 
         # IBlock: outputs[i1.lane] should contain the allocated lane
         i_output = cluster.iblock.outputs[i1.lane]
-        assert lane in i_output, (
-            f"IBlock outputs[{i1.lane}] should contain lane {lane}, "
-            f"got {i_output}"
-        )
+        assert lane in i_output, f"IBlock outputs[{i1.lane}] should contain lane {lane}, " f"got {i_output}"
 
     def test_connect_with_negative_weight(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -85,19 +69,12 @@ class TestConnectBasic:
         cluster = lucidac.entities[0].clusters[0]
 
         # Find the allocated lane
-        allocated_lanes = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == i0.lane
-        ]
-        assert len(allocated_lanes) >= 1, (
-            "Expected at least 1 lane allocated for the connection"
-        )
+        allocated_lanes = [lane for lane in range(24) if cluster.ublock.outputs[lane] == i0.lane]
+        assert len(allocated_lanes) >= 1, "Expected at least 1 lane allocated for the connection"
 
         lane = allocated_lanes[0]
         c_factor = cluster.cblock.elements[lane].computation.factor
-        assert c_factor == pytest.approx(-1.0), (
-            f"CBlock coefficient should be -1.0 for negative weight, got {c_factor}"
-        )
+        assert c_factor == pytest.approx(-1.0), f"CBlock coefficient should be -1.0 for negative weight, got {c_factor}"
 
     def test_connect_multiplier_output_to_integrator(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -110,21 +87,15 @@ class TestConnectBasic:
         cluster = lucidac.entities[0].clusters[0]
 
         # UBlock should have a lane pointing to m0.lane (8 + m0.id)
-        allocated_lanes = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == m0.lane
-        ]
+        allocated_lanes = [lane for lane in range(24) if cluster.ublock.outputs[lane] == m0.lane]
         assert len(allocated_lanes) >= 1, (
-            f"Expected at least 1 lane with UBlock output pointing to multiplier "
-            f"lane {m0.lane}, found none"
+            f"Expected at least 1 lane with UBlock output pointing to multiplier " f"lane {m0.lane}, found none"
         )
 
         lane = allocated_lanes[0]
 
         # IBlock should route to i0.lane
-        assert lane in cluster.iblock.outputs[i0.lane], (
-            f"IBlock outputs[{i0.lane}] should contain lane {lane}"
-        )
+        assert lane in cluster.iblock.outputs[i0.lane], f"IBlock outputs[{i0.lane}] should contain lane {lane}"
 
 
 class TestConnectConstant:
@@ -145,9 +116,7 @@ class TestConnectConstant:
         circuit.connect(c0, i0, weight=1.0)
 
         # Lane 0 should be the first free lane (greedy, starting from 0)
-        assert circuit._general_lanes_used[0], (
-            "Lane 0 should be used for the constant connection"
-        )
+        assert circuit._general_lanes_used[0], "Lane 0 should be used for the constant connection"
 
     def test_constant_on_lane_0_15_uses_mblock_output_15(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -160,8 +129,7 @@ class TestConnectConstant:
 
         # First free lane is 0 (in range 0-15), so UBlock output should be 15
         assert cluster.ublock.outputs[0] == 15, (
-            f"Constant on lane 0 (range 0-15) should use M-block output 15, "
-            f"got {cluster.ublock.outputs[0]}"
+            f"Constant on lane 0 (range 0-15) should use M-block output 15, " f"got {cluster.ublock.outputs[0]}"
         )
 
     def test_constant_on_lane_16_31_uses_mblock_output_14(self):
@@ -179,8 +147,7 @@ class TestConnectConstant:
 
         # First free lane is 16 (in range 16-31), so UBlock output should be 14
         assert cluster.ublock.outputs[16] == 14, (
-            f"Constant on lane 16 (range 16-31) should use M-block output 14, "
-            f"got {cluster.ublock.outputs[16]}"
+            f"Constant on lane 16 (range 16-31) should use M-block output 14, " f"got {cluster.ublock.outputs[16]}"
         )
 
     def test_constant_iblock_routes_to_target(self):
@@ -193,9 +160,7 @@ class TestConnectConstant:
         cluster = circuit.to_computer().entities[0].clusters[0]
 
         # Lane 0 should route to i0 via IBlock
-        assert 0 in cluster.iblock.outputs[i0.lane], (
-            f"IBlock outputs[{i0.lane}] should contain lane 0"
-        )
+        assert 0 in cluster.iblock.outputs[i0.lane], f"IBlock outputs[{i0.lane}] should contain lane 0"
 
     def test_constant_weight_split_across_ranges(self):
         """When weight splitting spans both lane ranges, each lane uses the correct M-block output (14 or 15)."""
@@ -219,13 +184,11 @@ class TestConnectConstant:
 
         # Lane 15 is in range 0-15 -> output 15
         assert cluster.ublock.outputs[15] == 15, (
-            f"Constant on lane 15 should use M-block output 15, "
-            f"got {cluster.ublock.outputs[15]}"
+            f"Constant on lane 15 should use M-block output 15, " f"got {cluster.ublock.outputs[15]}"
         )
         # Lane 16 is in range 16-31 -> output 14
         assert cluster.ublock.outputs[16] == 14, (
-            f"Constant on lane 16 should use M-block output 14, "
-            f"got {cluster.ublock.outputs[16]}"
+            f"Constant on lane 16 should use M-block output 14, " f"got {cluster.ublock.outputs[16]}"
         )
 
 
@@ -247,13 +210,9 @@ class TestConnectWeightSplitting:
         assert expected_n_lanes == 3, "Sanity: ceil(20/8) == 3"
 
         # Find all lanes allocated for this connection (i0 -> i1)
-        allocated_lanes = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == i0.lane
-        ]
+        allocated_lanes = [lane for lane in range(24) if cluster.ublock.outputs[lane] == i0.lane]
         assert len(allocated_lanes) == expected_n_lanes, (
-            f"Expected {expected_n_lanes} lanes for weight=20.0, "
-            f"got {len(allocated_lanes)}"
+            f"Expected {expected_n_lanes} lanes for weight=20.0, " f"got {len(allocated_lanes)}"
         )
 
         expected_coeff = 20.0 / expected_n_lanes
@@ -272,9 +231,7 @@ class TestConnectWeightSplitting:
 
         # All lanes should route to i1 via IBlock
         for lane in allocated_lanes:
-            assert lane in cluster.iblock.outputs[i1.lane], (
-                f"IBlock outputs[{i1.lane}] should contain lane {lane}"
-            )
+            assert lane in cluster.iblock.outputs[i1.lane], f"IBlock outputs[{i1.lane}] should contain lane {lane}"
 
 
 class TestConnectACL:
@@ -298,14 +255,13 @@ class TestConnectACL:
         # for ACL_IN path)
         u_output = cluster.ublock.outputs[acl_lane]
         assert u_output is None or u_output == -1, (
-            f"UBlock output at ACL lane {acl_lane} should be None/-1 for "
-            f"ACL_IN path, got {u_output}"
+            f"UBlock output at ACL lane {acl_lane} should be None/-1 for " f"ACL_IN path, got {u_output}"
         )
 
         # IBlock should route the ACL lane to the integrator input
-        assert acl_lane in cluster.iblock.outputs[i0.lane], (
-            f"IBlock outputs[{i0.lane}] should contain ACL lane {acl_lane}"
-        )
+        assert (
+            acl_lane in cluster.iblock.outputs[i0.lane]
+        ), f"IBlock outputs[{i0.lane}] should contain ACL lane {acl_lane}"
 
     def test_connect_input_ignores_weight(self):
         """ACL_IN bypasses U-block and C-block; weight is silently ignored and C-block stays at default 1.0."""
@@ -325,21 +281,19 @@ class TestConnectACL:
         # U-block must NOT be set for this ACL lane
         u_output = cluster.ublock.outputs[acl_lane]
         assert u_output is None or u_output == -1, (
-            f"UBlock output at ACL lane {acl_lane} should be None/-1 for "
-            f"ACL_IN path, got {u_output}"
+            f"UBlock output at ACL lane {acl_lane} should be None/-1 for " f"ACL_IN path, got {u_output}"
         )
 
         # C-block coefficient must remain at the default (1.0) — not set to 5.0
         c_factor = cluster.cblock.elements[acl_lane].computation.factor
         assert c_factor == pytest.approx(1.0), (
-            f"CBlock factor at ACL lane {acl_lane} should be untouched "
-            f"(default 1.0), got {c_factor}"
+            f"CBlock factor at ACL lane {acl_lane} should be untouched " f"(default 1.0), got {c_factor}"
         )
 
         # I-block routing must still happen
-        assert acl_lane in cluster.iblock.outputs[i0.lane], (
-            f"IBlock outputs[{i0.lane}] should contain ACL lane {acl_lane}"
-        )
+        assert (
+            acl_lane in cluster.iblock.outputs[i0.lane]
+        ), f"IBlock outputs[{i0.lane}] should contain ACL lane {acl_lane}"
 
     def test_connect_integrator_to_output(self):
         """ACL_OUT path: U-block routes integrator to ACL lane; I-block is not used for that lane."""
@@ -358,16 +312,14 @@ class TestConnectACL:
         # UBlock should connect integrator output to this lane
         u_output = cluster.ublock.outputs[acl_lane]
         assert u_output == i0.lane, (
-            f"UBlock output at ACL lane {acl_lane} should be {i0.lane} "
-            f"(integrator output), got {u_output}"
+            f"UBlock output at ACL lane {acl_lane} should be {i0.lane} " f"(integrator output), got {u_output}"
         )
 
         # IBlock should NOT route this lane to any M-block input
         # (ACL_OUT goes directly to front panel, bypassing I-block)
         for m_input in range(16):
             assert acl_lane not in cluster.iblock.outputs[m_input], (
-                f"ACL_OUT lane {acl_lane} should not appear in any IBlock output, "
-                f"but found in outputs[{m_input}]"
+                f"ACL_OUT lane {acl_lane} should not appear in any IBlock output, " f"but found in outputs[{m_input}]"
             )
 
     def test_connect_output_with_valid_weight(self):
@@ -383,15 +335,12 @@ class TestConnectACL:
         acl_lane = out.lane
 
         # U-block routes source to ACL lane
-        assert cluster.ublock.outputs[acl_lane] == i0.lane, (
-            f"UBlock output at ACL lane {acl_lane} should be {i0.lane}"
-        )
+        assert cluster.ublock.outputs[acl_lane] == i0.lane, f"UBlock output at ACL lane {acl_lane} should be {i0.lane}"
 
         # C-block coefficient set to 0.5
         c_factor = cluster.cblock.elements[acl_lane].computation.factor
         assert c_factor == pytest.approx(0.5), (
-            f"CBlock coefficient at ACL lane {acl_lane} should be 0.5, "
-            f"got {c_factor}"
+            f"CBlock coefficient at ACL lane {acl_lane} should be 0.5, " f"got {c_factor}"
         )
 
     def test_connect_output_with_negative_weight(self):
@@ -406,9 +355,7 @@ class TestConnectACL:
         acl_lane = out.lane
 
         c_factor = cluster.cblock.elements[acl_lane].computation.factor
-        assert c_factor == pytest.approx(-0.75), (
-            f"CBlock coefficient should be -0.75, got {c_factor}"
-        )
+        assert c_factor == pytest.approx(-0.75), f"CBlock coefficient should be -0.75, got {c_factor}"
 
     @pytest.mark.parametrize("weight", [2.0, -3.0])
     def test_connect_output_rejects_weight_outside_range(self, weight):
@@ -438,10 +385,7 @@ class TestConnectIdentity:
         expected_source_lane = 12 + id0.offset  # = 13
 
         # Find lane(s) where U-block output points to the identity source lane
-        allocated_lanes = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == expected_source_lane
-        ]
+        allocated_lanes = [lane for lane in range(24) if cluster.ublock.outputs[lane] == expected_source_lane]
         assert len(allocated_lanes) >= 1, (
             f"Expected at least 1 lane with UBlock output pointing to identity "
             f"output lane {expected_source_lane}, found none"
@@ -450,9 +394,7 @@ class TestConnectIdentity:
         lane = allocated_lanes[0]
 
         # I-block should route to integrator input
-        assert lane in cluster.iblock.outputs[i0.lane], (
-            f"IBlock outputs[{i0.lane}] should contain lane {lane}"
-        )
+        assert lane in cluster.iblock.outputs[i0.lane], f"IBlock outputs[{i0.lane}] should contain lane {lane}"
 
     def test_identity_as_target_raises(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -513,9 +455,9 @@ class TestConnectValidation:
         cluster_before = state_snapshot.entities[0].clusters[0]
 
         # UBlock outputs should be unchanged
-        assert cluster_after.ublock.outputs == cluster_before.ublock.outputs, (
-            "UBlock outputs must not change after a failed connect()"
-        )
+        assert (
+            cluster_after.ublock.outputs == cluster_before.ublock.outputs
+        ), "UBlock outputs must not change after a failed connect()"
 
     def test_connect_exhausts_lanes(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
@@ -549,13 +491,8 @@ class TestConnectExtendedLanePool:
         circuit.connect(integrators[0], integrators[1], weight=1.0)
 
         cluster = circuit.to_computer().entities[0].clusters[0]
-        allocated_special = [
-            lane for lane in range(24, 32)
-            if cluster.ublock.outputs[lane] == integrators[0].lane
-        ]
-        assert len(allocated_special) >= 1, (
-            "Expected at least 1 lane in 24-31 to be used for spill-over"
-        )
+        allocated_special = [lane for lane in range(24, 32) if cluster.ublock.outputs[lane] == integrators[0].lane]
+        assert len(allocated_special) >= 1, "Expected at least 1 lane in 24-31 to be used for spill-over"
 
     def test_general_signal_skips_acl_occupied_lane(self):
         """General signal spill skips ACL-occupied lanes and uses the next free one."""
@@ -623,15 +560,14 @@ class TestConnectExtendedLanePool:
         cluster = circuit.to_computer().entities[0].clusters[0]
         # Lane 24 is first free, in range 16-31 -> output 14
         assert cluster.ublock.outputs[24] == 14, (
-            f"Constant on lane 24 should use M-block output 14, "
-            f"got {cluster.ublock.outputs[24]}"
+            f"Constant on lane 24 should use M-block output 14, " f"got {cluster.ublock.outputs[24]}"
         )
 
     def test_total_capacity_32_minus_acl_ports(self):
         """With 2 ACL ports allocated, only 30 general connections fit; the 31st must raise ValueError."""
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
         integrators = [circuit.int() for _ in range(8)]
-        circuit.input(port=0)   # blocks lane 24
+        circuit.input(port=0)  # blocks lane 24
         circuit.output(port=1)  # blocks lane 25
 
         # 30 connections should succeed (lanes 0-23 + 26-31 = 30 free lanes)
@@ -663,9 +599,9 @@ class TestConnectExtendedLanePool:
         # Verify no state mutation
         cluster_after = circuit.to_computer().entities[0].clusters[0]
         cluster_before = state_snapshot.entities[0].clusters[0]
-        assert cluster_after.ublock.outputs == cluster_before.ublock.outputs, (
-            "UBlock outputs must not change after a failed connect()"
-        )
+        assert (
+            cluster_after.ublock.outputs == cluster_before.ublock.outputs
+        ), "UBlock outputs must not change after a failed connect()"
 
 
 class TestConstantIdentityShadowing:
@@ -703,9 +639,7 @@ class TestConstantIdentityShadowing:
             warnings.simplefilter("always")
             circuit.connect(identity, i0, weight=1.0)
             shadowing_warnings = [
-                x for x in w
-                if issubclass(x.category, UserWarning)
-                and "shadow" in str(x.message).lower()
+                x for x in w if issubclass(x.category, UserWarning) and "shadow" in str(x.message).lower()
             ]
             assert len(shadowing_warnings) == 0, (
                 f"Identity(offset={offset}) should not trigger shadowing warning, "
@@ -733,9 +667,7 @@ class TestConstantIdentityShadowing:
             warnings.simplefilter("always")
             circuit.const(value=1.0)
             shadowing_warnings = [
-                x for x in w
-                if issubclass(x.category, UserWarning)
-                and "shadow" in str(x.message).lower()
+                x for x in w if issubclass(x.category, UserWarning) and "shadow" in str(x.message).lower()
             ]
             assert len(shadowing_warnings) == 0, (
                 f"const() without identity should not trigger shadowing warning, "
@@ -760,23 +692,17 @@ class TestCircuitOwnership:
         out = circuit.output()
 
         for elem in [i0, m0, id0, c0, inp, out]:
-            assert hasattr(elem, '_circuit_id'), (
-                f"{type(elem).__name__} must have a _circuit_id attribute"
-            )
-            assert elem._circuit_id == circuit._circuit_id, (
-                f"{type(elem).__name__}._circuit_id should match its circuit"
-            )
+            assert hasattr(elem, "_circuit_id"), f"{type(elem).__name__} must have a _circuit_id attribute"
+            assert (
+                elem._circuit_id == circuit._circuit_id
+            ), f"{type(elem).__name__}._circuit_id should match its circuit"
 
     def test_mulinput_inherits_circuit_id(self):
         circuit = Circuit("AA-BB-CC-DD-EE-FF")
         m0 = circuit.mul()
 
-        assert m0.a._circuit_id == circuit._circuit_id, (
-            "Multiplier.a should carry the circuit's _circuit_id"
-        )
-        assert m0.b._circuit_id == circuit._circuit_id, (
-            "Multiplier.b should carry the circuit's _circuit_id"
-        )
+        assert m0.a._circuit_id == circuit._circuit_id, "Multiplier.a should carry the circuit's _circuit_id"
+        assert m0.b._circuit_id == circuit._circuit_id, "Multiplier.b should carry the circuit's _circuit_id"
 
     def test_connect_cross_circuit_source_raises(self):
         circuit_a = Circuit("AA-BB-CC-DD-EE-FF")

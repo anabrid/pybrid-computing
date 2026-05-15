@@ -38,11 +38,17 @@ class ComputationElementMeta(type):
     def __getitem__(self, computation: typing.Type[BaseComputation]) -> typing.Type[BaseComputationElement]:
         return dataclass(
             type(
-                computation.__name__ + 'Element', (self,),
-                {"__annotations__": {"computation": computation,
-                                     "computation_class": typing.ClassVar[typing.Type[computation]]},
-                 "computation": field(default_factory=computation), "computation_class": computation,
-                 "__hash__": BaseComputationElement.__hash__}
+                computation.__name__ + "Element",
+                (self,),
+                {
+                    "__annotations__": {
+                        "computation": computation,
+                        "computation_class": typing.ClassVar[typing.Type[computation]],
+                    },
+                    "computation": field(default_factory=computation),
+                    "computation_class": computation,
+                    "__hash__": BaseComputationElement.__hash__,
+                },
             )
         )
 

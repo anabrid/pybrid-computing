@@ -31,8 +31,7 @@ void ForwardingDataChannel::handle_data_message(pb::MessageV1& message) {
 }
 
 bool ForwardingDataChannel::is_data_message(const pb::MessageV1& message) const {
-    return message.has_run_data_message() ||
-           message.has_run_data_end_message() ||
+    return message.has_run_data_message() || message.has_run_data_end_message() ||
            message.has_run_state_change_message();
 }
 
@@ -64,15 +63,11 @@ void ForwardingDataChannel::check_sequence(const pb::RunDataMessage& rdm) {
         int64_t gap = static_cast<int64_t>(chunk) - static_cast<int64_t>(expected);
         if (m_log_mutex) {
             std::lock_guard<std::mutex> lock(*m_log_mutex);
-            std::cerr << "[ProxyServer] WARNING: Sequence gap on carrier "
-                      << carrier << ": expected chunk " << expected
-                      << ", got " << chunk
-                      << " (gap=" << gap << ")\n";
+            std::cerr << "[ProxyServer] WARNING: Sequence gap on carrier " << carrier << ": expected chunk " << expected
+                      << ", got " << chunk << " (gap=" << gap << ")\n";
         } else {
-            std::cerr << "[ProxyServer] WARNING: Sequence gap on carrier "
-                      << carrier << ": expected chunk " << expected
-                      << ", got " << chunk
-                      << " (gap=" << gap << ")\n";
+            std::cerr << "[ProxyServer] WARNING: Sequence gap on carrier " << carrier << ": expected chunk " << expected
+                      << ", got " << chunk << " (gap=" << gap << ")\n";
         }
     }
     it->second = chunk + 1;

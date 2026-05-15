@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pybrid/channel/data_channel.h"
 #include "pybrid/buffer.h"
+#include "pybrid/channel/data_channel.h"
 #include "pybrid/proto/main.pb.h"
 
 #include <cstdint>
@@ -9,8 +9,7 @@
 #include <string_view>
 #include <vector>
 
-namespace anabrid::pybrid::native
-{
+namespace anabrid::pybrid::native {
 
 /**
  * @brief Header for decoded sample binary blob.
@@ -48,8 +47,7 @@ public:
         uint32_t channel_count,
         uint32_t sample_type = SAMPLE_TYPE_OP,
         uint32_t chunk_number = 0,
-        const std::vector<uint32_t>& probe_indices = {}
-    );
+        const std::vector<uint32_t>& probe_indices = {});
 
     static const DecodedSampleBlobHeader* header(const uint8_t* data);
 
@@ -75,9 +73,9 @@ protected:
     void handle_data_message(pb::MessageV1& message) override;
 
     struct DecodedDaqResult {
-        std::vector<double> samples;         ///< Decoded sample values (column-major)
-        uint32_t channel_count;              ///< Effective channel count
-        std::vector<uint32_t> probe_indices; ///< Probe index per channel (from AdcChannel.probe)
+        std::vector<double> samples;          ///< Decoded sample values (column-major)
+        uint32_t channel_count;               ///< Effective channel count
+        std::vector<uint32_t> probe_indices;  ///< Probe index per channel (from AdcChannel.probe)
     };
 
     DecodedDaqResult decode_daq_data(const pb::DaqData& daq_data);

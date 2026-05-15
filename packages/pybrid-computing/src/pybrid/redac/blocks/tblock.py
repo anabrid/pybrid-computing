@@ -2,8 +2,8 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
+from dataclasses import dataclass, field
 from typing import Optional
-from dataclasses import field, dataclass
 
 from pybrid.redac.blocks.block import FunctionBlock
 from pybrid.redac.entities import EntityClass, EntityType, Loc
