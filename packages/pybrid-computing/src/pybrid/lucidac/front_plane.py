@@ -14,20 +14,23 @@ to work but emit a :class:`DeprecationWarning`.
 """
 
 import typing
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.redac.entities import Entity, EntityType, EntityClass
+from pybrid.redac.entities import Entity, EntityClass, EntityType
+
 
 class WaveForm(int, Enum):
     """Output mode for the LUCIDAC's signal generator."""
+
     #: Output sine signal ONLY
     SINE = 0
     #: Output sine and rect signals at the same time
     SINE_AND_SQUARE = 1
     #: Output ONLY triangle signal from the sine plug
     TRIANGLE = 2
+
 
 @dataclass
 class SignalGenerator:
@@ -38,6 +41,7 @@ class SignalGenerator:
     signal OR a triangle signal. At the same time, via the aux plugs, two
     (inverted) constants can be set.
     """
+
     #: Frequency in Hz for the Sine/Triangle
     frequency: float = field(default=0)
 
@@ -65,6 +69,7 @@ class SignalGenerator:
     #: Set constant outputs on AUX0, Aux1
     dac_outputs: typing.List[float] = field(default_factory=lambda: [0.0, 0.0])
 
+
 @EntityType.register(EntityClass.FRONTPANEL)
 @dataclass
 class FrontPlane(Entity):
@@ -73,6 +78,7 @@ class FrontPlane(Entity):
 
     Renamed from ``FrontPanel`` to ``FrontPlane`` to align with firmware terminology.
     """
+
     #: Models LED as 32bit (8 bits used) string, where the LSB switches the right LED.
     leds: int = field(default=0)
 
@@ -90,11 +96,14 @@ def _register_deprecation_shim():
     """
     import sys
     import warnings
+
     shim_name = "pybrid.lucidac.front_panel"
     if shim_name not in sys.modules:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             import importlib
+
             importlib.import_module(shim_name)
+
 
 _register_deprecation_shim()

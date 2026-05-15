@@ -2,15 +2,15 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from typing import List
 from abc import ABC, abstractmethod
+from typing import List
 
-from pybrid.base.hybrid.entities import Entity, Path, EntityDoesNotExist
+from pybrid.base.hybrid.entities import Entity, EntityDoesNotExist, Path
 from pybrid.base.hybrid.utils import build_entity_path_dict
 
 
 class AnalogComputer(ABC):
-    hierarchy = (Entity, )
+    hierarchy = (Entity,)
     entities: list[Entity]
     _entities_by_path: dict[Path, Entity]
 
@@ -21,8 +21,7 @@ class AnalogComputer(ABC):
 
     @property
     @abstractmethod
-    def name(self) -> str:
-        ...
+    def name(self) -> str: ...
 
     def get_entity(self, path: Path) -> Entity:
         """Get an entity by path."""

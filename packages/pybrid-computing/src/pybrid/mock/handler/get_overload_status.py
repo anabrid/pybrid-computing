@@ -25,6 +25,4 @@ class GetOverloadStatusHandler(BaseHandler):
     async def handle(
         self, cmd: pb.GetOverloadStatusCommand, connection: "ClientConnection"
     ) -> pb.GetOverloadStatusResponse:
-        return pb.GetOverloadStatusResponse(
-            status=pb.OverloadStatus(global_overload=False)
-        )
+        return pb.GetOverloadStatusResponse(status=pb.OverloadStatus(global_overload=False))

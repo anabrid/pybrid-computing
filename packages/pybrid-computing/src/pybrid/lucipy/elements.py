@@ -24,8 +24,9 @@ from typing import Union
 @dataclass
 class Integrator:
     """Wrapper for an allocated integrator."""
-    id: int     # 0-7, integrator slot index
-    lane: int   # same as id (M0 block, offset=0)
+
+    id: int  # 0-7, integrator slot index
+    lane: int  # same as id (M0 block, offset=0)
     _circuit_id: object = field(default=None, repr=False, compare=False)
 
     def source_output_lane(self) -> int:
@@ -40,8 +41,9 @@ class Integrator:
 @dataclass
 class _MulInput:
     """Reference to a specific multiplier input (a or b)."""
-    mul_id: int      # 0-3, which multiplier slot
-    input_idx: int   # 0 for a, 1 for b
+
+    mul_id: int  # 0-3, which multiplier slot
+    input_idx: int  # 0 for a, 1 for b
     _circuit_id: object = field(default=None, repr=False, compare=False)
 
     @property
@@ -49,7 +51,7 @@ class _MulInput:
         """M-block input lane for this multiplier input."""
         return 8 + 2 * self.mul_id + self.input_idx
 
-    def id(self) -> 'Identity':
+    def id(self) -> "Identity":
         """
         Create an identity element from this multiplier input.
 
@@ -77,8 +79,9 @@ class _MulInput:
 @dataclass
 class Multiplier:
     """Wrapper for an allocated multiplier."""
-    id: int     # 0-3, multiplier slot index
-    lane: int   # 8 + id (M1 block offset, output lane)
+
+    id: int  # 0-3, multiplier slot index
+    lane: int  # 8 + id (M1 block offset, output lane)
     _circuit_id: object = field(default=None, repr=False, compare=False)
 
     @property
@@ -112,6 +115,7 @@ class Identity:
 
     Can only be used as a **source** in ``connect()``, not as a target.
     """
+
     offset: int  # 0-3, maps to M-block output 12+offset
     _circuit_id: object = field(default=None, repr=False, compare=False)
 
@@ -129,15 +133,17 @@ class Constant:
     lanes 16-31).  The correct output is determined at connect() time based
     on which lane is allocated.
     """
-    id: int     # allocation counter
+
+    id: int  # allocation counter
     _circuit_id: object = field(default=None, repr=False, compare=False)
 
 
 @dataclass
 class Input:
     """Wrapper for an allocated ACL_IN port."""
-    port: int   # 0-7, port number
-    lane: int   # 24 + port
+
+    port: int  # 0-7, port number
+    lane: int  # 24 + port
     _circuit_id: object = field(default=None, repr=False, compare=False)
 
     def source_output_lane(self) -> int:
@@ -148,8 +154,9 @@ class Input:
 @dataclass
 class Output:
     """Wrapper for an allocated ACL_OUT port."""
-    port: int   # 0-7, port number
-    lane: int   # 24 + port
+
+    port: int  # 0-7, port number
+    lane: int  # 24 + port
     _circuit_id: object = field(default=None, repr=False, compare=False)
 
     def target_m_input(self) -> int:

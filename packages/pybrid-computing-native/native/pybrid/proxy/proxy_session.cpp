@@ -15,8 +15,8 @@ namespace anabrid::pybrid::native {
 std::atomic<size_t> ClientSession::alive_count_{0};
 std::atomic<size_t> ClientSession::alive_peak_{0};
 
-ClientSession::ClientSession(std::unique_ptr<TCPTransport> transport,
-                             std::optional<pb::MessageV1> pending_first_message)
+ClientSession::ClientSession(
+    std::unique_ptr<TCPTransport> transport, std::optional<pb::MessageV1> pending_first_message)
     : session_id_(utils::generate_uuid()),
       last_activity(std::chrono::steady_clock::now()),
       client_transport_(std::move(transport)),
@@ -27,9 +27,7 @@ ClientSession::ClientSession(std::unique_ptr<TCPTransport> transport,
     // Test-only: track live instances and record the maximum ever seen.
     size_t current = alive_count_.fetch_add(1, std::memory_order_relaxed) + 1;
     size_t peak = alive_peak_.load(std::memory_order_relaxed);
-    while (current > peak &&
-           !alive_peak_.compare_exchange_weak(peak, current,
-                                              std::memory_order_relaxed)) {}
+    while (current > peak && !alive_peak_.compare_exchange_weak(peak, current, std::memory_order_relaxed)) {}
 }
 
 ClientSession::~ClientSession() {

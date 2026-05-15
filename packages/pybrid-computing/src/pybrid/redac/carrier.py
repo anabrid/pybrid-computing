@@ -7,20 +7,21 @@ from __future__ import annotations
 import logging
 import warnings
 from dataclasses import dataclass, field
-from typing import Optional, TYPE_CHECKING
 from enum import Enum
+from typing import TYPE_CHECKING, Optional
 
 from pybrid.base.hybrid import EntityDoesNotExist
 from pybrid.redac.blocks import TBlock
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
 from pybrid.redac.cluster import Cluster
-from pybrid.redac.entities import Entity, Path, EntityType, Loc
+from pybrid.redac.entities import Entity, EntityType, Loc, Path
 
 if TYPE_CHECKING:
     from pybrid.lucidac.front_plane import FrontPlane
 
 logger = logging.getLogger(__name__)
 import pybrid.base.proto.main_pb2 as pb
+
 
 @dataclass(kw_only=True)
 class ADCChannel:
@@ -33,11 +34,13 @@ class ADCChannel:
     #: Probe: relates this ADC channel to an input function (e.g. a problem description, such as an ODE)
     probe: int = -1
 
+
 class FrontPanelIOMode(int, Enum):
     ANALOG_OUT = 0
     ANALOG_IN = 1
     DIGITAL_OUT = 2
     DIGITAL_IN = 3
+
 
 @dataclass(kw_only=True)
 class Carrier(Entity):
@@ -109,7 +112,6 @@ class Carrier(Entity):
     @property
     def front_panel(self):
         """Deprecated: use front_plane instead."""
-        import warnings
         warnings.warn(
             "Carrier.front_panel is deprecated, use Carrier.front_plane",
             DeprecationWarning,

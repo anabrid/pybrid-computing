@@ -5,8 +5,9 @@
 import importlib.util
 import sys
 
+
 def import_file_as_module(file, name):
-    spec = importlib.util.spec_from_file_location('user_program', file)
+    spec = importlib.util.spec_from_file_location("user_program", file)
     module = importlib.util.module_from_spec(spec)
     sys.modules["user_program"] = module
     spec.loader.exec_module(module)

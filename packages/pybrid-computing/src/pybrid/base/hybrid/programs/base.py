@@ -10,7 +10,7 @@ from dataclasses import replace
 
 from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.hybrid.controller import BaseController
-from pybrid.base.hybrid.run import BaseRun, BaseRunConfig, BaseDAQConfig
+from pybrid.base.hybrid.run import BaseDAQConfig, BaseRun, BaseRunConfig
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +62,7 @@ class BaseProgram(ABC):
         return await self.start()
 
     @abstractmethod
-    async def start(self):
-        ...
+    async def start(self): ...
 
     def get_run_kwargs(self) -> dict:
         """Collect :attr:`RUN_CONFIG` and :attr:`DAQ_CONFIG` for run construction."""

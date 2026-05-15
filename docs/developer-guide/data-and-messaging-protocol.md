@@ -80,15 +80,15 @@ def send_protobuf(sock: socket.socket, msg: Message):
     # Prefix with 4-byte length (network byte order)
     sock.sendall(len(data).to_bytes(4, 'big') + data)
 
-# RECEIVING  
+# RECEIVING
 def recv_protobuf(sock: socket.socket, msg_class: type[Message]) -> Message:
     # Read length prefix first
     length_bytes = recv_exact(sock, 4)
     length = int.from_bytes(length_bytes, 'big')
-    
+
     # Read the message
     data = recv_exact(sock, length)
-    
+
     msg = msg_class()
     msg.ParseFromString(data)
     return msg

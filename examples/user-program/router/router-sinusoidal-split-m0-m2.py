@@ -6,7 +6,7 @@ from ipaddress import IPv4Address
 import matplotlib.pyplot as plt
 
 from pybrid.base.hybrid.programs import SingleRun
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
+from pybrid.redac import REDAC, DAQConfig, Path, Run, RunConfig
 
 
 class UserProgram(SingleRun):
@@ -67,7 +67,7 @@ class UserProgram(SingleRun):
         # ->
         i0_m0_cl1.m0block.elements[4].ic = -0.5
         i0_m0_cl1.ublock.connect(4, 30)
-        i0_m0_cl1.cblock.elements[30].factor = -1/8
+        i0_m0_cl1.cblock.elements[30].factor = -1 / 8
         # Source mREDAC needs to know whether to set 0.1 or 1 as calibration input
         # TODO: Move all of this (maybe including factors) into router.route
         router.route(i0_m0.tblock.loc() / 1 / 30, i0_m2.tblock.loc() / 1 / 30)
@@ -78,13 +78,12 @@ class UserProgram(SingleRun):
         # <-
         i0_m2_cl1.m0block.elements[4].ic = 0
         i0_m2_cl1.ublock.connect(4, 17)
-        i0_m2_cl1.cblock.elements[17].factor = 1/8
+        i0_m2_cl1.cblock.elements[17].factor = 1 / 8
         router.route(i0_m2.tblock.loc() / 1 / 17, i0_m0.tblock.loc() / 1 / 17)
         i0_m0_cl1.iblock.connect(17, 4)
         i0_m0_cl1.iblock.upscaling[17] = True
         # DAQ
         computer.daq.capture(i0_m0_cl1.m0block.elements[4], i0_m2_cl1.m0block.elements[4])
-
 
     def run_done(self, run: Run):
         # This function is called once the run is done

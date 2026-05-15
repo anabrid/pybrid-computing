@@ -2,13 +2,11 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from pybrid.redac.blocks.block import ElementBlock
-from pybrid.redac.computations import (
-    Integration, Multiplication, MDROperation
-)
+from pybrid.redac.computations import Integration, MDROperation, Multiplication
 from pybrid.redac.elements import ComputationElement
 from pybrid.redac.entities import EntityClass, EntityType
 
@@ -18,6 +16,7 @@ class MBlock(ElementBlock):
     """
     A general math block (M-Block) in a REDAC. Has 8 inputs and 8 outputs.
     """
+
     pass
 
 
@@ -42,6 +41,7 @@ class MIntBlock(MBlock):
         for element in self.elements:
             element.reset()
 
+
 @EntityType.register(EntityClass.MBLOCK, 2)
 class MMulBlock(MBlock):
     """
@@ -49,6 +49,7 @@ class MMulBlock(MBlock):
     """
 
     ELEMENTS = (ComputationElement[Multiplication],) * 4
+
 
 @EntityType.register(EntityClass.MBLOCK, 3)
 class MMDRBlock(MBlock):

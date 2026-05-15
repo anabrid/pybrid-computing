@@ -20,7 +20,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from pybrid.redac import Controller, DAQConfig, RunConfig
-from pybrid.redac.carrier import FrontPanelIOMode, ADCChannel
+from pybrid.redac.carrier import ADCChannel, FrontPanelIOMode
 
 
 async def main():
@@ -67,23 +67,19 @@ async def main():
 
         # Patch incoming signal through over an ID path
         # Note: MDR block uses ID paths 8 -> 12, 11 -> 13, 13 -> 15, 15 -> 17
-        cluster.iblock.outputs[9] = [
-            30
-        ]
+        cluster.iblock.outputs[9] = [30]
 
         # Configure data acquisition to capture both outputs
-        carrier.adc_config.extend([
-            ADCChannel(index=0, probe=0),
-            ADCChannel(index=1, probe=1),
-            ADCChannel(index=12, probe=2)
-        ])
+        carrier.adc_config.extend(
+            [ADCChannel(index=0, probe=0), ADCChannel(index=1, probe=1), ADCChannel(index=12, probe=2)]
+        )
 
         # External output
         carrier.front_panel_io = [
             FrontPanelIOMode.ANALOG_OUT,
             FrontPanelIOMode.ANALOG_OUT,
             FrontPanelIOMode.ANALOG_IN,
-            FrontPanelIOMode.DIGITAL_OUT
+            FrontPanelIOMode.DIGITAL_OUT,
         ]
 
         # Configure run parameters
@@ -97,10 +93,7 @@ async def main():
         session = controller.create_session()
         session.set_config(computer)
         # session.calibrate(gain=False, offset=True)
-        session.run(
-            run_config,
-            daq_config
-        )
+        session.run(run_config, daq_config)
         await session.execute()
 
         run = session.runs[0]

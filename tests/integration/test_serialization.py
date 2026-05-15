@@ -11,12 +11,12 @@ computer types and various block configurations.
 
 import pytest
 
-from pybrid.redac.computer import REDAC
-from pybrid.redac.carrier import Carrier, ADCChannel
-from pybrid.redac.cluster import Cluster
-from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
-from pybrid.redac.entities import Path, Loc
 from pybrid.base.utils.addressing import AddressingMap
+from pybrid.redac.blocks import CBlock, IBlock, MIntBlock, UBlock
+from pybrid.redac.carrier import ADCChannel, Carrier
+from pybrid.redac.cluster import Cluster
+from pybrid.redac.computer import REDAC
+from pybrid.redac.entities import Loc, Path
 
 
 def make_test_redac_with_mblock(num_carriers: int = 1):
@@ -37,20 +37,15 @@ def make_test_redac_with_mblock(num_carriers: int = 1):
         cluster_path = carrier_path / "0"
         cluster = Cluster(
             path=cluster_path,
-            location=Loc.new_cluster(0,0, 0),
+            location=Loc.new_cluster(0, 0, 0),
             m0block=MIntBlock(path=cluster_path / "M0"),
             ublock=UBlock(path=cluster_path / "U"),
             cblock=CBlock(path=cluster_path / "C"),
             iblock=IBlock(path=cluster_path / "I"),
-            shblock=None
+            shblock=None,
         )
 
-        carrier = Carrier(
-            path=carrier_path,
-            location=Loc.new_carrier(0, 0),
-            clusters=[cluster],
-            tblock=None
-        )
+        carrier = Carrier(path=carrier_path, location=Loc.new_carrier(0, 0), clusters=[cluster], tblock=None)
         carriers.append(carrier)
 
     return REDAC(entities=carriers)
@@ -76,15 +71,10 @@ def make_test_lucidac():
         ublock=UBlock(path=cluster_path / "U"),
         cblock=CBlock(path=cluster_path / "C"),
         iblock=IBlock(path=cluster_path / "I"),
-        shblock=None
+        shblock=None,
     )
 
-    carrier = Carrier(
-        path=carrier_path,
-        location=Loc.new_carrier(0, 0),
-        clusters=[cluster],
-        tblock=None
-    )
+    carrier = Carrier(path=carrier_path, location=Loc.new_carrier(0, 0), clusters=[cluster], tblock=None)
 
     return LUCIDAC(entities=[carrier])
 
@@ -109,15 +99,10 @@ def make_test_simulator():
         ublock=UBlock(path=cluster_path / "U"),
         cblock=CBlock(path=cluster_path / "C"),
         iblock=IBlock(path=cluster_path / "I"),
-        shblock=None
+        shblock=None,
     )
 
-    carrier = Carrier(
-        path=carrier_path,
-        location=Loc.new_carrier(0, 0),
-        clusters=[cluster],
-        tblock=None
-    )
+    carrier = Carrier(path=carrier_path, location=Loc.new_carrier(0, 0), clusters=[cluster], tblock=None)
 
     return Simulator(entities=[carrier])
 
@@ -171,12 +156,14 @@ def compare_cblock_elements(original, restored):
     Returns:
         True if all elements match, raises AssertionError otherwise.
     """
-    assert len(original.elements) == len(restored.elements), \
-        f"CBlock element count mismatch: {len(original.elements)} vs {len(restored.elements)}"
+    assert len(original.elements) == len(
+        restored.elements
+    ), f"CBlock element count mismatch: {len(original.elements)} vs {len(restored.elements)}"
 
     for i, (orig_elem, rest_elem) in enumerate(zip(original.elements, restored.elements)):
-        assert orig_elem.computation.factor == pytest.approx(rest_elem.computation.factor, rel=1e-6), \
-            f"CBlock element {i} factor mismatch: {orig_elem.computation.factor} vs {rest_elem.computation.factor}"
+        assert orig_elem.computation.factor == pytest.approx(
+            rest_elem.computation.factor, rel=1e-6
+        ), f"CBlock element {i} factor mismatch: {orig_elem.computation.factor} vs {rest_elem.computation.factor}"
 
     return True
 
@@ -192,18 +179,20 @@ def compare_mintblock_elements(original, restored):
     Returns:
         True if all elements match, raises AssertionError otherwise.
     """
-    assert len(original.elements) == len(restored.elements), \
-        f"MIntBlock element count mismatch: {len(original.elements)} vs {len(restored.elements)}"
+    assert len(original.elements) == len(
+        restored.elements
+    ), f"MIntBlock element count mismatch: {len(original.elements)} vs {len(restored.elements)}"
 
     for i, (orig_elem, rest_elem) in enumerate(zip(original.elements, restored.elements)):
-        assert orig_elem.ic == pytest.approx(rest_elem.ic, rel=1e-6), \
-            f"MIntBlock element {i} ic mismatch: {orig_elem.ic} vs {rest_elem.ic}"
-        assert orig_elem.k == rest_elem.k, \
-            f"MIntBlock element {i} k mismatch: {orig_elem.k} vs {rest_elem.k}"
+        assert orig_elem.ic == pytest.approx(
+            rest_elem.ic, rel=1e-6
+        ), f"MIntBlock element {i} ic mismatch: {orig_elem.ic} vs {rest_elem.ic}"
+        assert orig_elem.k == rest_elem.k, f"MIntBlock element {i} k mismatch: {orig_elem.k} vs {rest_elem.k}"
 
     # Check limiters
-    assert original.limiters == restored.limiters, \
-        f"MIntBlock limiters mismatch: {original.limiters} vs {restored.limiters}"
+    assert (
+        original.limiters == restored.limiters
+    ), f"MIntBlock limiters mismatch: {original.limiters} vs {restored.limiters}"
 
     return True
 
@@ -219,16 +208,18 @@ def compare_adc_channels(original, restored):
     Returns:
         True if all ADC channels match, raises AssertionError otherwise.
     """
-    assert len(original.adc_config) == len(restored.adc_config), \
-        f"ADC channel count mismatch: {len(original.adc_config)} vs {len(restored.adc_config)}"
+    assert len(original.adc_config) == len(
+        restored.adc_config
+    ), f"ADC channel count mismatch: {len(original.adc_config)} vs {len(restored.adc_config)}"
 
     for i, (orig_ch, rest_ch) in enumerate(zip(original.adc_config, restored.adc_config)):
-        assert orig_ch.index == rest_ch.index, \
-            f"ADC channel {i} index mismatch: {orig_ch.index} vs {rest_ch.index}"
-        assert orig_ch.gain == pytest.approx(rest_ch.gain, rel=1e-6), \
-            f"ADC channel {i} gain mismatch: {orig_ch.gain} vs {rest_ch.gain}"
-        assert orig_ch.offset == pytest.approx(rest_ch.offset, rel=1e-6), \
-            f"ADC channel {i} offset mismatch: {orig_ch.offset} vs {rest_ch.offset}"
+        assert orig_ch.index == rest_ch.index, f"ADC channel {i} index mismatch: {orig_ch.index} vs {rest_ch.index}"
+        assert orig_ch.gain == pytest.approx(
+            rest_ch.gain, rel=1e-6
+        ), f"ADC channel {i} gain mismatch: {orig_ch.gain} vs {rest_ch.gain}"
+        assert orig_ch.offset == pytest.approx(
+            rest_ch.offset, rel=1e-6
+        ), f"ADC channel {i} offset mismatch: {orig_ch.offset} vs {rest_ch.offset}"
 
     return True
 
@@ -236,11 +227,14 @@ def compare_adc_channels(original, restored):
 class TestEmptyConfigRoundtrip:
     """Test roundtrip serialization of empty/default configurations."""
 
-    @pytest.mark.parametrize("computer_factory,computer_name", [
-        (make_test_redac_with_mblock, "REDAC"),
-        (make_test_lucidac, "LUCIStack"),
-        (make_test_simulator, "Simulator"),
-    ])
+    @pytest.mark.parametrize(
+        "computer_factory,computer_name",
+        [
+            (make_test_redac_with_mblock, "REDAC"),
+            (make_test_lucidac, "LUCIStack"),
+            (make_test_simulator, "Simulator"),
+        ],
+    )
     def test_empty_config_roundtrip(self, computer_factory, computer_name):
         computer = computer_factory() if computer_name == "REDAC" else computer_factory()
         assert computer.name == computer_name

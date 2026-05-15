@@ -2,10 +2,10 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from itertools import chain
 
-from pybrid.redac.blocks.block import SwitchingBlock, SignalConnectionError
+from pybrid.redac.blocks.block import SignalConnectionError, SwitchingBlock
 from pybrid.redac.entities import EntityClass, EntityType
 
 

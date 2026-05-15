@@ -13,12 +13,13 @@ All tests use mocks — no real network connections are made.
 """
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from pybrid.base.hybrid.controller import BaseController
-from pybrid.redac.controller import Controller as REDACController
 from pybrid.lucidac.controller import Controller as LUCIDACController
+from pybrid.redac.controller import Controller as REDACController
 
 
 def _make_redac_controller(**kwargs) -> REDACController:
@@ -41,8 +42,9 @@ class TestLUCIDACControllerDeltaAssertion:
 
         # Simulate BaseController.add_device adding one connection
         async def fake_base_add_device(self, host, port, specification=None):
-            from pybrid.redac.entities import Path
             from pybrid.redac.channel import DeviceConnection
+            from pybrid.redac.entities import Path
+
             fake_path = Path.parse("AA-BB-CC-DD-EE-01")
             fake_conn = MagicMock(spec=DeviceConnection)
             ctrl.connection_manager.connections[fake_path] = fake_conn
@@ -71,9 +73,7 @@ class TestControllerLifecycle:
     async def test_context_manager_calls_close_all(self):
         ctrl = _make_redac_controller()
 
-        with patch.object(
-            ctrl.connection_manager, "close_all", new=AsyncMock()
-        ) as mock_close:
+        with patch.object(ctrl.connection_manager, "close_all", new=AsyncMock()) as mock_close:
             async with ctrl:
                 pass
             mock_close.assert_called_once()
@@ -82,8 +82,6 @@ class TestControllerLifecycle:
     async def test_stop_delegates_to_close_all(self):
         ctrl = _make_redac_controller()
 
-        with patch.object(
-            ctrl.connection_manager, "close_all", new=AsyncMock()
-        ) as mock_close:
+        with patch.object(ctrl.connection_manager, "close_all", new=AsyncMock()) as mock_close:
             await ctrl.stop()
             mock_close.assert_called_once()

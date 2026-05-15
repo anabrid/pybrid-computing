@@ -15,8 +15,8 @@ Key differences from the REDAC controller:
 import logging
 import warnings
 
-from pybrid.redac.computer import REDAC
 from pybrid.lucidac.computer import LUCIStack
+from pybrid.redac.computer import REDAC
 from pybrid.redac.controller import Controller as REDACController
 
 logger = logging.getLogger(__name__)
@@ -76,10 +76,7 @@ class Controller(REDACController):
 
         new_conns = len(self.connection_manager.connections) - prev_conns
         if new_conns < 1:
-            raise Exception(
-                f"Failed adding LUCIDAC {host}:{port} "
-                f"(new carriers={new_conns})"
-            )
+            raise Exception(f"Failed adding LUCIDAC {host}:{port} " f"(new carriers={new_conns})")
 
         # Log every newly discovered carrier MAC.
         all_paths = list(self.connection_manager.connections.keys())

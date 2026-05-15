@@ -11,11 +11,11 @@ These tests verify that:
 
 import warnings
 
+from pybrid.base.utils.addressing import AddressingMap
+from pybrid.redac.blocks import CBlock, IBlock, UBlock
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.cluster import Cluster
-from pybrid.redac.blocks import UBlock, CBlock, IBlock
-from pybrid.redac.entities import Path, Loc
-from pybrid.base.utils.addressing import AddressingMap
+from pybrid.redac.entities import Loc, Path
 
 # Import FrontPanel/FrontPlane with fallback so tests don't crash
 try:
@@ -77,14 +77,12 @@ class TestCarrierFrontPanelDeprecated:
             warnings.simplefilter("always")
             _ = carrier.front_panel
             deprecation_warnings = [
-                w for w in caught
-                if issubclass(w.category, DeprecationWarning)
-                and "front_panel" in str(w.message).lower()
+                w
+                for w in caught
+                if issubclass(w.category, DeprecationWarning) and "front_panel" in str(w.message).lower()
             ]
             assert len(deprecation_warnings) >= 1, (
                 "Accessing carrier.front_panel should emit a DeprecationWarning "
                 "indicating that 'front_plane' is the new attribute name. "
                 f"Caught warnings: {[str(w.message) for w in caught]}"
             )
-
-

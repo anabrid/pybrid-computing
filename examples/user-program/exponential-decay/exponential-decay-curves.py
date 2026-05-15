@@ -2,10 +2,11 @@
 #   pybrid redac -h <host> user-program path/to/this/file.py
 
 from itertools import cycle
+
 import matplotlib.pyplot as plt
 
 from pybrid.base.hybrid.programs import SingleRun
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
+from pybrid.redac import REDAC, DAQConfig, Path, Run, RunConfig
 
 decay_rate = iter(cycle(map(lambda x: x / 100.0, reversed(range(0, 100, 5)))))
 

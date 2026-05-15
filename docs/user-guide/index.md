@@ -14,7 +14,7 @@ environment with `pybrid`, we recommend learning about the architecture
 in [the architecture guide](../hardware-architecture/index.md).
 
 `pybrid` serves multiple functions in anabrid's software stack. Besides a convenient
-way to configure devices using Python, `pybrid` also serves as runtime environment 
+way to configure devices using Python, `pybrid` also serves as runtime environment
 and collection of tools for device maintenance. For a list of functions, refer
 to [the further usage guide](./using-pybrid/index.md).
 

@@ -14,9 +14,7 @@ def _add_to_entity_path_dict(d, entity):
         _add_to_entity_path_dict(d, child)
 
 
-def build_entity_path_dict(
-    entities: list[Entity], recursive=True
-) -> dict[Path, Entity]:
+def build_entity_path_dict(entities: list[Entity], recursive=True) -> dict[Path, Entity]:
     entities_by_path = dict()
     for entity in entities:
         _add_to_entity_path_dict(entities_by_path, entity)

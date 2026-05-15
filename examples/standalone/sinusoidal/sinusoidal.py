@@ -4,6 +4,7 @@ from ipaddress import ip_network
 
 import numpy as np
 from matplotlib import pyplot as plt
+
 from pybrid.base.utils.logging import set_pybrid_logging_level
 from pybrid.redac import Controller, DAQConfig, RunConfig
 from pybrid.redac.detect import detect_in_network
@@ -11,10 +12,11 @@ from pybrid.redac.detect import detect_in_network
 logging.basicConfig()
 set_pybrid_logging_level(logging.DEBUG)
 
+
 async def main():
     controller = Controller()
 
-    for (host, port, name) in await detect_in_network(ip_network("0.0.0.0/0")):
+    for host, port, name in await detect_in_network(ip_network("0.0.0.0/0")):
         await controller.add_device(host, port)
 
     async with controller:
@@ -36,12 +38,7 @@ async def main():
         daq_config = DAQConfig(num_channels=2, sample_rate=100_000)
 
         session = controller.create_session()
-        runs = await (
-            session
-            .set_config(computer)
-            .run(run_config, daq=daq_config)
-            .execute()
-        )
+        runs = await session.set_config(computer).run(run_config, daq=daq_config).execute()
         run = runs[0]
 
     # Plot data.

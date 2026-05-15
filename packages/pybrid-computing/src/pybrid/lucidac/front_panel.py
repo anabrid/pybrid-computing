@@ -15,8 +15,7 @@ Importing from this module still works but is deprecated.
 import warnings as _warnings
 
 _warnings.warn(
-    "pybrid.lucidac.front_panel is deprecated, "
-    "use pybrid.lucidac.front_plane instead",
+    "pybrid.lucidac.front_panel is deprecated, " "use pybrid.lucidac.front_plane instead",
     DeprecationWarning,
     stacklevel=2,
 )

@@ -5,19 +5,18 @@ import asyncio
 import logging
 import typing
 import warnings
-
-from uuid import UUID
 from typing import List, Optional
+from uuid import UUID
 
 import numpy as np
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid.controller import BaseController
+from pybrid.base.hybrid.listeners import SampleListener
 from pybrid.redac.computer import REDAC
 from pybrid.redac.device import Device
 from pybrid.redac.entities import Path
-from pybrid.redac.run import Run, RunState, RunError
-from pybrid.base.hybrid.listeners import SampleListener
+from pybrid.redac.run import Run, RunError, RunState
 
 logger = logging.getLogger(__name__)
 
@@ -72,10 +71,7 @@ class DistributedRunState:
         ]
 
         for state in reversed(state_order):
-            all_reached = all(
-                path_states[state].is_set()
-                for path_states in self._states.values()
-            )
+            all_reached = all(path_states[state].is_set() for path_states in self._states.values())
             if all_reached:
                 self.run.state = state
                 return
@@ -145,7 +141,6 @@ class Controller(BaseController):
     #: Listeners that forward received UDP data directly to the user
     sample_listeners: typing.List[SampleListener] = []
 
-
     def __init__(self):
         super().__init__()
         self.computer = REDAC(entities=[])
@@ -168,8 +163,7 @@ class Controller(BaseController):
         .. deprecated::
         """
         warnings.warn(
-            "controller.protocols is deprecated. "
-            "Use controller.connection_manager.connections instead.",
+            "controller.protocols is deprecated. " "Use controller.connection_manager.connections instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -182,8 +176,7 @@ class Controller(BaseController):
         .. deprecated::
         """
         warnings.warn(
-            "controller.devices is deprecated. "
-            "Use controller.connection_manager.connections instead.",
+            "controller.devices is deprecated. " "Use controller.connection_manager.connections instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -193,8 +186,7 @@ class Controller(BaseController):
     def devices(self, value) -> None:
         """Deprecated setter — silently ignored."""
         warnings.warn(
-            "Setting controller.devices is deprecated. "
-            "Use controller.connection_manager.connections instead.",
+            "Setting controller.devices is deprecated. " "Use controller.connection_manager.connections instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -233,6 +225,7 @@ class Controller(BaseController):
             # LUCIDACDeserializer is a strict superset of the REDAC base and
             # produces identical results for non-LUCIDAC entities.
             from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer
+
             deserializer = LUCIDACDeserializer()
             result = deserializer.deserialize_specification(entity, root_path)
             # The firmware may report a single CARRIER entity (standalone mode)
@@ -253,12 +246,12 @@ class Controller(BaseController):
             Use ``session.set_module(module).execute()`` instead.
         """
         warnings.warn(
-            "controller.forward_set_config() is deprecated. "
-            "Use session.set_module(module).execute() instead.",
+            "controller.forward_set_config() is deprecated. " "Use session.set_module(module).execute() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
         from pybrid.redac.session import Session
+
         session = Session(self)
         session.set_module(message.module)
         result = await session.execute()
@@ -271,12 +264,12 @@ class Controller(BaseController):
             Use ``session.set_config(computer).execute()`` instead.
         """
         warnings.warn(
-            "controller.set_computer() is deprecated. "
-            "Use session.set_config(computer).execute() instead.",
+            "controller.set_computer() is deprecated. " "Use session.set_config(computer).execute() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
         from pybrid.redac.session import Session
+
         session = Session(self)
         session.set_config(computer)
         await session.execute()
@@ -288,12 +281,12 @@ class Controller(BaseController):
             Use ``session.run(config).execute()`` instead.
         """
         warnings.warn(
-            "controller.start_and_await_run() is deprecated. "
-            "Use session.run(config).execute() instead.",
+            "controller.start_and_await_run() is deprecated. " "Use session.run(config).execute() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
         from pybrid.redac.session import Session
+
         session = Session(self)
 
         # For backwards compatibility: calibrate before the run, as it used to

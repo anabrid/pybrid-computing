@@ -14,10 +14,12 @@ Environment Variables:
     TEST_SIMULATOR_ENDPOINT: tcp://host:port for Simulator connection
     PYBRID_TEST_PORT: Port for test servers (default: 6732)
 """
+
 import os
-import pytest
 from pathlib import Path as PyPath
 from urllib.parse import urlparse
+
+import pytest
 
 TEST_DATA_DIR = PyPath(__file__).parent / "data"
 
@@ -116,10 +118,14 @@ def subprocess_dummy_dac(
         port = get_test_port()
 
     cmd = [
-        sys.executable, "-m", "pybrid.cli.base",
+        sys.executable,
+        "-m",
+        "pybrid.cli.base",
         "dummy",
-        "-h", host,
-        "-p", str(port),
+        "-h",
+        host,
+        "-p",
+        str(port),
         "--virtual" if virtual else "--physical",
     ]
 
@@ -138,8 +144,7 @@ def subprocess_dummy_dac(
             except subprocess.TimeoutExpired:
                 pass
             raise RuntimeError(
-                f"DummyDAC server failed to start on {host}:{port}. "
-                f"stdout: {stdout}, stderr: {stderr}"
+                f"DummyDAC server failed to start on {host}:{port}. " f"stdout: {stdout}, stderr: {stderr}"
             )
         yield port
     finally:
@@ -197,20 +202,26 @@ def subprocess_proxy(
         map_path = PyPath(tmpdir) / "mac_mapping.json"
         partition_path = PyPath(tmpdir) / "partition.json"
 
-        with open(map_path, 'w') as f:
+        with open(map_path, "w") as f:
             json.dump(mac_mapping, f)
-        with open(partition_path, 'w') as f:
+        with open(partition_path, "w") as f:
             json.dump(partition_config, f)
 
         cmd = [
-            sys.executable, "-m", "pybrid.cli.base",
+            sys.executable,
+            "-m",
+            "pybrid.cli.base",
             "redac",
-            "-h", backend_host,
-            "-p", str(backend_port),
+            "-h",
+            backend_host,
+            "-p",
+            str(backend_port),
             "--no-reset",
             "proxy",
-            "-m", str(map_path),
-            "-p", str(partition_path),
+            "-m",
+            str(map_path),
+            "-p",
+            str(partition_path),
             proxy_host,
             str(proxy_port),
         ]
@@ -230,8 +241,7 @@ def subprocess_proxy(
                 except subprocess.TimeoutExpired:
                     pass
                 raise RuntimeError(
-                    f"Proxy server failed to start on {proxy_host}:{proxy_port}. "
-                    f"stdout: {stdout}, stderr: {stderr}"
+                    f"Proxy server failed to start on {proxy_host}:{proxy_port}. " f"stdout: {stdout}, stderr: {stderr}"
                 )
             yield proxy_port
         finally:
@@ -263,8 +273,13 @@ def get_device_endpoint(env_var: str) -> tuple[str, int] | None:
     return parsed.hostname, port
 
 
-def make_daq_data(values: list, dtype: str, channel_count: int, sample_count: int,
-                  scaling: list[tuple[int, float, float]] | None = None):
+def make_daq_data(
+    values: list,
+    dtype: str,
+    channel_count: int,
+    sample_count: int,
+    scaling: list[tuple[int, float, float]] | None = None,
+):
     """
     Create a pb.DaqData message for testing decode_data().
 
@@ -280,6 +295,7 @@ def make_daq_data(values: list, dtype: str, channel_count: int, sample_count: in
         A pb.DaqData protobuf message configured with the specified data.
     """
     import numpy as np
+
     import pybrid.base.proto.main_pb2 as pb
 
     data_pb = pb.DaqData()
@@ -287,13 +303,13 @@ def make_daq_data(values: list, dtype: str, channel_count: int, sample_count: in
     data_pb.sample_count = sample_count
     data_pb.data = np.array(values, dtype=dtype).tobytes()
 
-    if dtype.startswith('int'):
+    if dtype.startswith("int"):
         data_pb.type.integer.signess = pb.IntegerType.Signedness.Signed
         data_pb.type.integer.bitwidth = int(dtype[3:])
-    elif dtype.startswith('uint'):
+    elif dtype.startswith("uint"):
         data_pb.type.integer.signess = pb.IntegerType.Signedness.Unsigned
         data_pb.type.integer.bitwidth = int(dtype[4:])
-    elif dtype.startswith('float'):
+    elif dtype.startswith("float"):
         data_pb.type.float_.bitwidth = int(dtype[5:])
 
     if scaling is None:
@@ -320,12 +336,12 @@ def make_test_redac(num_carriers: int = 2):
     Returns:
         A REDAC instance configured for testing.
     """
-    from pybrid.redac.computer import REDAC
+    from pybrid.base.utils.addressing import AddressingMap
+    from pybrid.redac.blocks import CBlock, IBlock, UBlock
     from pybrid.redac.carrier import Carrier
     from pybrid.redac.cluster import Cluster
-    from pybrid.redac.blocks import UBlock, CBlock, IBlock
-    from pybrid.redac.entities import Path, Loc
-    from pybrid.base.utils.addressing import AddressingMap
+    from pybrid.redac.computer import REDAC
+    from pybrid.redac.entities import Loc, Path
 
     carriers = []
     for i in range(num_carriers):
@@ -340,15 +356,10 @@ def make_test_redac(num_carriers: int = 2):
             ublock=UBlock(path=cluster_path / "U"),
             cblock=CBlock(path=cluster_path / "C"),
             iblock=IBlock(path=cluster_path / "I"),
-            shblock=None
+            shblock=None,
         )
 
-        carrier = Carrier(
-            path=carrier_path,
-            location=Loc.new_carrier(0, 0),
-            clusters=[cluster],
-            tblock=None
-        )
+        carrier = Carrier(path=carrier_path, location=Loc.new_carrier(0, 0), clusters=[cluster], tblock=None)
         carriers.append(carrier)
 
     return REDAC(entities=carriers)
@@ -461,5 +472,3 @@ def device_endpoint(request):
     if not endpoint:
         pytest.skip(f"{env_var} not set")
     return endpoint
-
-

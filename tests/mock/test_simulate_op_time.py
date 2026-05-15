@@ -20,6 +20,7 @@ from pybrid.redac.control import AsyncControlChannel
 
 try:
     from pybrid.native._impl import ControlChannel as NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -109,9 +110,7 @@ class TestSimulateOpTime:
             try:
                 cmd = _make_run_command(OP_TIME_NS)
                 t_start = time.monotonic()
-                await asyncio.wait_for(
-                    channel.start_run_request(cmd), timeout=CHANNEL_TIMEOUT
-                )
+                await asyncio.wait_for(channel.start_run_request(cmd), timeout=CHANNEL_TIMEOUT)
                 await asyncio.wait_for(done_event.wait(), timeout=TEST_TIMEOUT)
                 elapsed = time.monotonic() - t_start
 
@@ -144,9 +143,7 @@ class TestSimulateOpTime:
             try:
                 cmd = _make_run_command(OP_TIME_NS)
                 t_start = time.monotonic()
-                await asyncio.wait_for(
-                    channel.start_run_request(cmd), timeout=CHANNEL_TIMEOUT
-                )
+                await asyncio.wait_for(channel.start_run_request(cmd), timeout=CHANNEL_TIMEOUT)
                 await asyncio.wait_for(done_event.wait(), timeout=TEST_TIMEOUT)
                 elapsed = time.monotonic() - t_start
 

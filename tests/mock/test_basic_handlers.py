@@ -17,6 +17,7 @@ from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACErrorStage
 try:
     from pybrid.native._impl import ControlChannel as NativeControlChannel
     from pybrid.redac.control import AsyncControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -50,6 +51,7 @@ async def _make_channel(port: int) -> "AsyncControlChannel":
 # Extract: specification flag
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_extract_specification_returns_entity_tree():
     """Extracting with specification=True returns EntitySpecification items
@@ -63,13 +65,8 @@ async def test_extract_specification_returns_entity_tree():
                 channel.extract(specification=True, recursive=True),
                 timeout=OP_TIMEOUT,
             )
-            spec_items = [
-                item for item in module.items
-                if item.HasField("entity_specification")
-            ]
-            assert len(spec_items) >= 1, (
-                f"Expected at least one EntitySpecification item, got {len(spec_items)}"
-            )
+            spec_items = [item for item in module.items if item.HasField("entity_specification")]
+            assert len(spec_items) >= 1, f"Expected at least one EntitySpecification item, got {len(spec_items)}"
             # The root entity should contain carrier children.
             root_entity = spec_items[0].entity_specification.entity
             assert root_entity.class_ == pb.Entity.DEVICE
@@ -90,19 +87,12 @@ async def test_extract_specification_redac_has_two_carriers():
                 channel.extract(specification=True, recursive=True),
                 timeout=OP_TIMEOUT,
             )
-            spec_items = [
-                item for item in module.items
-                if item.HasField("entity_specification")
-            ]
+            spec_items = [item for item in module.items if item.HasField("entity_specification")]
             root_entity = spec_items[0].entity_specification.entity
-            assert len(root_entity.children) == 2, (
-                f"Expected 2 carriers in REDAC mode, got {len(root_entity.children)}"
-            )
+            assert len(root_entity.children) == 2, f"Expected 2 carriers in REDAC mode, got {len(root_entity.children)}"
             for carrier in root_entity.children:
                 child_ids = [c.id for c in carrier.children]
-                assert "/FP" not in child_ids, (
-                    f"FP should not appear in REDAC carrier children, got: {child_ids}"
-                )
+                assert "/FP" not in child_ids, f"FP should not appear in REDAC carrier children, got: {child_ids}"
         finally:
             await channel.stop()
 
@@ -119,19 +109,14 @@ async def test_extract_specification_lucidac_has_frontpanel():
                 channel.extract(specification=True, recursive=True),
                 timeout=OP_TIMEOUT,
             )
-            spec_items = [
-                item for item in module.items
-                if item.HasField("entity_specification")
-            ]
+            spec_items = [item for item in module.items if item.HasField("entity_specification")]
             root_entity = spec_items[0].entity_specification.entity
-            assert len(root_entity.children) == 1, (
-                f"Expected 1 carrier in LUCIDAC mode, got {len(root_entity.children)}"
-            )
+            assert (
+                len(root_entity.children) == 1
+            ), f"Expected 1 carrier in LUCIDAC mode, got {len(root_entity.children)}"
             carrier = root_entity.children[0]
             child_ids = [c.id for c in carrier.children]
-            assert "/FP" in child_ids, (
-                f"FP should appear in LUCIDAC carrier children, got: {child_ids}"
-            )
+            assert "/FP" in child_ids, f"FP should appear in LUCIDAC carrier children, got: {child_ids}"
         finally:
             await channel.stop()
 
@@ -139,6 +124,7 @@ async def test_extract_specification_lucidac_has_frontpanel():
 # ---------------------------------------------------------------------------
 # Extract: configuration flag
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_extract_configuration_returns_stored_items():
@@ -161,13 +147,8 @@ async def test_extract_configuration_returns_stored_items():
                 timeout=OP_TIMEOUT,
             )
             # Should contain the stored config item (non-spec items).
-            non_spec = [
-                item for item in module.items
-                if not item.HasField("entity_specification")
-            ]
-            assert len(non_spec) == 1, (
-                f"Expected 1 config item, got {len(non_spec)}"
-            )
+            non_spec = [item for item in module.items if not item.HasField("entity_specification")]
+            assert len(non_spec) == 1, f"Expected 1 config item, got {len(non_spec)}"
         finally:
             await channel.stop()
 
@@ -196,13 +177,8 @@ async def test_extract_configuration_filtered_by_path():
                 ),
                 timeout=OP_TIMEOUT,
             )
-            non_spec = [
-                item for item in module.items
-                if not item.HasField("entity_specification")
-            ]
-            assert len(non_spec) == 2, (
-                f"Expected 2 config items for /00-00-00-00-00-00, got {len(non_spec)}"
-            )
+            non_spec = [item for item in module.items if not item.HasField("entity_specification")]
+            assert len(non_spec) == 2, f"Expected 2 config items for /00-00-00-00-00-00, got {len(non_spec)}"
         finally:
             await channel.stop()
 
@@ -210,6 +186,7 @@ async def test_extract_configuration_filtered_by_path():
 # ---------------------------------------------------------------------------
 # Extract: combined flags and edge cases
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_extract_both_spec_and_config():
@@ -232,14 +209,8 @@ async def test_extract_both_spec_and_config():
                 ),
                 timeout=OP_TIMEOUT,
             )
-            spec_items = [
-                item for item in module.items
-                if item.HasField("entity_specification")
-            ]
-            config_items = [
-                item for item in module.items
-                if not item.HasField("entity_specification")
-            ]
+            spec_items = [item for item in module.items if item.HasField("entity_specification")]
+            config_items = [item for item in module.items if not item.HasField("entity_specification")]
             assert len(spec_items) >= 1, "Should include entity specification items"
             assert len(config_items) >= 1, "Should include config items"
         finally:
@@ -268,9 +239,7 @@ async def test_extract_neither_flag_returns_empty():
                 ),
                 timeout=OP_TIMEOUT,
             )
-            assert len(module.items) == 0, (
-                f"Expected empty module when no flags are set, got {len(module.items)} items"
-            )
+            assert len(module.items) == 0, f"Expected empty module when no flags are set, got {len(module.items)} items"
         finally:
             await channel.stop()
 
@@ -278,6 +247,7 @@ async def test_extract_neither_flag_returns_empty():
 # ---------------------------------------------------------------------------
 # Config and Reset handlers (proto type fixes)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_config_stores_module():
@@ -289,14 +259,12 @@ async def test_config_stores_module():
         try:
             test_item = pb.Item(entity=pb.EntityId(path="/00-00-00-00-00-00/0/M0"))
             module = pb.Module(items=[test_item])
-            result = await asyncio.wait_for(
-                channel.set_module(module), timeout=OP_TIMEOUT
-            )
+            result = await asyncio.wait_for(channel.set_module(module), timeout=OP_TIMEOUT)
             assert result.ok, "set_module() should return a successful Result"
             assert server._stored_config is not None, "Server should have stored the config"
-            assert len(server._stored_config.items) == 1, (
-                f"Expected 1 item stored, got {len(server._stored_config.items)}"
-            )
+            assert (
+                len(server._stored_config.items) == 1
+            ), f"Expected 1 item stored, got {len(server._stored_config.items)}"
         finally:
             await channel.stop()
 
@@ -333,9 +301,7 @@ async def test_config_error_injection():
         try:
             test_item = pb.Item(entity=pb.EntityId(path="/test"))
             module = pb.Module(items=[test_item])
-            result = await asyncio.wait_for(
-                channel.set_module(module), timeout=OP_TIMEOUT
-            )
+            result = await asyncio.wait_for(channel.set_module(module), timeout=OP_TIMEOUT)
             assert result.ok is False
             assert "Simulated config error" in result.error
         finally:

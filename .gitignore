@@ -388,6 +388,8 @@ _skbuild/
 
 # Claude pollution from sandbox
 .*
+!.clang-format
+!.clang-tidy
 config
 HEAD
 hooks

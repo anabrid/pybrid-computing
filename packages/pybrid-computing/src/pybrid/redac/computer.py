@@ -6,16 +6,15 @@ import logging
 from typing import List
 
 import pybrid.base.proto.main_pb2 as pb
-from pybrid.redac.entities import Entity, Path, Loc
 from pybrid.base.hybrid import AnalogComputer
 from pybrid.base.hybrid.utils import build_entity_path_dict
 from pybrid.redac.blocks import FunctionBlock
-from pybrid.redac.carrier import Carrier, ADCChannel
+from pybrid.redac.carrier import ADCChannel, Carrier
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.elements import ComputationElement
-from pybrid.redac.entities import Path
+from pybrid.redac.entities import Entity, Loc, Path
+from pybrid.redac.protocol.serializer import REDACDeserializer, REDACSerializer
 from pybrid.redac.router import Router
-from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +37,7 @@ class DAQ:
 
     def reset(self):
         self._next_probe_index: int = 0
+
 
 class REDAC(AnalogComputer):
     """

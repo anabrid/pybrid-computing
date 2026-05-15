@@ -16,6 +16,7 @@ class DummyDACErrorStage(Enum):
     This allows testing error handling at various points in the
     communication and run lifecycle.
     """
+
     #: No error injection.
     NONE = "NONE"
     #: Error during configuration phase.
@@ -40,6 +41,7 @@ class DummyDACMacMode(Enum):
 
     This affects how the mock device identifies itself on the network.
     """
+
     #: Use a virtual/generated MAC address.
     VIRTUAL = "VIRTUAL"
     #: Use a physical/real MAC address format.
@@ -54,6 +56,7 @@ class DummyDACConfig:
     This configuration controls the behavior of the mock DAC,
     including how it responds to requests and whether to inject errors.
     """
+
     #: Mode for MAC address generation.
     mac_mode: DummyDACMacMode = DummyDACMacMode.VIRTUAL
     #: Whether to accept UDP streaming requests.

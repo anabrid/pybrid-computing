@@ -58,8 +58,7 @@ private:
 };
 
 template <size_t SLOT_DATA_SIZE, size_t INITIAL_CAPACITY>
-LockFreeBuffer<SLOT_DATA_SIZE, INITIAL_CAPACITY>::LockFreeBuffer()
-    : m_queue(INITIAL_CAPACITY) {}
+LockFreeBuffer<SLOT_DATA_SIZE, INITIAL_CAPACITY>::LockFreeBuffer() : m_queue(INITIAL_CAPACITY) {}
 
 template <size_t SLOT_DATA_SIZE, size_t INITIAL_CAPACITY>
 bool LockFreeBuffer<SLOT_DATA_SIZE, INITIAL_CAPACITY>::try_put(size_t item_size, const void* item) {

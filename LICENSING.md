@@ -8,4 +8,3 @@ This is an open source code which is licensed as following:
 > Contact: https://www.anabrid.com/licensing/
 >
 > SPDX-License-Identifier: MIT OR GPL-2.0-or-later
-

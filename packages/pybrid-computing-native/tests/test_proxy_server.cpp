@@ -76,8 +76,7 @@ public:
      *
      * @param carrier_path Entity path to advertise in ExtractResponse.
      */
-    explicit MockBackend(const std::string& carrier_path = CARRIER_PATH_A)
-        : carrier_path_(carrier_path) {
+    explicit MockBackend(const std::string& carrier_path = CARRIER_PATH_A) : carrier_path_(carrier_path) {
         server_.bind(0);
         server_.start();
     }
@@ -238,16 +237,14 @@ public:
         // 1. ExtractCommand
         pb::MessageV1 extract_req = recv_message();
         if (!extract_req.has_extract_command()) {
-            throw std::runtime_error(
-                "MockBackend::serve_add_backend_handshake: expected ExtractCommand");
+            throw std::runtime_error("MockBackend::serve_add_backend_handshake: expected ExtractCommand");
         }
         send_message(make_extract_response(extract_req.id()));
 
         // 2. ResetCommand
         pb::MessageV1 reset_req = recv_message();
         if (!reset_req.has_reset_command()) {
-            throw std::runtime_error(
-                "MockBackend::serve_add_backend_handshake: expected ResetCommand");
+            throw std::runtime_error("MockBackend::serve_add_backend_handshake: expected ResetCommand");
         }
         send_message(make_reset_response(reset_req.id()));
 
@@ -330,9 +327,7 @@ static void send_via_transport(TCPTransport& transport, const pb::MessageV1& msg
  * @param timeout_secs Receive timeout.
  * @return The deserialized MessageV1.
  */
-static pb::MessageV1 recv_via_transport(
-    TCPTransport& transport,
-    double timeout_secs = TEST_TIMEOUT_SECS) {
+static pb::MessageV1 recv_via_transport(TCPTransport& transport, double timeout_secs = TEST_TIMEOUT_SECS) {
     std::vector<uint8_t> buf(RECV_BUF_SIZE);
     RecvResult result = transport.recv(buf.data(), buf.size(), timeout_secs);
     EXPECT_EQ(result.status, RecvStatus::Success);
@@ -453,12 +448,10 @@ TEST_F(ProxyServerTest, ExtractForwarding) {
     cmd->set_specification(true);
 
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
-    ASSERT_TRUE(result.has_extract_response())
-        << "Expected extract_response, got kind: " << result.kind_case();
+    ASSERT_TRUE(result.has_extract_response()) << "Expected extract_response, got kind: " << result.kind_case();
 
     // The aggregated module items must reference the carrier path.
     const pb::Module& mod = result.extract_response().module();
@@ -471,8 +464,7 @@ TEST_F(ProxyServerTest, ExtractForwarding) {
             }
         }
     }
-    EXPECT_TRUE(found) << "Carrier path '" << CARRIER_PATH_A
-                       << "' not found in extract module items.";
+    EXPECT_TRUE(found) << "Carrier path '" << CARRIER_PATH_A << "' not found in extract module items.";
 
     client->stop();
 }
@@ -509,8 +501,7 @@ TEST_F(ProxyServerTest, ResetForwarding) {
     request.mutable_reset_command();
 
     std::future<pb::MessageV1> client_fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     backend_server.get();
     pb::MessageV1 result = client_fut.get();
@@ -563,14 +554,12 @@ TEST_F(ProxyServerTest, ConfigForwarding) {
     cfg->mutable_device_config();  // Minimal non-null config payload.
 
     std::future<pb::MessageV1> client_fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     backend_server.get();
     pb::MessageV1 result = client_fut.get();
 
-    EXPECT_TRUE(result.has_config_response())
-        << "Expected config_response, got kind: " << result.kind_case();
+    EXPECT_TRUE(result.has_config_response()) << "Expected config_response, got kind: " << result.kind_case();
 
     client->stop();
 }
@@ -595,13 +584,11 @@ TEST_F(ProxyServerTest, RunStateForwarding) {
     std::mutex states_mutex;
     std::atomic<int> call_count{0};
 
-    client->register_callback(
-        pb::MessageV1::kRunStateChangeMessageFieldNumber,
-        [&](pb::MessageV1& msg) {
-            std::lock_guard<std::mutex> lock(states_mutex);
-            received_states.push_back(msg.run_state_change_message().new_());
-            call_count.fetch_add(1, std::memory_order_release);
-        });
+    client->register_callback(pb::MessageV1::kRunStateChangeMessageFieldNumber, [&](pb::MessageV1& msg) {
+        std::lock_guard<std::mutex> lock(states_mutex);
+        received_states.push_back(msg.run_state_change_message().new_());
+        call_count.fetch_add(1, std::memory_order_release);
+    });
 
     client->start();
 
@@ -616,8 +603,7 @@ TEST_F(ProxyServerTest, RunStateForwarding) {
 
     // Wait up to 3 s for both callbacks.
     auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
-    while (call_count.load(std::memory_order_acquire) < 2 &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (call_count.load(std::memory_order_acquire) < 2 && std::chrono::steady_clock::now() < deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
@@ -677,8 +663,7 @@ TEST_F(ProxyServerTest, MultiBackendExtract) {
     cmd->set_specification(true);
 
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
     ASSERT_TRUE(result.has_extract_response());
@@ -726,7 +711,11 @@ TEST_F(ProxyServerTest, ClientSessionOrdering) {
 
     pb::MessageV1 req1;
     req1.set_id(utils::generate_uuid());
-    { auto* c = req1.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = req1.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
     pb::MessageV1 resp1 = client1->send_and_recv(req1, TEST_TIMEOUT_SECS);
     EXPECT_TRUE(resp1.has_extract_response()) << "First client: expected extract_response";
 
@@ -752,7 +741,11 @@ TEST_F(ProxyServerTest, ClientSessionOrdering) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     pb::MessageV1 req2b;
     req2b.set_id(utils::generate_uuid());
-    { auto* c = req2b.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = req2b.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
     pb::MessageV1 resp2 = client2->send_and_recv(req2b, TEST_TIMEOUT_SECS);
     EXPECT_TRUE(resp2.has_extract_response()) << "Second client: expected extract_response";
 
@@ -778,13 +771,11 @@ TEST_F(ProxyServerTest, ClientSessionTimeoutExpiry) {
     auto client1 = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
 
     std::atomic<bool> done_received{false};
-    client1->register_callback(
-        pb::MessageV1::kRunStateChangeMessageFieldNumber,
-        [&](pb::MessageV1& msg) {
-            if (msg.run_state_change_message().new_() == pb::DONE) {
-                done_received.store(true, std::memory_order_release);
-            }
-        });
+    client1->register_callback(pb::MessageV1::kRunStateChangeMessageFieldNumber, [&](pb::MessageV1& msg) {
+        if (msg.run_state_change_message().new_() == pb::DONE) {
+            done_received.store(true, std::memory_order_release);
+        }
+    });
     client1->start();
 
     // Trigger DONE from backend to start the timeout clock.
@@ -796,8 +787,7 @@ TEST_F(ProxyServerTest, ClientSessionTimeoutExpiry) {
 
     // Wait for client1 to see DONE.
     auto dl = std::chrono::steady_clock::now() + std::chrono::seconds(3);
-    while (!done_received.load(std::memory_order_acquire) &&
-           std::chrono::steady_clock::now() < dl) {
+    while (!done_received.load(std::memory_order_acquire) && std::chrono::steady_clock::now() < dl) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
     EXPECT_TRUE(done_received.load()) << "Client1: DONE notification not received";
@@ -815,8 +805,7 @@ TEST_F(ProxyServerTest, ClientSessionTimeoutExpiry) {
     cmd->set_recursive(true);
     cmd->set_specification(true);
     pb::MessageV1 resp = client2->send_and_recv(req, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp.has_extract_response())
-        << "Second client after timeout: expected extract_response";
+    EXPECT_TRUE(resp.has_extract_response()) << "Second client after timeout: expected extract_response";
 
     client1->stop();
     client2->stop();
@@ -844,7 +833,11 @@ TEST_F(ProxyServerTest, ClientDisconnectCleansUpSession) {
 
         pb::MessageV1 req;
         req.set_id(utils::generate_uuid());
-        { auto* c = req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+        {
+            auto* c = req.mutable_extract_command();
+            c->set_recursive(true);
+            c->set_specification(true);
+        }
         pb::MessageV1 resp = client1->send_and_recv(req, TEST_TIMEOUT_SECS);
         EXPECT_TRUE(resp.has_extract_response());
 
@@ -861,10 +854,13 @@ TEST_F(ProxyServerTest, ClientDisconnectCleansUpSession) {
 
     pb::MessageV1 req2;
     req2.set_id(utils::generate_uuid());
-    { auto* c = req2.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = req2.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
     pb::MessageV1 resp2 = client2->send_and_recv(req2, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp2.has_extract_response())
-        << "Second client after first disconnect: expected extract_response";
+    EXPECT_TRUE(resp2.has_extract_response()) << "Second client after first disconnect: expected extract_response";
 
     client2->stop();
 }
@@ -889,18 +885,20 @@ TEST_F(ProxyServerTest, DeviceDisconnectSendsError) {
     auto client = ControlChannel::create("127.0.0.1", proxy_port(), TEST_TIMEOUT_SECS);
 
     std::atomic<bool> error_received{false};
-    client->register_callback(
-        pb::MessageV1::kErrorMessageFieldNumber,
-        [&](pb::MessageV1& /* msg */) {
-            error_received.store(true, std::memory_order_release);
-        });
+    client->register_callback(pb::MessageV1::kErrorMessageFieldNumber, [&](pb::MessageV1& /* msg */) {
+        error_received.store(true, std::memory_order_release);
+    });
 
     client->start();
 
     // Verify the client is active by completing an extract roundtrip first.
     pb::MessageV1 req;
     req.set_id(utils::generate_uuid());
-    { auto* c = req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = req.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
     pb::MessageV1 resp = client->send_and_recv(req, TEST_TIMEOUT_SECS);
     EXPECT_TRUE(resp.has_extract_response());
 
@@ -910,13 +908,11 @@ TEST_F(ProxyServerTest, DeviceDisconnectSendsError) {
     // The proxy should detect the disconnect and send an ErrorMessage to the
     // active client.
     auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
-    while (!error_received.load(std::memory_order_acquire) &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (!error_received.load(std::memory_order_acquire) && std::chrono::steady_clock::now() < deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
-    EXPECT_TRUE(error_received.load())
-        << "Client did not receive ErrorMessage after backend disconnect";
+    EXPECT_TRUE(error_received.load()) << "Client did not receive ErrorMessage after backend disconnect";
 
     client->stop();
 }
@@ -940,8 +936,7 @@ public:
      * @param name  Environment variable name.
      * @param value Value to set, or empty string to unset.
      */
-    explicit EnvVarGuard(const std::string& name, const std::string& value = "")
-        : name_(name) {
+    explicit EnvVarGuard(const std::string& name, const std::string& value = "") : name_(name) {
         const char* old = std::getenv(name.c_str());
         had_value_ = (old != nullptr);
         if (had_value_) {
@@ -995,11 +990,8 @@ TEST_F(ProxyServerTest, AuthRequired_NoEnvVar_Throws) {
     EnvVarGuard guard(AUTH_ENV_VAR, "");
 
     EXPECT_THROW(
-        {
-            ProxyServer proxy_auth(/*requires_auth=*/true);
-        },
-        std::runtime_error
-    ) << "ProxyServer(requires_auth=true) must throw when PYBRID_AUTHENTICATION is unset";
+        { ProxyServer proxy_auth(/*requires_auth=*/true); }, std::runtime_error)
+        << "ProxyServer(requires_auth=true) must throw when PYBRID_AUTHENTICATION is unset";
 }
 
 // =============================================================================
@@ -1039,14 +1031,12 @@ TEST_F(ProxyServerTest, AuthRequired_WrongToken_Rejected) {
     auth_msg.mutable_auth_request()->mutable_bearer()->set_token(WRONG_TOKEN);
 
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(auth_msg, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(auth_msg, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
 
     EXPECT_TRUE(result.has_error_message())
-        << "Auth with wrong token should return ErrorMessage, got kind: "
-        << result.kind_case();
+        << "Auth with wrong token should return ErrorMessage, got kind: " << result.kind_case();
 
     client->stop();
 }
@@ -1086,29 +1076,29 @@ TEST_F(ProxyServerTest, AuthRequired_CorrectToken_Accepted) {
     auth_msg.mutable_auth_request()->mutable_bearer()->set_token(AUTH_TOKEN);
 
     std::future<pb::MessageV1> auth_fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(auth_msg, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(auth_msg, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 auth_result = auth_fut.get();
 
     EXPECT_TRUE(auth_result.has_success_message())
-        << "Auth with correct token should return SuccessMessage, got kind: "
-        << auth_result.kind_case();
+        << "Auth with correct token should return SuccessMessage, got kind: " << auth_result.kind_case();
 
     // Step 2: After auth, extract should work.
     pb::MessageV1 describe_msg;
     describe_msg.set_id(utils::generate_uuid());
-    { auto* c = describe_msg.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = describe_msg.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
 
     std::future<pb::MessageV1> desc_fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(describe_msg, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(describe_msg, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 desc_result = desc_fut.get();
 
     EXPECT_TRUE(desc_result.has_extract_response())
-        << "Extract after successful auth should work, got kind: "
-        << desc_result.kind_case();
+        << "Extract after successful auth should work, got kind: " << desc_result.kind_case();
 
     client->stop();
 }
@@ -1147,25 +1137,25 @@ TEST_F(ProxyServerTest, AuthRequired_UnauthenticatedMessage_Rejected) {
     // Send extract WITHOUT authenticating first.
     pb::MessageV1 describe_msg;
     describe_msg.set_id(utils::generate_uuid());
-    { auto* c = describe_msg.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = describe_msg.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
 
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(describe_msg, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(describe_msg, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
 
     EXPECT_TRUE(result.has_error_message())
-        << "Unauthenticated extract should be rejected, got kind: "
-        << result.kind_case();
+        << "Unauthenticated extract should be rejected, got kind: " << result.kind_case();
 
     // Verify the error message text.
     if (result.has_error_message()) {
-        EXPECT_NE(
-            result.error_message().description().find("Authentication required"),
-            std::string::npos
-        ) << "Error description should contain 'Authentication required', got: '"
-          << result.error_message().description() << "'";
+        EXPECT_NE(result.error_message().description().find("Authentication required"), std::string::npos)
+            << "Error description should contain 'Authentication required', got: '"
+            << result.error_message().description() << "'";
     }
 
     client->stop();
@@ -1199,19 +1189,23 @@ TEST_F(ProxyServerTest, ConcurrentExtract_NoActiveSession) {
     // Send extract from both clients in parallel.
     pb::MessageV1 req_a;
     req_a.set_id(utils::generate_uuid());
-    { auto* c = req_a.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = req_a.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
 
     pb::MessageV1 req_b;
     req_b.set_id(utils::generate_uuid());
-    { auto* c = req_b.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = req_b.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
 
-    auto fut_a = std::async(std::launch::async, [&]() {
-        return client_a->send_and_recv(req_a, TEST_TIMEOUT_SECS);
-    });
+    auto fut_a = std::async(std::launch::async, [&]() { return client_a->send_and_recv(req_a, TEST_TIMEOUT_SECS); });
 
-    auto fut_b = std::async(std::launch::async, [&]() {
-        return client_b->send_and_recv(req_b, TEST_TIMEOUT_SECS);
-    });
+    auto fut_b = std::async(std::launch::async, [&]() { return client_b->send_and_recv(req_b, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result_a = fut_a.get();
     pb::MessageV1 result_b = fut_b.get();
@@ -1233,8 +1227,7 @@ TEST_F(ProxyServerTest, ConcurrentExtract_NoActiveSession) {
                 }
             }
         }
-        EXPECT_TRUE(found) << label << ": carrier path '" << CARRIER_PATH_A
-                           << "' not found in extract module items";
+        EXPECT_TRUE(found) << label << ": carrier path '" << CARRIER_PATH_A << "' not found in extract module items";
     };
 
     check_carrier(result_a, "Client A");
@@ -1277,9 +1270,8 @@ TEST_F(ProxyServerTest, ActiveSessionQueue_ControlMessageWaits) {
     reset_req.set_id(utils::generate_uuid());
     reset_req.mutable_reset_command();
 
-    auto reset_fut = std::async(std::launch::async, [&]() {
-        return client_a->send_and_recv(reset_req, TEST_TIMEOUT_SECS);
-    });
+    auto reset_fut = std::async(
+        std::launch::async, [&]() { return client_a->send_and_recv(reset_req, TEST_TIMEOUT_SECS); });
 
     backend_reset.get();
     pb::MessageV1 reset_result = reset_fut.get();
@@ -1331,8 +1323,7 @@ TEST_F(ProxyServerTest, ActiveSessionQueue_ControlMessageWaits) {
     pb::MessageV1 config_result = config_fut.get();
 
     EXPECT_TRUE(config_result.has_config_response())
-        << "Client B config should succeed after A disconnects, got kind: "
-        << config_result.kind_case();
+        << "Client B config should succeed after A disconnects, got kind: " << config_result.kind_case();
 
     client_b->stop();
 }
@@ -1365,10 +1356,13 @@ TEST_F(ProxyServerTest, SessionOverload_Rejected) {
     // First client extract should succeed (active session).
     pb::MessageV1 req1;
     req1.set_id(utils::generate_uuid());
-    { auto* c = req1.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = req1.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
     pb::MessageV1 resp1 = client1->send_and_recv(req1, TEST_TIMEOUT_SECS);
-    EXPECT_TRUE(resp1.has_extract_response())
-        << "Client 1 extract should succeed within max_sessions limit";
+    EXPECT_TRUE(resp1.has_extract_response()) << "Client 1 extract should succeed within max_sessions limit";
 
     // Third client should be rejected.
     // The proxy should either refuse the connection or return an OVERLOADED error.
@@ -1380,7 +1374,11 @@ TEST_F(ProxyServerTest, SessionOverload_Rejected) {
         // If connection succeeded, try sending a message — should get an error.
         pb::MessageV1 req3;
         req3.set_id(utils::generate_uuid());
-        { auto* c = req3.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+        {
+            auto* c = req3.mutable_extract_command();
+            c->set_recursive(true);
+            c->set_specification(true);
+        }
 
         try {
             pb::MessageV1 resp3 = client3->send_and_recv(req3, 2.0);
@@ -1399,8 +1397,7 @@ TEST_F(ProxyServerTest, SessionOverload_Rejected) {
         third_client_rejected = true;
     }
 
-    EXPECT_TRUE(third_client_rejected)
-        << "Third client should be rejected when max_sessions=2";
+    EXPECT_TRUE(third_client_rejected) << "Third client should be rejected when max_sessions=2";
 
     client1->stop();
     client2->stop();
@@ -1441,9 +1438,8 @@ TEST_F(ProxyServerTest, ExtractWhileOtherActive) {
     reset_req.mutable_reset_command();
 
     // Fire Client A's reset asynchronously (will take ~2 seconds).
-    auto reset_fut = std::async(std::launch::async, [&]() {
-        return client_a->send_and_recv(reset_req, TEST_TIMEOUT_SECS);
-    });
+    auto reset_fut = std::async(
+        std::launch::async, [&]() { return client_a->send_and_recv(reset_req, TEST_TIMEOUT_SECS); });
 
     // Brief pause to ensure A's reset is in progress.
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -1454,24 +1450,24 @@ TEST_F(ProxyServerTest, ExtractWhileOtherActive) {
 
     pb::MessageV1 desc_req;
     desc_req.set_id(utils::generate_uuid());
-    { auto* c = desc_req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = desc_req.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
 
     auto start_time = std::chrono::steady_clock::now();
-    auto desc_fut = std::async(std::launch::async, [&]() {
-        return client_b->send_and_recv(desc_req, TEST_TIMEOUT_SECS);
-    });
+    auto desc_fut = std::async(
+        std::launch::async, [&]() { return client_b->send_and_recv(desc_req, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 desc_result = desc_fut.get();
-    auto elapsed = std::chrono::duration<double>(
-        std::chrono::steady_clock::now() - start_time).count();
+    auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - start_time).count();
 
     // B's extract should have completed quickly (< 500ms), NOT waiting for
     // A's 2-second reset to finish.
     ASSERT_TRUE(desc_result.has_extract_response())
-        << "Client B extract should succeed while A is active, got kind: "
-        << desc_result.kind_case();
-    EXPECT_LT(elapsed, 0.5)
-        << "Extract should be served from cache in < 500ms, took " << elapsed << "s";
+        << "Client B extract should succeed while A is active, got kind: " << desc_result.kind_case();
+    EXPECT_LT(elapsed, 0.5) << "Extract should be served from cache in < 500ms, took " << elapsed << "s";
 
     // Wait for A's slow reset to complete as well.
     backend_slow_reset.get();
@@ -1538,8 +1534,7 @@ TEST_F(ProxyServerTest, ActiveSessionTransition) {
 
     // Let B's request queue behind A.
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    EXPECT_FALSE(b_done.load(std::memory_order_acquire))
-        << "Client B should be waiting while A is active";
+    EXPECT_FALSE(b_done.load(std::memory_order_acquire)) << "Client B should be waiting while A is active";
 
     // --- Client A disconnects abruptly ---
     client_a->stop();
@@ -1559,8 +1554,7 @@ TEST_F(ProxyServerTest, ActiveSessionTransition) {
     pb::MessageV1 config_result = config_fut.get();
 
     EXPECT_TRUE(config_result.has_config_response())
-        << "Client B config should succeed after A disconnects, got kind: "
-        << config_result.kind_case();
+        << "Client B config should succeed after A disconnects, got kind: " << config_result.kind_case();
 
     client_b->stop();
 }
@@ -1658,15 +1652,13 @@ TEST_F(ProxyServerTest, DataChannelUdpNegotiation) {
     backend_thread.get();
 
     // Retrieve and check the UDP negotiation command.
-    ASSERT_EQ(udp_cmd_future.wait_for(std::chrono::seconds(0)),
-              std::future_status::ready)
+    ASSERT_EQ(udp_cmd_future.wait_for(std::chrono::seconds(0)), std::future_status::ready)
         << "UdpDataStreamingCommand was not received during add_backend()";
 
     pb::MessageV1 udp_cmd = udp_cmd_future.get();
 
     ASSERT_TRUE(udp_cmd.has_udp_data_streaming_command())
-        << "Third message from proxy should be UdpDataStreamingCommand, got kind: "
-        << udp_cmd.kind_case();
+        << "Third message from proxy should be UdpDataStreamingCommand, got kind: " << udp_cmd.kind_case();
 
     EXPECT_GT(udp_cmd.udp_data_streaming_command().port(), 0u)
         << "UdpDataStreamingCommand must carry a non-zero local port";
@@ -1719,8 +1711,7 @@ TEST_F(ProxyServerTest, DataChannelForwardingToClient) {
             << "Expected UdpDataStreamingCommand, got kind: " << udp_req.kind_case();
 
         proxy_udp_port.store(
-            static_cast<uint16_t>(udp_req.udp_data_streaming_command().port()),
-            std::memory_order_release);
+            static_cast<uint16_t>(udp_req.udp_data_streaming_command().port()), std::memory_order_release);
 
         pb::MessageV1 accept_resp;
         accept_resp.set_id(udp_req.id());
@@ -1737,17 +1728,19 @@ TEST_F(ProxyServerTest, DataChannelForwardingToClient) {
     auto client = ControlChannel::create("127.0.0.1", proxy_->local_port(), TEST_TIMEOUT_SECS);
 
     std::atomic<bool> run_data_received{false};
-    client->register_callback(
-        pb::MessageV1::kRunDataMessageFieldNumber,
-        [&](pb::MessageV1& /* msg */) {
-            run_data_received.store(true, std::memory_order_release);
-        });
+    client->register_callback(pb::MessageV1::kRunDataMessageFieldNumber, [&](pb::MessageV1& /* msg */) {
+        run_data_received.store(true, std::memory_order_release);
+    });
     client->start();
 
     // Confirm client is the active session via an extract roundtrip.
     pb::MessageV1 desc_req;
     desc_req.set_id(utils::generate_uuid());
-    { auto* c = desc_req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = desc_req.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
     pb::MessageV1 desc_resp = client->send_and_recv(desc_req, TEST_TIMEOUT_SECS);
     ASSERT_TRUE(desc_resp.has_extract_response());
 
@@ -1770,23 +1763,17 @@ TEST_F(ProxyServerTest, DataChannelForwardingToClient) {
         std::string bytes;
         ASSERT_TRUE(env.SerializeToString(&bytes));
 
-        ASSERT_TRUE(sender.send_to(
-            reinterpret_cast<const uint8_t*>(bytes.data()),
-            bytes.size(),
-            "127.0.0.1",
-            udp_port))
+        ASSERT_TRUE(sender.send_to(reinterpret_cast<const uint8_t*>(bytes.data()), bytes.size(), "127.0.0.1", udp_port))
             << "Failed to send RunDataMessage to proxy UDP port " << udp_port;
     }
 
     // Wait up to 3 s for the client to receive the forwarded message.
     auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
-    while (!run_data_received.load(std::memory_order_acquire) &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (!run_data_received.load(std::memory_order_acquire) && std::chrono::steady_clock::now() < deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
-    EXPECT_TRUE(run_data_received.load())
-        << "Client did not receive RunDataMessage forwarded from backend UDP socket";
+    EXPECT_TRUE(run_data_received.load()) << "Client did not receive RunDataMessage forwarded from backend UDP socket";
 
     client->stop();
 }
@@ -1835,8 +1822,8 @@ TEST_F(ProxyServerTest, DataChannelTcpFallback) {
 
         pb::MessageV1 refuse_resp;
         refuse_resp.set_id(udp_req.id());
-        refuse_resp.mutable_udp_data_streaming_refused_response()
-            ->set_reason("UDP streaming not supported by this device");
+        refuse_resp.mutable_udp_data_streaming_refused_response()->set_reason(
+            "UDP streaming not supported by this device");
         backend_->send_message(refuse_resp);
     });
 
@@ -1849,17 +1836,19 @@ TEST_F(ProxyServerTest, DataChannelTcpFallback) {
     auto client = ControlChannel::create("127.0.0.1", proxy_->local_port(), TEST_TIMEOUT_SECS);
 
     std::atomic<bool> run_data_received{false};
-    client->register_callback(
-        pb::MessageV1::kRunDataMessageFieldNumber,
-        [&](pb::MessageV1& /* msg */) {
-            run_data_received.store(true, std::memory_order_release);
-        });
+    client->register_callback(pb::MessageV1::kRunDataMessageFieldNumber, [&](pb::MessageV1& /* msg */) {
+        run_data_received.store(true, std::memory_order_release);
+    });
     client->start();
 
     // Confirm client is the active session.
     pb::MessageV1 desc_req;
     desc_req.set_id(utils::generate_uuid());
-    { auto* c = desc_req.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = desc_req.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
     pb::MessageV1 desc_resp = client->send_and_recv(desc_req, TEST_TIMEOUT_SECS);
     ASSERT_TRUE(desc_resp.has_extract_response());
 
@@ -1873,13 +1862,11 @@ TEST_F(ProxyServerTest, DataChannelTcpFallback) {
 
     // Wait up to 3 s for the client to receive the forwarded message.
     auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
-    while (!run_data_received.load(std::memory_order_acquire) &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (!run_data_received.load(std::memory_order_acquire) && std::chrono::steady_clock::now() < deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
-    EXPECT_TRUE(run_data_received.load())
-        << "Client did not receive RunDataMessage forwarded via TCP fallback path";
+    EXPECT_TRUE(run_data_received.load()) << "Client did not receive RunDataMessage forwarded via TCP fallback path";
 
     client->stop();
 }
@@ -1903,15 +1890,12 @@ TEST_F(ProxyServerTest, AddBackendInjectsLocation) {
         if (udp_req.has_udp_data_streaming_command()) {
             pb::MessageV1 refuse_resp;
             refuse_resp.set_id(udp_req.id());
-            refuse_resp.mutable_udp_data_streaming_refused_response()
-                ->set_reason("not supported");
+            refuse_resp.mutable_udp_data_streaming_refused_response()->set_reason("not supported");
             backend_->send_message(refuse_resp);
         }
     });
 
-    proxy_->add_backend("127.0.0.1", backend_->port(),
-                        std::optional<uint32_t>{0},
-                        std::optional<uint32_t>{2});
+    proxy_->add_backend("127.0.0.1", backend_->port(), std::optional<uint32_t>{0}, std::optional<uint32_t>{2});
     backend_thread.get();
 
     proxy_->start("127.0.0.1", 0);
@@ -1921,15 +1905,17 @@ TEST_F(ProxyServerTest, AddBackendInjectsLocation) {
 
     pb::MessageV1 request;
     request.set_id(utils::generate_uuid());
-    { auto* c = request.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = request.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
 
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
-    ASSERT_TRUE(result.has_extract_response())
-        << "Expected extract_response, got kind: " << result.kind_case();
+    ASSERT_TRUE(result.has_extract_response()) << "Expected extract_response, got kind: " << result.kind_case();
 
     const pb::Module& mod = result.extract_response().module();
 
@@ -1970,8 +1956,7 @@ TEST_F(ProxyServerTest, AddBackendNoLocationByDefault) {
         if (udp_req.has_udp_data_streaming_command()) {
             pb::MessageV1 refuse_resp;
             refuse_resp.set_id(udp_req.id());
-            refuse_resp.mutable_udp_data_streaming_refused_response()
-                ->set_reason("not supported");
+            refuse_resp.mutable_udp_data_streaming_refused_response()->set_reason("not supported");
             backend_->send_message(refuse_resp);
         }
     });
@@ -1987,15 +1972,17 @@ TEST_F(ProxyServerTest, AddBackendNoLocationByDefault) {
 
     pb::MessageV1 request;
     request.set_id(utils::generate_uuid());
-    { auto* c = request.mutable_extract_command(); c->set_recursive(true); c->set_specification(true); }
+    {
+        auto* c = request.mutable_extract_command();
+        c->set_recursive(true);
+        c->set_specification(true);
+    }
 
     std::future<pb::MessageV1> fut = std::async(
-        std::launch::async,
-        [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
+        std::launch::async, [&]() { return client->send_and_recv(request, TEST_TIMEOUT_SECS); });
 
     pb::MessageV1 result = fut.get();
-    ASSERT_TRUE(result.has_extract_response())
-        << "Expected extract_response, got kind: " << result.kind_case();
+    ASSERT_TRUE(result.has_extract_response()) << "Expected extract_response, got kind: " << result.kind_case();
 
     const pb::Module& mod = result.extract_response().module();
     bool any_has_location_v0 = false;
@@ -2015,35 +2002,28 @@ TEST_F(ProxyServerTest, AddBackendNoLocationByDefault) {
 TEST_F(ProxyServerTest, Reconnect_RestoresHealth) {
     start_proxy_with_single_backend();
 
-    EXPECT_EQ(proxy_->get_backend_health(0),
-              static_cast<int>(BackendHealth::HEALTHY));
+    EXPECT_EQ(proxy_->get_backend_health(0), static_cast<int>(BackendHealth::HEALTHY));
 
     backend_->disconnect();
 
-    auto dead_deadline = std::chrono::steady_clock::now() +
-                         std::chrono::seconds(15);
-    while (proxy_->get_backend_health(0) !=
-               static_cast<int>(BackendHealth::DEAD) &&
+    auto dead_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(15);
+    while (proxy_->get_backend_health(0) != static_cast<int>(BackendHealth::DEAD) &&
            std::chrono::steady_clock::now() < dead_deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    ASSERT_EQ(proxy_->get_backend_health(0),
-              static_cast<int>(BackendHealth::DEAD));
+    ASSERT_EQ(proxy_->get_backend_health(0), static_cast<int>(BackendHealth::DEAD));
 
     std::future<void> reconnect_serve = std::async(std::launch::async, [this]() {
         backend_->accept_connection(/*timeout_secs=*/15.0);
         backend_->serve_reconnect_handshake();
     });
 
-    auto healthy_deadline = std::chrono::steady_clock::now() +
-                            std::chrono::seconds(20);
-    while (proxy_->get_backend_health(0) !=
-               static_cast<int>(BackendHealth::HEALTHY) &&
+    auto healthy_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
+    while (proxy_->get_backend_health(0) != static_cast<int>(BackendHealth::HEALTHY) &&
            std::chrono::steady_clock::now() < healthy_deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    EXPECT_EQ(proxy_->get_backend_health(0),
-              static_cast<int>(BackendHealth::HEALTHY));
+    EXPECT_EQ(proxy_->get_backend_health(0), static_cast<int>(BackendHealth::HEALTHY));
 
     reconnect_serve.get();
 }

@@ -6,19 +6,10 @@ This is the canonical package location.
 
 import numpy as np
 
-from pybrid.lucipy.elements import (
-    Integrator,
-    Multiplier,
-    Identity,
-    Constant,
-    Input,
-    Output,
-    Element,
-    
-)
-from pybrid.lucipy.circuits import Circuit
 from pybrid.lucidac.front_plane import WaveForm
+from pybrid.lucipy.circuits import Circuit
 from pybrid.lucipy.computer import LucipyWrapper as LUCIDAC
+from pybrid.lucipy.elements import Constant, Element, Identity, Input, Integrator, Multiplier, Output
 
 
 def time_series(sample_rate, sample_count):
@@ -36,15 +27,15 @@ def time_series(sample_rate, sample_count):
 
 
 __all__ = [
-    'Circuit',
-    'Integrator',
-    'Multiplier',
-    'Identity',
-    'Constant',
-    'Input',
-    'Output',
-    'Element',
-    'LUCIDAC',
-    'time_series',
-    'WaveForm'
+    "Circuit",
+    "Integrator",
+    "Multiplier",
+    "Identity",
+    "Constant",
+    "Input",
+    "Output",
+    "Element",
+    "LUCIDAC",
+    "time_series",
+    "WaveForm",
 ]

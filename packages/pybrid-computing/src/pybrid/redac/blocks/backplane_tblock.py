@@ -2,7 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from ipaddress import IPv4Address
 
 from pybrid.redac.blocks.block import FunctionBlock

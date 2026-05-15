@@ -17,11 +17,11 @@ available as ``pybrid.native._impl.ProxyServer``. If the bindings are not built,
 these tests will produce an ``ImportError`` at collection time and are skipped.
 """
 
+import asyncio
 import os
 import threading
 import time
 import uuid
-import asyncio
 
 import pytest
 
@@ -33,8 +33,8 @@ from tests.conftest import get_test_port, get_test_proxy_port
 LOCALHOST = "127.0.0.1"
 
 # Timeouts used across tests
-SHORT_TIMEOUT = 5.0    # seconds — single roundtrip or connection
-RUN_TIMEOUT = 15.0     # seconds — full run lifecycle including data
+SHORT_TIMEOUT = 5.0  # seconds — single roundtrip or connection
+RUN_TIMEOUT = 15.0  # seconds — full run lifecycle including data
 SESSION_TIMEOUT = 2.0  # seconds — accelerated session timeout for ordering tests
 
 # Backend health states exposed by ProxyServer for the test debug hook.
@@ -69,6 +69,7 @@ def _start_dummy_dac(
     Returns:
         The started (daemon) thread.
     """
+
     def _run() -> None:
         async def _async_run() -> None:
             async with DummyDAC(LOCALHOST, port, config) as dac:
@@ -195,9 +196,7 @@ class TestMessageForwarding:
 
             entity = module.items[0].entity_specification.entity
             carrier_ids = {c.id for c in entity.children}
-            assert carrier_ids == expected_macs, (
-                f"Expected carrier MACs {expected_macs}, got {carrier_ids}"
-            )
+            assert carrier_ids == expected_macs, f"Expected carrier MACs {expected_macs}, got {carrier_ids}"
         finally:
             if client is not None:
                 client.stop()
@@ -338,16 +337,11 @@ class TestRunLifecycle:
             client.start_run_request(cmd.SerializeToString(), timeout=SHORT_TIMEOUT)
 
             assert done_event.wait(timeout=RUN_TIMEOUT), (
-                f"Run did not complete within {RUN_TIMEOUT}s. "
-                f"States received: {states_received}"
+                f"Run did not complete within {RUN_TIMEOUT}s. " f"States received: {states_received}"
             )
 
-            assert pb.RunState.TAKE_OFF in states_received, (
-                f"TAKE_OFF not seen. States: {states_received}"
-            )
-            assert pb.RunState.DONE in states_received, (
-                f"DONE not seen. States: {states_received}"
-            )
+            assert pb.RunState.TAKE_OFF in states_received, f"TAKE_OFF not seen. States: {states_received}"
+            assert pb.RunState.DONE in states_received, f"DONE not seen. States: {states_received}"
         finally:
             if client is not None:
                 client.stop()
@@ -408,12 +402,8 @@ class TestRunLifecycle:
             )
             client.start_run_request(cmd.SerializeToString(), timeout=SHORT_TIMEOUT)
 
-            assert done_event.wait(timeout=RUN_TIMEOUT), (
-                f"Run did not complete within {RUN_TIMEOUT}s"
-            )
-            assert data_received.is_set(), (
-                "No RunDataMessage received from DummyDAC through proxy"
-            )
+            assert done_event.wait(timeout=RUN_TIMEOUT), f"Run did not complete within {RUN_TIMEOUT}s"
+            assert data_received.is_set(), "No RunDataMessage received from DummyDAC through proxy"
         finally:
             if client is not None:
                 client.stop()
@@ -540,12 +530,10 @@ class TestClientSessionOrdering:
             client1.stop()
             client1 = None
 
-            assert client2_done.wait(timeout=RUN_TIMEOUT), (
-                "Client2 did not complete within timeout after client1 disconnected"
-            )
-            assert not client2_error, (
-                f"Client2 encountered error: {client2_error}"
-            )
+            assert client2_done.wait(
+                timeout=RUN_TIMEOUT
+            ), "Client2 did not complete within timeout after client1 disconnected"
+            assert not client2_error, f"Client2 encountered error: {client2_error}"
             assert client2_result, "Client2 should have received an extract response"
         finally:
             if client1 is not None:
@@ -592,9 +580,7 @@ class TestClientSessionOrdering:
             module.ParseFromString(module_bytes)
             entity = module.items[0].entity_specification.entity
 
-            assert len(entity.children) > 0, (
-                "Second client should receive extract response after first disconnects"
-            )
+            assert len(entity.children) > 0, "Second client should receive extract response after first disconnects"
         finally:
             if client2 is not None:
                 client2.stop()
@@ -710,9 +696,7 @@ class TestErrorHandling:
             error_received.wait(timeout=RUN_TIMEOUT)
             # Primary assertion: proxy remains operational (not crashed)
             # The proxy's is_running() should still be True (proxy stays alive)
-            assert proxy.is_running(), (
-                "Proxy should remain running after backend disconnect"
-            )
+            assert proxy.is_running(), "Proxy should remain running after backend disconnect"
         finally:
             if client is not None:
                 client.stop()
@@ -811,9 +795,7 @@ class TestAuthentication:
             entity = module.items[0].entity_specification.entity
 
             # Must have at least one carrier from the DummyDAC.
-            assert len(entity.children) > 0, (
-                f"Expected at least one carrier after auth, got {len(entity.children)}"
-            )
+            assert len(entity.children) > 0, f"Expected at least one carrier after auth, got {len(entity.children)}"
         finally:
             if client is not None:
                 client.stop()
@@ -848,8 +830,7 @@ class TestAuthentication:
             # DummyDAC accepts all auth → returns SuccessMessage.
             auth_ok = client.authenticate("any-token", timeout=SHORT_TIMEOUT)
             assert auth_ok, (
-                "With requires_auth=False, auth should be forwarded to backend "
-                "and DummyDAC should accept it"
+                "With requires_auth=False, auth should be forwarded to backend " "and DummyDAC should accept it"
             )
 
             # Extract should also work (no auth gating at proxy).
@@ -857,9 +838,7 @@ class TestAuthentication:
             module = pb.Module()
             module.ParseFromString(module_bytes)
             entity = module.items[0].entity_specification.entity
-            assert len(entity.children) > 0, (
-                "Extract should work with requires_auth=False"
-            )
+            assert len(entity.children) > 0, "Extract should work with requires_auth=False"
         finally:
             if client is not None:
                 client.stop()
@@ -890,9 +869,7 @@ class TestConcurrentSessions:
         error_a: list = []
         error_b: list = []
 
-        def describe_worker(
-            port: int, result_list: list, error_list: list, label: str
-        ) -> None:
+        def describe_worker(port: int, result_list: list, error_list: list, label: str) -> None:
             """Connect a client and send extract, storing the result."""
             ch = None
             try:
@@ -938,12 +915,8 @@ class TestConcurrentSessions:
             assert result_b, "Client B should have received an extract response"
 
             # Both should have carrier children from the DummyDAC.
-            assert len(result_a[0].children) > 0, (
-                "Client A: expected at least one carrier in entity tree"
-            )
-            assert len(result_b[0].children) > 0, (
-                "Client B: expected at least one carrier in entity tree"
-            )
+            assert len(result_a[0].children) > 0, "Client A: expected at least one carrier in entity tree"
+            assert len(result_b[0].children) > 0, "Client B: expected at least one carrier in entity tree"
         finally:
             proxy.stop()
             stop.set()
@@ -983,9 +956,7 @@ class TestConcurrentSessions:
             module = pb.Module()
             module.ParseFromString(module_bytes)
             entity = module.items[0].entity_specification.entity
-            assert len(entity.children) > 0, (
-                "Client 1 extract should succeed within max_sessions limit"
-            )
+            assert len(entity.children) > 0, "Client 1 extract should succeed within max_sessions limit"
 
             # Third client should be rejected.
             third_rejected = False
@@ -1004,9 +975,7 @@ class TestConcurrentSessions:
                 # Connection refused at TCP level.
                 third_rejected = True
 
-            assert third_rejected, (
-                "Third client should be rejected when max_sessions=2"
-            )
+            assert third_rejected, "Third client should be rejected when max_sessions=2"
         finally:
             if client1 is not None:
                 client1.stop()
@@ -1055,6 +1024,7 @@ class TestActiveSessionPing:
             stop.set()
             dac_thread.join(timeout=SHORT_TIMEOUT)
 
+
 class TestBackendHealthWatchdog:
     """Watchdog must tolerate REBOOTING backends without tearing down the session."""
 
@@ -1083,9 +1053,7 @@ class TestBackendHealthWatchdog:
             proxy.add_backend(LOCALHOST, dac_port_holder[0])
             proxy.start(LOCALHOST, 0)
 
-            client = ControlChannel.create(
-                LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT
-            )
+            client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
             client.start()
             client.register_callback(
                 pb.MessageV1.ERROR_MESSAGE_FIELD_NUMBER,
@@ -1095,13 +1063,11 @@ class TestBackendHealthWatchdog:
             # Baseline: a describe must succeed before we start messing with
             # the health state. This also pins the active session on the proxy.
             client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
-            assert not error_received.is_set(), (
-                "Baseline extract must not produce an ErrorMessage"
-            )
+            assert not error_received.is_set(), "Baseline extract must not produce an ErrorMessage"
 
-            assert proxy.get_backend_health(0) == HEALTH_HEALTHY, (
-                f"Backend must start HEALTHY, got {proxy.get_backend_health(0)}"
-            )
+            assert (
+                proxy.get_backend_health(0) == HEALTH_HEALTHY
+            ), f"Backend must start HEALTHY, got {proxy.get_backend_health(0)}"
 
             # Force the backend into REBOOTING. The underlying transport is
             # still alive, so is_connected() would be True — we are probing
@@ -1123,9 +1089,7 @@ class TestBackendHealthWatchdog:
             # client callback as an error_message frame first, so we assert
             # on that flag below regardless.
             try:
-                client.extract(
-                    recursive=True, specification=True, timeout=SHORT_TIMEOUT
-                )
+                client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
             except Exception:
                 # The request itself may be rejected while REBOOTING; that's
                 # outside the scope of this test. We only guard against the
@@ -1148,8 +1112,7 @@ class TestBackendHealthWatchdog:
             # Final extract must succeed cleanly — the session survived.
             client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
             assert not error_received.is_set(), (
-                "No ErrorMessage must have arrived across the HEALTHY→REBOOTING→"
-                "HEALTHY cycle"
+                "No ErrorMessage must have arrived across the HEALTHY→REBOOTING→" "HEALTHY cycle"
             )
         finally:
             if client is not None:
@@ -1212,20 +1175,14 @@ class TestActivateNextSessionRecovery:
             # Client connects only after the backend is already DEAD so
             # that activate_next_session is the caller responsible for
             # recovery.
-            client = ControlChannel.create(
-                LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT
-            )
+            client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
             client.start()
-            client.register_callback(
-                pb.MessageV1.ERROR_MESSAGE_FIELD_NUMBER, on_error
-            )
+            client.register_callback(pb.MessageV1.ERROR_MESSAGE_FIELD_NUMBER, on_error)
 
             # First command from the new client. This drives reconnect,
             # flips the backend HEALTHY, and the extract returns the
             # DummyDAC's topology.
-            client.extract(
-                recursive=True, specification=True, timeout=SHORT_TIMEOUT
-            )
+            client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
 
             assert not error_received.is_set(), (
                 f"Proxy must not forward any ErrorMessage — reconnect in "
@@ -1233,8 +1190,7 @@ class TestActivateNextSessionRecovery:
                 f"got: {error_messages}"
             )
             assert proxy.get_backend_health(0) == HEALTH_HEALTHY, (
-                f"Backend should be HEALTHY after lazy recovery, got "
-                f"{proxy.get_backend_health(0)}"
+                f"Backend should be HEALTHY after lazy recovery, got " f"{proxy.get_backend_health(0)}"
             )
         finally:
             if client is not None:
@@ -1276,9 +1232,7 @@ class TestActivateNextSessionRecovery:
 
             # Connect a client while the backend is dead. It enters the
             # waiting queue; activate_next_session blocks on session_cv_.
-            client = ControlChannel.create(
-                LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT
-            )
+            client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
             client.start()
 
             # Give the reconnect loop a couple of cycles to confirm it
@@ -1292,7 +1246,10 @@ class TestActivateNextSessionRecovery:
             stop2 = threading.Event()
             dac_port_holder2 = [saved_port]
             dac_thread2 = _start_dummy_dac(
-                config, ready2, stop2, dac_port_holder2,
+                config,
+                ready2,
+                stop2,
+                dac_port_holder2,
                 port=saved_port,
             )
             _wait_ready(ready2)
@@ -1303,14 +1260,10 @@ class TestActivateNextSessionRecovery:
                 if proxy.get_backend_health(0) == HEALTH_HEALTHY:
                     break
                 time.sleep(0.2)
-            assert proxy.get_backend_health(0) == HEALTH_HEALTHY, (
-                "Background reconnect loop must recover the backend"
-            )
+            assert proxy.get_backend_health(0) == HEALTH_HEALTHY, "Background reconnect loop must recover the backend"
 
             # The client should now be promoted. Issue a command to verify.
-            client.extract(
-                recursive=True, specification=True, timeout=SHORT_TIMEOUT
-            )
+            client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
 
         finally:
             if client is not None:

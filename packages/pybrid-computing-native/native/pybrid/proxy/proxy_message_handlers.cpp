@@ -32,16 +32,14 @@ void sort_module_by_location(pb::Module& module) {
     if (spec_indices.size() <= 1) return;
 
     // Sort the spec indices by (stack, carrier).
-    std::stable_sort(spec_indices.begin(), spec_indices.end(),
-        [&items](int a, int b) {
-            auto key = [](const pb::Item& item) -> std::pair<uint32_t, uint32_t> {
-                const auto& e = item.entity_specification().entity();
-                if (e.has_location_v0())
-                    return {e.location_v0().stack(), e.location_v0().carrier()};
-                return {UINT32_MAX, UINT32_MAX};
-            };
-            return key(items->at(a)) < key(items->at(b));
-        });
+    std::stable_sort(spec_indices.begin(), spec_indices.end(), [&items](int a, int b) {
+        auto key = [](const pb::Item& item) -> std::pair<uint32_t, uint32_t> {
+            const auto& e = item.entity_specification().entity();
+            if (e.has_location_v0()) return {e.location_v0().stack(), e.location_v0().carrier()};
+            return {UINT32_MAX, UINT32_MAX};
+        };
+        return key(items->at(a)) < key(items->at(b));
+    });
 
     // Apply the permutation via a temporary copy of the spec items.
     std::vector<pb::Item> sorted_specs;
@@ -65,13 +63,12 @@ namespace anabrid::pybrid::native {
 void ProxyServer::handle_reset(ClientSession& client, const pb::MessageV1& msg) {
     auto targets = backend_handler_.targets();
 
-    auto result = backend_handler_.broadcast_to_backends(targets,
-        [&msg](BackendDevice&) {
-            pb::MessageV1 req;
-            req.set_id(utils::generate_uuid());
-            *req.mutable_reset_command() = msg.reset_command();
-            return req;
-        });
+    auto result = backend_handler_.broadcast_to_backends(targets, [&msg](BackendDevice&) {
+        pb::MessageV1 req;
+        req.set_id(utils::generate_uuid());
+        *req.mutable_reset_command() = msg.reset_command();
+        return req;
+    });
 
     pb::MessageV1 response;
     response.set_id(msg.id());
@@ -107,8 +104,7 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
     BackendDevice* backend = backend_handler_.find_backend_for_path(path);
 
     if (!backend || !backend->control || !backend->control->is_connected()) {
-        send_error_to_client(client, msg.id(),
-                             "No backend found for entity path: " + path);
+        send_error_to_client(client, msg.id(), "No backend found for entity path: " + path);
         return;
     }
 
@@ -117,16 +113,14 @@ void ProxyServer::handle_extract(ClientSession& client, const pb::MessageV1& msg
         req.set_id(utils::generate_uuid());
         *req.mutable_extract_command() = msg.extract_command();
 
-        pb::MessageV1 resp = backend->control->send_and_recv(
-            req, ProxyBackendHandler::BACKEND_REQUEST_TIMEOUT_SECS);
+        pb::MessageV1 resp = backend->control->send_and_recv(req, ProxyBackendHandler::BACKEND_REQUEST_TIMEOUT_SECS);
         if (resp.has_extract_response()) {
             sort_module_by_location(*resp.mutable_extract_response()->mutable_module());
         }
         resp.set_id(msg.id());
         client.send(resp);
     } catch (const std::exception& e) {
-        send_error_to_client(client, msg.id(),
-                             std::string("Extract failed: ") + e.what());
+        send_error_to_client(client, msg.id(), std::string("Extract failed: ") + e.what());
     }
 }
 
@@ -134,25 +128,21 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
     const pb::Module& module = msg.config_command().module();
 
     if (debug_) {
-        std::cerr << "[ProxyServer] DEBUG: handle_config — "
-                  << module.items_size() << " config entries:\n";
+        std::cerr << "[ProxyServer] DEBUG: handle_config — " << module.items_size() << " config entries:\n";
         for (int i = 0; i < module.items_size(); ++i) {
             std::string json_str;
             google::protobuf::json::PrintOptions opts;
             opts.add_whitespace = true;
             opts.always_print_fields_with_no_presence = true;
-            auto status = google::protobuf::json::MessageToJsonString(
-                module.items(i), &json_str, opts);
+            auto status = google::protobuf::json::MessageToJsonString(module.items(i), &json_str, opts);
             if (status.ok()) {
                 std::cerr << "  [" << i << "] " << json_str << "\n";
             } else {
-                std::cerr << "  [" << i << "] (JSON conversion failed: "
-                          << status.message() << ")\n";
+                std::cerr << "  [" << i << "] (JSON conversion failed: " << status.message() << ")\n";
             }
         }
         const auto& cmd = msg.config_command();
-        std::cerr << "  flags: reset_before=" << cmd.reset_before()
-                  << " sh_kludge=" << cmd.sh_kludge() << "\n";
+        std::cerr << "  flags: reset_before=" << cmd.reset_before() << " sh_kludge=" << cmd.sh_kludge() << "\n";
     }
 
     // Phase 1: Route all config entries to backends. Unroutable paths cause
@@ -197,16 +187,15 @@ void ProxyServer::handle_config(ClientSession& client, const pb::MessageV1& msg)
         targets.push_back(backend_ptr);
     }
 
-    auto result = backend_handler_.broadcast_to_backends(targets,
-        [&per_backend, &msg](BackendDevice& backend) {
-            pb::MessageV1 req;
-            req.set_id(utils::generate_uuid());
-            pb::ConfigCommand* config_cmd = req.mutable_config_command();
-            *config_cmd->mutable_module() = per_backend[&backend];
-            config_cmd->set_reset_before(msg.config_command().reset_before());
-            config_cmd->set_sh_kludge(msg.config_command().sh_kludge());
-            return req;
-        });
+    auto result = backend_handler_.broadcast_to_backends(targets, [&per_backend, &msg](BackendDevice& backend) {
+        pb::MessageV1 req;
+        req.set_id(utils::generate_uuid());
+        pb::ConfigCommand* config_cmd = req.mutable_config_command();
+        *config_cmd->mutable_module() = per_backend[&backend];
+        config_cmd->set_reset_before(msg.config_command().reset_before());
+        config_cmd->set_sh_kludge(msg.config_command().sh_kludge());
+        return req;
+    });
 
     pb::MessageV1 response;
     response.set_id(msg.id());
@@ -230,10 +219,8 @@ void ProxyServer::handle_start_run(ClientSession& client, const pb::MessageV1& m
         google::protobuf::json::PrintOptions opts;
         opts.add_whitespace = true;
         opts.always_print_fields_with_no_presence = true;
-        auto status = google::protobuf::json::MessageToJsonString(
-            msg.start_run_command(), &json_str, opts);
-        std::cerr << "[ProxyServer] DEBUG: handle_start_run — Session "
-                  << client.session_id_ << "\n";
+        auto status = google::protobuf::json::MessageToJsonString(msg.start_run_command(), &json_str, opts);
+        std::cerr << "[ProxyServer] DEBUG: handle_start_run — Session " << client.session_id_ << "\n";
         if (status.ok()) {
             std::cerr << "  StartRunCommand: " << json_str << "\n";
         } else {
@@ -243,13 +230,12 @@ void ProxyServer::handle_start_run(ClientSession& client, const pb::MessageV1& m
 
     auto targets = backend_handler_.targets();
 
-    auto result = backend_handler_.broadcast_to_backends(targets,
-        [&msg](BackendDevice&) {
-            pb::MessageV1 req;
-            req.set_id(utils::generate_uuid());
-            *req.mutable_start_run_command() = msg.start_run_command();
-            return req;
-        });
+    auto result = backend_handler_.broadcast_to_backends(targets, [&msg](BackendDevice&) {
+        pb::MessageV1 req;
+        req.set_id(utils::generate_uuid());
+        *req.mutable_start_run_command() = msg.start_run_command();
+        return req;
+    });
 
     pb::MessageV1 response;
     response.set_id(msg.id());
@@ -288,24 +274,21 @@ void ProxyServer::handle_auth(ClientSession& client, const pb::MessageV1& msg) {
 void ProxyServer::handle_calibrate(ClientSession& client, const pb::MessageV1& msg) {
     if (debug_) {
         const auto& cfg = msg.calibration_command().config();
-        std::cerr << "[ProxyServer] DEBUG: handle_calibrate — Session "
-                  << client.session_id_ << "\n"
+        std::cerr << "[ProxyServer] DEBUG: handle_calibrate — Session " << client.session_id_ << "\n"
                   << "  math=" << pb::CalibrationConfig_Kind_Name(cfg.math())
                   << " gain=" << pb::CalibrationConfig_Kind_Name(cfg.gain())
                   << " offset=" << pb::CalibrationConfig_Kind_Name(cfg.offset())
-                  << " leader=" << (cfg.has_leader() ? cfg.leader().path() : "<none>")
-                  << "\n";
+                  << " leader=" << (cfg.has_leader() ? cfg.leader().path() : "<none>") << "\n";
     }
 
     auto targets = backend_handler_.targets();
 
-    auto result = backend_handler_.broadcast_to_backends(targets,
-        [&msg](BackendDevice&) {
-            pb::MessageV1 req;
-            req.set_id(utils::generate_uuid());
-            *req.mutable_calibration_command() = msg.calibration_command();
-            return req;
-        });
+    auto result = backend_handler_.broadcast_to_backends(targets, [&msg](BackendDevice&) {
+        pb::MessageV1 req;
+        req.set_id(utils::generate_uuid());
+        *req.mutable_calibration_command() = msg.calibration_command();
+        return req;
+    });
 
     pb::MessageV1 response;
     response.set_id(msg.id());
@@ -317,24 +300,18 @@ void ProxyServer::handle_calibrate(ClientSession& client, const pb::MessageV1& m
     client.send(response);
 }
 
-void ProxyServer::handle_udp_streaming(
-    ClientSession& client, const pb::MessageV1& msg) {
-    send_error_to_client(
-        client,
-        msg.id(),
-        "UDP streaming is not supported by the proxy; data is delivered over TCP.");
+void ProxyServer::handle_udp_streaming(ClientSession& client, const pb::MessageV1& msg) {
+    send_error_to_client(client, msg.id(), "UDP streaming is not supported by the proxy; data is delivered over TCP.");
 }
 
 void ProxyServer::handle_ping(ClientSession& client) {
     std::string error;
     for (auto* backend : backend_handler_.targets()) {
         try {
-            backend->control->ping(
-                ProxyBackendHandler::BACKEND_REQUEST_TIMEOUT_SECS);
+            backend->control->ping(ProxyBackendHandler::BACKEND_REQUEST_TIMEOUT_SECS);
         } catch (const std::exception& e) {
             if (error.empty()) {
-                error = "Ping failed for " + backend->host + ":" +
-                        std::to_string(backend->port) + ": " + e.what();
+                error = "Ping failed for " + backend->host + ":" + std::to_string(backend->port) + ": " + e.what();
             }
         }
     }
@@ -343,8 +320,7 @@ void ProxyServer::handle_ping(ClientSession& client) {
     if (error.empty()) {
         response.mutable_generic()->mutable_ping_response();
     } else {
-        response.mutable_message_v1()->mutable_error_message()
-            ->set_description(error);
+        response.mutable_message_v1()->mutable_error_message()->set_description(error);
     }
 
     std::string serialized;
@@ -357,18 +333,18 @@ void ProxyServer::handle_ping(ClientSession& client) {
     }
 }
 
-void ProxyServer::handle_update(
-    ClientSession& client, const pb::MessageV1& msg) {
+void ProxyServer::handle_update(ClientSession& client, const pb::MessageV1& msg) {
     const auto& update_cmd = msg.update_command();
 
     static constexpr std::chrono::milliseconds REBOOT_GRACE{2000};
     static constexpr std::chrono::milliseconds RECONNECT_TIMEOUT{20000};
 
-    const char* kind = update_cmd.has_begin()  ? "begin"  :
-                       update_cmd.has_write()   ? nullptr  :
-                       update_cmd.has_verify()  ? "verify" :
-                       update_cmd.has_commit()  ? "commit" :
-                       update_cmd.has_abort()   ? "abort"  : "unknown";
+    const char* kind = update_cmd.has_begin()    ? "begin"
+                       : update_cmd.has_write()  ? nullptr
+                       : update_cmd.has_verify() ? "verify"
+                       : update_cmd.has_commit() ? "commit"
+                       : update_cmd.has_abort()  ? "abort"
+                                                 : "unknown";
     if (kind) {
         std::lock_guard<std::mutex> lock(log_mutex_);
         std::cerr << "[ProxyServer] Update: " << kind << "\n";
@@ -377,8 +353,8 @@ void ProxyServer::handle_update(
     auto targets = backend_handler_.targets();
 
     if (update_cmd.has_commit()) {
-
-        auto result = backend_handler_.broadcast_to_backends(targets,
+        auto result = backend_handler_.broadcast_to_backends(
+            targets,
             [&msg](BackendDevice&) {
                 pb::MessageV1 req;
                 req.set_id(utils::generate_uuid());
@@ -408,22 +384,21 @@ void ProxyServer::handle_update(
         std::vector<std::future<bool>> futures;
         futures.reserve(targets.size());
         for (auto* backend : targets) {
-            futures.push_back(std::async(std::launch::async,
-                [this, backend]() {
-                    return backend_handler_.reconnect_backend(*backend, RECONNECT_TIMEOUT);
-                }));
+            futures.push_back(std::async(std::launch::async, [this, backend]() {
+                return backend_handler_.reconnect_backend(*backend, RECONNECT_TIMEOUT);
+            }));
         }
 
         for (size_t i = 0; i < futures.size(); ++i) {
             bool ok = futures[i].get();
-            backend_handler_.set_backend_health(*targets[i],
-                ok ? BackendHealth::HEALTHY : BackendHealth::DEAD);
+            backend_handler_.set_backend_health(*targets[i], ok ? BackendHealth::HEALTHY : BackendHealth::DEAD);
         }
         return;
     }
 
     // Non-commit paths: broadcast and relay results.
-    auto result = backend_handler_.broadcast_to_backends(targets,
+    auto result = backend_handler_.broadcast_to_backends(
+        targets,
         [&msg](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
@@ -436,8 +411,7 @@ void ProxyServer::handle_update(
     if (result.had_error) {
         pb::MessageV1 response;
         response.set_id(msg.id());
-        response.mutable_update_response()->mutable_failure()->set_reason(
-            result.error_text);
+        response.mutable_update_response()->mutable_failure()->set_reason(result.error_text);
         client.send(response);
         return;
     }
@@ -446,8 +420,7 @@ void ProxyServer::handle_update(
         // Use the minimum chunk size so no backend gets oversized writes.
         size_t min_chunk = SIZE_MAX;
         for (auto& resp : result.responses) {
-            min_chunk = std::min(min_chunk,
-                static_cast<size_t>(resp.update_response().ack().chunk_size()));
+            min_chunk = std::min(min_chunk, static_cast<size_t>(resp.update_response().ack().chunk_size()));
         }
 
         pb::MessageV1 response;
@@ -463,11 +436,11 @@ void ProxyServer::handle_update(
     client.send(response);
 }
 
-void ProxyServer::handle_get_overload_status(
-    ClientSession& client, const pb::MessageV1& msg) {
+void ProxyServer::handle_get_overload_status(ClientSession& client, const pb::MessageV1& msg) {
     auto targets = backend_handler_.targets();
 
-    auto result = backend_handler_.broadcast_to_backends(targets,
+    auto result = backend_handler_.broadcast_to_backends(
+        targets,
         [](BackendDevice&) {
             pb::MessageV1 req;
             req.set_id(utils::generate_uuid());
@@ -486,8 +459,7 @@ void ProxyServer::handle_get_overload_status(
         return;
     }
 
-    pb::OverloadStatus* merged =
-        response.mutable_get_overload_status_response()->mutable_status();
+    pb::OverloadStatus* merged = response.mutable_get_overload_status_response()->mutable_status();
     bool any_overload = false;
 
     for (const auto& backend_resp : result.responses) {
@@ -496,13 +468,11 @@ void ProxyServer::handle_get_overload_status(
             // A backend responded without the expected payload: surface a clear
             // proxy-level error rather than returning a half-populated status.
             response.clear_get_overload_status_response();
-            response.mutable_error_message()->set_description(
-                "Backend returned no overload status");
+            response.mutable_error_message()->set_description("Backend returned no overload status");
             client.send(response);
             return;
         }
-        const pb::OverloadStatus& status =
-            backend_resp.get_overload_status_response().status();
+        const pb::OverloadStatus& status = backend_resp.get_overload_status_response().status();
         any_overload = any_overload || status.global_overload();
         for (const auto& element : status.elements()) {
             *merged->add_elements() = element;
@@ -514,12 +484,10 @@ void ProxyServer::handle_get_overload_status(
 }
 
 void ProxyServer::send_error_to_client(
-    ClientSession& client,
-    const std::string& request_id,
-    const std::string& error_text) {
+    ClientSession& client, const std::string& request_id, const std::string& error_text) {
     if (debug_) {
-        std::cerr << "[ProxyServer] DEBUG: Proxy error for session "
-                  << client.session_id_ << ": " << error_text << "\n";
+        std::cerr << "[ProxyServer] DEBUG: Proxy error for session " << client.session_id_ << ": " << error_text
+                  << "\n";
     }
     pb::MessageV1 error_msg;
     if (!request_id.empty()) {

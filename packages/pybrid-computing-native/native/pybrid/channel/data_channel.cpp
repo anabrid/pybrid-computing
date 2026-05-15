@@ -6,9 +6,9 @@
 
 #include "pybrid/channel/control_channel.h"
 #include "pybrid/proto/main.pb.h"
-#include "pybrid/utils/protobuf_helpers.h"
 #include "pybrid/transport/tcp_transport.h"
 #include "pybrid/transport/udp_socket.h"
+#include "pybrid/utils/protobuf_helpers.h"
 #include "pybrid/utils/uuid.h"
 
 #include "pybrid/utils/protobuf_helpers.h"
@@ -37,8 +37,7 @@ void DataChannel::set_tcp_transport(TCPTransport* transport) {
     m_tcp_transport = transport;
 }
 
-void DataChannel::set_control_response_callback(
-    std::function<void(std::vector<uint8_t>)> callback) {
+void DataChannel::set_control_response_callback(std::function<void(std::vector<uint8_t>)> callback) {
     throw_if_running("set_control_response_callback");
     std::lock_guard<std::mutex> lock(m_callback_mutex);
     m_control_response_callback = std::move(callback);
@@ -61,17 +60,14 @@ void DataChannel::set_negotiation_timeout(double secs) {
 
 bool DataChannel::negotiate_udp(uint16_t local_port) {
     if (m_control_channel == nullptr) {
-        throw std::logic_error(
-            "DataChannel::negotiate_udp(): set_control_channel() must be called first");
+        throw std::logic_error("DataChannel::negotiate_udp(): set_control_channel() must be called first");
     }
 
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
-    msg.mutable_udp_data_streaming_command()->set_port(
-        static_cast<uint32_t>(local_port));
+    msg.mutable_udp_data_streaming_command()->set_port(static_cast<uint32_t>(local_port));
 
-    pb::MessageV1 response =
-        m_control_channel->send_and_recv(msg, m_negotiation_timeout);
+    pb::MessageV1 response = m_control_channel->send_and_recv(msg, m_negotiation_timeout);
 
     if (response.has_success_message()) {
         return true;
@@ -80,8 +76,7 @@ bool DataChannel::negotiate_udp(uint16_t local_port) {
         return false;
     }
 
-    throw std::runtime_error(
-        "DataChannel::negotiate_udp(): unexpected response type from device");
+    throw std::runtime_error("DataChannel::negotiate_udp(): unexpected response type from device");
 }
 
 void DataChannel::start() {
@@ -90,8 +85,7 @@ void DataChannel::start() {
     }
 
     // Direct TCP-only path.
-    if (m_tcp_transport != nullptr && m_control_channel == nullptr
-        && m_udp_host.empty() && m_udp_port == 0) {
+    if (m_tcp_transport != nullptr && m_control_channel == nullptr && m_udp_host.empty() && m_udp_port == 0) {
         m_using_tcp_fallback.store(true, std::memory_order_release);
         m_receive_thread = std::thread(&DataChannel::tcp_receive_loop, this);
         return;
@@ -122,10 +116,10 @@ void DataChannel::start() {
                         std::lock_guard<std::mutex> lock(m_callback_mutex);
                         cb = m_error_callback;
                     }
-                    if (cb) cb(
-                        "DataChannel::start(): UDP negotiation failed, "
-                        "falling back to TCP: " +
-                        std::string(neg_ex.what()));
+                    if (cb)
+                        cb("DataChannel::start(): UDP negotiation failed, "
+                           "falling back to TCP: " +
+                           std::string(neg_ex.what()));
                 }
             }
 
@@ -135,8 +129,7 @@ void DataChannel::start() {
 
                 if (m_require_udp) {
                     m_running.store(false, std::memory_order_release);
-                    throw std::runtime_error(
-                        "UDP negotiation failed or was refused by device");
+                    throw std::runtime_error("UDP negotiation failed or was refused by device");
                 }
 
                 m_control_channel->stop_recv_thread();
@@ -243,14 +236,11 @@ void DataChannel::reset_udp_stats() {
 void DataChannel::reset_buffers() {
     if (m_using_tcp_fallback.load(std::memory_order_acquire)) {
         if (m_tcp_transport &&
-            m_tcp_transport->recv_buffer_capacity() >=
-                TCPTransport::TCP_RECV_BUFFER_RESET_THRESHOLD) {
+            m_tcp_transport->recv_buffer_capacity() >= TCPTransport::TCP_RECV_BUFFER_RESET_THRESHOLD) {
             m_tcp_transport->reset_buffers();
         }
     } else {
-        if (m_udp_socket &&
-            m_udp_socket->recv_queue_len() >=
-                UDPSocket::UDP_RECV_QUEUE_RESET_THRESHOLD) {
+        if (m_udp_socket && m_udp_socket->recv_queue_len() >= UDPSocket::UDP_RECV_QUEUE_RESET_THRESHOLD) {
             m_udp_socket->reset_buffers();
         }
     }
@@ -302,8 +292,8 @@ void DataChannel::udp_receive_loop() {
             pb::MessageV1 message;
             {
                 pb::Envelope envelope;
-                if (envelope.ParseFromArray(buffer.data(), static_cast<int>(result.bytes))
-                    && envelope.has_message_v1()) {
+                if (envelope.ParseFromArray(buffer.data(), static_cast<int>(result.bytes)) &&
+                    envelope.has_message_v1()) {
                     message = envelope.message_v1();
                 } else if (!message.ParseFromArray(buffer.data(), static_cast<int>(result.bytes))) {
                     std::function<void(const std::string&)> cb;
@@ -401,13 +391,11 @@ void DataChannel::tcp_receive_loop() {
 
             if (m_debug) {
                 int kind = utils::get_kind_field_number(message);
-                std::cerr << "[DataChannel] DEBUG: tcp_receive_loop got kind="
-                          << kind
+                std::cerr << "[DataChannel] DEBUG: tcp_receive_loop got kind=" << kind
                           << " (data=" << is_data_message(message)
                           << ", state_change=" << message.has_run_state_change_message()
                           << ", run_data=" << message.has_run_data_message()
-                          << ", run_data_end=" << message.has_run_data_end_message()
-                          << ", bytes=" << result.bytes
+                          << ", run_data_end=" << message.has_run_data_end_message() << ", bytes=" << result.bytes
                           << ")\n";
             }
 
@@ -427,8 +415,7 @@ void DataChannel::tcp_receive_loop() {
                 }
                 if (cb) {
                     std::vector<uint8_t> response_data(
-                        buffer.begin(),
-                        buffer.begin() + static_cast<std::ptrdiff_t>(result.bytes));
+                        buffer.begin(), buffer.begin() + static_cast<std::ptrdiff_t>(result.bytes));
                     cb(std::move(response_data));
                 }
             }
@@ -473,14 +460,12 @@ void DataChannel::fallback_to_tcp() {
 }
 
 bool DataChannel::is_data_message(const pb::MessageV1& message) const {
-    return message.has_run_data_message() ||
-           message.has_run_data_end_message();
+    return message.has_run_data_message() || message.has_run_data_end_message();
 }
 
 void DataChannel::throw_if_running(const char* method_name) const {
     if (m_running.load(std::memory_order_acquire)) {
-        throw std::logic_error(
-            std::string(method_name) + "() cannot be called after start()");
+        throw std::logic_error(std::string(method_name) + "() cannot be called after start()");
     }
 }
 

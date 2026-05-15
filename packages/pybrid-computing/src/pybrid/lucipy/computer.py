@@ -35,7 +35,7 @@ from typing import Optional
 
 from pybrid.lucidac.controller import Controller as LUCIStackController
 from pybrid.lucipy.circuits import Circuit
-from pybrid.redac import DAQConfig, RunConfig, Run
+from pybrid.redac import DAQConfig, Run, RunConfig
 from pybrid.redac.detect import detect_in_network
 
 logger = logging.getLogger(__name__)
@@ -137,10 +137,7 @@ class LucipyWrapper:
             device_index = 0
 
         if device_index < 0 or device_index >= len(carriers):
-            raise IndexError(
-                f"device_index {device_index} out of range "
-                f"(0..{len(carriers) - 1})"
-            )
+            raise IndexError(f"device_index {device_index} out of range " f"(0..{len(carriers) - 1})")
 
         mac = carriers[device_index].path.to_mac()
         circuit = Circuit(mac)
@@ -189,10 +186,7 @@ class LucipyWrapper:
         """
         try:
             asyncio.get_running_loop()
-            raise RuntimeError(
-                "run() cannot be called from an async context. "
-                "Use 'await luci._run()' instead."
-            )
+            raise RuntimeError("run() cannot be called from an async context. " "Use 'await luci._run()' instead.")
         except RuntimeError as e:
             if "no running event loop" in str(e):
                 return asyncio.run(self._run())
@@ -328,10 +322,7 @@ class LucipyWrapper:
             logger.info(f"Using endpoint from {self.ENDPOINT_ENV_NAME}: {endpoint}")
             return [endpoint]
 
-        logger.info(
-            f"No endpoint specified and {self.ENDPOINT_ENV_NAME} not set. "
-            "Attempting mDNS auto-detection..."
-        )
+        logger.info(f"No endpoint specified and {self.ENDPOINT_ENV_NAME} not set. " "Attempting mDNS auto-detection...")
 
         # Auto-detection requires asyncio.run(), which cannot be called
         # from within an already-running event loop.
@@ -348,9 +339,7 @@ class LucipyWrapper:
             pass
 
         try:
-            devices = asyncio.run(
-                detect_in_network(ip_network("0.0.0.0/0"))
-            )
+            devices = asyncio.run(detect_in_network(ip_network("0.0.0.0/0")))
         except (asyncio.TimeoutError, RuntimeError) as e:
             raise ValueError(
                 f"No LUCIDAC found via auto-detection ({e}). Please provide "

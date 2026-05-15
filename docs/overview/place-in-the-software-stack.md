@@ -142,7 +142,7 @@ programmable level the device exposes, short of writing protobuf
 messages by hand.
 
 Everything higher up in the stack (`redacc`, `LUCIHUB`)
-is optional, and everything lower down (firmware, hardware) is absolutely required 
+is optional, and everything lower down (firmware, hardware) is absolutely required
 for operating the analog computer.
 `pybrid` is the narrow waist that the rest of the stack relies on, and
 the layer users reach for when they want to address the hardware

@@ -7,7 +7,7 @@
 namespace anabrid::pybrid::native {
 
 enum class BufferType {
-    LockFree     ///< Lock-free buffer using moodycamel::ConcurrentQueue
+    LockFree  ///< Lock-free buffer using moodycamel::ConcurrentQueue
 };
 
 class BufferFullError : public std::runtime_error {
@@ -22,9 +22,9 @@ public:
     explicit MessageTooLargeError(const std::string& message) : std::runtime_error(message) {}
 
     MessageTooLargeError(size_t message_size, size_t max_size)
-        : std::runtime_error("Message size " + std::to_string(message_size) +
-                             " bytes exceeds maximum slot size of " +
-                             std::to_string(max_size) + " bytes") {}
+        : std::runtime_error(
+              "Message size " + std::to_string(message_size) + " bytes exceeds maximum slot size of " +
+              std::to_string(max_size) + " bytes") {}
 };
 
 /**
@@ -61,4 +61,4 @@ public:
     virtual bool has_exact_capacity() const = 0;
 };
 
-} // namespace anabrid::pybrid::native
+}  // namespace anabrid::pybrid::native

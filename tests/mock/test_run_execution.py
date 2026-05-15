@@ -18,6 +18,7 @@ from pybrid.redac.control import AsyncControlChannel
 
 try:
     from pybrid.native._impl import ControlChannel as NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -100,9 +101,9 @@ async def test_start_run_error_injection():
         try:
             cmd = _make_run_command(RUN_OP_TIME_NS)
             result = await asyncio.wait_for(channel.start_run_request(cmd), timeout=OP_TIMEOUT)
-            assert result.ok is False, (
-                "start_run_request() must return a failure Result for AT_START_RUN error injection"
-            )
+            assert (
+                result.ok is False
+            ), "start_run_request() must return a failure Result for AT_START_RUN error injection"
         finally:
             await channel.stop()
 
@@ -134,9 +135,7 @@ async def test_run_data_messages_received():
                 loop.call_soon_threadsafe(done_event.set)
 
         channel.register_callback(pb.MessageV1.RUN_DATA_MESSAGE_FIELD_NUMBER, on_data)
-        channel.register_callback(
-            pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change
-        )
+        channel.register_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER, on_state_change)
 
         try:
             cmd = _make_run_command(op_time_ns, num_channels=num_channels, sample_rate=sample_rate)
@@ -144,9 +143,9 @@ async def test_run_data_messages_received():
             await asyncio.wait_for(done_event.wait(), timeout=run_timeout)
 
             total_samples = sum(msg.data.sample_count for msg in data_messages)
-            assert total_samples >= min_expected_total_samples, (
-                f"Expected at least {min_expected_total_samples} samples, got {total_samples}"
-            )
+            assert (
+                total_samples >= min_expected_total_samples
+            ), f"Expected at least {min_expected_total_samples} samples, got {total_samples}"
         finally:
             await channel.stop()
 
@@ -174,10 +173,7 @@ async def test_run_data_end_uses_config_channel_count():
 
         try:
             # Push a config with 8 ADC channels on the first carrier.
-            adc_channels = [
-                pb.AdcChannel(idx=i, gain=1.0, offset=0.0)
-                for i in range(requested_channels)
-            ]
+            adc_channels = [pb.AdcChannel(idx=i, gain=1.0, offset=0.0) for i in range(requested_channels)]
             carrier_config = pb.Item(
                 entity=pb.EntityId(path="/00-00-00-00-00-00"),
                 adc_config=pb.AdcConfig(channels=adc_channels),
@@ -190,14 +186,14 @@ async def test_run_data_end_uses_config_channel_count():
             await asyncio.wait_for(channel.start_run_request(cmd), timeout=OP_TIMEOUT)
             await asyncio.wait_for(end_event.wait(), timeout=RUN_TIMEOUT)
 
-            assert len(end_messages) == NUM_CARRIERS, (
-                f"Expected {NUM_CARRIERS} RunDataEndMessages, got {len(end_messages)}"
-            )
+            assert (
+                len(end_messages) == NUM_CARRIERS
+            ), f"Expected {NUM_CARRIERS} RunDataEndMessages, got {len(end_messages)}"
             # Channel count should come from ConfigCommand (8), not DaqConfig (4).
             for msg in end_messages:
-                assert msg.data.channel_stride == requested_channels, (
-                    f"Expected channel_stride={requested_channels}, got {msg.data.channel_stride}"
-                )
+                assert (
+                    msg.data.channel_stride == requested_channels
+                ), f"Expected channel_stride={requested_channels}, got {msg.data.channel_stride}"
                 assert len(msg.data.channels) == requested_channels
         finally:
             await channel.stop()

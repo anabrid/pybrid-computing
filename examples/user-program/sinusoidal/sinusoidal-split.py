@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 
 from pybrid.base.hybrid.programs import SingleRun
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig, Path
+from pybrid.redac import REDAC, DAQConfig, Path, Run, RunConfig
 from pybrid.redac.carrier import Carrier
 
 
@@ -20,8 +20,8 @@ class UserProgram(SingleRun):
         # TODO: Implement backplane identification and check assumptions
 
         carrier_0: Carrier = computer.get_entity(Path.parse("00-00-00-00-00-00"))
-        carrier_2: Carrier =  computer.get_entity(Path.parse("00-00-00-00-00-02"))
-        #carrier_2: Carrier =  computer.get_entity(Path.parse("04-E9-E5-18-14-84"))
+        carrier_2: Carrier = computer.get_entity(Path.parse("00-00-00-00-00-02"))
+        # carrier_2: Carrier =  computer.get_entity(Path.parse("04-E9-E5-18-14-84"))
         # We use the first cluster on both carriers
         cluster_0, cluster_2 = carrier_0.clusters[0], carrier_2.clusters[0]
 

@@ -19,9 +19,10 @@ Test Categories
 """
 
 import asyncio
+
 import pytest
 
-from pybrid.redac import Path, RunState, Run, RunError
+from pybrid.redac import Path, Run, RunError, RunState
 from pybrid.redac.controller import DistributedRunState
 
 

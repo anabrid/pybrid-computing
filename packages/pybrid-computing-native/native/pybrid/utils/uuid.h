@@ -28,17 +28,9 @@ inline std::string generate_uuid() {
     c = (c & 0x3FFFFFFFu) | 0x80000000u;
 
     std::ostringstream oss;
-    oss << std::hex << std::setfill('0')
-        << std::setw(8) << a
-        << '-'
-        << std::setw(4) << ((b >> 16) & 0xFFFFu)
-        << '-'
-        << std::setw(4) << (b & 0xFFFFu)
-        << '-'
-        << std::setw(4) << ((c >> 16) & 0xFFFFu)
-        << '-'
-        << std::setw(4) << (c & 0xFFFFu)
-        << std::setw(8) << d;
+    oss << std::hex << std::setfill('0') << std::setw(8) << a << '-' << std::setw(4) << ((b >> 16) & 0xFFFFu) << '-'
+        << std::setw(4) << (b & 0xFFFFu) << '-' << std::setw(4) << ((c >> 16) & 0xFFFFu) << '-' << std::setw(4)
+        << (c & 0xFFFFu) << std::setw(8) << d;
 
     return oss.str();
 }

@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
-import subprocess
 import json
-import threading
 import logging
 import os
-from threading import Thread, Lock, Event
 import pty
-from time import sleep
 import select
+import subprocess
+import threading
+from threading import Event, Lock, Thread
+from time import sleep
 
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] [%(threadName)s] %(message)s",
-    datefmt="%H:%M:%S"
-)
+logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(threadName)s] %(message)s", datefmt="%H:%M:%S")
 
 mutex = Lock()
 
@@ -81,9 +77,7 @@ def monitor_board(board_name: str, stop_event: Event):
 def list_boards() -> set:
     """Return a set of connected board tags."""
     try:
-        output = subprocess.check_output(
-            ["tycmd", "list", "--output", "json"], text=True, stderr=subprocess.DEVNULL
-        )
+        output = subprocess.check_output(["tycmd", "list", "--output", "json"], text=True, stderr=subprocess.DEVNULL)
         boards = json.loads(output)
         return {b["tag"] for b in boards}
     except (subprocess.CalledProcessError, json.JSONDecodeError):
@@ -134,7 +128,7 @@ def hotplug_watcher(poll_interval: float = 1.0):
         with mutex:
             known_boards = set(active_monitors.keys())
 
-        added   = current_boards - known_boards
+        added = current_boards - known_boards
         removed = known_boards - current_boards
 
         with mutex:

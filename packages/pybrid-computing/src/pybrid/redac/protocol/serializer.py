@@ -5,26 +5,21 @@ import logging
 import string
 import typing
 from functools import singledispatchmethod
-from typing import List, Any, Dict
+from typing import Any, Dict, List
 
-from pybrid.redac.router import Tracer
 from pybrid.base.hybrid.computer import AnalogComputer
 from pybrid.base.hybrid.entities import Entity
+from pybrid.base.hybrid.serializer import Deserializer, Serializer
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.redac.blocks import (
-    CBlock, MMulBlock, TBlock, MIntBlock, UBlock, IBlock, MMDRBlock
-)
-from pybrid.redac.carrier import Carrier, ADCChannel, FrontPanelIOMode
+from pybrid.redac.blocks import CBlock, IBlock, MIntBlock, MMDRBlock, MMulBlock, TBlock, UBlock
 from pybrid.redac.blocks.backplane_tblock import BackplaneTBlock
+from pybrid.redac.carrier import ADCChannel, Carrier, FrontPanelIOMode
 from pybrid.redac.cluster import Cluster
+from pybrid.redac.computations import Division, Identity, Multiplication, Square, SquareRoot
 from pybrid.redac.device import Device
 from pybrid.redac.elements import ComputationElement
-from pybrid.redac.entities import Path, Loc, EntityType, EntityClass
-from pybrid.redac.computations import (
-    Multiplication, Square, SquareRoot, Division, Identity
-)
-
-from pybrid.base.hybrid.serializer import Serializer, Deserializer
+from pybrid.redac.entities import EntityClass, EntityType, Loc, Path
+from pybrid.redac.router import Tracer
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +32,7 @@ class REDACSerializer(Serializer):
     def __init__(self):
         super().__init__()
         from pybrid.redac.protocol.validators import AdcProbeValidator
+
         self.validators.append(AdcProbeValidator())
 
     ###
@@ -54,7 +50,7 @@ class REDACSerializer(Serializer):
     @_serialize_configuration.register
     def _(self, entity: Carrier):
         item = self.cc.new_config(entity)
-        adc_config =  item.adc_config
+        adc_config = item.adc_config
         adc_channels = adc_config.channels
 
         for adc_channel in entity.adc_config:
@@ -71,8 +67,11 @@ class REDACSerializer(Serializer):
             acl_select = acl_config.states
 
             for interface in entity.acl_select:
-                acl_select.append(pb.PortConfig.AclState.EXTERNAL if \
-                    interface.lower() == "external" else pb.PortConfig.AclState.INTERNAL)
+                acl_select.append(
+                    pb.PortConfig.AclState.EXTERNAL
+                    if interface.lower() == "external"
+                    else pb.PortConfig.AclState.INTERNAL
+                )
 
         # Front Panel ports for mREDAC
         if entity.front_panel_io:
@@ -151,8 +150,12 @@ class REDACSerializer(Serializer):
             select_config.constant = pb.SelectConfig.ConstantConfig.GROUND
         else:
             constant = 1.0 if entity.constant == True else entity.constant
-            select_config.constant = pb.SelectConfig.ConstantConfig.POS_REF if constant > 0 else pb.SelectConfig.ConstantConfig.NEG_REF
-            select_config.magnitude = pb.SelectConfig.Magnitude.ONE if constant == 1.0 else pb.SelectConfig.Magnitude.ONE_TENTH
+            select_config.constant = (
+                pb.SelectConfig.ConstantConfig.POS_REF if constant > 0 else pb.SelectConfig.ConstantConfig.NEG_REF
+            )
+            select_config.magnitude = (
+                pb.SelectConfig.Magnitude.ONE if constant == 1.0 else pb.SelectConfig.Magnitude.ONE_TENTH
+            )
 
         for output, input in enumerate(entity.outputs):
             if input is None:
@@ -317,6 +320,7 @@ class REDACSerializer(Serializer):
         It constains information where a signal is coming from and where it is going to.
         """
         from pybrid.redac import REDAC
+
         if not isinstance(computer, REDAC):
             return
         tracer = Tracer()
@@ -347,11 +351,9 @@ class REDACSerializer(Serializer):
             nonlocal active_lanes
             active_lanes |= 1 << sink_loc.lane_id()
             active_lanes |= 1 << src_loc.lane_id()
-            traces.append(pb.Trace(
-                source=loc2trace_lane(src_loc),
-                sink=loc2trace_lane(sink_loc),
-                sink_upscaled=upscaled
-            ))
+            traces.append(
+                pb.Trace(source=loc2trace_lane(src_loc), sink=loc2trace_lane(sink_loc), sink_upscaled=upscaled)
+            )
 
         for sink_carrier in computer.carriers:
             for sink_cluster in sink_carrier.clusters:
@@ -393,7 +395,7 @@ class REDACSerializer(Serializer):
 
     def serialize_additional(self, computer: AnalogComputer):
         self.serialize_dependency_info(computer)
-        #self.serialize_ip_lookup_table()
+        # self.serialize_ip_lookup_table()
 
 
 class REDACDeserializer(Deserializer):
@@ -461,11 +463,11 @@ class REDACDeserializer(Deserializer):
                 if result is not None:
                     front_plane, acl_select = result
             elif path_.id_ in string.digits:
-                clusters.append(self.deserialize_specification(
-                    child,
-                    path_,
-                    location / int(path_.id_) if location is not None else None
-                ))
+                clusters.append(
+                    self.deserialize_specification(
+                        child, path_, location / int(path_.id_) if location is not None else None
+                    )
+                )
 
         return Carrier(
             path=path,
@@ -496,12 +498,7 @@ class REDACDeserializer(Deserializer):
         blocks.setdefault("m1block", None)
         blocks.setdefault("shblock", None)
 
-        return Cluster(
-            path=path,
-            location=location,
-            entity_type=this_entity_type,
-            **blocks
-        )
+        return Cluster(path=path, location=location, entity_type=this_entity_type, **blocks)
 
     def _spec_function_block(self, entity: pb.Entity, path: Path, location: Loc):
         """Default: use EntityType registry for concrete class lookup."""
@@ -531,12 +528,9 @@ class REDACDeserializer(Deserializer):
 
         adc_channels = []
         for channel in config.channels:
-            adc_channels.append(ADCChannel(
-                index=channel.idx,
-                gain=channel.gain,
-                offset=channel.offset,
-                probe=channel.probe
-            ))
+            adc_channels.append(
+                ADCChannel(index=channel.idx, gain=channel.gain, offset=channel.offset, probe=channel.probe)
+            )
         entity.adc_config = adc_channels
 
     @_deserialize_configuration.register
@@ -661,7 +655,6 @@ class REDACDeserializer(Deserializer):
         else:
             for mux in config.muxes:
                 connect(mux.state, mux.index)
-
 
     @_deserialize_configuration.register
     def _(self, config: pb.PortConfig):

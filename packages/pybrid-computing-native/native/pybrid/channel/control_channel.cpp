@@ -23,11 +23,7 @@ ControlChannel::~ControlChannel() {
 }
 
 std::unique_ptr<ControlChannel> ControlChannel::create(
-    const std::string& host,
-    uint16_t port,
-    double timeout_secs,
-    std::uint32_t max_busy_wait_secs)
-{
+    const std::string& host, uint16_t port, double timeout_secs, std::uint32_t max_busy_wait_secs) {
     auto channel = std::unique_ptr<ControlChannel>(new ControlChannel());
     channel->max_busy_wait_secs_ = max_busy_wait_secs;
 
@@ -37,9 +33,7 @@ std::unique_ptr<ControlChannel> ControlChannel::create(
     bool connected = channel->transport_->connect(host, port, timeout_secs);
     if (!connected) {
         channel->transport_->stop();
-        throw std::runtime_error(
-            "ControlChannel::create(): failed to connect to " + host + ":" +
-            std::to_string(port));
+        throw std::runtime_error("ControlChannel::create(): failed to connect to " + host + ":" + std::to_string(port));
     }
 
     return channel;
@@ -88,19 +82,17 @@ void ControlChannel::stop() {
         for (auto& kv : pending_requests_) {
             try {
                 kv.second->promise.set_exception(
-                    std::make_exception_ptr(std::runtime_error(
-                        "ControlChannel stopped while request was pending")));
-            } catch (const std::future_error&) {
-                }
+                    std::make_exception_ptr(std::runtime_error("ControlChannel stopped while request was pending")));
+            } catch (const std::future_error&) {}
         }
         pending_requests_.clear();
     }
     {
         std::lock_guard<std::mutex> lk(ping_mutex_);
         if (pending_ping_) {
-            try { pending_ping_->set_exception(
-                std::make_exception_ptr(std::runtime_error("stopped"))); }
-            catch (const std::future_error&) {}
+            try {
+                pending_ping_->set_exception(std::make_exception_ptr(std::runtime_error("stopped")));
+            } catch (const std::future_error&) {}
             pending_ping_.reset();
         }
     }
@@ -110,10 +102,7 @@ void ControlChannel::stop() {
     }
 }
 
-bool ControlChannel::reconnect(
-    std::chrono::milliseconds interval,
-    std::optional<std::chrono::milliseconds> timeout)
-{
+bool ControlChannel::reconnect(std::chrono::milliseconds interval, std::optional<std::chrono::milliseconds> timeout) {
     if (!transport_) return false;
 
     cancel_reconnect_.store(false, std::memory_order_release);
@@ -126,8 +115,7 @@ bool ControlChannel::reconnect(
         std::lock_guard<std::mutex> lock(pending_mutex_);
         for (auto& kv : pending_requests_) {
             try {
-                kv.second->promise.set_exception(
-                    std::make_exception_ptr(std::runtime_error("reconnecting")));
+                kv.second->promise.set_exception(std::make_exception_ptr(std::runtime_error("reconnecting")));
             } catch (const std::future_error&) {}
         }
         pending_requests_.clear();
@@ -135,9 +123,9 @@ bool ControlChannel::reconnect(
     {
         std::lock_guard<std::mutex> lk(ping_mutex_);
         if (pending_ping_) {
-            try { pending_ping_->set_exception(
-                std::make_exception_ptr(std::runtime_error("reconnecting"))); }
-            catch (const std::future_error&) {}
+            try {
+                pending_ping_->set_exception(std::make_exception_ptr(std::runtime_error("reconnecting")));
+            } catch (const std::future_error&) {}
             pending_ping_.reset();
         }
     }
@@ -146,12 +134,10 @@ bool ControlChannel::reconnect(
     auto port = transport_->remote_port();
     transport_->disconnect();
 
-    if (interval < std::chrono::milliseconds{10})
-        interval = std::chrono::milliseconds{10};
+    if (interval < std::chrono::milliseconds{10}) interval = std::chrono::milliseconds{10};
 
-    const auto deadline = timeout
-        ? std::chrono::steady_clock::now() + *timeout
-        : std::chrono::steady_clock::time_point::max();
+    const auto deadline = timeout ? std::chrono::steady_clock::now() + *timeout
+                                  : std::chrono::steady_clock::time_point::max();
 
     while (!cancel_reconnect_.load(std::memory_order_acquire)) {
         if (std::chrono::steady_clock::now() >= deadline) {
@@ -201,8 +187,7 @@ bool ControlChannel::is_running() const {
 void ControlChannel::send(const pb::MessageV1& msg) {
     if (reconnecting_.load(std::memory_order_acquire))
         throw std::runtime_error("ControlChannel::send(): reconnect in progress");
-    if (!is_connected())
-        throw std::runtime_error("ControlChannel::send(): not connected");
+    if (!is_connected()) throw std::runtime_error("ControlChannel::send(): not connected");
 
     pb::Envelope envelope;
     *envelope.mutable_message_v1() = msg;
@@ -220,8 +205,7 @@ void ControlChannel::send(const pb::MessageV1& msg) {
 void ControlChannel::send_raw(const void* data, size_t len) {
     if (reconnecting_.load(std::memory_order_acquire))
         throw std::runtime_error("ControlChannel::send_raw(): reconnect in progress");
-    if (!is_connected())
-        throw std::runtime_error("ControlChannel::send_raw(): not connected");
+    if (!is_connected()) throw std::runtime_error("ControlChannel::send_raw(): not connected");
 
     if (!transport_->send(data, len)) {
         throw std::runtime_error("ControlChannel::send_raw(): transport send failed");
@@ -239,12 +223,10 @@ constexpr std::chrono::seconds kBusyRetryPollInterval{2};
 pb::MessageV1 ControlChannel::send_and_recv(const pb::MessageV1& msg, double timeout_secs) {
     if (reconnecting_.load(std::memory_order_acquire))
         throw std::runtime_error("ControlChannel::send_and_recv(): reconnect in progress");
-    if (!is_connected())
-        throw std::runtime_error("ControlChannel::send_and_recv(): not connected");
+    if (!is_connected()) throw std::runtime_error("ControlChannel::send_and_recv(): not connected");
 
     if (msg.id().empty()) {
-        throw std::runtime_error(
-            "ControlChannel::send_and_recv(): msg.id() must be non-empty");
+        throw std::runtime_error("ControlChannel::send_and_recv(): msg.id() must be non-empty");
     }
 
     // One caller owns the busy-wait flag at a time; resetting on entry is
@@ -280,8 +262,7 @@ pb::MessageV1 ControlChannel::send_and_recv(const pb::MessageV1& msg, double tim
         if (status == std::future_status::timeout) {
             std::lock_guard<std::mutex> lock(pending_mutex_);
             pending_requests_.erase(id);
-            throw std::runtime_error(
-                "ControlChannel::send_and_recv(): timeout waiting for response to id=" + id);
+            throw std::runtime_error("ControlChannel::send_and_recv(): timeout waiting for response to id=" + id);
         }
 
         pb::MessageV1 response = future.get();
@@ -298,34 +279,30 @@ pb::MessageV1 ControlChannel::send_and_recv(const pb::MessageV1& msg, double tim
         {
             std::unique_lock<std::mutex> lk(busy_wait_mutex_);
             auto elapsed = std::chrono::steady_clock::now() - busy_loop_start;
-            auto remaining = (elapsed >= max_wait)
-                ? std::chrono::steady_clock::duration::zero()
-                : (max_wait - elapsed);
-            auto sleep_for = std::min<std::chrono::steady_clock::duration>(
-                kBusyRetryPollInterval, remaining);
-            busy_wait_cv_.wait_for(lk, sleep_for, [this] {
-                return busy_wait_cancelled_.load(std::memory_order_acquire);
-            });
+            auto remaining = (elapsed >= max_wait) ? std::chrono::steady_clock::duration::zero() : (max_wait - elapsed);
+            auto sleep_for = std::min<std::chrono::steady_clock::duration>(kBusyRetryPollInterval, remaining);
+            busy_wait_cv_.wait_for(
+                lk, sleep_for, [this] { return busy_wait_cancelled_.load(std::memory_order_acquire); });
         }
 
         if (busy_wait_cancelled_.load(std::memory_order_acquire)) {
-            throw std::runtime_error(
-                "ControlChannel::send_and_recv(): busy wait cancelled");
+            throw std::runtime_error("ControlChannel::send_and_recv(): busy wait cancelled");
         }
 
         auto elapsed = std::chrono::steady_clock::now() - busy_loop_start;
         if (elapsed >= max_wait) {
             // Report elapsed with 0.1 s resolution so a fast trip never shows
             // "0s". std::to_string(double) gives 6 decimals; format manually.
-            auto elapsed_ms =
-                std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+            auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
             char buf[32];
-            std::snprintf(buf, sizeof(buf), "%lld.%01lld",
+            std::snprintf(
+                buf,
+                sizeof(buf),
+                "%lld.%01lld",
                 static_cast<long long>(elapsed_ms / 1000),
                 static_cast<long long>((elapsed_ms % 1000) / 100));
             throw std::runtime_error(
-                "Device busy for " + std::string(buf) +
-                "s, exceeded max wait of " +
+                "Device busy for " + std::string(buf) + "s, exceeded max wait of " +
                 std::to_string(max_busy_wait_secs_) + "s");
         }
 
@@ -338,8 +315,7 @@ pb::MessageV1 ControlChannel::send_and_recv(const pb::MessageV1& msg, double tim
 void ControlChannel::ping(double timeout_secs) {
     if (reconnecting_.load(std::memory_order_acquire))
         throw std::runtime_error("ControlChannel::ping(): reconnect in progress");
-    if (!is_connected())
-        throw std::runtime_error("ControlChannel::ping(): not connected");
+    if (!is_connected()) throw std::runtime_error("ControlChannel::ping(): not connected");
 
     auto pending = std::make_shared<std::promise<void>>();
     std::future<void> future = pending->get_future();
@@ -373,10 +349,7 @@ void ControlChannel::ping(double timeout_secs) {
     }
 }
 
-void ControlChannel::register_callback(
-    int field_number,
-    std::function<void(pb::MessageV1&)> callback)
-{
+void ControlChannel::register_callback(int field_number, std::function<void(pb::MessageV1&)> callback) {
     std::lock_guard<std::mutex> lock(callback_mutex_);
     callbacks_[field_number] = std::move(callback);
 }
@@ -413,8 +386,7 @@ void ControlChannel::recv_loop() {
     std::vector<uint8_t> buffer(RECV_BUFFER_SIZE);
 
     while (running_.load(std::memory_order_acquire)) {
-        RecvResult result =
-            transport_->recv(buffer.data(), buffer.size(), RECV_TIMEOUT_SECS);
+        RecvResult result = transport_->recv(buffer.data(), buffer.size(), RECV_TIMEOUT_SECS);
 
         if (result.status == RecvStatus::Timeout) {
             continue;
@@ -429,8 +401,7 @@ void ControlChannel::recv_loop() {
                 for (auto& kv : pending_requests_) {
                     try {
                         kv.second->promise.set_exception(
-                            std::make_exception_ptr(std::runtime_error(
-                                "ControlChannel: TCP connection closed")));
+                            std::make_exception_ptr(std::runtime_error("ControlChannel: TCP connection closed")));
                     } catch (const std::future_error&) {}
                 }
                 pending_requests_.clear();
@@ -438,10 +409,10 @@ void ControlChannel::recv_loop() {
             {
                 std::lock_guard<std::mutex> lk(ping_mutex_);
                 if (pending_ping_) {
-                    try { pending_ping_->set_exception(
-                        std::make_exception_ptr(std::runtime_error(
-                            "ControlChannel: TCP connection closed"))); }
-                    catch (const std::future_error&) {}
+                    try {
+                        pending_ping_->set_exception(
+                            std::make_exception_ptr(std::runtime_error("ControlChannel: TCP connection closed")));
+                    } catch (const std::future_error&) {}
                     pending_ping_.reset();
                 }
             }
@@ -450,8 +421,7 @@ void ControlChannel::recv_loop() {
 
         if (result.status == RecvStatus::Success && result.bytes > 0) {
             pb::Envelope envelope;
-            if (!envelope.ParseFromArray(
-                    buffer.data(), static_cast<int>(result.bytes))) {
+            if (!envelope.ParseFromArray(buffer.data(), static_cast<int>(result.bytes))) {
                 continue;
             }
 
@@ -460,8 +430,9 @@ void ControlChannel::recv_loop() {
                 if (generic.has_ping_response()) {
                     std::lock_guard<std::mutex> lk(ping_mutex_);
                     if (pending_ping_) {
-                        try { pending_ping_->set_value(); }
-                        catch (const std::future_error&) {}
+                        try {
+                            pending_ping_->set_value();
+                        } catch (const std::future_error&) {}
                         pending_ping_.reset();
                     }
                 }
@@ -517,8 +488,11 @@ void ControlChannel::dispatch_callback(pb::MessageV1& msg) {
 
 pb::Module ControlChannel::extract(
     const std::string& entity_path,
-    bool recursive, bool specification, bool configuration,
-    bool calibration, double timeout_secs) {
+    bool recursive,
+    bool specification,
+    bool configuration,
+    bool calibration,
+    double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
     auto* cmd = msg.mutable_extract_command();
@@ -534,15 +508,13 @@ pb::Module ControlChannel::extract(
 
     if (response.has_error_message()) {
         throw std::runtime_error(
-            "ControlChannel::extract(): device returned error: " +
-            response.error_message().description());
+            "ControlChannel::extract(): device returned error: " + response.error_message().description());
     }
 
     return response.extract_response().module();
 }
 
-void ControlChannel::calibrate(const std::string& leader, bool math, bool gain,
-    bool offset, double timeout_secs){
+void ControlChannel::calibrate(const std::string& leader, bool math, bool gain, bool offset, double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
     auto calibration_cmd = msg.mutable_calibration_command();
@@ -551,19 +523,15 @@ void ControlChannel::calibrate(const std::string& leader, bool math, bool gain,
     if (!leader.empty()) {
         calibration_config->mutable_leader()->set_path(leader);
     }
-    calibration_config->set_math(math ? pb::CalibrationConfig_Kind_Enabled :
-        pb::CalibrationConfig_Kind_Disabled);
-    calibration_config->set_gain(gain ? pb::CalibrationConfig_Kind_Enabled :
-        pb::CalibrationConfig_Kind_Disabled);
-    calibration_config->set_offset(offset ? pb::CalibrationConfig_Kind_Enabled :
-        pb::CalibrationConfig_Kind_Disabled);
+    calibration_config->set_math(math ? pb::CalibrationConfig_Kind_Enabled : pb::CalibrationConfig_Kind_Disabled);
+    calibration_config->set_gain(gain ? pb::CalibrationConfig_Kind_Enabled : pb::CalibrationConfig_Kind_Disabled);
+    calibration_config->set_offset(offset ? pb::CalibrationConfig_Kind_Enabled : pb::CalibrationConfig_Kind_Disabled);
 
     pb::MessageV1 response = send_and_recv(msg, timeout_secs);
 
     if (response.has_error_message()) {
         throw std::runtime_error(
-            "ControlChannel::calibrate(): device returned error: " +
-            response.error_message().description());
+            "ControlChannel::calibrate(): device returned error: " + response.error_message().description());
     }
 }
 
@@ -583,10 +551,7 @@ bool ControlChannel::set_module(const pb::Module& module, double timeout_secs) {
     return true;
 }
 
-void ControlChannel::start_run_request(
-    const pb::StartRunCommand& run_command,
-    double timeout_secs)
-{
+void ControlChannel::start_run_request(const pb::StartRunCommand& run_command, double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
     msg.mutable_start_run_command()->CopyFrom(run_command);
@@ -595,17 +560,12 @@ void ControlChannel::start_run_request(
 
     if (response.has_error_message()) {
         throw std::runtime_error(
-            "ControlChannel::start_run_request(): device returned error: " +
-            response.error_message().description());
+            "ControlChannel::start_run_request(): device returned error: " + response.error_message().description());
     }
 }
 
 void ControlChannel::reset(
-    bool keep_calibration,
-    bool sync,
-    bool overload_reset,
-    bool circuit_reset,
-    double timeout_secs) {
+    bool keep_calibration, bool sync, bool overload_reset, bool circuit_reset, double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
 
@@ -619,8 +579,7 @@ void ControlChannel::reset(
 
     if (response.has_error_message()) {
         throw std::runtime_error(
-            "ControlChannel::reset(): device returned error: " +
-            response.error_message().description());
+            "ControlChannel::reset(): device returned error: " + response.error_message().description());
     }
 }
 
@@ -639,29 +598,25 @@ bool ControlChannel::authenticate(const std::string& token, double timeout_secs)
     return true;
 }
 
-bool ControlChannel::overload_status_request(pb::OverloadStatus& ol_status, double timeout_secs)
-{
+bool ControlChannel::overload_status_request(pb::OverloadStatus& ol_status, double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
     msg.mutable_get_overload_status_command();
 
     pb::MessageV1 response = send_and_recv(msg, timeout_secs);
 
-    if (response.has_error_message())
-    {
+    if (response.has_error_message()) {
         throw std::runtime_error(response.error_message().description());
     }
-    
-    if (!response.has_get_overload_status_response())
-    {
+
+    if (!response.has_get_overload_status_response()) {
         throw std::runtime_error("Unexpected answer message to GetOverloadStatusRequest");
     }
 
     // retrieve elements
     const pb::GetOverloadStatusResponse& res = response.get_overload_status_response();
 
-    if (!res.has_status())
-    {
+    if (!res.has_status()) {
         throw std::runtime_error("Status element not set in overload status response.");
     }
 
@@ -670,13 +625,12 @@ bool ControlChannel::overload_status_request(pb::OverloadStatus& ol_status, doub
     return status.global_overload();
 }
 
-size_t ControlChannel::update_begin(size_t new_size, std::string new_sha256,
-    double timeout_secs, bool verbose)
-{
+size_t ControlChannel::update_begin(size_t new_size, std::string new_sha256, double timeout_secs, bool verbose) {
     if (verbose) {
         char line[128];
         int pos = snprintf(line, sizeof(line), "\rBeginning firmware update...");
-        while (pos < 100) line[pos++] = ' ';
+        while (pos < 100)
+            line[pos++] = ' ';
         line[pos] = '\0';
         fwrite(line, 1, pos, stderr);
         fflush(stderr);
@@ -701,7 +655,7 @@ size_t ControlChannel::update_begin(size_t new_size, std::string new_sha256,
         throw std::runtime_error("No update response received");
     }
 
-    if(response.update_response().has_failure()) {
+    if (response.update_response().has_failure()) {
         throw std::runtime_error(response.update_response().failure().reason());
     }
 
@@ -709,19 +663,14 @@ size_t ControlChannel::update_begin(size_t new_size, std::string new_sha256,
     return response.update_response().ack().chunk_size();
 }
 
-void ControlChannel::update_write_full(size_t new_size, size_t max_chunk_size,
-    std::vector<uint8_t>& new_data, double timeout_secs, bool verbose)
-{
+void ControlChannel::update_write_full(
+    size_t new_size, size_t max_chunk_size, std::vector<uint8_t>& new_data, double timeout_secs, bool verbose) {
     const size_t total_chunks = (new_size + max_chunk_size - 1) / max_chunk_size;
     size_t chunk_idx = 0;
     constexpr int bar_width = 40;
 
-    for(size_t offset = 0; offset < new_size; offset += max_chunk_size)
-    {
-        const size_t chunk_size = std::min(
-            max_chunk_size,
-            new_size - offset
-        );
+    for (size_t offset = 0; offset < new_size; offset += max_chunk_size) {
+        const size_t chunk_size = std::min(max_chunk_size, new_size - offset);
 
         // send one chunk of data
         pb::MessageV1 msg;
@@ -748,11 +697,16 @@ void ControlChannel::update_write_full(size_t new_size, size_t max_chunk_size,
             for (int i = 0; i < bar_width; ++i) {
                 line[pos++] = (i < filled ? '#' : '.');
             }
-            pos += snprintf(line + pos, sizeof(line) - pos,
+            pos += snprintf(
+                line + pos,
+                sizeof(line) - pos,
                 "] %3d%% (%zu/%zu chunks)",
-                static_cast<int>(progress * 100), chunk_idx, total_chunks);
+                static_cast<int>(progress * 100),
+                chunk_idx,
+                total_chunks);
             // pad to fixed width so shorter subsequent lines fully overwrite
-            while (pos < 100) line[pos++] = ' ';
+            while (pos < 100)
+                line[pos++] = ' ';
             line[pos] = '\0';
             fwrite(line, 1, pos, stderr);
             fflush(stderr);
@@ -760,12 +714,12 @@ void ControlChannel::update_write_full(size_t new_size, size_t max_chunk_size,
     }
 }
 
-void ControlChannel::update_verify(double timeout_secs, bool verbose)
-{
+void ControlChannel::update_verify(double timeout_secs, bool verbose) {
     if (verbose) {
         char line[128];
         int pos = snprintf(line, sizeof(line), "\rVerifying firmware...");
-        while (pos < 100) line[pos++] = ' ';
+        while (pos < 100)
+            line[pos++] = ' ';
         line[pos] = '\0';
         fwrite(line, 1, pos, stderr);
         fflush(stderr);
@@ -781,12 +735,12 @@ void ControlChannel::update_verify(double timeout_secs, bool verbose)
     update_simple_response_process(send_and_recv(msg, timeout_secs));
 }
 
-void ControlChannel::update_commit(double timeout_secs, bool verbose)
-{
+void ControlChannel::update_commit(double timeout_secs, bool verbose) {
     if (verbose) {
         char line[128];
         int pos = snprintf(line, sizeof(line), "\rCommitting firmware update...");
-        while (pos < 100) line[pos++] = ' ';
+        while (pos < 100)
+            line[pos++] = ' ';
         line[pos] = '\0';
         fwrite(line, 1, pos, stderr);
         fflush(stderr);
@@ -803,15 +757,15 @@ void ControlChannel::update_commit(double timeout_secs, bool verbose)
     if (verbose) {
         char line[128];
         int pos = snprintf(line, sizeof(line), "\rFirmware update complete.");
-        while (pos < 100) line[pos++] = ' ';
+        while (pos < 100)
+            line[pos++] = ' ';
         line[pos++] = '\n';
         line[pos] = '\0';
         fwrite(line, 1, pos, stderr);
     }
 }
 
-void ControlChannel::update_abort(double timeout_secs)
-{
+void ControlChannel::update_abort(double timeout_secs) {
     pb::MessageV1 msg;
     msg.set_id(utils::generate_uuid());
 
@@ -822,8 +776,7 @@ void ControlChannel::update_abort(double timeout_secs)
     update_simple_response_process(send_and_recv(msg, timeout_secs));
 }
 
-void ControlChannel::update_simple_response_process(pb::MessageV1&& response)
-{
+void ControlChannel::update_simple_response_process(pb::MessageV1&& response) {
     if (response.has_error_message()) {
         throw std::runtime_error(response.error_message().description());
     }
@@ -836,6 +789,5 @@ void ControlChannel::update_simple_response_process(pb::MessageV1&& response)
         throw std::runtime_error(response.update_response().failure().reason());
     }
 }
-
 
 }  // namespace anabrid::pybrid::native

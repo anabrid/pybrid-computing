@@ -25,12 +25,13 @@ import pytest
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.controller import Controller
-from pybrid.redac.run import Run, RunConfig, RunState, DAQConfig
+from pybrid.redac.run import DAQConfig, Run, RunConfig, RunState
 from pybrid.redac.session import Session
 from tests.conftest import get_test_port
 
 try:
     from pybrid.native._impl import ControlChannel as _NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -55,28 +56,22 @@ class TestControllerMultiDevice:
                 await ctrl.add_device("127.0.0.1", dac_port)
 
                 # Should have 2 device entries (one per carrier path)
-                assert len(ctrl.devices) == 2, (
-                    f"Expected 2 devices (carriers), got {len(ctrl.devices)}"
-                )
+                assert len(ctrl.devices) == 2, f"Expected 2 devices (carriers), got {len(ctrl.devices)}"
 
                 # Should have 2 paths in connection_manager
                 connections = ctrl.connection_manager.connections
-                assert len(connections) == 2, (
-                    f"Expected 2 connection entries, got {len(connections)}"
-                )
+                assert len(connections) == 2, f"Expected 2 connection entries, got {len(connections)}"
 
                 # Both carriers share ONE unique DeviceConnection (same DummyDAC backend)
                 unique_conns = ctrl.connection_manager.get_unique_connections()
-                assert len(unique_conns) == 1, (
-                    f"Expected 1 unique DeviceConnection (one backend), got {len(unique_conns)}"
-                )
+                assert (
+                    len(unique_conns) == 1
+                ), f"Expected 1 unique DeviceConnection (one backend), got {len(unique_conns)}"
 
                 # Verify device paths match connection_manager keys
                 device_paths = set(ctrl.devices.keys())
                 conn_paths = set(connections.keys())
-                assert device_paths == conn_paths, (
-                    "Device paths should match connection_manager paths"
-                )
+                assert device_paths == conn_paths, "Device paths should match connection_manager paths"
 
     @pytest.mark.asyncio
     async def test_config_distributed_to_devices(self):
@@ -147,15 +142,11 @@ class TestControllerMultiDevice:
 
                 # Verify run state tracks all paths
                 involved_paths = set(run_state.get_involved_paths())
-                assert len(involved_paths) == 2, (
-                    f"DistributedRunState should track 2 paths, got {len(involved_paths)}"
-                )
+                assert len(involved_paths) == 2, f"DistributedRunState should track 2 paths, got {len(involved_paths)}"
 
                 # Each carrier path should be tracked
                 for path in all_paths:
-                    assert path in involved_paths, (
-                        f"Path {path} should be in involved paths"
-                    )
+                    assert path in involved_paths, f"Path {path} should be in involved paths"
 
                 # Verify run state starts at NEW for all paths
                 reached, not_reached = run_state.status(RunState.NEW)
@@ -188,9 +179,7 @@ class TestControllerMultiDevice:
                 # Verify controller state is still valid after reset
                 assert len(ctrl.devices) == 2, "Devices should still be connected"
                 unique_conns_after = ctrl.connection_manager.get_unique_connections()
-                assert len(unique_conns_after) == 1, (
-                    "Unique connections should still be active after reset"
-                )
+                assert len(unique_conns_after) == 1, "Unique connections should still be active after reset"
 
     @pytest.mark.asyncio
     async def test_clusters_per_carrier_tracking(self):
@@ -202,27 +191,21 @@ class TestControllerMultiDevice:
 
             async with Controller() as ctrl:
                 # Initially empty
-                assert len(ctrl._clusters_per_carrier) == 0, (
-                    "_clusters_per_carrier should be empty before add_device"
-                )
+                assert len(ctrl._clusters_per_carrier) == 0, "_clusters_per_carrier should be empty before add_device"
 
                 # Add device (DummyDAC provides 2 carriers, 1 cluster each)
                 await ctrl.add_device("127.0.0.1", dac_port)
 
                 # Should have 2 entries (one per carrier)
-                assert len(ctrl._clusters_per_carrier) == 2, (
-                    f"Expected 2 carriers tracked, got {len(ctrl._clusters_per_carrier)}"
-                )
+                assert (
+                    len(ctrl._clusters_per_carrier) == 2
+                ), f"Expected 2 carriers tracked, got {len(ctrl._clusters_per_carrier)}"
 
                 # Each carrier should have 1 cluster (DummyDAC default)
                 for carrier_path, num_clusters in ctrl._clusters_per_carrier.items():
-                    assert num_clusters == 1, (
-                        f"Carrier {carrier_path} should have 1 cluster, got {num_clusters}"
-                    )
+                    assert num_clusters == 1, f"Carrier {carrier_path} should have 1 cluster, got {num_clusters}"
 
                 # Verify tracked paths match device paths
                 tracked_paths = set(ctrl._clusters_per_carrier.keys())
                 device_paths = set(ctrl.devices.keys())
-                assert tracked_paths == device_paths, (
-                    "_clusters_per_carrier paths should match device paths"
-                )
+                assert tracked_paths == device_paths, "_clusters_per_carrier paths should match device paths"

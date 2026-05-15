@@ -3,21 +3,21 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 import os
-import pytest
 
+import pytest
 from google.protobuf.json_format import MessageToDict
 
-from pybrid.base.proto.io import ProtoIO
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.redac.entities import EntityType, EntityClass, UnknownEntityTypeError, Path, Loc
-from pybrid.redac.blocks.ublock import UBlock
+from pybrid.base.proto.io import ProtoIO
 from pybrid.redac.blocks.cblock import CBlock
 from pybrid.redac.blocks.iblock import IBlock
-from pybrid.redac.blocks.mblock import MIntBlock, MMulBlock, MBlock
+from pybrid.redac.blocks.mblock import MBlock, MIntBlock, MMulBlock
 from pybrid.redac.blocks.shblock import SHBlock
+from pybrid.redac.blocks.ublock import UBlock
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.cluster import Cluster
 from pybrid.redac.device import Device
+from pybrid.redac.entities import EntityClass, EntityType, Loc, Path, UnknownEntityTypeError
 
 # Test fixture paths — these are frozen copies of device descriptions,
 # independent of the live examples/ directory which tracks real hardware.
@@ -35,11 +35,7 @@ def _read_apb_carrier_entities(apb_path: str) -> list:
     :raises ValueError: If no carrier entities can be extracted.
     """
     pb_module = ProtoIO.load_module(apb_path)
-    entities = [
-        cfg.entity_specification.entity
-        for cfg in pb_module.items
-        if cfg.HasField("entity_specification")
-    ]
+    entities = [cfg.entity_specification.entity for cfg in pb_module.items if cfg.HasField("entity_specification")]
     if not entities:
         raise ValueError(f"No entity_specification entries found in {apb_path}")
     return entities
@@ -82,6 +78,7 @@ class TestREDACDescriptionDeserializer:
     @pytest.fixture(scope="class")
     def deserializer(self):
         from pybrid.redac.protocol.serializer import REDACDeserializer
+
         return REDACDeserializer()
 
     def test_deserializer_import(self):
@@ -218,11 +215,13 @@ class TestREDACDescriptionSerializer:
     @pytest.fixture(scope="class")
     def deserializer(self):
         from pybrid.redac.protocol.serializer import REDACDeserializer
+
         return REDACDeserializer()
 
     @pytest.fixture(scope="class")
     def serializer(self):
         from pybrid.redac.protocol.serializer import REDACSerializer
+
         return REDACSerializer()
 
     @pytest.fixture(scope="class")
@@ -255,8 +254,8 @@ class TestREDACDescriptionSerializer:
             path = Path.parse(entity.id)
             carrier = deserializer.deserialize_specification(entity, path)
             result = serializer.serialize_specification(carrier)
-            original_cluster_ids = {ch.id for ch in entity.children if ch.id.lstrip('/').isdigit()}
-            result_cluster_ids = {ch.id for ch in result.children if ch.id.lstrip('/').isdigit()}
+            original_cluster_ids = {ch.id for ch in entity.children if ch.id.lstrip("/").isdigit()}
+            result_cluster_ids = {ch.id for ch in result.children if ch.id.lstrip("/").isdigit()}
             assert result_cluster_ids == original_cluster_ids
 
     def test_apb_carrier_roundtrip_block_class_and_type(self, deserializer, serializer, apb_carrier_entities):
@@ -272,9 +271,9 @@ class TestREDACDescriptionSerializer:
             # Every block id present in the result must match original class/type.
             for block_id, class_type in result_map.items():
                 if block_id in original_map:
-                    assert class_type == original_map[block_id], (
-                        f"Block {block_id}: expected {original_map[block_id]}, got {class_type}"
-                    )
+                    assert (
+                        class_type == original_map[block_id]
+                    ), f"Block {block_id}: expected {original_map[block_id]}, got {class_type}"
 
     def test_apb_carrier_roundtrip_tblock_present(self, deserializer, serializer, apb_carrier_entities):
         # Carriers that had a T-block in the original must have one after roundtrip.
@@ -320,8 +319,8 @@ class TestREDACDescriptionSerializer:
 
     def test_dummydac_roundtrip_carrier_count(self, deserializer, serializer):
         # The DummyDAC entity tree must survive a full roundtrip with the same carrier count.
-        from pybrid.mock.dummy_dac import DummyDAC
         from pybrid.mock.config import DummyDACConfig
+        from pybrid.mock.dummy_dac import DummyDAC
 
         dac = DummyDAC("127.0.0.1", 5732, DummyDACConfig())
         root = dac._build_entity_tree()
@@ -335,8 +334,8 @@ class TestREDACDescriptionSerializer:
 
     def test_dummydac_roundtrip_carrier_ids(self, deserializer, serializer):
         # Carrier IDs must be preserved after DummyDAC roundtrip.
-        from pybrid.mock.dummy_dac import DummyDAC
         from pybrid.mock.config import DummyDACConfig
+        from pybrid.mock.dummy_dac import DummyDAC
 
         dac = DummyDAC("127.0.0.1", 5732, DummyDACConfig())
         root = dac._build_entity_tree()
@@ -351,8 +350,8 @@ class TestREDACDescriptionSerializer:
 
     def test_dummydac_roundtrip_block_class_and_type(self, deserializer, serializer):
         # Block class_ and type fields inside each DummyDAC carrier must survive the roundtrip.
-        from pybrid.mock.dummy_dac import DummyDAC
         from pybrid.mock.config import DummyDACConfig
+        from pybrid.mock.dummy_dac import DummyDAC
 
         dac = DummyDAC("127.0.0.1", 5732, DummyDACConfig())
         root = dac._build_entity_tree()
@@ -367,14 +366,14 @@ class TestREDACDescriptionSerializer:
 
             for block_id, class_type in result_map.items():
                 if block_id in original_map:
-                    assert class_type == original_map[block_id], (
-                        f"Block {block_id}: expected {original_map[block_id]}, got {class_type}"
-                    )
+                    assert (
+                        class_type == original_map[block_id]
+                    ), f"Block {block_id}: expected {original_map[block_id]}, got {class_type}"
 
     def test_dummydac_roundtrip_tblock_present(self, deserializer, serializer):
         # DummyDAC carriers include a T-block; it must appear after roundtrip.
-        from pybrid.mock.dummy_dac import DummyDAC
         from pybrid.mock.config import DummyDACConfig
+        from pybrid.mock.dummy_dac import DummyDAC
 
         dac = DummyDAC("127.0.0.1", 5732, DummyDACConfig())
         root = dac._build_entity_tree()
@@ -404,6 +403,7 @@ class TestLUCIDACDescriptionDeserializer:
     @pytest.fixture(scope="class")
     def deserializer(self):
         from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer
+
         return LUCIDACDeserializer()
 
     @pytest.fixture(scope="class")
@@ -427,6 +427,7 @@ class TestLUCIDACDescriptionDeserializer:
 
     def test_front_plane_type(self, deserializer, lucidac_carrier_entity):
         from pybrid.lucidac.front_plane import FrontPlane
+
         path = Path.parse(lucidac_carrier_entity.id)
         carrier = deserializer.deserialize_specification(lucidac_carrier_entity, path)
         assert isinstance(carrier.front_plane, FrontPlane)
@@ -449,6 +450,7 @@ class TestLUCIDACDescriptionDeserializer:
         # The base REDACDeserializer must NOT set front_plane on the carrier
         # when encountering an /FP child (it only logs a warning).
         from pybrid.redac.protocol.serializer import REDACDeserializer
+
         base_deserializer = REDACDeserializer()
         path = Path.parse(lucidac_carrier_entity.id)
         carrier = base_deserializer.deserialize_specification(lucidac_carrier_entity, path)
@@ -467,11 +469,13 @@ class TestLUCIDACDescriptionSerializer:
     @pytest.fixture(scope="class")
     def deserializer(self):
         from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer
+
         return LUCIDACDeserializer()
 
     @pytest.fixture(scope="class")
     def serializer(self):
         from pybrid.lucidac.protocol.serializer import LUCIDACSerializer
+
         return LUCIDACSerializer()
 
     @pytest.fixture(scope="class")
@@ -518,15 +522,13 @@ class TestLUCIDACDescriptionSerializer:
     def test_description_vs_configuration_independence(self):
         # Description (structural) serialization must be unaffected by changes to
         # configuration state (CBlock coefficients, UBlock connections).
-        from pybrid.lucidac.computer import LUCIDAC
-        from pybrid.lucidac.protocol.serializer import LUCIDACSerializer
-        from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer
-        from pybrid.redac.blocks import UBlock, CBlock, MIntBlock
-        from pybrid.redac.cluster import Cluster
-        from pybrid.redac.carrier import Carrier
-        from pybrid.redac.entities import Path
         from pybrid.base.utils.addressing import AddressingMap
-        from google.protobuf.json_format import MessageToDict
+        from pybrid.lucidac.computer import LUCIDAC
+        from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer, LUCIDACSerializer
+        from pybrid.redac.blocks import CBlock, MIntBlock, UBlock
+        from pybrid.redac.carrier import Carrier
+        from pybrid.redac.cluster import Cluster
+        from pybrid.redac.entities import Path
 
         mac = AddressingMap.map_redac(0)
         carrier_path = Path.parse(mac)
@@ -540,12 +542,7 @@ class TestLUCIDACDescriptionSerializer:
             iblock=IBlock(path=cluster_path / "I"),
             shblock=None,
         )
-        carrier = Carrier(
-            path=carrier_path,
-            location=Loc.new_carrier(0, 0),
-            clusters=[cluster],
-            tblock=None
-        )
+        carrier = Carrier(path=carrier_path, location=Loc.new_carrier(0, 0), clusters=[cluster], tblock=None)
         computer = LUCIDAC(entities=[carrier])
 
         desc_ser = LUCIDACSerializer()

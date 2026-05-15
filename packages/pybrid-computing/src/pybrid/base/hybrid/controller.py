@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.hybrid.computer import AnalogComputer
-from pybrid.base.hybrid.run import BaseRun, BaseRunConfig, BaseDAQConfig
+from pybrid.base.hybrid.run import BaseDAQConfig, BaseRun, BaseRunConfig
 
 if TYPE_CHECKING:
     # Deferred to avoid circular imports at module load time.
@@ -73,6 +73,7 @@ class BaseController(ABC):
     def create_session(self) -> "Session":
         """Create a new Session bound to this controller."""
         from pybrid.redac.session import Session
+
         return Session(self)
 
     async def set_computer(self, computer) -> None:
@@ -82,8 +83,7 @@ class BaseController(ABC):
     async def start_and_await_run(self, run=None, timeout: int = 100):
         """.. deprecated:: Use ``session.run(config).execute()`` instead."""
         raise NotImplementedError(
-            "start_and_await_run() is deprecated. "
-            "Override in the concrete controller subclass for now."
+            "start_and_await_run() is deprecated. " "Override in the concrete controller subclass for now."
         )
 
     async def start(self) -> None:
@@ -101,10 +101,8 @@ class BaseController(ABC):
 
     @classmethod
     @abstractmethod
-    def get_run_implementation(cls) -> typing.Type[BaseRun]:
-        ...
+    def get_run_implementation(cls) -> typing.Type[BaseRun]: ...
 
     @classmethod
     @abstractmethod
-    def get_computer_type(cls) -> typing.Type[AnalogComputer]:
-        ...
+    def get_computer_type(cls) -> typing.Type[AnalogComputer]: ...

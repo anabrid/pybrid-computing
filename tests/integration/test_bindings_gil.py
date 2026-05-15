@@ -33,11 +33,8 @@ import threading
 import pytest
 
 try:
-    from pybrid.native._impl import (
-        ControlChannel,
-        SampleDecodingDataChannel,
-        SampleLockFreeBuffer,
-    )
+    from pybrid.native._impl import ControlChannel, SampleDecodingDataChannel, SampleLockFreeBuffer
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -119,9 +116,7 @@ def test_data_channel_stop_cycles_with_all_callbacks():
             # Register all three callback types — each captures a py::object.
             channel.on_error(lambda msg, _log=error_log: _log.append(msg))
             channel.on_run_state_change(lambda s, _log=state_log: _log.append(s))
-            channel.set_control_response_callback(
-                lambda data, _log=response_log: _log.append(data)
-            )
+            channel.set_control_response_callback(lambda data, _log=response_log: _log.append(data))
 
             channel.start()
             channel.stop()
@@ -191,9 +186,7 @@ def test_control_channel_context_manager_cycles_with_callback():
         for i in range(CYCLES):
             with ControlChannel.create(LOCALHOST, port, timeout=2.0) as channel:
                 channel.start()
-                channel.register_callback(
-                    1, lambda data, _log=received: _log.append(data)
-                )
+                channel.register_callback(1, lambda data, _log=received: _log.append(data))
             # __exit__ calls stop() — the destruction of the captured lambda
             # must happen while the GIL is held.
 

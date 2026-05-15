@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
 from pybrid.redac.blocks import FunctionBlock
-from pybrid.redac.entities import EntityType, EntityClass
+from pybrid.redac.entities import EntityClass, EntityType
 
 
 @EntityType.register(EntityClass.SHBLOCK)

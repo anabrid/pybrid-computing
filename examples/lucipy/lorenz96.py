@@ -10,9 +10,10 @@ Reference: Analog Paradigm Application Note 61
 https://analogparadigm.com/downloads/alpaca_61.pdf
 """
 
-from pybrid.lucipy import Circuit, LUCIDAC
 import matplotlib.pyplot as plt
 import numpy as np
+
+from pybrid.lucipy import LUCIDAC, Circuit
 
 ###
 # Auto-detect LUCIDAC-device (empty constructor) or:
@@ -21,14 +22,14 @@ import numpy as np
 #
 # where the connection string is `tcp://<LUCIDAC IP or hostname>:5732`.
 ###
-luci    = LUCIDAC()
+luci = LUCIDAC()
 
-l   = luci.create_circuit()             # Create a circuit
+l = luci.create_circuit()  # Create a circuit
 
-N   = 4
+N = 4
 
-x   = []
-m   = []
+x = []
+m = []
 for i in range(N):
     x.append(l.int(slow=True))
     m.append(l.mul())
@@ -36,23 +37,23 @@ for i in range(N):
 F = l.const()
 
 for i in range(N):
-    l.connect(x[i-1], m[i].a, weight=-1.)
+    l.connect(x[i - 1], m[i].a, weight=-1.0)
 
-    l.connect(x[i-2], m[i].b, weight=+1.)
-    l.connect(x[i-3], m[i].b, weight=-1.)
+    l.connect(x[i - 2], m[i].b, weight=+1.0)
+    l.connect(x[i - 3], m[i].b, weight=-1.0)
 
     l.connect(m[i], x[i], weight=-2)
-    l.connect(F, x[i], weight=-.05)
+    l.connect(F, x[i], weight=-0.05)
     l.probe(x[i], adc_channel=i)
 
 ###
 # Settings for smapling and cirucit execution
 ###
-op_secs     = 1.0                        # duration of OP cycle in seconds
-sample_rate = 100_000                   # samples per second (max: 150_000 for each channel)
+op_secs = 1.0  # duration of OP cycle in seconds
+sample_rate = 100_000  # samples per second (max: 150_000 for each channel)
 
 luci.set_daq(num_channels=4, sample_rate=sample_rate)
-luci.set_run(ic_time = 1_000, op_time=int(op_secs * 1_000_000_000))
+luci.set_run(ic_time=1_000, op_time=int(op_secs * 1_000_000_000))
 
 ###
 # Run circuit and start sampling
@@ -62,7 +63,7 @@ run = luci.run()
 ###
 # Receive sample data and plot
 ###
-ax = plt.figure().add_subplot(projection='3d')
+ax = plt.figure().add_subplot(projection="3d")
 ax.plot(*np.array(run.data), ls="-", marker="+", markersize=1.5)
 ax.set_xlabel("X")
 ax.set_ylabel("Y")

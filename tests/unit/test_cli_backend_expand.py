@@ -43,14 +43,7 @@ class TestExpandFromFile:
 
     def test_file_with_ports_comments_blanks(self, tmp_path):
         f = tmp_path / "backends.txt"
-        f.write_text(
-            "# Primary backends\n"
-            "192.168.1.1:5733\n"
-            "\n"
-            "# Secondary backend\n"
-            "192.168.1.2:5734\n"
-            "\n"
-        )
+        f.write_text("# Primary backends\n" "192.168.1.1:5733\n" "\n" "# Secondary backend\n" "192.168.1.2:5734\n" "\n")
 
         result = expand_args((str(f),))
         assert result == ["192.168.1.1:5733", "192.168.1.2:5734"]
@@ -62,11 +55,13 @@ class TestExpandMixed:
         f = tmp_path / "backends.txt"
         f.write_text("10.0.0.3\n10.0.0.4\n")
 
-        result = expand_args((
-            "10.0.0.1",
-            "10.0.0.2:5733,10.0.0.5",
-            str(f),
-        ))
+        result = expand_args(
+            (
+                "10.0.0.1",
+                "10.0.0.2:5733,10.0.0.5",
+                str(f),
+            )
+        )
         assert result == [
             "10.0.0.1",
             "10.0.0.2:5733",

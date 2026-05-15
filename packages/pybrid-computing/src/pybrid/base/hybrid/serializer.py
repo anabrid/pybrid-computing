@@ -2,14 +2,15 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import queue
-from typing import List
-from functools import singledispatchmethod
-
 from abc import ABC, abstractmethod
+from functools import singledispatchmethod
+from typing import List
+
 from pybrid.base.hybrid.computer import AnalogComputer
-from pybrid.base.proto import main_pb2 as pb
 from pybrid.base.hybrid.entities import Entity, Path
 from pybrid.base.hybrid.validators import ConfigValidator
+from pybrid.base.proto import main_pb2 as pb
+
 
 class Serializer(ABC):
     """Unified serializer for both entity-tree specification and operational configuration."""
@@ -47,13 +48,12 @@ class Serializer(ABC):
                 result = v.validate(computer)
                 if not result.ok:
                     all_errors.append(result.error)
-                    
+
             if all_errors:
                 raise ValueError(
-                    f"Validation failed with {len(all_errors)} error(s):\n"
-                    + "\n".join(f"  - {e}" for e in all_errors)
+                    f"Validation failed with {len(all_errors)} error(s):\n" + "\n".join(f"  - {e}" for e in all_errors)
                 )
-            
+
         # serialize specification and configuration in mixed mode
         items = []
 
@@ -91,9 +91,7 @@ class Serializer(ABC):
     @singledispatchmethod
     def _serialize_specification(self, entity: Entity) -> pb.Entity:
         """Dispatch on Python entity type for specification serialization."""
-        raise NotImplementedError(
-            f"No specification serializer registered for {type(entity)!r}"
-        )
+        raise NotImplementedError(f"No specification serializer registered for {type(entity)!r}")
 
     @singledispatchmethod
     def _serialize_configuration(self, entity: Entity):
@@ -114,7 +112,7 @@ class Deserializer(ABC):
         spec_configs = []
         op_configs = []
         for conf in module.items:
-            if conf.WhichOneof('kind') == 'entity_specification':
+            if conf.WhichOneof("kind") == "entity_specification":
                 spec_configs.append(conf)
             else:
                 op_configs.append(conf)
@@ -133,7 +131,7 @@ class Deserializer(ABC):
         """Apply operational config entries to self.computer."""
         for conf in configs:
             self._current_full_config = conf
-            config_kind = conf.WhichOneof('kind')
+            config_kind = conf.WhichOneof("kind")
             if config_kind:
                 self._deserialize_configuration(getattr(conf, config_kind))
 

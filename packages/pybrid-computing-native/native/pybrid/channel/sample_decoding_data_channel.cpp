@@ -3,8 +3,7 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace anabrid::pybrid::native
-{
+namespace anabrid::pybrid::native {
 
 namespace {
 
@@ -22,11 +21,8 @@ std::vector<uint8_t> DecodedSampleBlob::build(
     uint32_t channel_count,
     uint32_t sample_type,
     uint32_t chunk_number,
-    const std::vector<uint32_t>& probe_indices
-) {
-    uint32_t sample_count = channel_count > 0
-        ? static_cast<uint32_t>(samples.size() / channel_count)
-        : 0;
+    const std::vector<uint32_t>& probe_indices) {
+    uint32_t sample_count = channel_count > 0 ? static_cast<uint32_t>(samples.size() / channel_count) : 0;
 
     bool has_probes = !probe_indices.empty();
     size_t probe_bytes = has_probes ? channel_count * sizeof(uint32_t) : 0;
@@ -75,17 +71,13 @@ const uint32_t* DecodedSampleBlob::probe_indices(const uint8_t* data) {
     if (hdr->has_probes == 0) {
         return nullptr;
     }
-    return reinterpret_cast<const uint32_t*>(
-        data + sizeof(DecodedSampleBlobHeader) + hdr->entity_path_len
-    );
+    return reinterpret_cast<const uint32_t*>(data + sizeof(DecodedSampleBlobHeader) + hdr->entity_path_len);
 }
 
 const double* DecodedSampleBlob::samples(const uint8_t* data) {
     const auto* hdr = header(data);
-    size_t probe_bytes = (hdr->has_probes != 0)
-        ? hdr->channel_count * sizeof(uint32_t) : 0;
-    size_t base_offset = sizeof(DecodedSampleBlobHeader)
-        + hdr->entity_path_len + probe_bytes;
+    size_t probe_bytes = (hdr->has_probes != 0) ? hdr->channel_count * sizeof(uint32_t) : 0;
+    size_t base_offset = sizeof(DecodedSampleBlobHeader) + hdr->entity_path_len + probe_bytes;
     size_t aligned_offset = align_up_to_double(base_offset);
     return reinterpret_cast<const double*>(data + aligned_offset);
 }
@@ -115,15 +107,13 @@ void SampleDecodingDataChannel::handle_data_message(pb::MessageV1& message) {
                 result.channel_count,
                 DecodedSampleBlob::SAMPLE_TYPE_OP,
                 chunk,
-                result.probe_indices
-            );
+                result.probe_indices);
 
             if (m_output_queue && !blob.empty()) {
                 m_output_queue->put(blob.size(), blob.data());
             }
         }
-    }
-    else if (message.has_run_data_end_message()) {
+    } else if (message.has_run_data_end_message()) {
         const pb::RunDataEndMessage& data_msg = message.run_data_end_message();
 
         if (data_msg.has_entity() && data_msg.has_data()) {
@@ -140,8 +130,7 @@ void SampleDecodingDataChannel::handle_data_message(pb::MessageV1& message) {
                 result.channel_count,
                 DecodedSampleBlob::SAMPLE_TYPE_OP_END,
                 chunk,
-                result.probe_indices
-            );
+                result.probe_indices);
 
             if (m_output_queue && !blob.empty()) {
                 m_output_queue->put(blob.size(), blob.data());
@@ -152,7 +141,7 @@ void SampleDecodingDataChannel::handle_data_message(pb::MessageV1& message) {
 
 namespace {
 
-template<typename T>
+template <typename T>
 double read_sample(const char* data, size_t index) {
     return static_cast<double>(reinterpret_cast<const T*>(data)[index]);
 }
@@ -196,13 +185,11 @@ DataTypeInfo get_data_type_info(const pb::DataType& data_type) {
 
 }  // anonymous namespace
 
-SampleDecodingDataChannel::DecodedDaqResult
-SampleDecodingDataChannel::decode_daq_data(const pb::DaqData& daq_data) {
+SampleDecodingDataChannel::DecodedDaqResult SampleDecodingDataChannel::decode_daq_data(const pb::DaqData& daq_data) {
     const uint32_t num_input_channels = daq_data.channel_stride();
     const uint32_t num_samples = daq_data.sample_count();
 
-    const size_t total_values = static_cast<size_t>(num_input_channels) * 
-        static_cast<size_t>(num_samples);
+    const size_t total_values = static_cast<size_t>(num_input_channels) * static_cast<size_t>(num_samples);
 
     if (total_values == 0 || daq_data.data().empty()) {
         return {{}, 0};
@@ -226,9 +213,7 @@ SampleDecodingDataChannel::decode_daq_data(const pb::DaqData& daq_data) {
     // channels
     const uint32_t num_output_channels = static_cast<uint32_t>(daq_data.channels_size());
     if (num_output_channels == 0) {
-        throw std::runtime_error(
-            "DaqData has no channels entries; cannot determine probe mapping"
-        );
+        throw std::runtime_error("DaqData has no channels entries; cannot determine probe mapping");
     }
 
     // only copy in the data of the effective channels
@@ -254,8 +239,7 @@ SampleDecodingDataChannel::decode_daq_data(const pb::DaqData& daq_data) {
         for (uint32_t ch = 0; ch < num_output_channels; ++ch) {
             const size_t src_idx = static_cast<size_t>(sample) * num_input_channels + ch;
             double raw_value = type_info.reader(raw_data, src_idx);
-            decoded[static_cast<size_t>(sample) * num_output_channels + ch] =
-                raw_value * gains[ch] + offsets[ch];
+            decoded[static_cast<size_t>(sample) * num_output_channels + ch] = raw_value * gains[ch] + offsets[ch];
         }
     }
 

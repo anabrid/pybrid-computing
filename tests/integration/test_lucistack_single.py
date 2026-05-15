@@ -12,19 +12,20 @@ single-device scenarios. Uses DummyDAC in LUCIDAC mode for testing.
 import asyncio
 import logging
 import os
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from pybrid.mock import DummyDAC, DummyDACConfig
-from pybrid.lucipy.computer import LucipyWrapper as LUCIStack
 from pybrid.lucipy.circuits import Circuit
+from pybrid.lucipy.computer import LucipyWrapper as LUCIStack
+from pybrid.mock import DummyDAC, DummyDACConfig
 from tests.conftest import get_test_port
 
 # Tests that execute a full run cycle (set_circuit → run) require the native
 # C++ ControlChannel binding for config send and run state callbacks.
 try:
     from pybrid.native._impl import ControlChannel as _NativeCC
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -62,7 +63,7 @@ class TestLUCIStackSingleDevice:
             # Create a simple circuit
             circuit = Circuit("AA-BB-CC-DD-EE-FF")
             i0 = circuit.int(ic=1.0)
-            out0 = circuit.probe(i0)  # Greedy assignment
+            circuit.probe(i0)  # Greedy assignment
 
             # Set circuit
             luci.set_circuit(circuit)
@@ -71,10 +72,7 @@ class TestLUCIStackSingleDevice:
             luci.set_daq(sample_rate=1000)
 
             # Set run config
-            luci.set_run(
-                ic_time=100_000,  # nanoseconds
-                op_time=10_000_000  # nanoseconds
-            )
+            luci.set_run(ic_time=100_000, op_time=10_000_000)  # nanoseconds  # nanoseconds
 
             # Suppress protocol logger — see _PROTOCOL_LOGGER comment above.
             logging.getLogger(_PROTOCOL_LOGGER).setLevel(logging.CRITICAL)
@@ -105,9 +103,9 @@ class TestLUCIStackSingleDevice:
             i1 = circuit.int(ic=0.5)
             i2 = circuit.int(ic=0.25)
 
-            out0 = circuit.probe(i0)  # Channel 0
-            out1 = circuit.probe(i1)  # Channel 1
-            out2 = circuit.probe(i2)  # Channel 2
+            circuit.probe(i0)  # Channel 0
+            circuit.probe(i1)  # Channel 1
+            circuit.probe(i2)  # Channel 2
 
             # Set circuit (should auto-detect 3 channels)
             luci.set_circuit(circuit)
@@ -116,10 +114,7 @@ class TestLUCIStackSingleDevice:
             luci.set_daq(sample_rate=1000)
 
             # Set run config
-            luci.set_run(
-                ic_time=100_000,  # nanoseconds
-                op_time=10_000_000  # nanoseconds
-            )
+            luci.set_run(ic_time=100_000, op_time=10_000_000)  # nanoseconds  # nanoseconds
 
             # Suppress protocol logger — see _PROTOCOL_LOGGER comment above.
             logging.getLogger(_PROTOCOL_LOGGER).setLevel(logging.CRITICAL)
@@ -144,7 +139,7 @@ class TestLUCIStackSingleDevice:
             # Create with no args - should raise ValueError
             # (auto-detection cannot run from async context)
             with pytest.raises(ValueError, match="Auto-detection failed"):
-                luci = LUCIDAC()
+                LUCIDAC()
 
         finally:
             # Restore original environment
@@ -184,13 +179,11 @@ class TestLUCIStackSingleDevice:
             from pybrid.lucipy import LUCIDAC
 
             # Mock detect_in_network to raise TimeoutError (no devices)
-            mock_detect = AsyncMock(
-                side_effect=asyncio.TimeoutError("No available network devices found.")
-            )
+            mock_detect = AsyncMock(side_effect=asyncio.TimeoutError("No available network devices found."))
             with patch("pybrid.lucipy.computer.detect_in_network", mock_detect):
                 # Create with no args - should raise ValueError
                 with pytest.raises(ValueError, match="No LUCIDAC found"):
-                    luci = LUCIDAC()
+                    LUCIDAC()
 
         finally:
             # Restore original environment

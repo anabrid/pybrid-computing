@@ -21,7 +21,7 @@ import pytest
 # protocol logger during tests that execute actual runs against DummyDAC.
 _PROTOCOL_LOGGER = "pybrid.redac.protocol.protocol"
 
-from pybrid.lucipy import Circuit, LUCIDAC
+from pybrid.lucipy import LUCIDAC, Circuit
 from pybrid.mock import DummyDAC, DummyDACConfig
 
 
@@ -44,15 +44,12 @@ class TestCircuitDefinition:
         # Verify IC was set on the internal pybrid MIntBlock
         lucidac = circuit.to_computer()
         cluster = lucidac.entities[0].clusters[0]
-        assert cluster.m0block.elements[0].computation.ic == pytest.approx(0.5), (
-            "IC should be set to 0.5 on the internal pybrid object"
-        )
+        assert cluster.m0block.elements[0].computation.ic == pytest.approx(
+            0.5
+        ), "IC should be set to 0.5 on the internal pybrid object"
 
         # Verify connection was made (UBlock has a lane pointing to i0)
-        allocated_lanes = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == i0.lane
-        ]
+        allocated_lanes = [lane for lane in range(24) if cluster.ublock.outputs[lane] == i0.lane]
         assert len(allocated_lanes) == 1, "Should have one lane allocated for the connection"
 
         # Verify CBlock coefficient on that lane
@@ -76,22 +73,12 @@ class TestCircuitDefinition:
         # Verify ICs via internal pybrid object
         lucidac = circuit.to_computer()
         cluster = lucidac.entities[0].clusters[0]
-        assert cluster.m0block.elements[x.id].computation.ic == pytest.approx(1.0), (
-            "x IC should be 1.0"
-        )
-        assert cluster.m0block.elements[v.id].computation.ic == pytest.approx(0.0), (
-            "v IC should be 0.0"
-        )
+        assert cluster.m0block.elements[x.id].computation.ic == pytest.approx(1.0), "x IC should be 1.0"
+        assert cluster.m0block.elements[v.id].computation.ic == pytest.approx(0.0), "v IC should be 0.0"
 
         # Verify two connections exist (two lanes allocated)
-        lanes_v_to_x = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == v.lane
-        ]
-        lanes_x_to_v = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] == x.lane
-        ]
+        lanes_v_to_x = [lane for lane in range(24) if cluster.ublock.outputs[lane] == v.lane]
+        lanes_x_to_v = [lane for lane in range(24) if cluster.ublock.outputs[lane] == x.lane]
         assert len(lanes_v_to_x) == 1, "Should have one lane for v->x connection"
         assert len(lanes_x_to_v) == 1, "Should have one lane for x->v connection"
 
@@ -113,10 +100,7 @@ class TestCircuitDefinition:
         lucidac = circuit.to_computer()
         cluster = lucidac.entities[0].clusters[0]
 
-        used_lanes = [
-            lane for lane in range(24)
-            if cluster.ublock.outputs[lane] is not None
-        ]
+        used_lanes = [lane for lane in range(24) if cluster.ublock.outputs[lane] is not None]
         assert len(used_lanes) == 3, "Should have three lanes allocated"
         assert m0.id == 0, "First multiplier should have id 0"
 
@@ -134,10 +118,7 @@ class TestCircuitDefinition:
         cluster = lucidac.entities[0].clusters[0]
 
         # Find the lane used for the constant connection (output 14 or 15)
-        allocated_lanes = [
-            lane for lane in range(32)
-            if cluster.ublock.outputs[lane] in (14, 15)
-        ]
+        allocated_lanes = [lane for lane in range(32) if cluster.ublock.outputs[lane] in (14, 15)]
         assert len(allocated_lanes) == 1, "Should have one lane for constant connection"
 
         # Verify M-block output matches lane range
@@ -157,9 +138,7 @@ class TestCircuitDefinition:
         # Verify via pybrid object that ACL_OUT lane 24 has source i0
         lucidac = circuit.to_computer()
         cluster = lucidac.entities[0].clusters[0]
-        assert cluster.ublock.outputs[24] == i0.lane, (
-            "UBlock at ACL lane 24 should point to integrator output"
-        )
+        assert cluster.ublock.outputs[24] == i0.lane, "UBlock at ACL lane 24 should point to integrator output"
 
 
 class TestCircuitExport:
@@ -227,10 +206,7 @@ class TestLUCIStackE2E:
             # Set circuit, DAQ, and run config
             luci.set_circuit(circuit)
             luci.set_daq(num_channels=1, sample_rate=1000)
-            luci.set_run(
-                ic_time=100_000,     # 100 us
-                op_time=10_000_000   # 10 ms
-            )
+            luci.set_run(ic_time=100_000, op_time=10_000_000)  # 100 us  # 10 ms
 
             # Suppress protocol logger — see _PROTOCOL_LOGGER comment above.
             logging.getLogger(_PROTOCOL_LOGGER).setLevel(logging.CRITICAL)
@@ -278,26 +254,16 @@ class TestLorenz96Pattern:
 
         # Verify element allocation counts
         integrators_allocated = sum(1 for used in circuit._integrators_used if used)
-        assert integrators_allocated == N, (
-            f"Should have {N} integrators allocated, got {integrators_allocated}"
-        )
+        assert integrators_allocated == N, f"Should have {N} integrators allocated, got {integrators_allocated}"
 
-        muls_allocated = sum(
-            int(state) for state in circuit._multipliers_used
-        )
-        assert muls_allocated == N, (
-            f"Should have {N} multipliers allocated, got {muls_allocated}"
-        )
+        muls_allocated = sum(int(state) for state in circuit._multipliers_used)
+        assert muls_allocated == N, f"Should have {N} multipliers allocated, got {muls_allocated}"
 
         constants_allocated = circuit._constants_allocated
-        assert constants_allocated == 1, (
-            f"Should have 1 constant allocated, got {constants_allocated}"
-        )
+        assert constants_allocated == 1, f"Should have 1 constant allocated, got {constants_allocated}"
 
         adc_assigned = sum(1 for ch in circuit._carrier.adc_config if ch is not None)
-        assert adc_assigned == N, (
-            f"Should have {N} ADC channels assigned, got {adc_assigned}"
-        )
+        assert adc_assigned == N, f"Should have {N} ADC channels assigned, got {adc_assigned}"
 
         # Verify to_computer() returns valid LUCIDAC
         with warnings.catch_warnings():
@@ -309,12 +275,8 @@ class TestLorenz96Pattern:
         # Check integrator ICs are default (0.0) and slow mode (k=100)
         for i in range(N):
             elem = cluster.m0block.elements[i]
-            assert elem.computation.ic == pytest.approx(0.0), (
-                f"Integrator {i} IC should be 0.0 (default)"
-            )
-            assert elem.computation.k == 100, (
-                f"Integrator {i} should be slow mode (k=100)"
-            )
+            assert elem.computation.ic == pytest.approx(0.0), f"Integrator {i} IC should be 0.0 (default)"
+            assert elem.computation.k == 100, f"Integrator {i} should be slow mode (k=100)"
 
         pb_file = circuit.to_config()
 

@@ -20,11 +20,11 @@ Updated for FrontPanel -> FrontPlane rename, LUCIDAC -> LUCIStack.
 import pytest
 
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.base.utils.addressing import AddressingMap
+from pybrid.redac.blocks import CBlock, IBlock, MIntBlock, UBlock
 from pybrid.redac.carrier import Carrier
 from pybrid.redac.cluster import Cluster
-from pybrid.redac.blocks import UBlock, CBlock, IBlock, MIntBlock
-from pybrid.redac.entities import Path, Loc
-from pybrid.base.utils.addressing import AddressingMap
+from pybrid.redac.entities import Loc, Path
 from pybrid.redac.protocol.serializer import REDACDeserializer
 
 # Import new names with fallback to old names so tests fail (not crash)
@@ -192,18 +192,13 @@ class TestCarrierParseFrontPlane:
         carrier_path = Path.parse(mac)
 
         from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer
+
         carrier = LUCIDACDeserializer().deserialize_specification(carrier_pb, carrier_path)
 
         fp = getattr(carrier, "front_plane", None)
-        assert fp is not None, (
-            "Carrier parsed from entity tree with /FP child must have front_plane set"
-        )
-        assert fp.path.id_ == "FP", (
-            f"FrontPlane path should end with 'FP', got '{fp.path.id_}'"
-        )
-        assert isinstance(fp, FrontPlane), (
-            "front_plane must be a FrontPlane instance"
-        )
+        assert fp is not None, "Carrier parsed from entity tree with /FP child must have front_plane set"
+        assert fp.path.id_ == "FP", f"FrontPlane path should end with 'FP', got '{fp.path.id_}'"
+        assert isinstance(fp, FrontPlane), "front_plane must be a FrontPlane instance"
 
     def test_carrier_without_fp(self):
         mac = AddressingMap.map_redac(0)
@@ -213,9 +208,7 @@ class TestCarrierParseFrontPlane:
         carrier = REDACDeserializer().deserialize_specification(carrier_pb, carrier_path)
 
         fp = getattr(carrier, "front_plane", None)
-        assert fp is None, (
-            "Carrier parsed from entity tree without /FP child must have front_plane=None"
-        )
+        assert fp is None, "Carrier parsed from entity tree without /FP child must have front_plane=None"
 
 
 class TestCarrierChildren:
@@ -227,17 +220,13 @@ class TestCarrierChildren:
         children = list(carrier.children)
         fp_children = [c for c in children if isinstance(c, FrontPlane)]
 
-        assert len(fp_children) == 1, (
-            f"Expected exactly 1 FrontPlane in children, found {len(fp_children)}"
-        )
+        assert len(fp_children) == 1, f"Expected exactly 1 FrontPlane in children, found {len(fp_children)}"
 
         carrier_fp = getattr(carrier, "front_plane", None)
-        assert carrier_fp is not None, (
-            "carrier.front_plane must not be None when with_fp=True"
-        )
-        assert fp_children[0] is carrier_fp, (
-            "The FrontPlane in children must be the same instance as carrier.front_plane"
-        )
+        assert carrier_fp is not None, "carrier.front_plane must not be None when with_fp=True"
+        assert (
+            fp_children[0] is carrier_fp
+        ), "The FrontPlane in children must be the same instance as carrier.front_plane"
 
     def test_carrier_children_without_fp(self):
         mac = AddressingMap.map_redac(0)
@@ -246,9 +235,7 @@ class TestCarrierChildren:
         children = list(carrier.children)
         fp_children = [c for c in children if isinstance(c, FrontPlane)]
 
-        assert len(fp_children) == 0, (
-            "Carrier without front_plane should not yield any FrontPlane in children"
-        )
+        assert len(fp_children) == 0, "Carrier without front_plane should not yield any FrontPlane in children"
 
 
 class TestLUCIStackFrontPlaneAccess:
@@ -262,21 +249,15 @@ class TestLUCIStackFrontPlaneAccess:
         lucistack_with_fp = LUCIStack(entities=[carrier_with_fp])
 
         carrier_fp = getattr(lucistack_with_fp.entities[0], "front_plane", None)
-        assert carrier_fp is not None, (
-            "LUCIStack carrier with FP must expose it via entities[0].front_plane"
-        )
-        assert isinstance(carrier_fp, FrontPlane), (
-            "entities[0].front_plane must be a FrontPlane instance"
-        )
+        assert carrier_fp is not None, "LUCIStack carrier with FP must expose it via entities[0].front_plane"
+        assert isinstance(carrier_fp, FrontPlane), "entities[0].front_plane must be a FrontPlane instance"
 
         # Case 2: Carrier without FrontPlane
         carrier_without_fp = _make_minimal_carrier(mac, with_fp=False)
         lucistack_without_fp = LUCIStack(entities=[carrier_without_fp])
 
         carrier_no_fp = getattr(lucistack_without_fp.entities[0], "front_plane", None)
-        assert carrier_no_fp is None, (
-            "LUCIStack carrier without FP must have front_plane=None"
-        )
+        assert carrier_no_fp is None, "LUCIStack carrier without FP must have front_plane=None"
 
 
 class TestLUCIStackSerializationWithFP:
@@ -293,9 +274,7 @@ class TestLUCIStackSerializationWithFP:
             # Fall back to old attribute for the purpose of configuring
             fp = getattr(carrier, "front_panel", None)
 
-        assert fp is not None, (
-            "Test setup: carrier must have a FrontPlane for serialization test"
-        )
+        assert fp is not None, "Test setup: carrier must have a FrontPlane for serialization test"
 
         # Configure the signal generator so serialization produces non-empty output
         fp.signal_generator.frequency = 1000.0
@@ -311,10 +290,7 @@ class TestLUCIStackSerializationWithFP:
         expected_fp_path = str(Path.parse(mac) / "FP")
 
         # Find configs that reference the FrontPlane entity path
-        fp_configs = [
-            c for c in module.items
-            if c.entity.path == expected_fp_path
-        ]
+        fp_configs = [c for c in module.items if c.entity.path == expected_fp_path]
 
         assert len(fp_configs) > 0, (
             f"Expected at least one config entry for entity path '{expected_fp_path}', "
@@ -323,8 +299,7 @@ class TestLUCIStackSerializationWithFP:
 
         # Verify that at least one config contains front_panel_config or
         # signal_generator_config (the two config types produced for FrontPlane)
-        config_kinds = [c.WhichOneof('kind') for c in fp_configs]
+        config_kinds = [c.WhichOneof("kind") for c in fp_configs]
         assert "front_panel_config" in config_kinds or "signal_generator_config" in config_kinds, (
-            f"Expected front_panel_config or signal_generator_config in FP configs, "
-            f"got kinds: {config_kinds}"
+            f"Expected front_panel_config or signal_generator_config in FP configs, " f"got kinds: {config_kinds}"
         )

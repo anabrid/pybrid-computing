@@ -2,8 +2,8 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 
-from pybrid.base.hybrid.validators import ConfigValidator
 from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.base.hybrid.validators import ConfigValidator
 from pybrid.base.result import Result
 
 
@@ -40,9 +40,7 @@ class AdcProbeValidator(ConfigValidator):
         probe_set = set(probes)
 
         if -1 in probe_set:
-            errors.append(
-                "All ADC channels require probes."
-            )
+            errors.append("All ADC channels require probes.")
 
         if len(probe_set) != len(probes):
             errors.append(
@@ -54,8 +52,7 @@ class AdcProbeValidator(ConfigValidator):
             expected = set(range(len(channels)))
             if probe_set != expected:
                 errors.append(
-                    f"Probe indices {sorted(probe_set)} are not contiguous from 0. "
-                    f"Expected {sorted(expected)}."
+                    f"Probe indices {sorted(probe_set)} are not contiguous from 0. " f"Expected {sorted(expected)}."
                 )
 
         if errors:

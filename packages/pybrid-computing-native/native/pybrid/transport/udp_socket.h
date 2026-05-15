@@ -72,8 +72,7 @@ public:
     bool is_connected() const;
 
     /// Send without requiring connect(); use explicit destination per packet.
-    bool send_to(const void* data, size_t len,
-                 const std::string& host, uint16_t port);
+    bool send_to(const void* data, size_t len, const std::string& host, uint16_t port);
 
     std::string remote_host() const;
     uint16_t remote_port() const;

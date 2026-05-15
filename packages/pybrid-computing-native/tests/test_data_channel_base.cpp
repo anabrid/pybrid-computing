@@ -25,9 +25,7 @@ public:
     /**
      * @brief Expose protected update_run_state for testing.
      */
-    void test_update_run_state(pb::RunState new_state) {
-        update_run_state(new_state);
-    }
+    void test_update_run_state(pb::RunState new_state) { update_run_state(new_state); }
 
 protected:
     /**
@@ -105,9 +103,7 @@ TEST(DataChannelBaseTest, NoCallbackOnSameState) {
     MockDataChannel channel;
     int callback_count = 0;
 
-    channel.on_run_state_change([&](pb::RunState /* state */) {
-        callback_count++;
-    });
+    channel.on_run_state_change([&](pb::RunState /* state */) { callback_count++; });
 
     // First call should trigger callback
     channel.test_update_run_state(pb::IC);

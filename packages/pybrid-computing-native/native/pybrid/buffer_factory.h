@@ -19,12 +19,9 @@ public:
     /// @throws std::invalid_argument if type is unknown.
     static std::unique_ptr<IBuffer> create(BufferType type) {
         switch (type) {
-            case BufferType::LockFree:
-                return std::make_unique<
-                    LockFreeBuffer<MAX_ITEM_SIZE, INITIAL_CAPACITY>>();
+            case BufferType::LockFree: return std::make_unique<LockFreeBuffer<MAX_ITEM_SIZE, INITIAL_CAPACITY>>();
 
-            default:
-                throw std::invalid_argument("Unknown buffer type");
+            default: throw std::invalid_argument("Unknown buffer type");
         }
     }
 };

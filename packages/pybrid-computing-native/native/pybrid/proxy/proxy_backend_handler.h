@@ -86,8 +86,7 @@ public:
     static constexpr std::chrono::milliseconds RECONNECT_ATTEMPT_TIMEOUT{5000};
     static constexpr double PING_PROBE_TIMEOUT_SECS = 2.0;
 
-    using ErrorToClient =
-        std::function<void(ClientSession&, const std::string&)>;
+    using ErrorToClient = std::function<void(ClientSession&, const std::string&)>;
 
     explicit ProxyBackendHandler(std::mutex* log_mutex);
     ~ProxyBackendHandler();
@@ -98,9 +97,8 @@ public:
     ProxyBackendHandler& operator=(ProxyBackendHandler&&) = delete;
 
     // Pre-start configuration
-    void add_backend(const std::string& host, uint16_t port,
-                     std::optional<uint32_t> stack,
-                     std::optional<uint32_t> carrier);
+    void add_backend(
+        const std::string& host, uint16_t port, std::optional<uint32_t> stack, std::optional<uint32_t> carrier);
     void set_debug(bool enabled);
 
     // Lifecycle
@@ -134,7 +132,7 @@ public:
 
     // Test hooks (called via ProxyServer pass-through)
     void set_backend_health_for_test(size_t index, int new_health);
-    int  get_backend_health(size_t index) const;
+    int get_backend_health(size_t index) const;
 
     /// Reset every backend's data channel sequence tracking.
     void reset_sequence_tracking();
@@ -143,8 +141,7 @@ public:
     void reset_data_channel_buffers();
 
     /// Reconnect a single backend during an UpdateCommand commit reboot.
-    bool reconnect_backend(BackendDevice& backend,
-                           std::chrono::milliseconds timeout);
+    bool reconnect_backend(BackendDevice& backend, std::chrono::milliseconds timeout);
 
 private:
     void install_forward_callbacks();
@@ -152,8 +149,8 @@ private:
 
     // Composition / collaborators (set in start())
     RunCoordinator* run_coordinator_{nullptr};
-    std::mutex*     log_mutex_{nullptr};
-    ErrorToClient   error_to_client_;
+    std::mutex* log_mutex_{nullptr};
+    ErrorToClient error_to_client_;
 
     // Backends are owned here.
     mutable std::mutex backends_mutex_;

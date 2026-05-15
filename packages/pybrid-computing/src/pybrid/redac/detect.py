@@ -6,8 +6,8 @@ import asyncio
 import logging
 from ipaddress import ip_address, ip_network
 
-from zeroconf import IPVersion, Zeroconf, ServiceStateChange
-from zeroconf.asyncio import AsyncZeroconf, AsyncServiceBrowser, AsyncServiceInfo
+from zeroconf import IPVersion, ServiceStateChange, Zeroconf
+from zeroconf.asyncio import AsyncServiceBrowser, AsyncServiceInfo, AsyncZeroconf
 
 logger = logging.getLogger(__name__)
 

@@ -27,6 +27,7 @@ from pybrid.mock import DummyDAC, DummyDACConfig
 
 try:
     from pybrid.native._impl import ControlChannel as NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -76,15 +77,11 @@ class BareTCPAcceptor:
     async def start(self) -> None:
         if self._server is not None:
             raise RuntimeError("BareTCPAcceptor already started")
-        self._server = await asyncio.start_server(
-            self._on_client, self._host, self._port, reuse_address=True
-        )
+        self._server = await asyncio.start_server(self._on_client, self._host, self._port, reuse_address=True)
         # Lock the port so subsequent start() calls rebind the same one.
         self._port = self._server.sockets[0].getsockname()[1]
 
-    async def _on_client(
-        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
-    ) -> None:
+    async def _on_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         task = asyncio.current_task()
         if task is not None:
             self._client_tasks.add(task)
@@ -148,9 +145,7 @@ async def test_reconnect_no_timeout_wins_against_sleepy_listener():
     await acceptor.start()
     locked_port = acceptor.port
 
-    channel = await asyncio.get_running_loop().run_in_executor(
-        None, _make_native_channel, locked_port
-    )
+    channel = await asyncio.get_running_loop().run_in_executor(None, _make_native_channel, locked_port)
     try:
         assert channel.is_connected()
 
@@ -165,16 +160,12 @@ async def test_reconnect_no_timeout_wins_against_sleepy_listener():
         loop = asyncio.get_running_loop()
 
         try:
-            reconnected = await loop.run_in_executor(
-                None, channel.reconnect, 0.2, 10.0
-            )
+            reconnected = await loop.run_in_executor(None, channel.reconnect, 0.2, 10.0)
         finally:
             await restart_task
 
         assert reconnected is True, "reconnect() should return True on success"
-        assert channel.is_connected(), (
-            "Channel should be connected after successful reconnect"
-        )
+        assert channel.is_connected(), "Channel should be connected after successful reconnect"
     finally:
         _safe_cancel_reconnect(channel)
         _safe_stop(channel)
@@ -188,9 +179,7 @@ async def test_reconnect_timeout_expires_when_listener_never_returns():
     await acceptor.start()
     locked_port = acceptor.port
 
-    channel = await asyncio.get_running_loop().run_in_executor(
-        None, _make_native_channel, locked_port
-    )
+    channel = await asyncio.get_running_loop().run_in_executor(None, _make_native_channel, locked_port)
     try:
         assert channel.is_connected()
 
@@ -205,15 +194,9 @@ async def test_reconnect_timeout_expires_when_listener_never_returns():
         )
         elapsed = loop.time() - start
 
-        assert reconnected is False, (
-            "reconnect() should return False once the deadline expires"
-        )
-        assert elapsed < 3.5, (
-            f"reconnect() should honour the 2 s deadline; took {elapsed:.2f} s"
-        )
-        assert not channel.is_connected(), (
-            "Channel must not be connected when reconnect() reports failure"
-        )
+        assert reconnected is False, "reconnect() should return False once the deadline expires"
+        assert elapsed < 3.5, f"reconnect() should honour the 2 s deadline; took {elapsed:.2f} s"
+        assert not channel.is_connected(), "Channel must not be connected when reconnect() reports failure"
     finally:
         _safe_cancel_reconnect(channel)
         _safe_stop(channel)
@@ -227,9 +210,7 @@ async def test_cancel_reconnect_yields_quickly():
     await acceptor.start()
     locked_port = acceptor.port
 
-    channel = await asyncio.get_running_loop().run_in_executor(
-        None, _make_native_channel, locked_port
-    )
+    channel = await asyncio.get_running_loop().run_in_executor(None, _make_native_channel, locked_port)
     try:
         assert channel.is_connected()
 
@@ -258,20 +239,12 @@ async def test_cancel_reconnect_yields_quickly():
             channel.cancel_reconnect()
 
             loop = asyncio.get_running_loop()
-            cancelled = await loop.run_in_executor(
-                None, reconnect_done.wait, 1.0
-            )
-            assert cancelled, (
-                "cancel_reconnect() did not return within 1 s"
-            )
+            cancelled = await loop.run_in_executor(None, reconnect_done.wait, 1.0)
+            assert cancelled, "cancel_reconnect() did not return within 1 s"
             assert reconnect_result, "reconnect() thread produced no result"
             outcome = reconnect_result[0]
-            assert outcome is False, (
-                f"Cancelled reconnect should return False, got {outcome!r}"
-            )
-            assert not channel.is_connected(), (
-                "Channel must not be connected after cancelled reconnect"
-            )
+            assert outcome is False, f"Cancelled reconnect should return False, got {outcome!r}"
+            assert not channel.is_connected(), "Channel must not be connected after cancelled reconnect"
         finally:
             future.cancel()
             executor.shutdown(wait=False)
@@ -296,15 +269,11 @@ async def test_reconnect_preserves_callbacks():
     first_dac = DummyDAC(LOCALHOST, dac_port, config)
     async with first_dac:
         loop = asyncio.get_running_loop()
-        channel = await loop.run_in_executor(
-            None, _make_native_channel, dac_port
-        )
+        channel = await loop.run_in_executor(None, _make_native_channel, dac_port)
         channel.start()
         try:
             # Baseline extract over the live channel.
-            module_bytes = await loop.run_in_executor(
-                None, channel.extract, "", True, True, False, False, OP_TIMEOUT
-            )
+            module_bytes = await loop.run_in_executor(None, channel.extract, "", True, True, False, False, OP_TIMEOUT)
             baseline = pb.Module()
             baseline.ParseFromString(module_bytes)
             assert len(baseline.items) >= 1
@@ -317,24 +286,16 @@ async def test_reconnect_preserves_callbacks():
     second_dac = DummyDAC(LOCALHOST, dac_port, config)
     async with second_dac:
         try:
-            reconnected = await loop.run_in_executor(
-                None, channel.reconnect, 0.2, 10.0
-            )
-            assert reconnected is True, (
-                "reconnect() should return True after the DummyDAC restarts"
-            )
+            reconnected = await loop.run_in_executor(None, channel.reconnect, 0.2, 10.0)
+            assert reconnected is True, "reconnect() should return True after the DummyDAC restarts"
             assert channel.is_connected()
 
             # Second extract runs over the reconnected channel without any
             # explicit callback re-registration by the test.
-            module_bytes = await loop.run_in_executor(
-                None, channel.extract, "", True, True, False, False, OP_TIMEOUT
-            )
+            module_bytes = await loop.run_in_executor(None, channel.extract, "", True, True, False, False, OP_TIMEOUT)
             post = pb.Module()
             post.ParseFromString(module_bytes)
-            assert len(post.items) >= 1, (
-                "Second extract after reconnect must return a non-empty Module"
-            )
+            assert len(post.items) >= 1, "Second extract after reconnect must return a non-empty Module"
         finally:
             _safe_cancel_reconnect(channel)
             _safe_stop(channel)
@@ -350,9 +311,7 @@ async def test_reconnect_pending_requests_fail_cleanly():
     locked_port = acceptor.port
 
     loop = asyncio.get_running_loop()
-    channel = await loop.run_in_executor(
-        None, _make_native_channel, locked_port
-    )
+    channel = await loop.run_in_executor(None, _make_native_channel, locked_port)
     channel.start()
 
     try:
@@ -388,34 +347,20 @@ async def test_reconnect_pending_requests_fail_cleanly():
             # break the pending promise with a descriptive error.
             await acceptor.stop()
 
-            awaited = await loop.run_in_executor(
-                None, send_done.wait, 5.0
-            )
-            assert awaited, (
-                "Pending send_and_recv() did not complete after server teardown"
-            )
-            assert not send_result, (
-                f"send_and_recv() unexpectedly succeeded: {send_result!r}"
-            )
-            assert send_error, (
-                "send_and_recv() produced no error after server teardown"
-            )
+            awaited = await loop.run_in_executor(None, send_done.wait, 5.0)
+            assert awaited, "Pending send_and_recv() did not complete after server teardown"
+            assert not send_result, f"send_and_recv() unexpectedly succeeded: {send_result!r}"
+            assert send_error, "send_and_recv() produced no error after server teardown"
             err = send_error[0]
-            assert isinstance(err, Exception), (
-                f"Expected Exception from broken promise, got {type(err).__name__}"
-            )
+            assert isinstance(err, Exception), f"Expected Exception from broken promise, got {type(err).__name__}"
         finally:
             future.cancel()
             executor.shutdown(wait=False)
 
         # Bring the acceptor back and reconnect.
         await acceptor.start()
-        reconnected = await loop.run_in_executor(
-            None, channel.reconnect, 0.2, 10.0
-        )
-        assert reconnected is True, (
-            "reconnect() should succeed once the acceptor is back"
-        )
+        reconnected = await loop.run_in_executor(None, channel.reconnect, 0.2, 10.0)
+        assert reconnected is True, "reconnect() should succeed once the acceptor is back"
         assert channel.is_connected()
     finally:
         _safe_cancel_reconnect(channel)

@@ -1,8 +1,8 @@
-#include <iostream>
-#include <vector>
-#include <string>
 #include <cstdint>
+#include <iostream>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "../utils/result.h"
 #include "pybrid/transport/tcp_transport.h"
@@ -16,8 +16,7 @@ using namespace anabrid::pybrid::native;
  * - send update command with binarized firmware.hex, pre-loading the firmware
  * into the staging area
  */
-class OTAUpdater
-{
+class OTAUpdater {
 public:
     using ReadResult = Result<vector<uint8_t>>;
     using UpdateResult = Result<bool>;
@@ -28,11 +27,7 @@ public:
 
     // used from pybrid CLI and frontend - reads firmware from disk, creates
     // new connections and closes them
-    UpdateResult execute(
-        string firmware_path,
-        const vector<string>& targets,
-        uint16_t port
-    );
+    UpdateResult execute(string firmware_path, const vector<string>& targets, uint16_t port);
 
 protected:
     ReadResult read_firmware(const string& firmware_path);
@@ -42,4 +37,3 @@ protected:
 
     vector<uint8_t> m_firmware_bin;
 };
-

@@ -14,17 +14,16 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Literal, List, Optional
+from typing import List, Literal, Optional
 
 import pybrid.base.proto.main_pb2 as pb
-
-from pybrid.redac.channel import DeviceConnection
 
 # Avoids a circular import:
 # pybrid.redac.entities → pybrid.base.hybrid → base.hybrid.controller
 # → pybrid.redac.connection.  The base Path is fully compatible for use as
 # dict keys and annotations here.
 from pybrid.base.hybrid.entities import Path
+from pybrid.redac.channel import DeviceConnection
 
 logger = logging.getLogger(__name__)
 
@@ -76,10 +75,7 @@ class ConnectionManager:
         return self._topology_mode
 
     async def add_device(
-        self,
-        host: str,
-        port: int,
-        specification: Optional[pb.Module] = None
+        self, host: str, port: int, specification: Optional[pb.Module] = None
     ) -> tuple[list[CarrierInfo], dict[Path, DeviceConnection]]:
         """Discover, classify, connect, and register one endpoint.
 
@@ -91,27 +87,22 @@ class ConnectionManager:
         :raises RuntimeError: If mixing direct and proxy connections, if a second
             proxy endpoint is added, or if the extract call times out.
         """
-        use_discovery = (specification is None)
+        use_discovery = specification is None
 
         carriers = []
 
         if use_discovery:
             module = await self._discover_device(host, port)
             entities = [
-                item.entity_specification.entity
-                for item in module.items
-                if item.HasField("entity_specification")
+                item.entity_specification.entity for item in module.items if item.HasField("entity_specification")
             ]
         else:
             entities = [
-                c.entity_specification.entity
-                for c in specification.items
-                if c.HasField("entity_specification")
+                c.entity_specification.entity for c in specification.items if c.HasField("entity_specification")
             ]
 
         for entity in entities:
-            self.cache_descriptions.items.append(
-                pb.Item(entity_specification=pb.EntitySpecification(entity=entity)))
+            self.cache_descriptions.items.append(pb.Item(entity_specification=pb.EntitySpecification(entity=entity)))
             carriers.extend(self._detect_topology(entity))
 
         new_connections = await self._create_connections(host, port, carriers)
@@ -149,10 +140,7 @@ class ConnectionManager:
             self._topology_mode = None
 
         if errors:
-            raise RuntimeError(
-                f"close_all() encountered {len(errors)} error(s) while stopping "
-                f"channels: {errors}"
-            )
+            raise RuntimeError(f"close_all() encountered {len(errors)} error(s) while stopping " f"channels: {errors}")
 
     async def _discover_device(self, host: str, port: int) -> pb.Module:
         """Open a temporary control channel, extract the device specification, and close."""
@@ -179,21 +167,25 @@ class ConnectionManager:
         if entity.class_ == pb.Entity.CARRIER:
             # Root entity is itself a carrier (direct single-device mode).
             mac = entity.id.strip("/")
-            carriers.append(CarrierInfo(
-                path=Path.parse(mac),
-                mac=mac,
-                entity=entity,
-            ))
+            carriers.append(
+                CarrierInfo(
+                    path=Path.parse(mac),
+                    mac=mac,
+                    entity=entity,
+                )
+            )
         else:
             # Root is a DEVICE or container — carriers are children.
             for child in entity.children:
                 if child.class_ == pb.Entity.CARRIER:
                     mac = child.id.strip("/")
-                    carriers.append(CarrierInfo(
-                        path=Path.parse(mac),
-                        mac=mac,
-                        entity=child,
-                    ))
+                    carriers.append(
+                        CarrierInfo(
+                            path=Path.parse(mac),
+                            mac=mac,
+                            entity=child,
+                        )
+                    )
 
         if not carriers:
             raise ValueError(
@@ -219,8 +211,8 @@ class ConnectionManager:
         Direct mode (1 carrier): one DeviceConnection per carrier.
         Proxy mode (N > 1 carriers): one shared DeviceConnection for all carriers.
         """
-        from pybrid.redac.control import AsyncControlChannel
         from pybrid.native import SampleDecodingDataChannel, SampleLockFreeBuffer
+        from pybrid.redac.control import AsyncControlChannel
 
         control = await AsyncControlChannel.create(host, port)
         control.start()
@@ -230,9 +222,7 @@ class ConnectionManager:
         data_channel.set_output_queue(output_queue)
         data_channel.set_tcp_transport(control.transport)
         data_channel.set_control_channel(control.native)
-        data_channel.set_control_response_callback(
-            lambda data: control.native.on_tcp_response(data)
-        )
+        data_channel.set_control_response_callback(lambda data: control.native.on_tcp_response(data))
 
         # The ControlChannel recv thread must be running for UDP negotiation
         # (send_and_recv needs it to read the device response). If negotiation
@@ -249,7 +239,8 @@ class ConnectionManager:
         if self._topology_mode == "direct" and data_channel.is_using_tcp_fallback():
             logger.warning(
                 "Device at %s:%d refused UDP data streaming, falling back to TCP.",
-                host, port,
+                host,
+                port,
             )
 
         conn = DeviceConnection(control=control, data=data_channel, output_queue=output_queue)
@@ -284,9 +275,7 @@ class ConnectionManager:
 
         :raises RuntimeError: On topology inconsistency (mixing modes or multiple proxies).
         """
-        incoming_topology: Literal["direct", "proxy"] = (
-            "proxy" if len(carriers) > 1 else "direct"
-        )
+        incoming_topology: Literal["direct", "proxy"] = "proxy" if len(carriers) > 1 else "direct"
 
         if self._topology_mode is not None:
             if self._topology_mode != incoming_topology:

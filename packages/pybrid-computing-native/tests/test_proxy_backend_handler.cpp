@@ -37,8 +37,7 @@ const std::string CARRIER_PATH_B = "/" + CARRIER_MAC_B;
 // Minimal mock backend kept inline so this test target is self-contained.
 class MockBackend {
 public:
-    explicit MockBackend(const std::string& carrier_path = CARRIER_PATH_A)
-        : carrier_path_(carrier_path) {
+    explicit MockBackend(const std::string& carrier_path = CARRIER_PATH_A) : carrier_path_(carrier_path) {
         server_.bind(0);
         server_.start();
     }
@@ -124,8 +123,7 @@ public:
     pb::MessageV1 make_udp_refused_response(const std::string& request_id) const {
         pb::MessageV1 resp;
         resp.set_id(request_id);
-        resp.mutable_udp_data_streaming_refused_response()
-            ->set_reason("UDP not supported in tests");
+        resp.mutable_udp_data_streaming_refused_response()->set_reason("UDP not supported in tests");
         return resp;
     }
 
@@ -142,22 +140,19 @@ public:
     void serve_add_backend_handshake_tcp_fallback() {
         pb::MessageV1 extract_req = recv_message();
         if (!extract_req.has_extract_command()) {
-            throw std::runtime_error(
-                "MockBackend: expected ExtractCommand");
+            throw std::runtime_error("MockBackend: expected ExtractCommand");
         }
         send_message(make_extract_response(extract_req.id()));
 
         pb::MessageV1 reset_req = recv_message();
         if (!reset_req.has_reset_command()) {
-            throw std::runtime_error(
-                "MockBackend: expected ResetCommand");
+            throw std::runtime_error("MockBackend: expected ResetCommand");
         }
         send_message(make_reset_response(reset_req.id()));
 
         pb::MessageV1 udp_req = recv_message();
         if (!udp_req.has_udp_data_streaming_command()) {
-            throw std::runtime_error(
-                "MockBackend: expected UdpDataStreamingCommand");
+            throw std::runtime_error("MockBackend: expected UdpDataStreamingCommand");
         }
         send_message(make_udp_refused_response(udp_req.id()));
     }
@@ -168,15 +163,13 @@ public:
     void serve_reconnect_handshake_tcp_fallback() {
         pb::MessageV1 udp_req = recv_message();
         if (!udp_req.has_udp_data_streaming_command()) {
-            throw std::runtime_error(
-                "MockBackend: expected UdpDataStreamingCommand on reconnect");
+            throw std::runtime_error("MockBackend: expected UdpDataStreamingCommand on reconnect");
         }
         send_message(make_udp_refused_response(udp_req.id()));
 
         pb::MessageV1 extract_req = recv_message();
         if (!extract_req.has_extract_command()) {
-            throw std::runtime_error(
-                "MockBackend: expected ExtractCommand on reconnect");
+            throw std::runtime_error("MockBackend: expected ExtractCommand on reconnect");
         }
         send_message(make_extract_response(extract_req.id()));
     }
@@ -201,8 +194,8 @@ private:
 // the test reads from the "client-side" transport to assert delivery.
 struct SessionPair {
     TCPServer server;
-    std::unique_ptr<TCPTransport> client_side;     // remote (test side)
-    std::shared_ptr<ClientSession> session;        // owns server-side transport
+    std::unique_ptr<TCPTransport> client_side;  // remote (test side)
+    std::shared_ptr<ClientSession> session;     // owns server-side transport
 
     SessionPair() {
         server.bind(0);
@@ -221,8 +214,7 @@ struct SessionPair {
 
         client_side = std::make_unique<TCPTransport>();
         client_side->start();
-        if (!client_side->connect(
-                "127.0.0.1", server.local_port(), TEST_TIMEOUT_SECS)) {
+        if (!client_side->connect("127.0.0.1", server.local_port(), TEST_TIMEOUT_SECS)) {
             throw std::runtime_error("SessionPair: client connect failed");
         }
 
@@ -279,22 +271,20 @@ protected:
             backend_->accept_connection();
             backend_->serve_add_backend_handshake_tcp_fallback();
         });
-        handler_->add_backend("127.0.0.1", backend_->port(), std::nullopt,
-                              std::nullopt);
+        handler_->add_backend("127.0.0.1", backend_->port(), std::nullopt, std::nullopt);
         handshake.get();
     }
 
     void start_handler(size_t backend_count) {
         coord_.configure(backend_count);
-        handler_->start(coord_,
-            [this](ClientSession& sess, const std::string& desc) {
-                error_callback_count_.fetch_add(1, std::memory_order_release);
-                {
-                    std::lock_guard<std::mutex> lk(error_mutex_);
-                    last_error_session_ = &sess;
-                    last_error_description_ = desc;
-                }
-            });
+        handler_->start(coord_, [this](ClientSession& sess, const std::string& desc) {
+            error_callback_count_.fetch_add(1, std::memory_order_release);
+            {
+                std::lock_guard<std::mutex> lk(error_mutex_);
+                last_error_session_ = &sess;
+                last_error_description_ = desc;
+            }
+        });
         started_ = true;
     }
 
@@ -325,9 +315,7 @@ TEST_F(ProxyBackendHandlerTest, AddBackend_AfterStart_Throws) {
     add_backend_a();
     start_handler(/*backend_count=*/1);
 
-    EXPECT_THROW(
-        handler_->add_backend("127.0.0.1", 1, std::nullopt, std::nullopt),
-        std::logic_error);
+    EXPECT_THROW(handler_->add_backend("127.0.0.1", 1, std::nullopt, std::nullopt), std::logic_error);
 }
 
 TEST_F(ProxyBackendHandlerTest, Broadcast_AllSucceed) {
@@ -350,7 +338,9 @@ TEST_F(ProxyBackendHandlerTest, Broadcast_AllSucceed) {
     };
 
     BroadcastResult result = handler_->broadcast_to_backends(
-        handler_->targets(), factory, /*timeout_secs=*/TEST_TIMEOUT_SECS,
+        handler_->targets(),
+        factory,
+        /*timeout_secs=*/TEST_TIMEOUT_SECS,
         /*include_responses=*/true);
 
     backend_serves.get();
@@ -380,13 +370,14 @@ TEST_F(ProxyBackendHandlerTest, Broadcast_OneBackendDisconnected_ReportsError) {
     };
 
     BroadcastResult result = handler_->broadcast_to_backends(
-        handler_->targets(), factory, /*timeout_secs=*/1.0,
+        handler_->targets(),
+        factory,
+        /*timeout_secs=*/1.0,
         /*include_responses=*/false);
 
     EXPECT_TRUE(result.had_error);
     EXPECT_NE(result.error_text.find("127.0.0.1"), std::string::npos)
-        << "error_text should reference the backend host, got: "
-        << result.error_text;
+        << "error_text should reference the backend host, got: " << result.error_text;
 }
 
 TEST_F(ProxyBackendHandlerTest, SetActiveSession_InstallsForward) {
@@ -404,8 +395,7 @@ TEST_F(ProxyBackendHandlerTest, SetActiveSession_InstallsForward) {
 
     pb::MessageV1 received;
     bool got = pair.try_recv_message(received, /*timeout_secs=*/3.0);
-    ASSERT_TRUE(got)
-        << "Session did not receive forwarded RunDataMessage";
+    ASSERT_TRUE(got) << "Session did not receive forwarded RunDataMessage";
     EXPECT_TRUE(received.has_run_data_message());
 }
 
@@ -430,9 +420,8 @@ TEST_F(ProxyBackendHandlerTest, SetActiveSession_Empty_ClearsForward) {
 
     pb::MessageV1 received;
     bool got = pair.try_recv_message(received, /*timeout_secs=*/0.5);
-    EXPECT_FALSE(got)
-        << "Session received a message after set_active_session({}) cleared "
-           "the forward callbacks";
+    EXPECT_FALSE(got) << "Session received a message after set_active_session({}) cleared "
+                         "the forward callbacks";
 }
 
 TEST_F(ProxyBackendHandlerTest, SetActiveSession_Churn) {
@@ -475,11 +464,9 @@ TEST_F(ProxyBackendHandlerTest, RunStateChange_Done_AdvancesCoordinator) {
         backend_b->serve_add_backend_handshake_tcp_fallback();
     });
 
-    handler_->add_backend("127.0.0.1", backend_->port(), std::nullopt,
-                          std::nullopt);
+    handler_->add_backend("127.0.0.1", backend_->port(), std::nullopt, std::nullopt);
     handshake_a.get();
-    handler_->add_backend("127.0.0.1", backend_b->port(), std::nullopt,
-                          std::nullopt);
+    handler_->add_backend("127.0.0.1", backend_b->port(), std::nullopt, std::nullopt);
     handshake_b.get();
 
     start_handler(/*backend_count=*/2);
@@ -515,22 +502,17 @@ TEST_F(ProxyBackendHandlerTest, RunStateChange_Error_InvokesErrorCallback) {
     backend_->send_message(err_state);
 
     auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
-    while (error_callback_count_.load(std::memory_order_acquire) == 0 &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (error_callback_count_.load(std::memory_order_acquire) == 0 && std::chrono::steady_clock::now() < deadline) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
     EXPECT_GE(error_callback_count_.load(std::memory_order_acquire), 1);
     {
         std::lock_guard<std::mutex> lk(error_mutex_);
-        EXPECT_NE(last_error_description_.find("Backend device error"),
-                  std::string::npos)
-            << "expected backend error description, got: "
-            << last_error_description_;
-        EXPECT_NE(last_error_description_.find("simulated fault"),
-                  std::string::npos)
-            << "expected reason in description, got: "
-            << last_error_description_;
+        EXPECT_NE(last_error_description_.find("Backend device error"), std::string::npos)
+            << "expected backend error description, got: " << last_error_description_;
+        EXPECT_NE(last_error_description_.find("simulated fault"), std::string::npos)
+            << "expected reason in description, got: " << last_error_description_;
     }
 }
 
@@ -551,11 +533,9 @@ TEST_F(ProxyBackendHandlerTest, StaleRunCallback_NotFiltered) {
         backend_b->serve_add_backend_handshake_tcp_fallback();
     });
 
-    handler_->add_backend("127.0.0.1", backend_->port(), std::nullopt,
-                          std::nullopt);
+    handler_->add_backend("127.0.0.1", backend_->port(), std::nullopt, std::nullopt);
     handshake_a.get();
-    handler_->add_backend("127.0.0.1", backend_b->port(), std::nullopt,
-                          std::nullopt);
+    handler_->add_backend("127.0.0.1", backend_b->port(), std::nullopt, std::nullopt);
     handshake_b.get();
 
     start_handler(/*backend_count=*/2);
@@ -598,8 +578,7 @@ TEST_F(ProxyBackendHandlerTest, Reconnect_PreservesForwardCallback) {
 
     auto* backend_dev = handler_->find_backend_for_path(CARRIER_PATH_A);
     ASSERT_NE(backend_dev, nullptr);
-    bool ok = handler_->reconnect_backend(*backend_dev,
-                                          std::chrono::milliseconds{15000});
+    bool ok = handler_->reconnect_backend(*backend_dev, std::chrono::milliseconds{15000});
     ASSERT_TRUE(ok) << "reconnect_backend should succeed";
     reconnect_serve.get();
 
@@ -611,9 +590,8 @@ TEST_F(ProxyBackendHandlerTest, Reconnect_PreservesForwardCallback) {
 
     pb::MessageV1 received;
     bool got = pair.try_recv_message(received, /*timeout_secs=*/3.0);
-    EXPECT_TRUE(got)
-        << "After reconnect, forward callback no longer delivers messages "
-           "to the active session";
+    EXPECT_TRUE(got) << "After reconnect, forward callback no longer delivers messages "
+                        "to the active session";
     if (got) {
         EXPECT_TRUE(received.has_run_data_message());
     }

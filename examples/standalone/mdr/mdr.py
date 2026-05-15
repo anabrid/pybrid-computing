@@ -17,18 +17,16 @@ import logging
 import numpy as np
 from matplotlib import pyplot as plt
 
+from pybrid.base.analog.computations import Division, Multiplication, Square, SquareRoot
 from pybrid.base.utils.logging import set_pybrid_logging_level
-from pybrid.base.analog.computations import (
-    Multiplication, Square, Division, SquareRoot,
-)
+from pybrid.lucidac import Controller as LUCIDACController
+from pybrid.redac import Controller as REDACController
 from pybrid.redac import DAQConfig, RunConfig
 from pybrid.redac.blocks.mblock import MMDRBlock
 from pybrid.redac.carrier import ADCChannel
-from pybrid.lucidac import Controller as LUCIDACController
-from pybrid.redac import Controller as REDACController
 
-#logging.basicConfig()
-#set_pybrid_logging_level(logging.DEBUG)
+# logging.basicConfig()
+# set_pybrid_logging_level(logging.DEBUG)
 
 REDAC_HOST = "192.168.150.69"
 REDAC_PORT = 5732
@@ -93,8 +91,7 @@ async def run_batch(controller, computer, carrier, mdr, n_channels):
 
     session = controller.create_session()
     runs = await (
-        session
-        .set_config(computer)
+        session.set_config(computer)
         .run(
             RunConfig(op_time=OP_TIME),
             daq=DAQConfig(num_channels=n_channels, sample_rate=SAMPLE_RATE),
@@ -105,6 +102,7 @@ async def run_batch(controller, computer, carrier, mdr, n_channels):
 
 
 # -- Phase 1: Multiply, Square, Identity ------------------------------------
+
 
 async def phase1(controller, computer, carrier, cluster, mdr, m_offset):
     """Verify multiply, square, and identity paths with fixed inputs."""
@@ -136,8 +134,7 @@ async def phase1(controller, computer, carrier, cluster, mdr, m_offset):
 
     session = controller.create_session()
     runs = await (
-        session
-        .set_config(computer)
+        session.set_config(computer)
         .run(
             RunConfig(op_time=OP_TIME),
             daq=DAQConfig(num_channels=6, sample_rate=SAMPLE_RATE),
@@ -160,6 +157,7 @@ async def phase1(controller, computer, carrier, cluster, mdr, m_offset):
 
 # -- Phase 2: Square-root grid search ---------------------------------------
 
+
 async def phase2(controller, computer, carrier, cluster, mdr, m_offset):
     """Grid search for sqrt(x), x in [0, 1].
 
@@ -170,11 +168,7 @@ async def phase2(controller, computer, carrier, cluster, mdr, m_offset):
     print("\n=== Phase 2: sqrt(x) Grid Search ===")
 
     # (original_x, cblock_factor, expected_output)
-    valid = [
-        (x, -x, np.sqrt(x))
-        for x in GRID
-        if x >= 0 and np.sqrt(x) <= 1.0
-    ]
+    valid = [(x, -x, np.sqrt(x)) for x in GRID if x >= 0 and np.sqrt(x) <= 1.0]
     print(f"  {len(valid)} test points")
 
     results = []
@@ -199,16 +193,12 @@ async def phase2(controller, computer, carrier, cluster, mdr, m_offset):
 
 # -- Phase 3: Division grid search ------------------------------------------
 
+
 async def phase3(controller, computer, carrier, cluster, mdr, m_offset):
     """Grid search for x/y, both operands in [-1, 1]."""
     print("\n=== Phase 3: x/y Division Grid Search ===")
 
-    valid = [
-        (x, y, x / y)
-        for x in GRID
-        for y in GRID
-        if abs(y) > 1e-9 and abs(x / y) <= 1.0
-    ]
+    valid = [(x, y, x / y) for x in GRID for y in GRID if abs(y) > 1e-9 and abs(x / y) <= 1.0]
     print(f"  {len(valid)} test points")
 
     results = []
@@ -233,6 +223,7 @@ async def phase3(controller, computer, carrier, cluster, mdr, m_offset):
 
 # -- Plotting ----------------------------------------------------------------
 
+
 def plot_sqrt_accuracy(ax, results, title):
     """Scatter x operand on x-axis, fixed y=1; blue = pass, red = fail."""
     xs = np.array([r[0] for r in results])
@@ -242,12 +233,8 @@ def plot_sqrt_accuracy(ax, results, title):
     ok = err < TOLERANCE
     ys = np.ones_like(xs)
 
-    ax.scatter(
-        xs[ok], ys[ok], c="blue", s=20, label=f"pass ({ok.sum()})", zorder=2
-    )
-    ax.scatter(
-        xs[~ok], ys[~ok], c="red", s=20, label=f"fail ({(~ok).sum()})", zorder=2
-    )
+    ax.scatter(xs[ok], ys[ok], c="blue", s=20, label=f"pass ({ok.sum()})", zorder=2)
+    ax.scatter(xs[~ok], ys[~ok], c="red", s=20, label=f"fail ({(~ok).sum()})", zorder=2)
     ax.set_xlim(-1.1, 1.1)
     ax.set_xlabel("x")
     ax.set_title(title)
@@ -265,12 +252,8 @@ def plot_div_accuracy(ax, results, title):
     err = np.abs(meas - exp)
     ok = err < TOLERANCE
 
-    ax.scatter(
-        xs[ok], ys[ok], c="blue", s=20, label=f"pass ({ok.sum()})", zorder=2
-    )
-    ax.scatter(
-        xs[~ok], ys[~ok], c="red", s=20, label=f"fail ({(~ok).sum()})", zorder=2
-    )
+    ax.scatter(xs[ok], ys[ok], c="blue", s=20, label=f"pass ({ok.sum()})", zorder=2)
+    ax.scatter(xs[~ok], ys[~ok], c="red", s=20, label=f"fail ({(~ok).sum()})", zorder=2)
     ax.set_xlim(-1.1, 1.1)
     ax.set_ylim(-1.1, 1.1)
     ax.set_xlabel("x")
@@ -284,6 +267,7 @@ def plot_div_accuracy(ax, results, title):
 
 # -- Main --------------------------------------------------------------------
 
+
 async def main():
     # controller = LUCIDACController()
     controller = REDACController()
@@ -296,12 +280,8 @@ async def main():
         print(f"MDR block at {mdr.path}")
 
         await phase1(controller, computer, carrier, cluster, mdr, m_offset)
-        sqrt_results = await phase2(
-            controller, computer, carrier, cluster, mdr, m_offset
-        )
-        div_results = await phase3(
-            controller, computer, carrier, cluster, mdr, m_offset
-        )
+        sqrt_results = await phase2(controller, computer, carrier, cluster, mdr, m_offset)
+        div_results = await phase3(controller, computer, carrier, cluster, mdr, m_offset)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     plot_sqrt_accuracy(ax1, sqrt_results, "sqrt(x)")

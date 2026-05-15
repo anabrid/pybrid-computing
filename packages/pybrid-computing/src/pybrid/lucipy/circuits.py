@@ -26,25 +26,24 @@ Lane allocation:
 """
 
 import math
+import typing
 import uuid
 import warnings
-import typing
 
 # for protobuf export
 from pybrid.base.proto import main_pb2 as pb
-from pybrid.redac.carrier import ADCChannel
-
-from pybrid.lucipy.helpers import Helpers
 from pybrid.lucipy.elements import (  # noqa: F401 — re-exported for backward compat
+    Constant,
+    Element,
+    Identity,
+    Input,
     Integrator,
     Multiplier,
-    _MulInput,
-    Identity,
-    Constant,
-    Input,
     Output,
-    Element,
+    _MulInput,
 )
+from pybrid.lucipy.helpers import Helpers
+from pybrid.redac.carrier import ADCChannel
 
 
 class Circuit:
@@ -235,8 +234,8 @@ class Circuit:
             not enough lanes are available
         """
         # Ownership check: reject elements from a different circuit
-        source_cid = getattr(source, '_circuit_id', None)
-        target_cid = getattr(target, '_circuit_id', None)
+        source_cid = getattr(source, "_circuit_id", None)
+        target_cid = getattr(target, "_circuit_id", None)
         if source_cid is None or target_cid is None:
             raise ValueError("Dangling elements without a circuit reference found!")
 
@@ -260,12 +259,12 @@ class Circuit:
         # and is determined per-lane below.
         if is_constant:
             source_output_lane = None
-        elif not hasattr(source, 'source_output_lane'):
+        elif not hasattr(source, "source_output_lane"):
             raise TypeError(f"Unsupported source type: {type(source)}")
         else:
             source_output_lane = source.source_output_lane()
 
-        if not hasattr(target, 'target_m_input'):
+        if not hasattr(target, "target_m_input"):
             raise TypeError(f"Unsupported target type: {type(target)}")
         target_m_input = target.target_m_input()
 
@@ -303,10 +302,7 @@ class Circuit:
                     f"available on output path), got {weight}."
                 )
             # For constants, determine output from the ACL lane range
-            acl_source = (
-                Helpers.constant_output_for_lane(acl_lane)
-                if is_constant else source_output_lane
-            )
+            acl_source = Helpers.constant_output_for_lane(acl_lane) if is_constant else source_output_lane
             # Commit: set UBlock output to source, set CBlock coefficient
             self._cluster.ublock.connect(acl_source, acl_lane, force=False)
             self._cluster.cblock.elements[acl_lane].computation.factor = weight
@@ -340,10 +336,7 @@ class Circuit:
             self._general_lanes_used[lane] = True
 
             # For constants, determine M-block output from the lane range
-            lane_source = (
-                Helpers.constant_output_for_lane(lane)
-                if is_constant else source_output_lane
-            )
+            lane_source = Helpers.constant_output_for_lane(lane) if is_constant else source_output_lane
 
             # UBlock: connect source output to this lane
             self._cluster.ublock.connect(lane_source, lane, force=False)
@@ -370,7 +363,7 @@ class Circuit:
         :raises ValueError: If no free ADC channel is available
         """
         # Ownership check
-        source_cid = getattr(source, '_circuit_id', None)
+        source_cid = getattr(source, "_circuit_id", None)
         if source_cid is None:
             raise ValueError("Dangling element without a circuit reference found!")
         if source_cid != self._circuit_id:
@@ -460,8 +453,8 @@ class Circuit:
 
         :returns: pb.File containing the serialized circuit configuration.
         """
-        from pybrid.lucidac.protocol.serializer import LUCIDACSerializer
         from pybrid.base.proto.versioning import ProtoVersioning
+        from pybrid.lucidac.protocol.serializer import LUCIDACSerializer
 
         serializer = LUCIDACSerializer()
         module = serializer.serialize(self._lucidac)
@@ -470,5 +463,3 @@ class Circuit:
             version=ProtoVersioning.current(),
             module=module,
         )
-
- 

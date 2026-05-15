@@ -9,8 +9,9 @@ These tests verify that:
 - set_computer() passes the argument to the parent (not self.computer).
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from pybrid.lucidac.controller import Controller as LUCIStackController
 from pybrid.redac.computer import REDAC
@@ -32,9 +33,9 @@ class TestSetComputerBugFix:
         ctrl = LUCIStackController()
 
         # Build a LUCIStack with distinguishable content
+        from pybrid.redac.blocks import CBlock, IBlock, UBlock
         from pybrid.redac.carrier import Carrier
         from pybrid.redac.cluster import Cluster
-        from pybrid.redac.blocks import UBlock, CBlock, IBlock
         from pybrid.redac.entities import Path
 
         mac = "AA-BB-CC-DD-EE-FF"
@@ -63,13 +64,14 @@ class TestSetComputerBugFix:
             captured_args.append(computer_arg)
 
         with patch.object(
-            REDAC.__mro__[0].__bases__[0] if hasattr(REDAC, '__mro__') else REDAC,
+            REDAC.__mro__[0].__bases__[0] if hasattr(REDAC, "__mro__") else REDAC,
             "set_computer",
             side_effect=mock_set_computer,
             create=True,
         ):
             # Use a more direct approach: patch the REDACController.set_computer
             from pybrid.redac.controller import Controller as REDACController
+
             with patch.object(
                 REDACController,
                 "set_computer",

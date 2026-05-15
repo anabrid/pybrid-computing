@@ -6,7 +6,7 @@ import pytest
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.carrier import Carrier
-from pybrid.redac.entities import Path, Loc
+from pybrid.redac.entities import Loc, Path
 from pybrid.redac.protocol.serializer import REDACDeserializer
 
 

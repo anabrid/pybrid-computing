@@ -6,11 +6,10 @@
 
 from unittest.mock import MagicMock
 
-from pybrid.redac.control import AsyncControlChannel
-from pybrid.base.result import Result
-
 # We mock the native module since it may not be built
 import pybrid.base.proto.main_pb2 as pb
+from pybrid.base.result import Result
+from pybrid.redac.control import AsyncControlChannel
 
 
 class TestAsyncControlChannelUnit:
@@ -181,5 +180,3 @@ class TestAsyncControlChannelResultType:
 
         assert isinstance(result, Result)
         assert result.ok is True
-
-

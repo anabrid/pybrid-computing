@@ -6,11 +6,15 @@ from dataclasses import dataclass, field
 
 from pybrid.base.analog import (
     BaseComputation,
-    Integration as BaseIntegration,
-    ScalarMultiplication as BaseScalarMultiplication,
+    Division,
+    Identity,
+    Multiplication,
     ScalarMultiplicationFactor,
-    Multiplication, Square, SquareRoot, Identity, Division
+    Square,
+    SquareRoot,
 )
+from pybrid.base.analog import Integration as BaseIntegration
+from pybrid.base.analog import ScalarMultiplication as BaseScalarMultiplication
 
 
 @dataclass(kw_only=True)
@@ -38,6 +42,7 @@ class ScalarMultiplication(BaseScalarMultiplication):
 
     def reset(self):
         self.factor = 1.0
+
 
 @dataclass(kw_only=True)
 class MDROperation(BaseComputation):

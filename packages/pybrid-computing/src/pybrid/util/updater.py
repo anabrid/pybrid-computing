@@ -1,7 +1,6 @@
-import io
 import hashlib
+import io
 from pathlib import Path
-
 from typing import Tuple
 
 # Intel HEX record kinds (values mirror the C++ ``Kind`` enum in the native
@@ -139,7 +138,5 @@ class UpdaterUtils:
 
         firmware_bin = hex2bin(firmware_hex)
         if not firmware_bin:
-            raise Exception(
-                f"Unable to convert firmware at {filename} to binary format"
-            )
+            raise Exception(f"Unable to convert firmware at {filename} to binary format")
         return (firmware_bin, UpdaterUtils.sha256(firmware_bin))

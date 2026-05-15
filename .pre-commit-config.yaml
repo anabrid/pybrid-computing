@@ -1,21 +1,48 @@
-# from cookiecutter
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
+# Pre-commit hooks for pybrid-computing.
+#
+# Install once per checkout with:
+#     uv run pre-commit install
+#
+# Manual runs:
+#     uv run pre-commit run --all-files
+#
+# Hooks intentionally limited to fast, deterministic checks. clang-tidy
+# requires a compile_commands.json and a full build, so it runs in CI rather
+# than on every commit.
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: check-added-large-files
--   repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+      - id: trailing-whitespace
+        exclude: '\.(pb\.h|pb\.cc|_pb2\.py|_pb2\.pyi)$'
+      - id: end-of-file-fixer
+        exclude: '\.(pb\.h|pb\.cc|_pb2\.py|_pb2\.pyi)$'
+      - id: check-yaml
+        # mkdocs.yml uses pymdownx Python-name tags that pyyaml's safe loader
+        # refuses; --unsafe falls back to the full loader for syntax checks.
+        args: ['--unsafe']
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1024']
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # ruff handles import sorting via its `I` rule, so no separate isort hook.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
     hooks:
-      - id: isort
-        name: isort (python)
--   repo: https://github.com/psf/black
+      - id: ruff
+        args: [--fix]
+
+  - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
-    -   id: black
-# from project
+      - id: black
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.4
+    hooks:
+      - id: clang-format
+        types_or: [c++, c]
+        exclude: 'packages/pybrid-computing-native/native/pybrid/proto/.*'

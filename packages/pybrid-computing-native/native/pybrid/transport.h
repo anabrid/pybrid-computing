@@ -24,9 +24,9 @@ constexpr double DEFAULT_TCP_CONNECT_TIMEOUT = 5.0;
 
 /// Only non-error outcomes. Errors throw exceptions (propagated to Python).
 enum class RecvStatus {
-    Success,        ///< Data received successfully (bytes > 0)
-    Timeout,        ///< No data available within timeout
-    Disconnected    ///< Peer closed connection (TCP) or socket closed
+    Success,      ///< Data received successfully (bytes > 0)
+    Timeout,      ///< No data available within timeout
+    Disconnected  ///< Peer closed connection (TCP) or socket closed
 };
 
 struct RecvResult {
@@ -35,21 +35,21 @@ struct RecvResult {
 };
 
 struct UDPStats {
-    size_t queue_size;          ///< Current items in receive queue
-    size_t packets_received;    ///< Total packets received
-    size_t packets_dropped;     ///< Packets dropped due to full queue
-    size_t bytes_sent;          ///< Total bytes sent
-    size_t bytes_received;      ///< Total bytes received
+    size_t queue_size;        ///< Current items in receive queue
+    size_t packets_received;  ///< Total packets received
+    size_t packets_dropped;   ///< Packets dropped due to full queue
+    size_t bytes_sent;        ///< Total bytes sent
+    size_t bytes_received;    ///< Total bytes received
 };
 
 struct TCPStats {
-    size_t recv_queue_size;     ///< Current items in receive queue
-    size_t send_queue_size;     ///< Current items in send queue
-    size_t bytes_sent;          ///< Total bytes sent
-    size_t bytes_received;      ///< Total bytes received
-    size_t messages_sent;       ///< Total messages sent
-    size_t messages_received;   ///< Total messages received
-    size_t messages_dropped;    ///< Messages dropped due to full receive queue
+    size_t recv_queue_size;    ///< Current items in receive queue
+    size_t send_queue_size;    ///< Current items in send queue
+    size_t bytes_sent;         ///< Total bytes sent
+    size_t bytes_received;     ///< Total bytes received
+    size_t messages_sent;      ///< Total messages sent
+    size_t messages_received;  ///< Total messages received
+    size_t messages_dropped;   ///< Messages dropped due to full receive queue
 };
 
 /**

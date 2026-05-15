@@ -4,11 +4,11 @@
 
 from functools import singledispatchmethod
 
-from pybrid.redac.protocol.serializer import REDACSerializer, REDACDeserializer
-from pybrid.lucidac.front_plane import FrontPlane, SignalGenerator
-from pybrid.redac.entities import Entity, Loc, Path
-from pybrid.redac.carrier import Carrier
 from pybrid.base.proto import main_pb2 as pb
+from pybrid.lucidac.front_plane import FrontPlane, SignalGenerator
+from pybrid.redac.carrier import Carrier
+from pybrid.redac.entities import Entity, Loc, Path
+from pybrid.redac.protocol.serializer import REDACDeserializer, REDACSerializer
 
 
 class LUCIDACSerializer(REDACSerializer):
@@ -24,6 +24,7 @@ class LUCIDACSerializer(REDACSerializer):
     def _(self, entity: FrontPlane) -> pb.Entity:
         """Serialize a FrontPlane as a FRONTPANEL-class pb.Entity leaf node."""
         from pybrid.redac.entities import EntityType
+
         et = getattr(entity, "entity_type", None)
         if et is None:
             et = EntityType.reverse_lookup(FrontPlane)
@@ -105,7 +106,5 @@ class LUCIDACDeserializer(REDACDeserializer):
             square_voltage_high=config.square_voltage_high,
             offset=config.offset,
             sleep=config.sleep,
-            dac_outputs=list(config.dac_outputs)
+            dac_outputs=list(config.dac_outputs),
         )
-
-

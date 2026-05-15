@@ -28,6 +28,7 @@ from pybrid.redac.control import AsyncControlChannel
 
 try:
     from pybrid.native._impl import ControlChannel as NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -81,23 +82,17 @@ async def test_describe_via_native_channel():
         port = server.port
         channel = await _make_channel(port)
         try:
-            module = await asyncio.wait_for(
-                channel.extract(specification=True, recursive=True), timeout=OP_TIMEOUT
-            )
+            module = await asyncio.wait_for(channel.extract(specification=True, recursive=True), timeout=OP_TIMEOUT)
             entity = module.items[0].entity_specification.entity
 
             # Root entity must have exactly one carrier in LUCIDAC mode.
-            assert len(entity.children) == 1, (
-                f"Expected exactly 1 carrier in LUCIDAC mode, got {len(entity.children)}"
-            )
+            assert len(entity.children) == 1, f"Expected exactly 1 carrier in LUCIDAC mode, got {len(entity.children)}"
 
             carrier = entity.children[0]
 
             # Carrier must include a cluster with id "/0" (firmware wire format uses '/' prefix).
             cluster_ids = {c.id for c in carrier.children}
-            assert "/0" in cluster_ids, (
-                f"Expected cluster with id '/0' under carrier, got: {cluster_ids}"
-            )
+            assert "/0" in cluster_ids, f"Expected cluster with id '/0' under carrier, got: {cluster_ids}"
 
             # Locate the cluster child.
             cluster = next(c for c in carrier.children if c.id == "/0")
@@ -105,14 +100,14 @@ async def test_describe_via_native_channel():
             # Cluster must contain all expected analog blocks.
             block_ids = {c.id for c in cluster.children}
             expected_blocks = {"/M0", "/M1", "/U", "/C", "/I", "/SH"}
-            assert expected_blocks.issubset(block_ids), (
-                f"Cluster is missing blocks. Expected {expected_blocks}, found {block_ids}"
-            )
+            assert expected_blocks.issubset(
+                block_ids
+            ), f"Cluster is missing blocks. Expected {expected_blocks}, found {block_ids}"
 
             # LUCIDAC mode must include FrontPanel entity (id "/FP") on the carrier.
-            assert "/FP" in cluster_ids, (
-                f"Expected FrontPanel '/FP' as carrier child in LUCIDAC mode, got: {cluster_ids}"
-            )
+            assert (
+                "/FP" in cluster_ids
+            ), f"Expected FrontPanel '/FP' as carrier child in LUCIDAC mode, got: {cluster_ids}"
         finally:
             await channel.stop()
 
@@ -140,9 +135,7 @@ async def test_config_set_and_extract_via_native_channel():
         channel = await _make_channel(port)
         try:
             # Step 1: discover carrier path.
-            module = await asyncio.wait_for(
-                channel.extract(specification=True, recursive=True), timeout=OP_TIMEOUT
-            )
+            module = await asyncio.wait_for(channel.extract(specification=True, recursive=True), timeout=OP_TIMEOUT)
             entity = module.items[0].entity_specification.entity
             assert len(entity.children) >= 1, "Expected at least one carrier"
             # Entity ids use the firmware wire format with a leading '/'.
@@ -158,9 +151,7 @@ async def test_config_set_and_extract_via_native_channel():
             adc_ch.offset = 0.5
 
             # Step 3: push config to DummyDAC.
-            result = await asyncio.wait_for(
-                channel.set_module(module), timeout=OP_TIMEOUT
-            )
+            result = await asyncio.wait_for(channel.set_module(module), timeout=OP_TIMEOUT)
             assert result.ok, "set_module() should return a successful Result"
 
             # Step 4: retrieve config back.
@@ -169,13 +160,9 @@ async def test_config_set_and_extract_via_native_channel():
             )
 
             # Step 5: verify the retrieved module is non-empty and path matches.
-            assert len(retrieved.items) >= 1, (
-                "Expected at least one config entry after set+extract roundtrip"
-            )
+            assert len(retrieved.items) >= 1, "Expected at least one config entry after set+extract roundtrip"
             paths = {c.entity.path for c in retrieved.items}
-            assert carrier_path in paths, (
-                f"Carrier path '{carrier_path}' not found in extracted config paths: {paths}"
-            )
+            assert carrier_path in paths, f"Carrier path '{carrier_path}' not found in extracted config paths: {paths}"
         finally:
             await channel.stop()
 
@@ -227,21 +214,11 @@ async def test_run_lifecycle_via_native_channel():
             await asyncio.wait_for(done_event.wait(), timeout=RUN_TIMEOUT)
 
             # Verify the expected state machine progression.
-            assert pb.RunState.TAKE_OFF in states_received, (
-                f"TAKE_OFF missing from states: {states_received}"
-            )
-            assert pb.RunState.IC in states_received, (
-                f"IC missing from states: {states_received}"
-            )
-            assert pb.RunState.OP in states_received, (
-                f"OP missing from states: {states_received}"
-            )
-            assert pb.RunState.OP_END in states_received, (
-                f"OP_END missing from states: {states_received}"
-            )
-            assert pb.RunState.DONE in states_received, (
-                f"DONE missing from states: {states_received}"
-            )
+            assert pb.RunState.TAKE_OFF in states_received, f"TAKE_OFF missing from states: {states_received}"
+            assert pb.RunState.IC in states_received, f"IC missing from states: {states_received}"
+            assert pb.RunState.OP in states_received, f"OP missing from states: {states_received}"
+            assert pb.RunState.OP_END in states_received, f"OP_END missing from states: {states_received}"
+            assert pb.RunState.DONE in states_received, f"DONE missing from states: {states_received}"
         finally:
             await channel.stop()
 
@@ -256,13 +233,9 @@ async def test_sequential_clients():
         # --- First client ---
         channel1 = await _make_channel(port)
         try:
-            module1 = await asyncio.wait_for(
-                channel1.extract(specification=True, recursive=True), timeout=OP_TIMEOUT
-            )
+            module1 = await asyncio.wait_for(channel1.extract(specification=True, recursive=True), timeout=OP_TIMEOUT)
             entity1 = module1.items[0].entity_specification.entity
-            assert len(entity1.children) == 1, (
-                f"Client 1: expected 1 carrier, got {len(entity1.children)}"
-            )
+            assert len(entity1.children) == 1, f"Client 1: expected 1 carrier, got {len(entity1.children)}"
             carrier_id_1 = entity1.children[0].id
         finally:
             await channel1.stop()
@@ -273,19 +246,14 @@ async def test_sequential_clients():
         # --- Second client ---
         channel2 = await _make_channel(port)
         try:
-            module2 = await asyncio.wait_for(
-                channel2.extract(specification=True, recursive=True), timeout=OP_TIMEOUT
-            )
+            module2 = await asyncio.wait_for(channel2.extract(specification=True, recursive=True), timeout=OP_TIMEOUT)
             entity2 = module2.items[0].entity_specification.entity
-            assert len(entity2.children) == 1, (
-                f"Client 2: expected 1 carrier, got {len(entity2.children)}"
-            )
+            assert len(entity2.children) == 1, f"Client 2: expected 1 carrier, got {len(entity2.children)}"
             carrier_id_2 = entity2.children[0].id
         finally:
             await channel2.stop()
 
         # Both clients must see the same carrier (same DummyDAC instance).
         assert carrier_id_1 == carrier_id_2, (
-            f"Both clients should see the same carrier MAC. "
-            f"Client 1: {carrier_id_1}, Client 2: {carrier_id_2}"
+            f"Both clients should see the same carrier MAC. " f"Client 1: {carrier_id_1}, Client 2: {carrier_id_2}"
         )

@@ -24,8 +24,9 @@ import pybrid.base.proto.main_pb2 as pb
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 
 try:
-    from pybrid.native._impl import ControlChannel as _NativeControlChannel
     from pybrid.native import SampleDecodingDataChannel
+    from pybrid.native._impl import ControlChannel as _NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -115,14 +116,11 @@ async def test_data_channel_created_on_add_device():
             assert new_connections, "add_device() returned no connections"
 
             unique_conns = cm.get_unique_connections()
-            assert len(unique_conns) == 1, (
-                f"Expected 1 unique DeviceConnection, got {len(unique_conns)}"
-            )
+            assert len(unique_conns) == 1, f"Expected 1 unique DeviceConnection, got {len(unique_conns)}"
             conn = next(iter(unique_conns))
 
             assert conn.data is not None, (
-                "DeviceConnection.data is None after add_device(); "
-                "expected a SampleDecodingDataChannel"
+                "DeviceConnection.data is None after add_device(); " "expected a SampleDecodingDataChannel"
             )
             assert conn.data.is_running(), (
                 "SampleDecodingDataChannel.is_running() is False after add_device(); "
@@ -180,8 +178,7 @@ async def test_data_channel_receives_samples_via_run():
             await asyncio.sleep(0.1)
 
             assert output_queue.len() > 0, (
-                "IBuffer output queue is empty after run completed; "
-                "expected at least one decoded sample blob"
+                "IBuffer output queue is empty after run completed; " "expected at least one decoded sample blob"
             )
 
             # Drain and verify blobs are non-trivially sized.
@@ -196,9 +193,7 @@ async def test_data_channel_receives_samples_via_run():
                     "(minimum DecodedSampleBlobHeader size)"
                 )
 
-            control.unregister_callback(
-                pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER
-            )
+            control.unregister_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER)
         finally:
             await cm.close_all()
 
@@ -229,9 +224,7 @@ async def test_data_channel_tcp_fallback_with_dummydac():
                 "Expected is_using_tcp_fallback() == True because DummyDAC refuses "
                 "UDP streaming, but TCP fallback is not active"
             )
-            assert data_channel.is_running(), (
-                "Data channel not running after TCP fallback was established"
-            )
+            assert data_channel.is_running(), "Data channel not running after TCP fallback was established"
 
             # Even in TCP fallback mode, data must flow during a run.
             loop = asyncio.get_running_loop()
@@ -261,9 +254,7 @@ async def test_data_channel_tcp_fallback_with_dummydac():
                 "expected sample blobs even when UDP is unavailable"
             )
 
-            control.unregister_callback(
-                pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER
-            )
+            control.unregister_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER)
         finally:
             await cm.close_all()
 
@@ -290,12 +281,8 @@ def test_ibuffer_python_bindings():
     # Retrieve first item and verify exact bytes are preserved.
     scratch = bytearray(len(item_a) + 64)
     n = buf.get(scratch, len(scratch))
-    assert n == len(item_a), (
-        f"get() returned {n} bytes, expected {len(item_a)}"
-    )
-    assert bytes(scratch[:n]) == item_a, (
-        "Retrieved bytes do not match original item_a"
-    )
+    assert n == len(item_a), f"get() returned {n} bytes, expected {len(item_a)}"
+    assert bytes(scratch[:n]) == item_a, "Retrieved bytes do not match original item_a"
 
     # One item left.
     assert buf.len() == 1, f"Expected 1 item remaining, got {buf.len()}"
@@ -303,12 +290,8 @@ def test_ibuffer_python_bindings():
     # Retrieve second item.
     scratch2 = bytearray(len(item_b) + 64)
     n2 = buf.get(scratch2, len(scratch2))
-    assert n2 == len(item_b), (
-        f"get() returned {n2} bytes for item_b, expected {len(item_b)}"
-    )
-    assert bytes(scratch2[:n2]) == item_b, (
-        "Retrieved bytes do not match original item_b"
-    )
+    assert n2 == len(item_b), f"get() returned {n2} bytes for item_b, expected {len(item_b)}"
+    assert bytes(scratch2[:n2]) == item_b, "Retrieved bytes do not match original item_b"
 
     # Buffer should be empty now.
     assert buf.len() == 0, f"Expected empty buffer after drain, got {buf.len()}"

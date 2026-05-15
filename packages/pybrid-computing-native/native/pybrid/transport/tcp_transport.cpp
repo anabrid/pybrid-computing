@@ -18,9 +18,7 @@ TCPTransport::TCPTransport(BufferType buffer_type)
     recv_buffer_.resize(MAX_VARINT_SIZE + DEFAULT_TCP_MESSAGE_SIZE);
 }
 
-std::unique_ptr<TCPTransport> TCPTransport::from_accepted(
-    AcceptedSocket accepted, BufferType buffer_type) {
-
+std::unique_ptr<TCPTransport> TCPTransport::from_accepted(AcceptedSocket accepted, BufferType buffer_type) {
     if (!accepted.is_valid()) {
         return nullptr;
     }
@@ -50,7 +48,9 @@ std::unique_ptr<TCPTransport> TCPTransport::from_accepted(
     return transport;
 }
 
-TCPTransport::~TCPTransport() { stop(); }
+TCPTransport::~TCPTransport() {
+    stop();
+}
 
 void TCPTransport::start() {
     bool expected = false;
@@ -58,8 +58,7 @@ void TCPTransport::start() {
         if (running_) {
             return;
         }
-        throw std::runtime_error(
-            "TCPTransport cannot be restarted after stopping");
+        throw std::runtime_error("TCPTransport cannot be restarted after stopping");
     }
 
     running_ = true;
@@ -104,7 +103,9 @@ void TCPTransport::stop() {
     }
 }
 
-bool TCPTransport::is_running() const { return running_; }
+bool TCPTransport::is_running() const {
+    return running_;
+}
 
 RecvResult TCPTransport::recv(void* buffer, size_t max_len, double timeout_secs) {
     TCPQueueEntry entry;
@@ -124,8 +125,7 @@ RecvResult TCPTransport::recv(void* buffer, size_t max_len, double timeout_secs)
         return {0, RecvStatus::Disconnected};
     }
 
-    auto deadline = std::chrono::steady_clock::now() +
-                    std::chrono::duration<double>(timeout_secs);
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout_secs);
 
     std::unique_lock<std::mutex> lock(recv_cv_mutex_);
     while (running_ && connected_) {
@@ -157,9 +157,9 @@ bool TCPTransport::send(const void* data, size_t len) {
     }
 
     if (len > DEFAULT_TCP_MESSAGE_SIZE) {
-        throw std::runtime_error("Message too large: " + std::to_string(len) +
-                                 " bytes (max: " +
-                                 std::to_string(DEFAULT_TCP_MESSAGE_SIZE) + ")");
+        throw std::runtime_error(
+            "Message too large: " + std::to_string(len) + " bytes (max: " + std::to_string(DEFAULT_TCP_MESSAGE_SIZE) +
+            ")");
     }
 
     TCPQueueEntry entry;
@@ -175,12 +175,15 @@ bool TCPTransport::send(const void* data, size_t len) {
     return true;
 }
 
-std::string TCPTransport::name() const { return name_; }
+std::string TCPTransport::name() const {
+    return name_;
+}
 
-void TCPTransport::set_name(const std::string& name) { name_ = name; }
+void TCPTransport::set_name(const std::string& name) {
+    name_ = name;
+}
 
-bool TCPTransport::connect(const std::string& host, uint16_t port,
-                           double timeout_secs) {
+bool TCPTransport::connect(const std::string& host, uint16_t port, double timeout_secs) {
     if (!running_) {
         throw std::runtime_error("Transport must be started before TCP connect");
     }
@@ -208,19 +211,17 @@ bool TCPTransport::connect(const std::string& host, uint16_t port,
     auto connect_future = connect_promise.get_future();
 
     asio::post(io_, [this, endpoint, p = std::move(connect_promise)]() mutable {
-        socket_->async_connect(
-            endpoint,
-            [this, p = std::move(p)](const asio::error_code& ec) mutable {
-                if (ec) {
-                    std::lock_guard<std::mutex> lock(socket_mutex_);
-                    if (socket_) {
-                        asio::error_code dummy;
-                        socket_->close(dummy);
-                        socket_.reset();
-                    }
+        socket_->async_connect(endpoint, [this, p = std::move(p)](const asio::error_code& ec) mutable {
+            if (ec) {
+                std::lock_guard<std::mutex> lock(socket_mutex_);
+                if (socket_) {
+                    asio::error_code dummy;
+                    socket_->close(dummy);
+                    socket_.reset();
                 }
-                p.set_value(ec);
-            });
+            }
+            p.set_value(ec);
+        });
     });
 
     auto timeout = std::chrono::duration<double>(timeout_secs);
@@ -270,15 +271,16 @@ void TCPTransport::disconnect() {
     recv_cv_.notify_all();
 }
 
-bool TCPTransport::is_connected() const { return connected_; }
+bool TCPTransport::is_connected() const {
+    return connected_;
+}
 
 bool TCPTransport::drain(double timeout_secs) {
     if (!running_) {
         return false;
     }
 
-    auto deadline = std::chrono::steady_clock::now() +
-                    std::chrono::duration<double>(timeout_secs);
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout_secs);
 
     while (std::chrono::steady_clock::now() < deadline) {
         if (send_queue_->len() == 0 && !sending_.load(std::memory_order_acquire)) {
@@ -355,8 +357,7 @@ void TCPTransport::reset_buffers() {
         recv_buffer_.resize(initial);
         recv_buffer_.shrink_to_fit();
         recv_buffer_used_ = std::min(recv_buffer_used_, initial);
-        recv_buffer_capacity_.store(recv_buffer_.capacity(),
-                                    std::memory_order_relaxed);
+        recv_buffer_capacity_.store(recv_buffer_.capacity(), std::memory_order_relaxed);
     });
 }
 
@@ -374,8 +375,7 @@ void TCPTransport::start_receive() {
         // Expand without cap; system memory is the limit.
         recv_buffer_.resize(recv_buffer_.size() * 2);
         available_space = recv_buffer_.size() - recv_buffer_used_;
-        recv_buffer_capacity_.store(recv_buffer_.capacity(),
-                                    std::memory_order_relaxed);
+        recv_buffer_capacity_.store(recv_buffer_.capacity(), std::memory_order_relaxed);
     }
 
     socket_->async_read_some(
@@ -403,8 +403,7 @@ void TCPTransport::start_receive() {
 void TCPTransport::process_recv_buffer() {
     while (recv_buffer_used_ > 0) {
         uint64_t msg_len = 0;
-        size_t varint_bytes =
-            decode_varint(recv_buffer_.data(), recv_buffer_used_, msg_len);
+        size_t varint_bytes = decode_varint(recv_buffer_.data(), recv_buffer_used_, msg_len);
 
         if (varint_bytes == 0) {
             return;
@@ -431,8 +430,7 @@ void TCPTransport::process_recv_buffer() {
             return;
         }
 
-        std::memcpy(entry.data.data(),
-                    recv_buffer_.data() + varint_bytes, msg_len);
+        std::memcpy(entry.data.data(), recv_buffer_.data() + varint_bytes, msg_len);
 
         if (recv_queue_->try_put(sizeof(entry), &entry)) {
             messages_received_.fetch_add(1, std::memory_order_relaxed);
@@ -443,8 +441,7 @@ void TCPTransport::process_recv_buffer() {
 
         size_t remaining = recv_buffer_used_ - total_msg_size;
         if (remaining > 0) {
-            std::memmove(recv_buffer_.data(),
-                         recv_buffer_.data() + total_msg_size, remaining);
+            std::memmove(recv_buffer_.data(), recv_buffer_.data() + total_msg_size, remaining);
         }
         recv_buffer_used_ = remaining;
     }
@@ -469,8 +466,7 @@ void TCPTransport::send_loop() {
 
         wire_buf.resize(MAX_VARINT_SIZE + entry.data_len);
         size_t varint_len = encode_varint(entry.data_len, wire_buf.data());
-        std::memcpy(wire_buf.data() + varint_len, entry.data.data(),
-                    entry.data_len);
+        std::memcpy(wire_buf.data() + varint_len, entry.data.data(), entry.data_len);
         wire_buf.resize(varint_len + entry.data_len);
 
         sending_.store(true, std::memory_order_release);

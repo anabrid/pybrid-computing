@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 from pybrid.base.hybrid.programs import RunEvaluateReconfigureLoop
-from pybrid.redac import REDAC, Run, RunConfig, DAQConfig
+from pybrid.redac import REDAC, DAQConfig, Run, RunConfig
 
 # Define accuracy target
 t_min, t_max = 18, 20

@@ -49,14 +49,15 @@ class StartRunHandler(BaseHandler):
         num_channels = cmd.daq_config.num_channels
         logger.debug(
             "START_RUN: run_id=%s, op_time=%dns, sample_rate=%dHz, channels=%d",
-            run_id, op_time_ns, sample_rate, num_channels
+            run_id,
+            op_time_ns,
+            sample_rate,
+            num_channels,
         )
 
         if self.server.config.error_stage == DummyDACErrorStage.AT_START_RUN:
             logger.debug("START_RUN: Error injection active (AT_START_RUN)")
-            return pb.ErrorMessage(
-                description=self.server.config.error_message or "Start run error"
-            )
+            return pb.ErrorMessage(description=self.server.config.error_message or "Start run error")
 
         logger.debug("START_RUN: Launching async run execution task")
         task = asyncio.create_task(self._execute_run(cmd, connection))
@@ -140,7 +141,10 @@ class StartRunHandler(BaseHandler):
 
         logger.debug(
             "RUN[%s]: Starting execution - %d samples @ %dHz for %d channels (from config)",
-            run_id[:8], num_samples, sample_rate, num_channels
+            run_id[:8],
+            num_samples,
+            sample_rate,
+            num_channels,
         )
 
         zero_time = pb.Time(value=0, prefix=pb.Prefix.NONE)
@@ -150,12 +154,9 @@ class StartRunHandler(BaseHandler):
             logger.debug("RUN[%s]: State -> TAKE_OFF", run_id[:8])
             msg = ClientConnection.new_message(
                 pb.RunStateChangeMessage(
-                    run=pb.Run(id=run_id, chunk=0),
-                    time=zero_time,
-                    old=pb.RunState.NEW,
-                    new_=pb.RunState.TAKE_OFF
+                    run=pb.Run(id=run_id, chunk=0), time=zero_time, old=pb.RunState.NEW, new_=pb.RunState.TAKE_OFF
                 ),
-                id=None
+                id=None,
             )
             await connection.send_message(msg)
         else:
@@ -164,24 +165,18 @@ class StartRunHandler(BaseHandler):
         logger.debug("RUN[%s]: State -> IC", run_id[:8])
         msg = ClientConnection.new_message(
             pb.RunStateChangeMessage(
-                run=pb.Run(id=run_id, chunk=0),
-                time=zero_time,
-                old=pb.RunState.TAKE_OFF,
-                new_=pb.RunState.IC
+                run=pb.Run(id=run_id, chunk=0), time=zero_time, old=pb.RunState.TAKE_OFF, new_=pb.RunState.IC
             ),
-            id=None
+            id=None,
         )
         await connection.send_message(msg)
 
         logger.debug("RUN[%s]: State -> OP", run_id[:8])
         msg = ClientConnection.new_message(
             pb.RunStateChangeMessage(
-                run=pb.Run(id=run_id, chunk=0),
-                time=zero_time,
-                old=pb.RunState.IC,
-                new_=pb.RunState.OP
+                run=pb.Run(id=run_id, chunk=0), time=zero_time, old=pb.RunState.IC, new_=pb.RunState.OP
             ),
-            id=None
+            id=None,
         )
         await connection.send_message(msg)
 
@@ -204,21 +199,24 @@ class StartRunHandler(BaseHandler):
             total_chunks = chunks_per_carrier * len(self.server._carrier_macs)
             inter_chunk_delay = op_time_seconds / max(1, total_chunks)
             logger.debug(
-                "RUN[%s]: Simulating OP time (%.3f s) spread over %d chunks "
-                "(%.4f s per chunk)",
-                run_id[:8], op_time_seconds, total_chunks, inter_chunk_delay,
+                "RUN[%s]: Simulating OP time (%.3f s) spread over %d chunks " "(%.4f s per chunk)",
+                run_id[:8],
+                op_time_seconds,
+                total_chunks,
+                inter_chunk_delay,
             )
 
         # Generate and send samples for each carrier
-        logger.debug(
-            "RUN[%s]: Generating samples for %d carriers",
-            run_id[:8],
-            len(self.server._carrier_macs)
-        )
+        logger.debug("RUN[%s]: Generating samples for %d carriers", run_id[:8], len(self.server._carrier_macs))
         for carrier_mac in self.server._carrier_macs:
             await self._send_carrier_samples(
-                connection, run_id, carrier_mac, num_channels, num_samples,
-                sample_rate, inter_chunk_delay=inter_chunk_delay,
+                connection,
+                run_id,
+                carrier_mac,
+                num_channels,
+                num_samples,
+                sample_rate,
+                inter_chunk_delay=inter_chunk_delay,
             )
 
         # Check for DURING_RUN error
@@ -226,12 +224,9 @@ class StartRunHandler(BaseHandler):
             logger.debug("RUN[%s]: State -> ERROR (DURING_RUN error injection)", run_id[:8])
             msg = ClientConnection.new_message(
                 pb.RunStateChangeMessage(
-                    run=pb.Run(id=run_id, chunk=0),
-                    time=zero_time,
-                    old=pb.RunState.OP,
-                    new_=pb.RunState.ERROR
+                    run=pb.Run(id=run_id, chunk=0), time=zero_time, old=pb.RunState.OP, new_=pb.RunState.ERROR
                 ),
-                id=None
+                id=None,
             )
             await connection.send_message(msg)
             return
@@ -239,12 +234,9 @@ class StartRunHandler(BaseHandler):
         logger.debug("RUN[%s]: State -> OP_END", run_id[:8])
         msg = ClientConnection.new_message(
             pb.RunStateChangeMessage(
-                run=pb.Run(id=run_id, chunk=0),
-                time=zero_time,
-                old=pb.RunState.OP,
-                new_=pb.RunState.OP_END
+                run=pb.Run(id=run_id, chunk=0), time=zero_time, old=pb.RunState.OP, new_=pb.RunState.OP_END
             ),
-            id=None
+            id=None,
         )
         await connection.send_message(msg)
 
@@ -253,7 +245,7 @@ class StartRunHandler(BaseHandler):
             "RUN[%s]: Sending RunDataEndMessage for %d carriers (%d channels)",
             run_id[:8],
             len(self.server._carrier_macs),
-            num_channels
+            num_channels,
         )
         for carrier_mac in self.server._carrier_macs:
             final_values = self._generate_final_values(num_channels)
@@ -262,15 +254,13 @@ class StartRunHandler(BaseHandler):
                 type=pb.DataType(float_=pb.FloatType(bitwidth=32)),
                 sample_count=1,
                 channel_stride=num_channels,
-                channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)]
+                channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)],
             )
             msg = ClientConnection.new_message(
                 pb.RunDataEndMessage(
-                    run=pb.Run(id=run_id, chunk=0),
-                    entity=pb.EntityId(path=f"/{carrier_mac}"),
-                    data=final_data
+                    run=pb.Run(id=run_id, chunk=0), entity=pb.EntityId(path=f"/{carrier_mac}"), data=final_data
                 ),
-                id=None
+                id=None,
             )
             await connection.send_message(msg)
 
@@ -278,12 +268,9 @@ class StartRunHandler(BaseHandler):
             logger.debug("RUN[%s]: State -> DONE", run_id[:8])
             msg = ClientConnection.new_message(
                 pb.RunStateChangeMessage(
-                    run=pb.Run(id=run_id, chunk=0),
-                    time=zero_time,
-                    old=pb.RunState.OP_END,
-                    new_=pb.RunState.DONE
+                    run=pb.Run(id=run_id, chunk=0), time=zero_time, old=pb.RunState.OP_END, new_=pb.RunState.DONE
                 ),
-                id=None
+                id=None,
             )
             await connection.send_message(msg)
         else:
@@ -294,9 +281,7 @@ class StartRunHandler(BaseHandler):
     #: Amplitude scaling applied to samples/final-values when calibrated.
     CALIBRATION_SCALE = 0.5
 
-    def _generate_samples(
-        self, num_channels: int, num_samples: int, sample_rate: int
-    ) -> np.ndarray:
+    def _generate_samples(self, num_channels: int, num_samples: int, sample_rate: int) -> np.ndarray:
         """
         Generate sine wave samples for each channel.
 
@@ -372,7 +357,10 @@ class StartRunHandler(BaseHandler):
         """
         logger.debug(
             "RUN[%s]: Generating %d samples for carrier %s (%d channels)",
-            run_id[:8], num_samples, carrier_mac, num_channels
+            run_id[:8],
+            num_samples,
+            carrier_mac,
+            num_channels,
         )
         samples = self._generate_samples(num_channels, num_samples, sample_rate)
 
@@ -383,7 +371,9 @@ class StartRunHandler(BaseHandler):
             samples = samples[:, :actual_samples]
             logger.debug(
                 "RUN[%s]: FEWER_SAMPLES active - sending %d samples instead of %d",
-                run_id[:8], actual_samples, num_samples
+                run_id[:8],
+                actual_samples,
+                num_samples,
             )
 
         chunk_size = 100
@@ -395,23 +385,25 @@ class StartRunHandler(BaseHandler):
             chunk_samples = samples[:, start:end]
 
             daq_data = pb.DaqData(
-                data=chunk_samples.astype(np.float32).flatten(order='F').tobytes(),
+                data=chunk_samples.astype(np.float32).flatten(order="F").tobytes(),
                 type=pb.DataType(float_=pb.FloatType(bitwidth=32)),
                 sample_count=end - start,
                 channel_stride=num_channels,
-                channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)]
+                channels=[pb.AdcChannel(idx=i, gain=1.0, offset=0.0, probe=i) for i in range(num_channels)],
             )
 
             msg = pb.RunDataMessage(
-                run=pb.Run(id=run_id, chunk=chunk),
-                entity=pb.EntityId(path=f"/{carrier_mac}"),
-                data=daq_data
+                run=pb.Run(id=run_id, chunk=chunk), entity=pb.EntityId(path=f"/{carrier_mac}"), data=daq_data
             )
 
             await connection.send_message(ClientConnection.new_message(msg, id=None))
             logger.debug(
                 "RUN[%s]: Sent chunk %d/%d (%d samples) for carrier %s",
-                run_id[:8], chunk + 1, total_chunks, end - start, carrier_mac
+                run_id[:8],
+                chunk + 1,
+                total_chunks,
+                end - start,
+                carrier_mac,
             )
             chunk += 1
 
@@ -422,5 +414,8 @@ class StartRunHandler(BaseHandler):
 
         logger.debug(
             "RUN[%s]: Finished sending %d samples in %d chunks for carrier %s",
-            run_id[:8], actual_samples, chunk, carrier_mac
+            run_id[:8],
+            actual_samples,
+            chunk,
+            carrier_mac,
         )

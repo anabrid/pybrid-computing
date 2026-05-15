@@ -1,18 +1,19 @@
 import asyncio
+import io
 import logging
 from ipaddress import IPv4Address, ip_network
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.utils import ImageReader
-
-import io
 import numpy as np
 from matplotlib import pyplot as plt
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+
 from pybrid.base.utils.logging import set_pybrid_logging_level
-from pybrid.redac import Controller as REDACController, DAQConfig, RunConfig, Path
 from pybrid.lucidac.controller import Controller as LUCIDACController
-from pybrid.redac.carrier import Carrier, ADCChannel
+from pybrid.redac import Controller as REDACController
+from pybrid.redac import DAQConfig, Path, RunConfig
+from pybrid.redac.carrier import ADCChannel, Carrier
 
 set_pybrid_logging_level(logging.ERROR)
 
@@ -26,7 +27,7 @@ class Reporter:
     padding: int = 20
     spacing: int = 10
 
-    def __init__(self, output='report.pdf', pagesize=A4) -> None:
+    def __init__(self, output="report.pdf", pagesize=A4) -> None:
         self.canvas = canvas.Canvas(output, pagesize=pagesize)
         self.pageWidth, self.pageHeight = pagesize
         self.init_page()
@@ -41,7 +42,7 @@ class Reporter:
     def drawString(self, text, fontSize, **kwargs):
         self.ensure_height(fontSize)
         self.currentHeight -= fontSize
-        self.canvas.setFont('Helvetica', fontSize)
+        self.canvas.setFont("Helvetica", fontSize)
         self.canvas.drawString(x=self.padding, y=self.currentHeight, text=text, **kwargs)
         self.currentHeight -= self.spacing
 
@@ -54,7 +55,7 @@ class Reporter:
         self.ensure_height(height)
         buf = io.BytesIO()
         fig.set_size_inches(width / 100, height / 100)
-        fig.savefig(buf, format='png', dpi=300)
+        fig.savefig(buf, format="png", dpi=300)
         buf.seek(0)
         self.currentHeight -= height
         center = (self.pageWidth - width) / 2
@@ -73,7 +74,7 @@ class Reporter:
         ax.boxplot(distributions, tick_labels=labels, showfliers=False)
         ax.set_ylabel("Value")
         ax.set_title(title)
-        ax.tick_params(axis='x', rotation=90)
+        ax.tick_params(axis="x", rotation=90)
         fig.tight_layout(pad=3)
         self.drawPlot(fig)
         plt.close(fig)
@@ -84,10 +85,11 @@ class Reporter:
             ax.plot(distribution)
         ax.set_ylabel("Value")
         ax.set_title(title)
-        ax.tick_params(axis='x', rotation=90)
+        ax.tick_params(axis="x", rotation=90)
         fig.tight_layout(pad=3)
         self.drawPlot(fig)
         plt.close(fig)
+
 
 async def sin_test(controller: REDACController | LUCIDACController, reporter: Reporter) -> None:
     print("Harmonic oscillator test")
@@ -113,7 +115,7 @@ async def sin_test(controller: REDACController | LUCIDACController, reporter: Re
                     cluster.m0block.elements[lane_cos].ic = 1.0
                     computer.daq.capture(cluster.m0block.elements[lane_cos], cluster.m0block.elements[lane_sin])
 
-                run_config = RunConfig(op_time= (periods * 6_283_185_307) // 10_000)
+                run_config = RunConfig(op_time=(periods * 6_283_185_307) // 10_000)
                 daq_config = DAQConfig(num_channels=8, sample_rate=(314_159) // 10)
 
                 runs = await (
@@ -134,7 +136,7 @@ async def sin_test(controller: REDACController | LUCIDACController, reporter: Re
                     itor_idx = channel_idx
                     pi_values = np.linspace(0, periods * 2 * np.pi, len(channel))
                     ref = np.cos(pi_values) if channel_idx % 2 == 0 else np.sin(pi_values)
-                    values = - channel - ref
+                    values = -channel - ref
                     labels.append(str(itor_idx))
                     data.append(values)
                 reporter.box_plot(labels, data, title=str(cluster.path.root) + " cluster " + str(cluster_idx))
@@ -144,7 +146,9 @@ async def lane_test(controller: REDACController | LUCIDACController, reporter: R
     print("Lane Test")
 
     reporter.drawString("Lane test", 18)
-    reporter.drawString("Evaluation of each lane using constant input and probe through coef element with 0.56 and ident element.", 12)
+    reporter.drawString(
+        "Evaluation of each lane using constant input and probe through coef element with 0.56 and ident element.", 12
+    )
 
     computer = controller.computer
 
@@ -163,7 +167,9 @@ async def lane_test(controller: REDACController | LUCIDACController, reporter: R
                     lane_idx = batch_idx * 4 + channel_idx
 
                     cluster.add_constant(lane_idx, -lane_coef, 8 + channel_idx, 1.0)
-                    carrier.adc_config.append(ADCChannel(index=12 + channel_idx + 16 * cluster_idx, gain=1.0, offset=0.0, probe=channel_idx))
+                    carrier.adc_config.append(
+                        ADCChannel(index=12 + channel_idx + 16 * cluster_idx, gain=1.0, offset=0.0, probe=channel_idx)
+                    )
 
                 runs = await (
                     controller.create_session()
@@ -183,6 +189,7 @@ async def lane_test(controller: REDACController | LUCIDACController, reporter: R
                     data.append(values)
             reporter.box_plot(labels, data, title=str(cluster.path.root) + " cluster " + str(cluster_idx))
     reporter.nextPage()
+
 
 async def mul_test(controller: REDACController | LUCIDACController, reporter: Reporter) -> None:
     print("Multiplication Test")
@@ -211,7 +218,9 @@ async def mul_test(controller: REDACController | LUCIDACController, reporter: Re
                 cluster.add_constant(mul_lhs, -lhs_const, mul_lhs, 1.0)
                 cluster.add_constant(mul_rhs, -rhs_const, mul_rhs, 1.0)
 
-                carrier.adc_config.append(ADCChannel(index=mul_out + 16 * cluster_idx, gain=1.0, offset=0.0, probe=mul_idx))
+                carrier.adc_config.append(
+                    ADCChannel(index=mul_out + 16 * cluster_idx, gain=1.0, offset=0.0, probe=mul_idx)
+                )
 
             runs = await (
                 controller.create_session()
@@ -231,6 +240,7 @@ async def mul_test(controller: REDACController | LUCIDACController, reporter: Re
                 data.append(values)
             reporter.box_plot(labels, data, title=str(cluster.path.root) + " cluster " + str(cluster_idx))
     reporter.nextPage()
+
 
 async def itor_test(controller: REDACController | LUCIDACController, reporter: Reporter) -> None:
     print("Integrator Test")
@@ -260,7 +270,9 @@ async def itor_test(controller: REDACController | LUCIDACController, reporter: R
                         cluster.add_constant(itor_idx, -slope, itor_in, 1.0)
                         cluster.m0block.elements[itor_idx].ic = 0.0
                         cluster.m0block.elements[itor_idx].k = k
-                        carrier.adc_config.append(ADCChannel(index=itor_out + 16 * cluster_idx, gain=1.0, offset=0.0, probe=itor_idx))
+                        carrier.adc_config.append(
+                            ADCChannel(index=itor_out + 16 * cluster_idx, gain=1.0, offset=0.0, probe=itor_idx)
+                        )
 
                     runs = await (
                         controller.create_session()
@@ -285,14 +297,16 @@ async def itor_test(controller: REDACController | LUCIDACController, reporter: R
                 reporter.box_plot(labels, target, title=str(carrier.path.root))
             reporter.nextPage()
 
+
 async def main():
     reporter = Reporter()
 
     import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('--host', default='192.168.104.244', help='Host IP address')
-    parser.add_argument('--port', type=int, default=5732, help='Port number')
-    parser.add_argument('--lucidac', action='store_true', help='Use LUCIDAC controller')
+    parser.add_argument("--host", default="192.168.104.244", help="Host IP address")
+    parser.add_argument("--port", type=int, default=5732, help="Port number")
+    parser.add_argument("--lucidac", action="store_true", help="Use LUCIDAC controller")
     args = parser.parse_args()
 
     controller = LUCIDACController() if args.lucidac else REDACController()
@@ -306,6 +320,7 @@ async def main():
         await itor_test(controller, reporter)
 
     reporter.save()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

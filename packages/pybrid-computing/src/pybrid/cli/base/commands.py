@@ -10,8 +10,8 @@ from pybrid.base.utils.imports import import_file_as_module
 
 @click.command
 @click.pass_obj
-@click.option('--output', '-o', type=click.File('w'), default='-')
-@click.argument('user_program_file', type=click.Path(exists=True, file_okay=True, dir_okay=False))
+@click.option("--output", "-o", type=click.File("w"), default="-")
+@click.argument("user_program_file", type=click.Path(exists=True, file_okay=True, dir_okay=False))
 async def user_program(obj, output, user_program_file):
     controller: BaseController = obj["controller"]
     run_: BaseRun = obj["run"]

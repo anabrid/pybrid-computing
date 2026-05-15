@@ -51,26 +51,35 @@ class Integration(BaseComputation):
 @dataclass(kw_only=True)
 class Multiplication(BaseComputation):
     """A multiplication computing :math:`x(t) \\cdot y(t)` for inputs :math:`x(t)` and :math:`y(t)`."""
+
     pass
+
 
 @dataclass(kw_only=True)
 class Division(BaseComputation):
     """A division computing :math:`\frac{x(t)}{y(t)}` for inputs :math:`x(t)`, :math:`y(t)`."""
+
     pass
+
 
 @dataclass(kw_only=True)
 class SquareRoot(BaseComputation):
-    """A square root operation computing :math:`\sqrt{x(t)}` fir an input :math:`x(t)`."""
+    r"""A square root operation computing :math:`\sqrt{x(t)}` fir an input :math:`x(t)`."""
+
     pass
+
 
 @dataclass(kw_only=True)
 class Square(BaseComputation):
     """A simple operation computing :math:`x(t)^2` for an input :math:`x(t)`."""
+
     pass
+
 
 @dataclass(kw_only=True)
 class Summation(BaseComputation):
     pass
+
 
 @dataclass(kw_only=True)
 class Identity(BaseComputation):

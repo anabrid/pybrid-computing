@@ -26,10 +26,7 @@ class ElementBlock(FunctionBlock):
     def __post_init__(self):
         super().__post_init__()
         if self.elements is None and self.ELEMENTS is not None:
-            self.elements = [
-                cls(path=self.path / idx) for idx, cls in enumerate(self.ELEMENTS)
-            ]
-
+            self.elements = [cls(path=self.path / idx) for idx, cls in enumerate(self.ELEMENTS)]
 
 
 class SignalConnectionError(Exception):

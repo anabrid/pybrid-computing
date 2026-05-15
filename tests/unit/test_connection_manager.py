@@ -20,13 +20,13 @@ channel creation, and lifecycle management. These tests verify:
 All tests use mocks — no real network connections are made.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pybrid.base.proto.main_pb2 as pb
+import pytest
 
-from pybrid.redac.connection import ConnectionManager
+import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.channel import DeviceConnection
+from pybrid.redac.connection import ConnectionManager
 from pybrid.redac.control import AsyncControlChannel
 from pybrid.redac.entities import Path
 
@@ -45,9 +45,7 @@ def _make_entity_with_carriers(carrier_macs: list[str]) -> pb.Entity:
 def _wrap_entity_as_module(entity: pb.Entity) -> pb.Module:
     """Wrap a pb.Entity in a pb.Module with an EntitySpecification item,
     matching the format returned by _discover_device."""
-    item = pb.Item(
-        entity_specification=pb.EntitySpecification(entity=entity)
-    )
+    item = pb.Item(entity_specification=pb.EntitySpecification(entity=entity))
     return pb.Module(items=[item])
 
 
@@ -77,9 +75,7 @@ def two_carrier_module() -> pb.Module:
 class TestConnectionManagerDirectMode:
 
     @pytest.mark.asyncio
-    async def test_add_single_device_direct_mode(
-        self, manager: ConnectionManager, single_carrier_module: pb.Module
-    ):
+    async def test_add_single_device_direct_mode(self, manager: ConnectionManager, single_carrier_module: pb.Module):
         mock_connection = MagicMock(spec=DeviceConnection)
 
         with (
@@ -91,9 +87,7 @@ class TestConnectionManagerDirectMode:
             patch.object(
                 ConnectionManager,
                 "_create_connections",
-                new=AsyncMock(
-                    return_value={Path.parse("AA-BB-CC-DD-EE-01"): mock_connection}
-                ),
+                new=AsyncMock(return_value={Path.parse("AA-BB-CC-DD-EE-01"): mock_connection}),
             ),
         ):
             carriers, connections = await manager.add_device("127.0.0.1", 5732)
@@ -103,9 +97,7 @@ class TestConnectionManagerDirectMode:
         assert len(carriers) == 1
 
     @pytest.mark.asyncio
-    async def test_add_multiple_devices_direct_mode(
-        self, manager: ConnectionManager
-    ):
+    async def test_add_multiple_devices_direct_mode(self, manager: ConnectionManager):
         mac1 = "AA-BB-CC-DD-EE-01"
         mac2 = "AA-BB-CC-DD-EE-02"
         module1 = _make_discover_module([mac1])
@@ -144,9 +136,7 @@ class TestConnectionManagerDirectMode:
 class TestConnectionManagerProxyMode:
 
     @pytest.mark.asyncio
-    async def test_proxy_mode_detection(
-        self, manager: ConnectionManager, two_carrier_module: pb.Module
-    ):
+    async def test_proxy_mode_detection(self, manager: ConnectionManager, two_carrier_module: pb.Module):
         """When a single endpoint reports multiple carriers, all paths share one DeviceConnection."""
         mac1 = "AA-BB-CC-DD-EE-01"
         mac2 = "AA-BB-CC-DD-EE-02"
@@ -212,9 +202,7 @@ class TestConnectionManagerProxyMode:
                 await manager.add_device("127.0.0.2", 5732)
 
     @pytest.mark.asyncio
-    async def test_multiple_proxy_rejection(
-        self, manager: ConnectionManager, two_carrier_module: pb.Module
-    ):
+    async def test_multiple_proxy_rejection(self, manager: ConnectionManager, two_carrier_module: pb.Module):
         """Connecting to a second proxy endpoint after a proxy is established raises an error."""
         mac_p1 = "AA-BB-CC-DD-EE-01"
         mac_p2 = "AA-BB-CC-DD-EE-02"
@@ -314,9 +302,7 @@ class TestConnectionManagerLookup:
         return manager
 
     @pytest.mark.asyncio
-    async def test_get_connection_missing(
-        self, manager_with_two_direct_devices: ConnectionManager
-    ):
+    async def test_get_connection_missing(self, manager_with_two_direct_devices: ConnectionManager):
         """get_connection() raises KeyError for an unknown path."""
         manager = manager_with_two_direct_devices
         unknown_path = Path.parse("FF-FF-FF-FF-FF-FF")
@@ -324,18 +310,14 @@ class TestConnectionManagerLookup:
             manager.get_connection(unknown_path)
 
     @pytest.mark.asyncio
-    async def test_get_unique_connections_direct(
-        self, manager_with_two_direct_devices: ConnectionManager
-    ):
+    async def test_get_unique_connections_direct(self, manager_with_two_direct_devices: ConnectionManager):
         """In direct mode with N devices, get_unique_connections() returns N distinct objects."""
         manager = manager_with_two_direct_devices
         unique = manager.get_unique_connections()
         assert len(unique) == 2
 
     @pytest.mark.asyncio
-    async def test_get_unique_connections_proxy(
-        self, manager_with_proxy: ConnectionManager
-    ):
+    async def test_get_unique_connections_proxy(self, manager_with_proxy: ConnectionManager):
         """In proxy mode, get_unique_connections() returns 1 object even though multiple paths exist."""
         manager = manager_with_proxy
         assert len(manager.connections) == 2

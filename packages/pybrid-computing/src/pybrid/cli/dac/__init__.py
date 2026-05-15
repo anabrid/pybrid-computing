@@ -10,6 +10,7 @@ from ipaddress import ip_network
 
 import asyncclick as click
 
+from pybrid.base.proto.io import ProtoIO
 from pybrid.cli.base import cli
 from pybrid.cli.base.commands import user_program
 from pybrid.cli.dac import commands as _dac_commands
@@ -17,13 +18,13 @@ from pybrid.lucidac.controller import Controller as LUCIDACController
 from pybrid.redac.controller import Controller as REDACController
 from pybrid.redac.detect import detect_in_network
 from pybrid.sim.controller import Controller as SimController
-from pybrid.base.proto.io import ProtoIO
 
 logger = logging.getLogger(__name__)
 
 ###
 # Device initialization: LUCIDAC, REDAC, SIM prefixes
 ###
+
 
 @cli.group()
 @click.pass_context
@@ -95,6 +96,7 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool):
     ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
 
+
 @cli.group()
 @click.pass_context
 @click.option(
@@ -118,7 +120,7 @@ async def redac(ctx: click.Context, hosts: list[str], port: int, reset: bool):
     "-e",
     type=str,
     required=True,
-    help="Path to entity definition, defining which hardware the simulator requires"
+    help="Path to entity definition, defining which hardware the simulator requires",
 )
 async def sim(ctx: click.Context, host: str, port: int, entity: str):
     """
@@ -132,10 +134,7 @@ async def sim(ctx: click.Context, host: str, port: int, entity: str):
 
     # Generate a controller and add devices
     controller = SimController()
-    await controller.add_device(
-        host,
-        port,
-        specification=ProtoIO.load_module(entity))
+    await controller.add_device(host, port, specification=ProtoIO.load_module(entity))
 
     # Put controller in context and make sure that we clean up after ourselves
     ctx.obj["controller"] = controller
@@ -145,6 +144,7 @@ async def sim(ctx: click.Context, host: str, port: int, entity: str):
     run_class = controller.get_run_implementation()
     ctx.obj["run"] = run_class()
     ctx.obj["previous_run"] = None
+
 
 @cli.group()
 @click.pass_context

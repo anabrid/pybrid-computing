@@ -6,7 +6,9 @@ constant output selection, and LUCIDAC construction.
 """
 
 from typing import List, Optional
+
 from pybrid.redac.entities import Loc
+
 
 class Helpers:
     """Collection of static helper methods for Circuit internals."""
@@ -53,12 +55,12 @@ class Helpers:
 
         :param mac: MAC address string for the carrier (e.g. "AA-BB-CC-DD-EE-FF").
         """
+        from pybrid.lucidac.computer import LUCIStack as PybridLUCIDAC
+        from pybrid.lucidac.front_plane import FrontPlane as PybridFrontPlane
+        from pybrid.redac.blocks import CBlock, IBlock, MIntBlock, MMulBlock, SHBlock, UBlock
         from pybrid.redac.carrier import Carrier
         from pybrid.redac.cluster import Cluster
-        from pybrid.redac.blocks import MIntBlock, MMulBlock, UBlock, CBlock, IBlock, SHBlock
         from pybrid.redac.entities import Path
-        from pybrid.lucidac.front_plane import FrontPlane as PybridFrontPlane
-        from pybrid.lucidac.computer import LUCIStack as PybridLUCIDAC
 
         carrier_path = Path.parse(mac)
         cluster_path = carrier_path / "0"
@@ -80,7 +82,7 @@ class Helpers:
             clusters=[cluster],
             tblock=None,
             front_plane=PybridFrontPlane(carrier_path / "FP"),
-            acl_select=8 * ["INTERNAL"]
+            acl_select=8 * ["INTERNAL"],
         )
 
         lucidac = PybridLUCIDAC(entities=[carrier])

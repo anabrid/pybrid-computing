@@ -13,8 +13,9 @@ import pybrid.base.proto.main_pb2 as pb
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 
 try:
-    from pybrid.native._impl import ControlChannel as _NativeControlChannel
     from pybrid.native import SampleDecodingDataChannel
+    from pybrid.native._impl import ControlChannel as _NativeControlChannel
+
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -84,17 +85,13 @@ async def test_data_channel_reconnect_preserves_receive_capability():
             await cm.add_device(LOCALHOST, port)
 
             unique_conns = cm.get_unique_connections()
-            assert len(unique_conns) == 1, (
-                f"Expected 1 DeviceConnection, got {len(unique_conns)}"
-            )
+            assert len(unique_conns) == 1, f"Expected 1 DeviceConnection, got {len(unique_conns)}"
             conn = next(iter(unique_conns))
             control: AsyncControlChannel = conn.control
             data_channel = conn.data
 
             assert data_channel is not None, "No data channel after add_device()"
-            assert data_channel.is_running(), (
-                "Data channel must be running before reconnect()"
-            )
+            assert data_channel.is_running(), "Data channel must be running before reconnect()"
 
             # reconnect() blocks on control-channel round-trips during
             # UDP re-negotiation, so it must be dispatched off the event loop.
@@ -102,13 +99,10 @@ async def test_data_channel_reconnect_preserves_receive_capability():
             await loop.run_in_executor(None, data_channel.reconnect)
 
             assert not data_channel.is_using_tcp_fallback(), (
-                "reconnect() should re-establish UDP against the DummyDAC, "
-                "not silently fall back to TCP"
+                "reconnect() should re-establish UDP against the DummyDAC, " "not silently fall back to TCP"
             )
 
-            assert data_channel.is_running(), (
-                "Data channel must still be running after reconnect()"
-            )
+            assert data_channel.is_running(), "Data channel must still be running after reconnect()"
 
             # Exercise a run over the rebuilt data path. A rebuild that leaked
             # the receive thread or left the UDP socket disconnected would
@@ -127,20 +121,15 @@ async def test_data_channel_reconnect_preserves_receive_capability():
             )
             try:
                 cmd = _make_run_command(RUN_OP_TIME_NS)
-                await asyncio.wait_for(
-                    control.start_run_request(cmd), timeout=OP_TIMEOUT
-                )
+                await asyncio.wait_for(control.start_run_request(cmd), timeout=OP_TIMEOUT)
                 await asyncio.wait_for(done_event.wait(), timeout=RUN_TIMEOUT)
                 await asyncio.sleep(0.1)
 
                 drained = _drain_ibuffer(output_queue)
                 assert drained > 0, (
-                    "No sample blobs delivered after reconnect(); "
-                    "receive pipeline is broken post-rebuild"
+                    "No sample blobs delivered after reconnect(); " "receive pipeline is broken post-rebuild"
                 )
             finally:
-                control.unregister_callback(
-                    pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER
-                )
+                control.unregister_callback(pb.MessageV1.RUN_STATE_CHANGE_MESSAGE_FIELD_NUMBER)
         finally:
             await cm.close_all()

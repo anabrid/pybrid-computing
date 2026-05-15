@@ -6,13 +6,13 @@
 
 import pytest
 
-from pybrid.redac.carrier import Carrier, ADCChannel
-from pybrid.redac.cluster import Cluster
-from pybrid.redac.blocks import UBlock, CBlock, IBlock
-from pybrid.redac.computer import REDAC
-from pybrid.redac.entities import Path, Loc
-from pybrid.base.result import Result
 from pybrid.base.hybrid.validators import ConfigValidator
+from pybrid.base.result import Result
+from pybrid.redac.blocks import CBlock, IBlock, UBlock
+from pybrid.redac.carrier import ADCChannel, Carrier
+from pybrid.redac.cluster import Cluster
+from pybrid.redac.computer import REDAC
+from pybrid.redac.entities import Loc, Path
 from pybrid.redac.protocol.validators import AdcProbeValidator
 
 
@@ -44,38 +44,50 @@ def _make_redac(*carriers: Carrier) -> REDAC:
 class TestAdcProbeValidator:
 
     def test_valid_contiguous_probes(self):
-        carrier = _make_carrier("AA-BB-CC-DD-EE-FF", [
-            ADCChannel(index=0, probe=0),
-            ADCChannel(index=1, probe=1),
-            ADCChannel(index=2, probe=2),
-        ])
+        carrier = _make_carrier(
+            "AA-BB-CC-DD-EE-FF",
+            [
+                ADCChannel(index=0, probe=0),
+                ADCChannel(index=1, probe=1),
+                ADCChannel(index=2, probe=2),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier))
         assert result.ok
 
     def test_missing_probe_when_any_set(self):
         """Once any probe is assigned, all channels must have probes."""
-        carrier = _make_carrier("AA-BB-CC-DD-EE-FF", [
-            ADCChannel(index=0, probe=0),
-            ADCChannel(index=1, probe=None),
-        ])
+        carrier = _make_carrier(
+            "AA-BB-CC-DD-EE-FF",
+            [
+                ADCChannel(index=0, probe=0),
+                ADCChannel(index=1, probe=None),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier))
         assert not result.ok
         assert "no probe assignment" in result.error
 
     def test_non_contiguous_probes(self):
-        carrier = _make_carrier("AA-BB-CC-DD-EE-FF", [
-            ADCChannel(index=0, probe=0),
-            ADCChannel(index=1, probe=2),
-        ])
+        carrier = _make_carrier(
+            "AA-BB-CC-DD-EE-FF",
+            [
+                ADCChannel(index=0, probe=0),
+                ADCChannel(index=1, probe=2),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier))
         assert not result.ok
         assert "not contiguous" in result.error
 
     def test_non_zero_start(self):
-        carrier = _make_carrier("AA-BB-CC-DD-EE-FF", [
-            ADCChannel(index=0, probe=1),
-            ADCChannel(index=1, probe=2),
-        ])
+        carrier = _make_carrier(
+            "AA-BB-CC-DD-EE-FF",
+            [
+                ADCChannel(index=0, probe=1),
+                ADCChannel(index=1, probe=2),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier))
         assert not result.ok
         assert "not contiguous" in result.error
@@ -86,48 +98,69 @@ class TestAdcProbeValidator:
         assert result.ok
 
     def test_multi_carrier_valid(self):
-        carrier_a = _make_carrier("AA-BB-CC-DD-EE-01", [
-            ADCChannel(index=0, probe=0),
-            ADCChannel(index=1, probe=1),
-        ])
-        carrier_b = _make_carrier("AA-BB-CC-DD-EE-02", [
-            ADCChannel(index=0, probe=2),
-            ADCChannel(index=1, probe=3),
-        ])
+        carrier_a = _make_carrier(
+            "AA-BB-CC-DD-EE-01",
+            [
+                ADCChannel(index=0, probe=0),
+                ADCChannel(index=1, probe=1),
+            ],
+        )
+        carrier_b = _make_carrier(
+            "AA-BB-CC-DD-EE-02",
+            [
+                ADCChannel(index=0, probe=2),
+                ADCChannel(index=1, probe=3),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier_a, carrier_b))
         assert result.ok
 
     def test_duplicate_across_carriers(self):
-        carrier_a = _make_carrier("AA-BB-CC-DD-EE-01", [
-            ADCChannel(index=0, probe=0),
-        ])
-        carrier_b = _make_carrier("AA-BB-CC-DD-EE-02", [
-            ADCChannel(index=0, probe=0),
-        ])
+        carrier_a = _make_carrier(
+            "AA-BB-CC-DD-EE-01",
+            [
+                ADCChannel(index=0, probe=0),
+            ],
+        )
+        carrier_b = _make_carrier(
+            "AA-BB-CC-DD-EE-02",
+            [
+                ADCChannel(index=0, probe=0),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier_a, carrier_b))
         assert not result.ok
         assert "Duplicate" in result.error
 
     def test_none_entries_in_adc_config_skipped(self):
         """None entries (free slots) in adc_config should be ignored."""
-        carrier = _make_carrier("AA-BB-CC-DD-EE-FF", [
-            None,
-            ADCChannel(index=1, probe=0),
-            None,
-            ADCChannel(index=3, probe=1),
-        ])
+        carrier = _make_carrier(
+            "AA-BB-CC-DD-EE-FF",
+            [
+                None,
+                ADCChannel(index=1, probe=0),
+                None,
+                ADCChannel(index=3, probe=1),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier))
         assert result.ok
 
     def test_mixed_errors_reported_together(self):
         """A config with both missing probes AND duplicates surfaces both errors."""
-        carrier_a = _make_carrier("AA-BB-CC-DD-EE-01", [
-            ADCChannel(index=0, probe=0),
-            ADCChannel(index=1, probe=None),
-        ])
-        carrier_b = _make_carrier("AA-BB-CC-DD-EE-02", [
-            ADCChannel(index=0, probe=0),
-        ])
+        carrier_a = _make_carrier(
+            "AA-BB-CC-DD-EE-01",
+            [
+                ADCChannel(index=0, probe=0),
+                ADCChannel(index=1, probe=None),
+            ],
+        )
+        carrier_b = _make_carrier(
+            "AA-BB-CC-DD-EE-02",
+            [
+                ADCChannel(index=0, probe=0),
+            ],
+        )
         result = AdcProbeValidator().validate(_make_redac(carrier_a, carrier_b))
         assert not result.ok
         assert "no probe assignment" in result.error
@@ -140,10 +173,13 @@ class TestSerializerCollectsAllErrors:
         """Serializer runs AdcProbeValidator: mixed probed/unprobed raises."""
         from pybrid.redac.protocol.serializer import REDACSerializer
 
-        carrier = _make_carrier("AA-BB-CC-DD-EE-FF", [
-            ADCChannel(index=0, probe=0),
-            ADCChannel(index=1, probe=None),
-        ])
+        carrier = _make_carrier(
+            "AA-BB-CC-DD-EE-FF",
+            [
+                ADCChannel(index=0, probe=0),
+                ADCChannel(index=1, probe=None),
+            ],
+        )
         computer = _make_redac(carrier)
         serializer = REDACSerializer()
 
@@ -165,6 +201,7 @@ class TestSerializerCollectsAllErrors:
         computer = _make_redac(carrier)
 
         from pybrid.redac.protocol.serializer import REDACSerializer
+
         serializer = REDACSerializer()
         serializer.validators = [FailingValidatorA(), FailingValidatorB()]
 

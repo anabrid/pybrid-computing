@@ -1,0 +1,53 @@
+# clang-tidy config for pybrid-computing-native.
+#
+# Conservative ruleset: enable bug-finding and modernize checks that have
+# proven valuable for C++17/20 code, but leave aggressive stylistic and
+# readability checks off so the existing codebase does not need a sweeping
+# rewrite. New rules can be enabled incrementally.
+#
+# Auto-generated protobuf code is excluded via HeaderFilterRegex.
+
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-unchecked-optional-access,
+  -bugprone-narrowing-conversions,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-exception-escape,
+  performance-*,
+  -performance-avoid-endl,
+  -performance-enum-size,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-using,
+  modernize-deprecated-headers,
+  modernize-loop-convert,
+  modernize-make-unique,
+  modernize-make-shared,
+  readability-redundant-smartptr-get,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-container-size-empty,
+  readability-misleading-indentation,
+  readability-redundant-control-flow,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-slicing,
+  misc-unused-using-decls,
+  misc-redundant-expression
+
+WarningsAsErrors: ''
+
+# Apply checks only to project headers under native/pybrid/, excluding the
+# generated protobuf headers.
+HeaderFilterRegex: '.*/native/pybrid/(?!proto/).*\.h$'
+
+FormatStyle: file
+
+CheckOptions:
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable

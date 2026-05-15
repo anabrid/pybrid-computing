@@ -18,9 +18,9 @@ from __future__ import annotations
 
 from typing import List
 
-from pybrid.redac.entities import Entity
+from pybrid.lucidac.protocol.serializer import LUCIDACDeserializer, LUCIDACSerializer
 from pybrid.redac.computer import REDAC
-from pybrid.lucidac.protocol.serializer import LUCIDACSerializer, LUCIDACDeserializer
+from pybrid.redac.entities import Entity
 
 
 class LUCIStack(REDAC):

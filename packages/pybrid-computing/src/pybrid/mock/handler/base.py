@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from pybrid.mock.dummy_dac import DummyDAC
     from pybrid.mock.connection import ClientConnection
+    from pybrid.mock.dummy_dac import DummyDAC
 
 
 class BaseHandler(ABC):

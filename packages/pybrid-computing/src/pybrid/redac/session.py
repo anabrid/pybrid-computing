@@ -23,9 +23,9 @@ Typical usage::
 from __future__ import annotations
 
 import asyncio
+import copy
 import logging
 import struct
-import copy
 import typing
 from abc import ABC
 from dataclasses import dataclass, field
@@ -36,13 +36,13 @@ import numpy as np
 
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.redac.carrier import Carrier, Entity
-from pybrid.redac.run import Run, RunConfig, DAQConfig
 from pybrid.redac.entities import Path
+from pybrid.redac.run import DAQConfig, Run, RunConfig
 from pybrid.util.updater import UpdaterUtils
 
 if TYPE_CHECKING:
-    from pybrid.base.hybrid.controller import BaseController
     from pybrid.base.hybrid.computer import AnalogComputer
+    from pybrid.base.hybrid.controller import BaseController
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,7 @@ def _drain_output_queue(output_queue) -> list[bytes]:
 class SessionCommand(ABC):
     pass
 
+
 @dataclass
 class ResetCommand(SessionCommand):
     keep_calibration: bool
@@ -95,9 +96,11 @@ class ResetCommand(SessionCommand):
     overload_reset: bool = False
     circuit_reset: bool = False
 
+
 @dataclass
 class SetConfigCommand(SessionCommand):
     module: pb.Module
+
 
 @dataclass
 class RunCommand(SessionCommand):
@@ -106,12 +109,14 @@ class RunCommand(SessionCommand):
     entities: Optional[set[Path]] = None
     timeout: Optional[float] = None
 
+
 @dataclass
 class CalibrateCommand(SessionCommand):
     leader: str
     math: bool
     gain: bool
     offset: bool
+
 
 @dataclass
 class FirmwareUpdateCommand(SessionCommand):
@@ -120,6 +125,7 @@ class FirmwareUpdateCommand(SessionCommand):
     reboot_grace: float = 2.0
     reconnect_timeout: float = 20.0
     verbose: bool = False
+
 
 class Session:
     """Single-use pipeline that buffers config and run commands and executes
@@ -138,18 +144,19 @@ class Session:
     @property
     def controller(self) -> "BaseController":
         return self._controller
-    
+
     def reset(
         self,
         keep_calibration: bool = True,
         sync: bool = True,
         overload_reset: bool = False,
-        circuit_reset: bool = False) -> "Session":
-        self._pipeline.append(ResetCommand(
-            keep_calibration=keep_calibration,
-            sync=sync,
-            overload_reset=overload_reset,
-            circuit_reset=circuit_reset))
+        circuit_reset: bool = False,
+    ) -> "Session":
+        self._pipeline.append(
+            ResetCommand(
+                keep_calibration=keep_calibration, sync=sync, overload_reset=overload_reset, circuit_reset=circuit_reset
+            )
+        )
         return self
 
     def set_config(self, computer: "AnalogComputer") -> "Session":
@@ -159,7 +166,7 @@ class Session:
         serializer = serializer_cls()
         module = serializer.serialize(computer)
         return self.set_module(module, raw=True)
-    
+
     def set_module(self, module: pb.Module, raw: bool = False) -> "Session":
         """Deserialize a protobuf Module into the controller's computer model
         and buffer the resulting config.
@@ -174,7 +181,7 @@ class Session:
             deserializer.deserialize(module)
             self.set_config(computer)
         return self
-    
+
     def set_firmware(
         self,
         firmware: str | bytearray,
@@ -205,16 +212,18 @@ class Session:
         else:
             raise Exception("Unknown firmware data format")
 
-        self._pipeline.append(FirmwareUpdateCommand(
-            binary=use_fw,
-            sha256=fw_sha256,
-            reboot_grace=reboot_grace,
-            reconnect_timeout=reconnect_timeout,
-            verbose=verbose,
-        ))
+        self._pipeline.append(
+            FirmwareUpdateCommand(
+                binary=use_fw,
+                sha256=fw_sha256,
+                reboot_grace=reboot_grace,
+                reconnect_timeout=reconnect_timeout,
+                verbose=verbose,
+            )
+        )
 
         return self
-    
+
     def calibrate(self, leader: str = "", math: bool = False, gain: bool = True, offset: bool = True) -> "Session":
         """:returns: ``self`` so calls can be chained."""
 
@@ -237,9 +246,7 @@ class Session:
         """:returns: ``self`` so calls can be chained."""
         if config is None:
             config = RunConfig()
-        self._pipeline.append(
-            RunCommand(config=config, daq=daq, entities=entities, timeout=timeout)
-        )
+        self._pipeline.append(RunCommand(config=config, daq=daq, entities=entities, timeout=timeout))
         return self
 
     async def execute(self, *, timeout: Optional[float] = None) -> list[Run]:
@@ -251,6 +258,7 @@ class Session:
 
         :raises RuntimeError: If called more than once on the same instance.
         """
+
         async def _run_pipeline() -> None:
             async with self._controller._session_lock:
                 if self._executed:
@@ -271,7 +279,7 @@ class Session:
                         await self._execute_upload(cmd)
                     elif isinstance(cmd, ResetCommand):
                         await self._execute_reset(cmd)
-                    else: 
+                    else:
                         print(f"[Session] Skipping unknown command of type {type(cmd).__name__}")
 
         if timeout is not None:
@@ -281,8 +289,8 @@ class Session:
             await _run_pipeline()
 
         return self.runs
-    
-    async def _execute_reset(self, cmd:ResetCommand) -> None:
+
+    async def _execute_reset(self, cmd: ResetCommand) -> None:
         unique_conns = self._controller.connection_manager.get_unique_connections()
         for conn in unique_conns:
             if conn.control is None:
@@ -295,7 +303,8 @@ class Session:
                 keep_calibration=cmd.keep_calibration,
                 sync=cmd.sync,
                 overload_reset=cmd.overload_reset,
-                circuit_reset=cmd.circuit_reset)
+                circuit_reset=cmd.circuit_reset,
+            )
 
     async def _execute_calibrate(self, cmd: CalibrateCommand) -> None:
         """Run calibration over all devices.
@@ -318,8 +327,7 @@ class Session:
                     "(pybrid-computing-native). The control channel is not available "
                     "in this environment."
                 )
-            result = await conn.control.calibrate(leader, cmd.math, cmd.gain, cmd.offset, 
-                timeout=10.0)
+            result = await conn.control.calibrate(leader, cmd.math, cmd.gain, cmd.offset, timeout=10.0)
             result.raise_on_error()
 
     async def _execute_set_config(self, cmd: SetConfigCommand) -> None:
@@ -336,6 +344,7 @@ class Session:
         unique_conns = self._controller.connection_manager.get_unique_connections()
 
         from google.protobuf.json_format import MessageToJson
+
         logger.debug(
             "_execute_set_config: sending %d config entries to %d connection(s):\n%s",
             len(module.items),
@@ -371,12 +380,11 @@ class Session:
         """
         logger.debug(
             "Firmware size: %d, SHA256: %s, uploading...",
-            len(cmd.binary), cmd.sha256,
+            len(cmd.binary),
+            cmd.sha256,
         )
 
-        unique_conns = list(
-            self._controller.connection_manager.get_unique_connections()
-        )
+        unique_conns = list(self._controller.connection_manager.get_unique_connections())
         try:
             # phase 1: upload firmware to devices
             for connection in unique_conns:
@@ -387,13 +395,16 @@ class Session:
                 logger.debug("Uploading firmware to %s:%s", host, port)
 
                 max_chunk_size = await control.update_begin(
-                    len(cmd.binary), cmd.sha256,
+                    len(cmd.binary),
+                    cmd.sha256,
                     verbose=cmd.verbose,
                 )
                 logger.debug("\tMaximum chunk size: %s", max_chunk_size)
 
                 res = await control.update_write_full(
-                    len(cmd.binary), max_chunk_size, cmd.binary,
+                    len(cmd.binary),
+                    max_chunk_size,
+                    cmd.binary,
                     verbose=cmd.verbose,
                 )
                 res.raise_on_error()
@@ -422,17 +433,16 @@ class Session:
                     await connection.control.update_abort()
                 except Exception as abort_exc:
                     logger.warning(
-                        "update_abort failed on %s: %s", connection, abort_exc,
+                        "update_abort failed on %s: %s",
+                        connection,
+                        abort_exc,
                     )
             raise
 
         # Cache each connection's endpoint while it is still connected so we
         # can include it in the error message even after the transport has
         # dropped (remote_host/remote_port clear on disconnect).
-        endpoints = [
-            (connection.control.remote_host, connection.control.remote_port)
-            for connection in unique_conns
-        ]
+        endpoints = [(connection.control.remote_host, connection.control.remote_port) for connection in unique_conns]
 
         # Wait once for the device(s) to reboot, then check each unique
         # control channel: if it dropped, the device rebooted under us in
@@ -489,15 +499,15 @@ class Session:
 
         if not involved_paths:
             raise ValueError(
-                "No connections are involved in the run. "
-                "cmd.entities may not match any registered paths."
+                "No connections are involved in the run. " "cmd.entities may not match any registered paths."
             )
 
         run.sync.group = run.partition.id
 
         # In NATIVE mode the first carrier generates the SYNC pulse.
-        carriers : typing.List[typing.Tuple[str, pb.CarrierLocationV0]] = \
-            [(c.path, c.location) for c in self._controller.computer.carriers]
+        carriers: typing.List[typing.Tuple[str, pb.CarrierLocationV0]] = [
+            (c.path, c.location) for c in self._controller.computer.carriers
+        ]
         carriers.sort(key=lambda e: e[1])
         first_path = carriers[0][0]
 
@@ -523,15 +533,14 @@ class Session:
             matching carrier path is tracked.  Otherwise all paths on this
             connection are tracked.
             """
+
             def _callback(msg: pb.MessageV1) -> None:
                 change = msg.run_state_change_message
                 if change.run.id != str(run.id_):
                     return
                 new_state = RunState.from_pb(change.new_)
 
-                entity_path_str = (
-                    change.entity.path if change.HasField("entity") else ""
-                )
+                entity_path_str = change.entity.path if change.HasField("entity") else ""
                 if entity_path_str:
                     target_path = Path.parse(entity_path_str).to_root()
                     if target_path in involved_paths_set:
@@ -544,6 +553,7 @@ class Session:
                 else:
                     for p in path_list:
                         run_state.track(p, new_state, change.reason)
+
             return _callback
 
         conn_to_paths: dict = {}
@@ -582,31 +592,25 @@ class Session:
             )
             pb_sync_config = pb.SyncConfig(
                 enabled=run.sync.enabled,
-                master=(
-                    None
-                    if run.sync.master is None
-                    else pb.EntityId(path=str(run.sync.master))
-                ),
+                master=(None if run.sync.master is None else pb.EntityId(path=str(run.sync.master))),
                 group=run.sync.group,
             )
             run_command = pb.StartRunCommand(
                 run=pb.Run(id=str(run.id_), chunk=0),
                 run_config=pb_run_config,
                 daq_config=pb_daq_config,
-                sync_config=pb_sync_config
+                sync_config=pb_sync_config,
             )
 
             from google.protobuf.json_format import MessageToJson
+
             logger.debug(
                 "_execute_run: StartRunCommand:\n%s",
                 MessageToJson(run_command, indent=2),
             )
 
             # Proxies fan-out to all carriers when no entity ID is set.
-            send_tasks = [
-                conn.control.start_run_request(run_command)
-                for conn in unique_involved_conns
-            ]
+            send_tasks = [conn.control.start_run_request(run_command) for conn in unique_involved_conns]
             results = await asyncio.gather(*send_tasks)
             for result in results:
                 result.raise_on_error()
@@ -615,7 +619,10 @@ class Session:
             drain_stop_event = asyncio.Event()
             drain_task = asyncio.create_task(
                 self._continuous_drain(
-                    unique_involved_conns, run, drain_stop_event, chunk_buffer,
+                    unique_involved_conns,
+                    run,
+                    drain_stop_event,
+                    chunk_buffer,
                 )
             )
 
@@ -641,7 +648,7 @@ class Session:
                     for element in overload_status.elements:
                         if element.overload:
                             run.flags.overloaded.append(Path((element.entity.path, element.idx)))
-                    
+
             finally:
                 # Signal drain to stop and await it — always run, even on timeout or error.
                 # This ensures the drain task is never orphaned.
@@ -729,8 +736,12 @@ class Session:
             return
 
         (
-            entity_path_len, sample_count, channel_count,
-            sample_type, chunk_number, has_probes,
+            entity_path_len,
+            sample_count,
+            channel_count,
+            sample_type,
+            chunk_number,
+            has_probes,
         ) = struct.unpack_from("<IIIIII", blob, 0)
 
         if channel_count == 0 or sample_count == 0:
@@ -747,7 +758,9 @@ class Session:
             probe_bytes = channel_count * 4  # uint32
             probe_end = path_end + probe_bytes
             probe_indices = struct.unpack_from(
-                f"<{channel_count}I", blob, path_end,
+                f"<{channel_count}I",
+                blob,
+                path_end,
             )
 
         # Padding to 8-byte alignment after entity path + probe indices.
@@ -757,19 +770,19 @@ class Session:
             data_offset += 8 - remainder
 
         num_samples = sample_count * channel_count
-        samples_raw = np.frombuffer(
-            blob, dtype=np.float64, count=num_samples, offset=data_offset
-        )
+        samples_raw = np.frombuffer(blob, dtype=np.float64, count=num_samples, offset=data_offset)
         samples = samples_raw.reshape((channel_count, sample_count), order="F")
 
-        chunk_buffer.append(ChunkRecord(
-            chunk_number=chunk_number,
-            entity_path=entity_path_str,
-            sample_type=sample_type,
-            channel_count=channel_count,
-            samples=samples.copy(),
-            probe_indices=probe_indices,
-        ))
+        chunk_buffer.append(
+            ChunkRecord(
+                chunk_number=chunk_number,
+                entity_path=entity_path_str,
+                sample_type=sample_type,
+                channel_count=channel_count,
+                samples=samples.copy(),
+                probe_indices=probe_indices,
+            )
+        )
 
         if sample_type == _SAMPLE_TYPE_OP:
             entity_path = Path.parse(entity_path_str)
@@ -806,10 +819,7 @@ class Session:
 
         for (entity_path_str, sample_type), group_chunks in groups.items():
             sorted_chunks = sorted(group_chunks, key=lambda c: c.chunk_number)
-            reordered = any(
-                a.chunk_number != b.chunk_number
-                for a, b in zip(group_chunks, sorted_chunks)
-            )
+            reordered = any(a.chunk_number != b.chunk_number for a, b in zip(group_chunks, sorted_chunks))
             any_reorder = any_reorder or reordered
 
             entity_path = Path.parse(entity_path_str)
@@ -823,7 +833,7 @@ class Session:
                     if ref_chunk.probe_indices is None:
                         raise Exception("Probe index is not set!")
                     probe_idx = ref_chunk.probe_indices[i]
-                    
+
                     for cr in sorted_chunks:
                         probe_data[probe_idx].extend(cr.samples[i].tolist())
 
@@ -832,20 +842,17 @@ class Session:
                     last_cr = sorted_chunks[-1]
                     carrier_path = entity_path.to_root()
                     num_clusters = self._controller._clusters_per_carrier.get(
-                        carrier_path, 3,
+                        carrier_path,
+                        3,
                     )
                     num_mblocks = num_clusters * 2
                     flat = last_cr.samples.ravel()
                     for block_idx in range(num_mblocks):
-                        block_path = entity_path.join(
-                            f"{block_idx // 2}"
-                        ).join(f"M{block_idx % 2}")
+                        block_path = entity_path.join(f"{block_idx // 2}").join(f"M{block_idx % 2}")
                         for output_idx in range(8):
                             fvi = block_idx * 8 + output_idx
                             if fvi < len(flat):
-                                run.final_values[
-                                    block_path.join(str(output_idx))
-                                ] = flat[fvi]
+                                run.final_values[block_path.join(str(output_idx))] = flat[fvi]
 
         if probe_data:
             max_probe = max(probe_data.keys())
@@ -855,7 +862,6 @@ class Session:
 
         if any_reorder:
             logger.warning(
-                "Sample chunks for run %s arrived out of order — "
-                "reordered during assembly.",
+                "Sample chunks for run %s arrived out of order — " "reordered during assembly.",
                 run.id_,
             )

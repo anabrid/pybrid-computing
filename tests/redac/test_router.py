@@ -105,5 +105,3 @@ def test_carrier():
 
     with raises(AssertionError):
         router.route(carrier / 0 / 32, carrier / 1 / 32)
-
-

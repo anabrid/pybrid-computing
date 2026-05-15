@@ -1,2 +1,2 @@
-from pybrid.sim.computer import Simulator, SimConfigEntity
-from pybrid.sim.config import SimConfig, ACLBind, ACLConfig, ACLPlugin
+from pybrid.sim.computer import SimConfigEntity, Simulator
+from pybrid.sim.config import ACLBind, ACLConfig, ACLPlugin, SimConfig

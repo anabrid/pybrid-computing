@@ -17,11 +17,13 @@ circuit.
 Requires connecting analog inputs/outputs 0-1 pairwise (e.g. output 0 from LUCIDAC
 0 connected to input 0 of LUCIDAC 1, ...).
 """
-from pybrid.lucipy import LUCIDAC, time_series
+
+import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-import random
+
+from pybrid.lucipy import LUCIDAC, time_series
 
 slow = True
 F = 0.2
@@ -128,19 +130,22 @@ ax_line.set_title("All Signals")
 random.seed(42)
 for row, col in [(1, 0), (1, 1), (2, 0), (2, 1)]:
     sel = random.sample(range(n_signals), 3)
-    ax3d = fig.add_subplot(gs[row, col], projection='3d')
+    ax3d = fig.add_subplot(gs[row, col], projection="3d")
     ax3d.plot(
-        run.data[sel[0]], run.data[sel[1]], run.data[sel[2]],
-        ls="-", marker="+", markersize=1.5,
+        run.data[sel[0]],
+        run.data[sel[1]],
+        run.data[sel[2]],
+        ls="-",
+        marker="+",
+        markersize=1.5,
     )
     ax3d.set_xlabel("")
     ax3d.set_ylabel("")
     ax3d.set_zlabel("")
-    ax3d.tick_params(axis='both', which='both', pad=0, labelsize=7)
+    ax3d.tick_params(axis="both", which="both", pad=0, labelsize=7)
     ax3d.set_box_aspect(None, zoom=1.25)
     label = f"Signals {sel[0]} / {sel[1]} / {sel[2]}"
-    ax3d.text2D(-0.22, 0.5, label, transform=ax3d.transAxes,
-                rotation=90, va="center", ha="center", fontsize=10)
+    ax3d.text2D(-0.22, 0.5, label, transform=ax3d.transAxes, rotation=90, va="center", ha="center", fontsize=10)
 
 plt.tight_layout()
 plt.show()
