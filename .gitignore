@@ -381,6 +381,8 @@ CLAUDE.md
 
 # CI/CD
 .anabrid_build_result.env
+.gitlab-ci-local
+.idea
 
 # Native build artifacts
 extern/
