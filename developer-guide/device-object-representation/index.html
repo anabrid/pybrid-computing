@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Device Object Representation - pybrid-computing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Device Object Representation";
+        var mkdocs_page_input_path = "developer-guide/device-object-representation.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/">User Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Using pybrid</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Device Object Representation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#structure-of-the-entity-object-representation">Structure of the entity object representation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#relation-to-analog-protobuf">Relation to analog protobuf</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#specification-vs-configuration">Specification vs. configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization-and-deserialization">Serialization and deserialization</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#extending-the-representation">Extending the representation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#worked-example-the-mdr-block">Worked example: the MDR block</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#adding-a-new-block-step-by-step">Adding a new block — step by step</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer Guide</li>
+      <li class="breadcrumb-item active">Device Object Representation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="entity-object-representation">Entity Object Representation<a class="headerlink" href="#entity-object-representation" title="Permanent link">&para;</a></h1>
+<p>Hybrid-analog computers are complicated devices that combine analog circuitry
+with digital electronics (microcontrollers). Seemingly simple operations, such
+as setting a coefficient, require a large amount of steps to happen on the
+device before the electrical components are configured as required. The goal
+of the entity object model is to build a high-level abstraction over these
+mechanics. Within the LUCIstack, <code>pybrid</code> occupies the <code>architecture</code> layer
+in which users operate on the level of <em>components</em> (a.k.a. <em>entities</em>) instead
+of electrical switches. The firmware, the layer offering services to <code>pybrid</code>,
+represents the microarchitectural level and turns configurations produced by
+<code>pybrid</code> into actual realizations on the analog computer.</p>
+<h2 id="structure-of-the-entity-object-representation">Structure of the entity object representation<a class="headerlink" href="#structure-of-the-entity-object-representation" title="Permanent link">&para;</a></h2>
+<p>The main class is <code>pybrid.base.hybrid.entities.Entity</code>, where an entity is a
+configurable object (a component with some dedicated function) in the
+hybrid-analog device. Each entity has a <em>Path</em> where the layout is roughly
+<code>&lt;Carrier MAC&gt;/&lt;Cluster ID&gt;/&lt;Block&gt;[/{function}]</code>, with:</p>
+<ul>
+<li><code>Carrier MAC</code> is the (unique) MAC address of the mREDAC or LUCIDAC board that
+  houses the Teensy microcontroller.</li>
+<li><code>Cluster ID</code> is either <code>0</code> for the LUCIDAC or one of <code>{0, 1, 2}</code> for mREDACs.</li>
+<li><code>Block</code> is one of <code>{M0, M1, C, U, I, T, ST0, ST1, ST2, FP}</code> according to the
+  functional unit.</li>
+<li><code>function</code> is optional and can address individual entity parts, such as a
+  single lane in the C-Block.</li>
+</ul>
+<p>For more information on the hardware structure and how the paths above map to
+physical components, refer to the section on
+<a href="../../hardware-architecture/">hardware architecture</a>.</p>
+<p>In order to retrieve the entity object model for a device, we connect to it and
+let <code>pybrid</code> automatically create the model:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span> <span class="k">as</span> <span class="n">REDACController</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="c1"># connect to an anabrid device in your network</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">controller</span> <span class="o">=</span> <span class="n">REDACController</span><span class="p">()</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="s2">&quot;&lt;DEVICE IP&gt;&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="c1"># the `.computer` attribute then contains the entity object representation</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">redac</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">computer</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">carrier</span> <span class="o">=</span> <span class="n">redac</span><span class="o">.</span><span class="n">carriers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">cluster_1</span> <span class="o">=</span> <span class="n">carrier</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">m0_block</span> <span class="o">=</span> <span class="n">cluster_1</span><span class="o">.</span><span class="n">m0block</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">m0_block_entity</span> <span class="o">=</span> <span class="n">m0_block</span><span class="o">.</span><span class="n">entity_type</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Type:&quot;</span><span class="p">,</span> <span class="n">m0_block_entity</span><span class="o">.</span><span class="n">type_</span><span class="p">)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version:&quot;</span><span class="p">,</span> <span class="n">m0_block_entity</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="c1"># continue to apply settings to the M0Block, e.g. an integrator&#39;s IC</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">m0_block</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ic</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.42</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="c1"># ...</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<p>Each entity has a <em>type</em> and a <em>version</em>, both stored in the device's EEPROM
+and firmware. Behind the scenes, the model is constructed from the protobuf
+messages the device sends to the client to describe its hardware (see below).
+After configuration, via the process of <em>serialization</em> (also covered below),
+the entity object model's configuration is turned into a protobuf message and
+sent to the device, where the firmware applies it to the hardware. This is the
+preferred way of working with an analog computer: connect, retrieve the entity
+object model, configure the model, serialize the configuration, apply it to
+the analog computer, integrate, and receive results. It corresponds roughly to
+assembly-level programming in the digital world. When going via the <code>redacc</code>
+compiler, we do not need to go through <code>pybrid</code>'s entities; the compiler
+implements its own entity representation and directly emits protobuf files.</p>
+<h2 id="relation-to-analog-protobuf">Relation to analog protobuf<a class="headerlink" href="#relation-to-analog-protobuf" title="Permanent link">&para;</a></h2>
+<p>anabrid's protobuf protocol (open-source, see
+<a href="https://github.com/anabrid/analog-protobuf"><code>analog-protobuf</code></a>) contains all
+possible messages exchanged with the analog devices. This includes the
+configurations we send as part of the <code>ConfigureCommand</code>; a <code>message</code> is not
+necessarily a message in the sense of being sent over the wire, but can also
+translate to an <em>object</em> in the object representation. More specifically,
+configurations can be expressed as a <code>Bundle</code> containing <code>Items</code>, where each
+<code>Item</code> carries the configuration for one functional block addressed by a path
+(see above). The protocol therefore serves a dual purpose: it types the
+communication messages between host and device, and it makes it possible to
+store configurations (see the <code>File</code> message) to disk and exchange them.</p>
+<h3 id="specification-vs-configuration">Specification vs. configuration<a class="headerlink" href="#specification-vs-configuration" title="Permanent link">&para;</a></h3>
+<p>When looking at the <code>Items</code> in a <code>Module</code>, we generally distinguish between two
+kinds of entry. An <code>EntitySpecification</code> carries the definition of an entity
+(its type and address), and thereby dictates the hierarchical makeup of the
+device. All other items carry configuration data. When referring to a
+<em>specification</em> inside a <code>Module</code>, we mean only the <code>EntitySpecifications</code>; the
+remaining parts are called a <em>configuration</em>.</p>
+<p>A <em>specification</em> shows what hardware is present within an analog computer
+(think, e.g., of M-blocks which can be freely exchanged) and what the hierarchy
+of blocks is, including their types and versions. A <em>configuration</em> states how
+entities are configured, i.e. how their functions are set; in a C-block, for
+example, this contains the coefficients the user has set. Both parts can be
+combined into a single message, and in most cases you want to include the
+specification alongside a configuration so the device can check it and report
+changed hardware (e.g. when applying an old circuit). Specifications and
+configurations can be retrieved separately with different flags to the
+<code>pybrid extract</code> command.</p>
+<h3 id="serialization-and-deserialization">Serialization and deserialization<a class="headerlink" href="#serialization-and-deserialization" title="Permanent link">&para;</a></h3>
+<p><em>Serialization</em> in <code>pybrid</code> is the process of converting a populated entity
+object representation (a tree of <code>Entity</code> instances, hanging off the
+<code>AnalogComputer</code> / <code>REDAC</code> root) into a protobuf <code>Module</code> containing <code>Item</code>s,
+where each <code>Item</code> either carries an <code>EntitySpecification</code> (the "what is there")
+or a block-specific config message (<code>CoefConfig</code>, <code>ItorConfig</code>, <code>MDRConfig</code>,
+...) addressed by an <code>EntityId.path</code>. <em>Deserialization</em> is the inverse: take a
+<code>Module</code> (loaded from disk, or received from a device after <code>extract</code>) and
+either build the entity tree from scratch (when only <code>EntitySpecification</code>
+items are present) or apply the configuration items onto an existing entity
+tree.</p>
+<p>Both operations live in the dedicated <code>protocol</code> subpackage of each device
+family: REDAC uses <code>pybrid.redac.protocol.serializer</code> with <code>REDACSerializer</code>
+and <code>REDACDeserializer</code>; LUCIDAC uses <code>pybrid.lucidac.protocol.serializer</code>
+with <code>LUCIDACSerializer</code> and <code>LUCIDACDeserializer</code> (subclassing the REDAC
+versions); the simulator's variants live under <code>pybrid.sim.protocol.serializer</code>.
+Both classes use Python's <code>functools.singledispatchmethod</code> to dispatch on the
+concrete entity / config type, so adding a new block usually means adding two
+<code>@_serialize_configuration.register</code> / <code>@_deserialize_configuration.register</code>
+methods (see the worked example below).</p>
+<pre class="mermaid"><code>flowchart LR
+    A["Entity tree&lt;br/&gt;REDAC/Carrier/Cluster/Block"] -- serialize --&gt; B["pb.Module&lt;br/&gt;EntitySpecification + Config Items"]
+    B -- store_module --&gt; C[".apb file on disk"]
+    B -- ConfigCommand --&gt; D["Analog device firmware"]
+    D -- extract response --&gt; B
+    C -- load_module --&gt; B
+    B -- deserialize_specification --&gt; A
+    B -- deserialize_configuration --&gt; A</code></pre>
+<p>A typical end-to-end "configure → apply" workflow uses serialization
+implicitly via a session:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span> <span class="k">as</span> <span class="n">REDACController</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">controller</span> <span class="o">=</span> <span class="n">REDACController</span><span class="p">()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="s2">&quot;&lt;DEVICE IP&gt;&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">redac</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">computer</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="n">m0_block</span> <span class="o">=</span> <span class="n">redac</span><span class="o">.</span><span class="n">carriers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">m0block</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="c1"># configure entities in-place</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="n">m0_block</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ic</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.42</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="c1"># the session serializes `redac` and sends a ConfigCommand</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">create_session</span><span class="p">()</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">redac</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+</code></pre></div>
+<p>If you want to inspect or persist the serialized representation directly, use
+the serializer class together with <code>ProtoIO</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac.protocol.serializer</span><span class="w"> </span><span class="kn">import</span> <span class="n">REDACSerializer</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.base.proto.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtoIO</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">serializer</span> <span class="o">=</span> <span class="n">REDACSerializer</span><span class="p">()</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">module</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">redac</span><span class="p">)</span>         <span class="c1"># pb.Module</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">ProtoIO</span><span class="o">.</span><span class="n">store_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;my_circuit.apb&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>The reverse path uses the matching deserializer. Note that
+<code>deserialize_configuration</code> requires the target entity tree to already exist;
+the deserializer matches each <code>Item</code> to its entity via the path:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac.protocol.serializer</span><span class="w"> </span><span class="kn">import</span> <span class="n">REDACDeserializer</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.base.proto.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtoIO</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">module</span> <span class="o">=</span> <span class="n">ProtoIO</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s2">&quot;my_circuit.apb&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">deserializer</span> <span class="o">=</span> <span class="n">REDACDeserializer</span><span class="p">(</span><span class="n">computer</span><span class="o">=</span><span class="n">redac</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">deserializer</span><span class="o">.</span><span class="n">deserialize_configuration</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</code></pre></div>
+<p>The <code>pybrid extract</code> CLI command is the shell-level equivalent of the above
+and supports flags to limit the dump to specification only, configuration only,
+or both (see the <a href="../data-and-messaging-protocol/">protocol primer</a>).</p>
+<h2 id="extending-the-representation">Extending the representation<a class="headerlink" href="#extending-the-representation" title="Permanent link">&para;</a></h2>
+<p>Because the entity object representation is a mapping between Python classes,
+protobuf messages, and what the firmware understands, <em>extending</em> the
+representation always touches at least three layers: the Python entity class
+plus its registration in <code>EntityType</code>, the (de)serialization handlers
+translating between Python and protobuf, and the protobuf schema itself (and
+the firmware on the device that consumes the new message). The MDR block
+(<code>MMDRBlock</code>) is a recent addition and serves as a good worked example for
+what each of those three steps looks like in practice.</p>
+<h3 id="worked-example-the-mdr-block">Worked example: the MDR block<a class="headerlink" href="#worked-example-the-mdr-block" title="Permanent link">&para;</a></h3>
+<p>The MDR block is a math block (M-block) whose four elements can each be
+configured as one of <code>MULTIPLY</code>, <code>SQUARE</code>, <code>DIVIDE</code>, <code>SQRT</code>, <code>IDENT</code> — i.e.,
+in addition to the per-element computation, the block needs a per-element
+<em>operation type</em> to be communicated to the firmware. The relevant locations in
+the codebase are:</p>
+<ul>
+<li><strong>Entity class</strong>:
+  <code>packages/pybrid-computing/src/pybrid/redac/blocks/mblock.py</code> defines
+  <code>MMDRBlock</code> next to <code>MIntBlock</code> and <code>MMulBlock</code>. It is registered via
+  <code>@EntityType.register(EntityClass.MBLOCK, 3)</code> so a device reporting an
+  M-block of <code>type=3</code> is automatically mapped to this class.</li>
+<li><strong>Computation type</strong>:
+  <code>packages/pybrid-computing/src/pybrid/redac/computations.py</code> introduces
+  <code>MDROperation</code>, a <code>BaseComputation</code> whose <code>op</code> field holds one of
+  <code>Multiplication | Square | Division | SquareRoot | Identity</code>.</li>
+<li><strong>Export</strong>: the new class is re-exported from
+  <code>packages/pybrid-computing/src/pybrid/redac/blocks/__init__.py</code> so the
+  serializer and downstream code can import it from the package root.</li>
+<li><strong>Serializer</strong>: in
+  <code>packages/pybrid-computing/src/pybrid/redac/protocol/serializer.py</code> the
+  <code>_serialize_configuration.register</code> handler for <code>MMDRBlock</code> builds a
+  <code>pb.MDRConfig</code> by mapping each element's <code>op</code> instance to the matching
+  enum value.</li>
+<li><strong>Deserializer</strong>: the inverse handler in the same file dispatches on
+  <code>pb.MDRConfig</code> and writes the corresponding
+  <code>Multiplication() / Square() / ...</code> instance back into <code>entity.elements[i].op</code>.</li>
+<li><strong>Protobuf schema</strong>: in the upstream
+  <a href="https://github.com/anabrid/analog-protobuf"><code>analog-protobuf</code></a> repository,
+  <code>MDRConfig</code> is defined with an <code>operations</code> field (<code>repeated Operation</code>) and
+  an <code>Operation</code> enum (<code>MULTIPLY</code>, <code>SQUARE</code>, <code>DIVIDE</code>, <code>SQRT</code>, <code>IDENT</code>). The
+  <code>Item</code> oneof was extended with an <code>mdr_config</code> field so a single <code>Item</code> can
+  carry an MDR configuration.</li>
+</ul>
+<h3 id="adding-a-new-block-step-by-step">Adding a new block — step by step<a class="headerlink" href="#adding-a-new-block-step-by-step" title="Permanent link">&para;</a></h3>
+<p>When extending <code>pybrid</code> with a new (M-)block, you generally walk through the
+same set of steps as above; the rough recipe is:</p>
+<ol>
+<li><strong>Extend the protobuf schema</strong> in the <code>analog-protobuf</code> repository. Add a
+   new <code>&lt;Block&gt;Config</code> message describing the block's configuration payload
+   (enums, lane lists, calibration data, ...) and extend the <code>Item</code> oneof
+   (<code>kind</code>) with a new field referencing the new config message, picking an
+   unused field number. Regenerate the Python bindings (<code>main_pb2.py</code>) and
+   bump the protocol <code>Version</code>; if the change is backwards-compatible (a new
+   optional field) increment the minor, otherwise major.</li>
+<li><strong>Add a Python entity class</strong> under
+   <code>packages/pybrid-computing/src/pybrid/redac/blocks/</code>. Subclass <code>MBlock</code>
+   (or <code>ElementBlock</code> for non-M blocks), declare <code>ELEMENTS</code> and <code>elements</code>
+   with the appropriate <code>ComputationElement[...]</code> parametrization, and
+   register it with <code>@EntityType.register(EntityClass.MBLOCK, &lt;new_type_id&gt;)</code>
+   so the deserializer can map the entity tree reported by the device.
+   Finally, re-export the class from <code>blocks/__init__.py</code>.</li>
+<li><strong>If needed, add a computation type</strong> in <code>computations.py</code> that captures
+   the block's per-element configuration (e.g., a wrapper similar to
+   <code>MDROperation</code>).</li>
+<li><strong>Register serializer and deserializer handlers</strong> in
+   <code>redac/protocol/serializer.py</code>. Add one
+   <code>@_serialize_configuration.register</code> for the new block class that creates a
+   fresh <code>pb.Item</code> via <code>self.cc.new_config(entity)</code> and fills the new config
+   field, and one <code>@_deserialize_configuration.register</code> for the new
+   <code>pb.&lt;Block&gt;Config</code> message that locates the entity by path and writes the
+   values back.</li>
+<li><strong>Extend the firmware</strong> so the device can consume the new <code>Item</code> kind. The
+   firmware dispatches on the <code>Item.kind</code> oneof, applies the configuration to
+   the actual hardware, and reports the block under the matching
+   <code>EntityClass</code> / <code>type</code> / <code>version</code> triple when answering a
+   <code>DescribeCommand</code>.</li>
+<li><strong>Teach the compiler</strong> (<code>redacc</code> / lucipy) about the new block, both for
+   allocating the new resource type when mapping computations and for emitting
+   the matching configuration items. Without this step the block is reachable
+   only via direct entity-API use, not via the higher-level circuit
+   description languages.</li>
+<li><strong>Add tests</strong> at the boundary: at minimum a round-trip test
+   (<code>serialize → deserialize → compare</code>) for the new config, plus a device
+   test behind the <code>device</code> marker once firmware support lands.</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../data-and-messaging-protocol/" class="btn btn-neutral float-left" title="Data and Messaging Protocol"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../native-networking-code/" class="btn btn-neutral float-right" title="Native Networking Code">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../data-and-messaging-protocol/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../native-networking-code/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../js/mermaid-init.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

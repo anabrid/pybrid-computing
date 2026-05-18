@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Setup - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Setup";
+        var mkdocs_page_input_path = "user-guide/getting-started/setup.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">User Guide</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Getting Started</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Setup</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#installing-from-pre-built-binaries">Installing from pre-built binaries</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#installing-from-source">Installing from source</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Using pybrid</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+          <li class="breadcrumb-item">Getting Started</li>
+      <li class="breadcrumb-item active">Setup</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h1>
+<p>We assume a working Python installation as described in
+<a href="../requirements/">Requirements</a>. <code>pybrid</code> can be installed either
+from pre-built binaries served on PyPI, which is the right path for
+most users, or from source for developers and on platforms without
+published wheels.</p>
+<p>In both cases, we recommend installing <code>pybrid</code> into a dedicated
+<a href="https://docs.python.org/3/library/venv.html">virtual environment</a> to
+avoid dependency conflicts with the rest of your Python setup. While
+you can manage virtual environments manually, we find the
+<a href="https://docs.astral.sh/uv/">uv package manager</a> to be the most
+convenient option, and for the remainder of this documentation we
+assume that <code>uv</code> is used for environment and package management.</p>
+<h2 id="installing-from-pre-built-binaries">Installing from pre-built binaries<a class="headerlink" href="#installing-from-pre-built-binaries" title="Permanent link">&para;</a></h2>
+<p>Both packages that make up <code>pybrid</code> (see <a href="../requirements/">Requirements</a>)
+are available as pre-built wheels on PyPI for the supported operating
+systems and architectures. Setting up a fresh environment and
+installing <code>pybrid</code> with <code>uv</code> takes two commands:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># create a new virtual environment in the .venv/ folder</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># using Python 3.13 (the recommended version)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># install pybrid-computing (pulls in pybrid-computing-native automatically)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pybrid-computing
+</code></pre></div>
+<p>To update an existing installation to the latest release (something
+you should do from time to time), pass the <code>-U</code> flag:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>pybrid-computing
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Keep both package versions in sync</p>
+<p>The version numbers of <code>pybrid-computing</code> and <code>pybrid-computing-native</code>
+must always be identical. Installing or updating <code>pybrid-computing</code>
+via <code>uv pip install</code> keeps the two aligned automatically, but if
+you later pin or upgrade one of them by hand, double-check that the
+versions still match.</p>
+</div>
+<h2 id="installing-from-source">Installing from source<a class="headerlink" href="#installing-from-source" title="Permanent link">&para;</a></h2>
+<p>Installing from source is the right path for users on a platform
+without pre-built wheels, or for anyone who wants to hack on <code>pybrid</code>
+itself. It additionally requires a working C++ compiler supporting at
+least the C++14 standard and <a href="https://cmake.org/">cmake</a> (see
+<a href="../requirements/">Requirements</a> for the full list), and the initial
+build typically takes several minutes because the native extension is
+compiled locally.</p>
+<p>After checking out the source, run the following two commands from
+the repository root:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># build both packages and install them into the venv</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>uv<span class="w"> </span>sync
+</code></pre></div>
+<p>To produce distributable binary wheels (for example to share them
+with other machines of the same platform), invoke <code>uv build</code> once per
+package:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>build<span class="w"> </span>packages/pybrid-computing-native
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>uv<span class="w"> </span>build<span class="w"> </span>packages/pybrid-computing
+</code></pre></div>
+<p>This places the platform-specific <code>.whl</code> files under the respective
+<code>dist/</code> directories. Updating a source installation is a matter of
+pulling the latest state from git and re-running <code>uv sync</code> to rebuild
+both packages.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../requirements/" class="btn btn-neutral float-left" title="Requirements"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../identifying-your-device/" class="btn btn-neutral float-right" title="Identifying Your Device">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../requirements/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../identifying-your-device/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

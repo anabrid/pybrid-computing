@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Using the CLI - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Using the CLI";
+        var mkdocs_page_input_path = "user-guide/using-pybrid/using-the-cli.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">User Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Using pybrid</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Using the CLI</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#direct-commands-and-device-prefixed-commands">Direct commands and device-prefixed commands</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#workflow-commands">Workflow commands</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#detect-discover-devices-on-the-network">detect: discover devices on the network</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ping-verify-a-device-is-alive-and-responsive">ping: verify a device is alive and responsive</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#prefix-display-show-the-devices-entity-hierarchy">&lt;prefix&gt; display: show the device's entity hierarchy</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#prefix-extract-pull-the-entity-specification">&lt;prefix&gt; extract: pull the entity specification</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#prefix-run-execute-a-circuit-and-collect-results">&lt;prefix&gt; run: execute a circuit and collect results</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#proxy-run-a-transparent-proxy">proxy: run a transparent proxy</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#maintenance-commands">Maintenance commands</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#prefix-report-generate-a-calibration-report">&lt;prefix&gt; report: generate a calibration report</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#prefix-update-ota-firmware-update">&lt;prefix&gt; update: OTA firmware update</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+          <li class="breadcrumb-item">Using pybrid</li>
+      <li class="breadcrumb-item active">Using the CLI</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="using-the-cli">Using the CLI<a class="headerlink" href="#using-the-cli" title="Permanent link">&para;</a></h1>
+<p><code>pybrid</code> ships with a command-line tool, also called <code>pybrid</code>, that
+covers device discovery, calibration, firmware updates, and running
+precompiled circuits without writing a line of Python.</p>
+<p>Every command, sub-group, and option is documented in place via
+<code>--help</code>, which works at the top level as well as on any sub-group
+(<code>lucidac</code>, <code>redac</code>, <code>sim</code>) or individual command. We use it
+throughout this page to surface options without having to memorise
+them. Running</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>--help
+</code></pre></div>
+<p>prints the top-level summary, which looks like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Usage: pybrid [OPTIONS] COMMAND [ARGS]...
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  Entrypoint for all functions in the pybrid command line tool.
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Options:
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  --log-level [CRITICAL|ERROR|WARNING|INFO|DEBUG]
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>                                  Set all &#39;pybrid&#39; loggers to the passed
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                                  level.
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  --help                          Show this message and exit.
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>Commands:
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  detect     Detect devices in local network.
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>  dummy      Start a DummyDAC mock server for testing purposes.
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>  lucidac    Entrypoint for all LUCIDAC commands.
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>  ping       Send a V1 PingCommand to a device and measure round-trip time.
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>  proxy      Start a native C++ proxy server in front of one or more...
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>  read-apb   Converts an APB file into human-readable JSON for debugging...
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>  redac      Entrypoint for all REDAC commands.
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>  report     Create a calibration report for an attached device and...
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>  reset-usb  Hardware-reset USB-connected Teensy boards via tycmd.
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>  sim        Entrypoint for all commands interacting with the simulator.
+</code></pre></div>
+<h2 id="direct-commands-and-device-prefixed-commands">Direct commands and device-prefixed commands<a class="headerlink" href="#direct-commands-and-device-prefixed-commands" title="Permanent link">&para;</a></h2>
+<p>Commands split into two groups depending on whether they need an
+active connection to an analog device.</p>
+<ul>
+<li><strong>Direct commands</strong> operate either at the network level or on local
+  files and do not need a device to be connected first. <code>detect</code>,
+  <code>proxy</code>, <code>ping</code>, <code>dummy</code>, <code>reset-usb</code>, and <code>read-apb</code> are all
+  invoked as <code>pybrid &lt;command&gt; ...</code>.</li>
+<li><strong>Device-prefixed commands</strong> first open a connection through a
+  device group (<code>lucidac</code>, <code>redac</code>, or <code>sim</code>) and then execute an
+  operation against that device. They run as
+  <code>pybrid &lt;prefix&gt; &lt;command&gt; ...</code>, and the prefix configures host,
+  port, and reset behaviour for the opened connection.</li>
+</ul>
+<p>The three device groups accept a shared set of options (host, port,
+whether to reset on connect). The full list of sub-commands available
+under a given prefix is, again, one <code>--help</code> away:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>lucidac<span class="w"> </span>--help
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>redac<span class="w"> </span>--help
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>sim<span class="w"> </span>--help
+</code></pre></div>
+<p>Typical invocations therefore look like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>lucidac<span class="w"> </span>-h<span class="w"> </span><span class="m">192</span>.168.1.2<span class="w"> </span>run<span class="w"> </span>-c<span class="w"> </span>my-circuit.apb<span class="w"> </span>--plot
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>redac<span class="w"> </span>-h<span class="w"> </span><span class="m">192</span>.168.110.91<span class="w"> </span>extract<span class="w"> </span>-e<span class="w"> </span>redac.apb
+</code></pre></div>
+<p>In the examples below we omit <code>-h</code> / <code>-p</code> wherever the choice of host
+is unrelated to the point being made; supply them in practice as
+shown above.</p>
+<h2 id="workflow-commands">Workflow commands<a class="headerlink" href="#workflow-commands" title="Permanent link">&para;</a></h2>
+<h3 id="detect-discover-devices-on-the-network"><code>detect</code>: discover devices on the network<a class="headerlink" href="#detect-discover-devices-on-the-network" title="Permanent link">&para;</a></h3>
+<p><code>detect</code> uses mDNS/zeroconf to find all active LUCIDAC/mREDAC devices
+on the local network and prints their IP address, control port, and
+mDNS service name. It needs no arguments:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>detect
+</code></pre></div>
+<p>See <a href="../../getting-started/identifying-your-device/">Identifying your device</a>
+for a walkthrough of the output and guidance on matching the
+advertised hostnames against the physical device labels.</p>
+<h3 id="ping-verify-a-device-is-alive-and-responsive"><code>ping</code>: verify a device is alive and responsive<a class="headerlink" href="#ping-verify-a-device-is-alive-and-responsive" title="Permanent link">&para;</a></h3>
+<p><code>ping</code> is <em>not</em> a network-layer ICMP ping. It opens a control channel
+to the device and sends a <code>PingCommand</code> protobuf message, then
+measures the round-trip time of the reply:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>ping<span class="w"> </span><span class="m">192</span>.168.1.2
+</code></pre></div>
+<p>Because the message is handled by the firmware rather than by the
+operating-system network stack, a successful <code>ping</code> is strong
+evidence that the firmware is running, responsive, and speaking the
+expected protocol version. A missed <code>ping</code> despite a reachable IP
+therefore points at a firmware problem (or a protocol-version
+mismatch) rather than at a network problem.</p>
+<p>Useful options:</p>
+<ul>
+<li><code>--port</code> / <code>-p</code> sets the control port (default <code>5732</code>).</li>
+<li><code>--timeout</code> / <code>-t</code> sets the per-request timeout in seconds
+  (default <code>3.0</code>).</li>
+<li><code>--count</code> / <code>-c</code> sends multiple pings in a row, e.g. <code>-c 5</code>, to
+  get a feel for jitter and packet loss.</li>
+</ul>
+<h3 id="prefix-display-show-the-devices-entity-hierarchy"><code>&lt;prefix&gt; display</code>: show the device's entity hierarchy<a class="headerlink" href="#prefix-display-show-the-devices-entity-hierarchy" title="Permanent link">&para;</a></h3>
+<p><code>display</code> asks the connected device for its hardware specification
+and prints it as a tree, starting at the carrier and descending
+through clusters and blocks down to individual elements. There are no
+options: the command is a quick human-readable sanity check of what
+<code>pybrid</code> actually sees on the wire.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>lucidac<span class="w"> </span>-h<span class="w"> </span><span class="m">192</span>.168.1.2<span class="w"> </span>display
+</code></pre></div>
+<p>Reach for <code>display</code> whenever a circuit does not behave as expected
+and you want to confirm that the device presents the blocks and
+elements you think it does. For a machine-readable dump (or for
+feeding the structure into the simulator), use
+<a href="#prefix-extract-pull-the-entity-specification"><code>extract</code></a> instead.</p>
+<h3 id="prefix-extract-pull-the-entity-specification"><code>&lt;prefix&gt; extract</code>: pull the entity specification<a class="headerlink" href="#prefix-extract-pull-the-entity-specification" title="Permanent link">&para;</a></h3>
+<p><code>extract</code> reads the hardware structure (and optionally its current
+configuration and calibration data) off a connected device and
+either prints it or stores it to disk. The most common use is
+grabbing the entity specification of a device so that the
+<a href="../programmatically/">simulator</a> or an offline tool can work with
+the same hardware shape:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>lucidac<span class="w"> </span>-h<span class="w"> </span><span class="m">192</span>.168.1.2<span class="w"> </span>extract<span class="w"> </span>-e<span class="w"> </span>lucidac-spec.apb
+</code></pre></div>
+<p>Useful options:</p>
+<ul>
+<li><code>--export</code> / <code>-e PATH</code> writes the result to an <code>.apb</code> file
+  (see <a href="../file-formats/">File formats</a>); without it, the extracted
+  module is printed to stdout as text-format protobuf.</li>
+<li><code>--specification/--no-specification</code> (default on),
+  <code>--configuration/--no-configuration</code> (default off), and
+  <code>--calibration/--no-calibration</code> (default off) choose which parts
+  of the device state to include.</li>
+<li><code>--skip-cache</code> forces a fresh extraction from the device and
+  bypasses the cached specification the controller holds in memory.</li>
+</ul>
+<h3 id="prefix-run-execute-a-circuit-and-collect-results"><code>&lt;prefix&gt; run</code>: execute a circuit and collect results<a class="headerlink" href="#prefix-run-execute-a-circuit-and-collect-results" title="Permanent link">&para;</a></h3>
+<p><code>run</code> executes a circuit on the device and either prints the
+captured data to stdout, writes it to a file, or plots it with
+<code>matplotlib</code>. It is particularly handy for running circuits
+generated by anabrid's <code>redacc</code> compiler: the compiler emits an
+<code>.apb</code> file describing the full configuration, and <code>run -c &lt;file&gt;</code>
+sends it to the device and executes it in one step.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>lucidac<span class="w"> </span>-h<span class="w"> </span><span class="m">192</span>.168.1.2<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span>-c<span class="w"> </span>compiled.apb<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span>--op-time<span class="w"> </span><span class="m">0</span>.002<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span>--sample-rate<span class="w"> </span><span class="m">100000</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span>-o<span class="w"> </span>samples.dat<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span>--plot
+</code></pre></div>
+<p>Useful options:</p>
+<ul>
+<li><code>--config-file</code> / <code>-c PATH</code> loads an <code>.apb</code> file and sends it as
+  the device configuration before starting the run. If omitted,
+  <code>pybrid</code> warns and the device re-runs whatever configuration was
+  loaded last.</li>
+<li><code>--op-time SECONDS</code> sets the OP duration (integration time); the
+  CLI accepts seconds and converts internally to the nanosecond
+  precision the device expects.</li>
+<li><code>--sample-rate HZ</code> sets the target sample rate on the DAQ.</li>
+<li><code>--ic-time NANOSECONDS</code> sets the initial-condition phase duration.</li>
+<li><code>--output</code> / <code>-o FILE</code> writes captured samples as <code>.dat</code>
+  (tab-separated, one column per channel) to the given path; pass
+  <code>-</code> for stdout.</li>
+<li><code>--plot</code> additionally opens a <code>matplotlib</code> window with one line
+  per captured channel.</li>
+</ul>
+<h3 id="proxy-run-a-transparent-proxy"><code>proxy</code>: run a transparent proxy<a class="headerlink" href="#proxy-run-a-transparent-proxy" title="Permanent link">&para;</a></h3>
+<p><code>proxy</code> starts the native C++ proxy in front of one or more devices.
+It is documented in full on its own page, including backend-list
+formats, session handling, and how to keep it running as a <code>systemd</code>
+user service:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>proxy<span class="w"> </span>-b<span class="w"> </span>/path/to/backends.txt
+</code></pre></div>
+<p>See <a href="../proxy/">Proxy</a> for the details.</p>
+<h2 id="maintenance-commands">Maintenance commands<a class="headerlink" href="#maintenance-commands" title="Permanent link">&para;</a></h2>
+<p>These commands are not part of the day-to-day configure-run-evaluate
+loop but come up when a device misbehaves or needs to be brought to
+a new firmware release.</p>
+<h3 id="prefix-report-generate-a-calibration-report"><code>&lt;prefix&gt; report</code>: generate a calibration report<a class="headerlink" href="#prefix-report-generate-a-calibration-report" title="Permanent link">&para;</a></h3>
+<p><code>report</code> runs a canned sequence of characterisation tests (sinusoid,
+lanes, multipliers, integrators) against the connected device and
+writes a PDF summarising the results:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>lucidac<span class="w"> </span>-h<span class="w"> </span><span class="m">192</span>.168.1.2<span class="w"> </span>report<span class="w"> </span>my-device.pdf
+</code></pre></div>
+<p>The file name is a positional argument and defaults to <code>report.pdf</code>
+if omitted. This PDF is the standard artefact to attach when
+corresponding with anabrid about suspected hardware failures: it
+contains the measurements we need to reason about the state of the
+analog core without having access to the device.</p>
+<h3 id="prefix-update-ota-firmware-update"><code>&lt;prefix&gt; update</code>: OTA firmware update<a class="headerlink" href="#prefix-update-ota-firmware-update" title="Permanent link">&para;</a></h3>
+<p><code>update</code> pushes a new firmware image to the device over the same
+control channel that is used for configuration. The image path is a
+positional argument:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>lucidac<span class="w"> </span>-h<span class="w"> </span><span class="m">192</span>.168.1.2<span class="w"> </span>update<span class="w"> </span>lucidac-firmware-x.y.z.bin
+</code></pre></div>
+<p>Firmware images for the LUCIDAC are distributed through the
+<a href="https://github.com/anabrid/lucidac-resources">lucidac-resources</a>
+repository. The command only works against real hardware, not
+against the simulator. After a successful update the device reboots,
+so re-open the connection with a fresh <code>pybrid</code> invocation before
+sending more commands.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../lucipy/" class="btn btn-neutral float-left" title="Lucipy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../proxy/" class="btn btn-neutral float-right" title="Proxy">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../lucipy/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../proxy/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

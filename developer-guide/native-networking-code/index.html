@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Native Networking Code - pybrid-computing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Native Networking Code";
+        var mkdocs_page_input_path = "developer-guide/native-networking-code.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/">User Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/getting-started/further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Using pybrid</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../user-guide/using-pybrid/firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Native Networking Code</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Native Networking Code</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#guiding-principles">Guiding principles</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#architecture-at-a-glance">Architecture at a glance</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#components">Components</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#python-boundary">Python boundary</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#drill-down">Drill-down</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-developer-guide-pages">Related developer-guide pages</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer Guide</li>
+          <li class="breadcrumb-item">Native Networking Code</li>
+      <li class="breadcrumb-item active">Native Networking Code</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="native-networking-code">Native Networking Code<a class="headerlink" href="#native-networking-code" title="Permanent link">&para;</a></h1>
+<p>This page covers how <code>pybrid</code> moves data between Python clients and analog
+devices. The heavy lifting (sockets, buffers, channel state machines, the
+proxy server) lives in <code>pybrid-computing-native</code>, the C++ extension. This
+landing page conveys the architecture and intent; the two subpages drill
+into the C++ details.</p>
+<h2 id="guiding-principles">Guiding principles<a class="headerlink" href="#guiding-principles" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Sample rates dictate the design.</strong> A single mREDAC streams up to 500k
+  samples/s at 16 bit. With several carriers behind a proxy the aggregate
+  wire rate is several MB/s of small UDP datagrams. The OS UDP receive
+  buffer cannot be the only line of defence; it fills in milliseconds
+  whenever any downstream stage stalls.</li>
+<li><strong>Devices stream over UDP, clients connect over TCP.</strong> UDP is the only
+  transport fast and loss-tolerant enough for sample streaming. TCP is
+  the only transport that survives the variety of NAT/firewall setups
+  client machines sit behind. The two never share a thread.</li>
+<li><strong>Decouple receive from forwarding via application-level queues.</strong> The
+  thread that drains a UDP socket never performs a TCP <code>send()</code> (which
+  can block on <code>drain()</code> and stall reception). Cross-thread hand-off
+  goes through an <code>IBuffer</code> queue in process RAM, allowed to grow until
+  RAM is exhausted, at which point the connection is failed (not
+  silently lossy).</li>
+<li><strong>Per-transport asio thread.</strong> Every <code>UDPSocket</code>, <code>TCPTransport</code> and
+  <code>TCPServer</code> owns its own <code>boost::asio::io_context</code> and one (or two)
+  dedicated threads. Python asyncio never touches a socket directly.
+  When sockets sat inside Python's event loop, a slow TCP <code>drain()</code>
+  would block UDP reception and trip DMA overflow on the device.</li>
+<li><strong>GIL is released for every blocking native call.</strong> Python wrappers
+  hand off to native threads via <code>ThreadPoolExecutor(max_workers=1)</code> and
+  release the GIL on <code>send</code> / <code>recv</code> / <code>start</code> / <code>stop</code>. The Python side
+  stays responsive even when the C++ side is blocked.</li>
+<li><strong>UDP refusal as a first-class protocol step.</strong> Clients always ask to
+  stream over UDP. The recipient (device or proxy) may refuse, in which
+  case the client transparently falls back to TCP on the existing
+  control channel. The refusal is a protobuf message (not an
+  out-of-band signal), so it round-trips cleanly through the proxy.</li>
+<li><strong>Time-share the device through the proxy.</strong> Real LUCIDAC/REDAC
+  hardware is single-tenant. Concurrency at the client level is solved
+  by serialising at the proxy: one client is active at any time, others
+  are queued and politely told <code>DeviceBusy</code> until their turn.</li>
+<li><strong>The proxy never spawns a thread per session.</strong> All sessions live in
+  a <code>std::deque&lt;std::shared_ptr&lt;ClientSession&gt;&gt;</code> and are driven by two
+  fixed threads (frontend accept and worker dispatch) plus a reconnect
+  thread for backends. Session destruction is deterministic, RAM stays
+  bounded with respect to client count.</li>
+<li><strong>A session loop pumps the active session through a run.</strong> The worker
+  thread, together with <code>RunCoordinator</code> and <code>ProxyBackendHandler</code>,
+  synchronises start / take-off / done across all backend devices
+  before releasing the active session and admitting the next one.</li>
+<li><strong>Ping is special.</strong> A standalone TCP ping (used for liveness checks)
+  is handled by the proxy before a <code>ClientSession</code> is even constructed
+  (<code>peek_for_ping()</code>), so it never consumes a backend slot and never
+  makes a queued client wait.</li>
+<li><strong>Busy-wait belongs in C++.</strong> The retry-on-busy loop lives in
+  <code>ControlChannel::send_and_recv()</code>. Python clients never see the busy
+  state; they see a single blocking call that succeeds once their slot
+  is granted, or fails with a clear timeout.</li>
+</ul>
+<h2 id="architecture-at-a-glance">Architecture at a glance<a class="headerlink" href="#architecture-at-a-glance" title="Permanent link">&para;</a></h2>
+<p>The networking stack has three lanes (data, control, and client-facing) and
+runs in one of two deployment modes (direct or proxy). The diagram below shows
+the Python client process, the native C++ extension, the optional proxy, and
+the device firmware.</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Client["Python client process"]
+        Sess["Session&lt;br/&gt;(session.py)"]
+        Ctrl["Controller&lt;br/&gt;(controller.py)"]
+        CM["ConnectionManager&lt;br/&gt;(connection.py)"]
+        ACC["AsyncControlChannel&lt;br/&gt;(wraps native)"]
+        DC["SampleDecodingDataChannel&lt;br/&gt;(native, owned)"]
+    end
+
+    subgraph Native["pybrid.native (C++)"]
+        CCh["ControlChannel"]
+        DCh["DataChannel&lt;br/&gt;(base)"]
+        SDC["SampleDecodingDataChannel"]
+        TT["TCPTransport"]
+        US["UDPSocket"]
+        IB["IBuffer&lt;br/&gt;(LockFreeBuffer)"]
+    end
+
+    subgraph Proxy["Proxy (optional, in pybrid.native)"]
+        PS["ProxyServer"]
+        CS["ClientSession (x N)"]
+        BH["ProxyBackendHandler"]
+        FDC["ForwardingDataChannel"]
+        RC["RunCoordinator"]
+    end
+
+    subgraph Device["LUCIDAC / REDAC firmware"]
+        FW["Device control + DAQ"]
+    end
+
+    Sess --&gt; Ctrl --&gt; CM
+    CM --&gt; ACC --&gt; CCh
+    CM --&gt; DC --&gt; SDC --&gt; DCh
+    CCh --&gt; TT
+    DCh --&gt; US
+    DCh -. fallback .-&gt; TT
+    DCh --&gt; IB
+
+    %% Two deployment modes
+    TT -- "direct: TCP messages" --&gt; FW
+    US -- "direct: UDP samples" --&gt; FW
+
+    TT -- "proxy mode: TCP" --&gt; PS
+    PS --&gt; CS
+    PS --&gt; BH
+    BH --&gt; FDC
+    BH --&gt; RC
+    BH -- "TCP messages" --&gt; FW
+    FDC -- "UDP samples" --&gt; FW</code></pre>
+<ul>
+<li><strong>Data lane (UDP).</strong> Carries <code>RunDataMessage</code> samples from device to
+  client (direct mode) or device to proxy (proxy mode). Always
+  high-rate, always loss-tolerant.</li>
+<li><strong>Control lane (TCP).</strong> Carries protobuf messages (config, start/stop,
+  extract, auth, ping). Always reliable, ordered, low-rate.</li>
+<li><strong>Client lane (TCP via proxy).</strong> In proxy mode the client speaks only
+  TCP to the proxy; the proxy speaks UDP+TCP to the device on the
+  client's behalf, forwarding samples back on the client's TCP
+  transport.</li>
+<li><strong>Direct mode.</strong> Client opens TCP control and UDP data sockets
+  straight to the device; no proxy is involved.</li>
+<li><strong>Proxy mode.</strong> Client opens a single TCP connection to the proxy;
+  the proxy multiplexes one or more backend devices and serialises
+  multiple clients into one active session at a time.</li>
+</ul>
+<h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
+<p>The C++ layers (buffers, transports, channels) are covered in depth on
+<a href="../native-networking/transport-and-channels/">transport and channels</a>;
+the proxy is covered on <a href="../native-networking/proxy-server/">proxy server</a>.
+The remainder of this section sketches only the Python side of the
+boundary, which lives entirely in <code>pybrid-computing</code>.</p>
+<h3 id="python-boundary">Python boundary<a class="headerlink" href="#python-boundary" title="Permanent link">&para;</a></h3>
+<p>The Python side of the boundary is intentionally thin: it consists of the
+pybind11 module that exposes the native classes, an async wrapper that
+releases the GIL on every blocking call, and a small set of Python-only
+classes that orchestrate connection lifecycle and session execution.</p>
+<ul>
+<li><code>pybind11</code> bindings
+  (<code>packages/pybrid-computing-native/native/bindings.cpp</code>): expose
+  <code>ControlChannel</code>, <code>SampleDecodingDataChannel</code>, <code>IBuffer</code> factory and
+  transport helpers as the <code>pybrid.native</code> module.</li>
+<li><code>AsyncControlChannel</code>
+  (<code>packages/pybrid-computing/src/pybrid/redac/...</code>): wraps the native
+  <code>ControlChannel</code>, exposes async <code>send_and_recv</code> and friends by offloading
+  blocking native calls onto a single-thread executor and releasing the GIL.</li>
+<li><code>DeviceConnection</code>
+  (<code>packages/pybrid-computing/src/pybrid/redac/channel.py</code>): dataclass that
+  holds the native <code>ControlChannel</code>, <code>SampleDecodingDataChannel</code>, and output
+  <code>IBuffer</code> together. This is the unit <code>ConnectionManager</code> hands around.</li>
+<li><code>ConnectionManager</code>
+  (<code>packages/pybrid-computing/src/pybrid/redac/connection.py</code>): discovery,
+  topology detection (direct vs proxy), and <code>DeviceConnection</code> lifecycle.</li>
+<li><code>Session</code> (<code>packages/pybrid-computing/src/pybrid/redac/session.py</code>):
+  deferred-command pipeline that buffers <code>SetConfigCommand</code>, <code>RunCommand</code> and
+  others, then <code>execute()</code>s them under <code>controller._session_lock</code>. Drains
+  decoded sample blobs from the output queue after the run completes.</li>
+</ul>
+<h2 id="drill-down">Drill-down<a class="headerlink" href="#drill-down" title="Permanent link">&para;</a></h2>
+<p>For the C++ details, two subpages drill into the layers introduced above:</p>
+<ul>
+<li><a href="../native-networking/transport-and-channels/">Transport and channels</a>:
+  buffers, UDP/TCP transports, UDP→TCP fallback.</li>
+<li><a href="../native-networking/proxy-server/">Proxy server</a>: multi-client
+  time-sharing, session loop, run coordinator.</li>
+</ul>
+<h2 id="related-developer-guide-pages">Related developer-guide pages<a class="headerlink" href="#related-developer-guide-pages" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../overview/place-in-the-software-stack/">Place in the software stack</a>: where the networking stack sits in the LUCIstack picture.</li>
+<li><a href="../data-and-messaging-protocol/">Data and messaging protocol</a>: protobuf-on-TCP framing and message vocabulary.</li>
+<li><a href="../device-object-representation/">Device object representation</a>: what a <code>Carrier</code> or <code>Cluster</code> is when the controller talks about paths.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../device-object-representation/" class="btn btn-neutral float-left" title="Device Object Representation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../native-networking/transport-and-channels/" class="btn btn-neutral float-right" title="Transport and Channels">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../device-object-representation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../native-networking/transport-and-channels/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../js/mermaid-init.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

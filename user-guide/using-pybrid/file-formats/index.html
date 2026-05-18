@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>File Formats - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "File Formats";
+        var mkdocs_page_input_path = "user-guide/using-pybrid/file-formats.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">User Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Using pybrid</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Using pybrid</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">File Formats</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+          <li class="breadcrumb-item">Using pybrid</li>
+      <li class="breadcrumb-item active">File Formats</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="file-formats">File Formats<a class="headerlink" href="#file-formats" title="Permanent link">&para;</a></h1>
+<p><code>pybrid</code> uses the "analog protobuf" format, a packed binary format based on
+<a href="https://protobuf.dev/">Google's Protobuf</a>. The same <code>.proto</code> schema serves
+two purposes inside the project: it defines the messages exchanged between
+clients and devices over the wire, and it defines the payload formats used
+when device data is serialized to disk. Whenever we write analog-protobuf
+data to disk, we use the <code>.apb</code> extension. For a primer on protobuf and the
+full wire protocol, refer to the
+<a href="../../../developer-guide/data-and-messaging-protocol/">developer guide</a>;
+this page only covers the subset that users need for storing and loading
+device data.</p>
+<p>For everyday use, only three message types matter: <code>File</code>, <code>Module</code> and
+<code>Item</code>. All three are generated protobuf classes and live in the auto-built
+module <code>pybrid.base.proto.main_pb2</code>. The convention used throughout the
+<code>pybrid</code> codebase is to import that module under the short alias <code>pb</code> and
+then to refer to the types as <code>pb.File</code>, <code>pb.Module</code>, <code>pb.Item</code> and so on:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pybrid.base.proto.main_pb2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pb</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">module</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Module</span><span class="p">()</span>  <span class="c1"># an empty Module, ready to be populated with Items</span>
+</code></pre></div>
+<p><code>File</code> is the top-level on-disk envelope and carries a <code>Version</code> together
+with a single <code>Module</code>. The version field is what allows older
+<code>.apb</code> files to be upgraded transparently to the current schema when they
+are loaded. Inside it, a <code>Module</code> is a flat container holding an ordered
+list of <code>Item</code>s; the same <code>Module</code> shape is also what <code>pybrid</code> ships in a
+<code>ConfigCommand</code> when configuring a device, so reading from disk and
+configuring hardware are essentially the same operation. Each <code>Item</code>, in
+turn, is a tagged union (a protobuf <code>oneof</code>) whose variants describe either
+a piece of hardware or a configuration value for a piece of hardware.</p>
+<p>The <code>Item</code> variants split cleanly into two groups. <code>EntitySpecification</code>
+<em>specifies</em> hardware: it stores the hierarchy of entities (carriers,
+clusters, blocks, ...) reported by a device when we first connect to it,
+and it is what makes a stored module portable, since the receiver can tell
+exactly which hardware shape the configuration was written for. Every
+other <code>Item</code> specialization (<code>MulConfig</code>, <code>CoefConfig</code>, <code>ClusterConfig</code>,
+<code>FrontPanelConfig</code>, ...) instead <em>configures</em> a single entity and carries
+the <code>EntityId</code> (path) of the entity it applies to. A typical <code>Module</code> will
+contain both kinds of items at once: one <code>EntitySpecification</code> per carrier
+followed by the configuration items for all of its blocks.</p>
+<p>The canonical way to read and write modules from disk is the helper class
+<code>pybrid.base.proto.ProtoIO</code>. It only accepts the <code>.apb</code> extension and adds
+two things on top of raw protobuf serialization. When we call
+<code>store_module()</code>, it wraps our <code>Module</code> into a <code>File</code> and stamps it with
+the current schema version before writing it out. When we call
+<code>load_module()</code>, it parses the <code>File</code> from disk, runs it through
+<code>ProtoVersioning</code> to upgrade older revisions to the current schema, and
+then returns the inner <code>Module</code> to us. The <code>File</code> envelope only exists on
+disk for versioning purposes and is unwrapped before the data ever reaches
+user code.</p>
+<p>As a first example, here is how we serialize the configuration of an
+analog computer to an <code>.apb</code> file. We connect to a device, ask its
+<code>Computer</code> object for its serializer class, instantiate it (the trailing
+<code>()</code> after <code>get_serializer()</code> is what does the instantiation), and hand
+the resulting <code>Module</code> to <code>ProtoIO.store_module()</code>. The controller is
+entered as an async context manager so that the connection is cleaned up
+once we are done.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span> <span class="k">as</span> <span class="n">REDACController</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.base.proto.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtoIO</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">controller</span> <span class="o">=</span> <span class="n">REDACController</span><span class="p">()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="c1"># ... optionally modify the computer&#39;s configuration in place ...</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">computer</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">computer</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">serializer</span> <span class="o">=</span> <span class="n">computer</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">()()</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">module</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">computer</span><span class="p">)</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">ProtoIO</span><span class="o">.</span><span class="n">store_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;my_config.apb&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>The reverse direction is just as common: we have an <code>.apb</code> file describing
+some hardware and we want to spin up the simulator to mimic it. The
+simulator needs an <code>EntitySpecification</code> to know which hardware shape to
+emulate, and an <code>.apb</code> previously written by <code>ProtoIO.store_module()</code> (or
+by the equivalent CLI command) is the standard way to provide it. We load
+the file with <code>ProtoIO.load_module()</code> and pass the resulting <code>Module</code>
+straight to <code>add_device()</code> via its <code>specification</code> argument.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.sim.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span> <span class="k">as</span> <span class="n">SimController</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.base.proto.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtoIO</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">specification</span> <span class="o">=</span> <span class="n">ProtoIO</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s2">&quot;lucidac-spec.apb&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">controller</span> <span class="o">=</span> <span class="n">SimController</span><span class="p">()</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">specification</span><span class="o">=</span><span class="n">specification</span><span class="p">,</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">)</span>
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../" class="btn btn-neutral float-left" title="Using pybrid"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../programmatically/" class="btn btn-neutral float-right" title="Programmatically">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../programmatically/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

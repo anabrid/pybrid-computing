@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Identifying Your Device - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Identifying Your Device";
+        var mkdocs_page_input_path = "user-guide/getting-started/identifying-your-device.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">User Guide</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Getting Started</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../setup/">Setup</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Identifying Your Device</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#device-types">Device types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#detecting-devices-via-the-cli">Detecting devices via the CLI</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#picking-your-device-from-the-output">Picking your device from the output</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Using pybrid</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+          <li class="breadcrumb-item">Getting Started</li>
+      <li class="breadcrumb-item active">Identifying Your Device</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="identifying-your-device">Identifying Your Device<a class="headerlink" href="#identifying-your-device" title="Permanent link">&para;</a></h1>
+<p>All anabrid devices of the LUCIDAC/REDAC family communicate over
+ethernet, and this is the primary transport <code>pybrid</code> uses to talk to
+your hardware. Before running a circuit, we first need to know the IP
+address at which your device is reachable.</p>
+<h2 id="device-types">Device types<a class="headerlink" href="#device-types" title="Permanent link">&para;</a></h2>
+<p>The LUCIDAC and the mREDAC are each a single physical device reached
+at a single IP address, and the detection procedure described on this
+page applies to both. An iREDAC, by contrast, bundles several mREDACs,
+each with its own IP address, and is typically operated behind a
+<a href="../../using-pybrid/proxy/">proxy</a> that fronts all of them under a
+single endpoint. Setting up an iREDAC is out of scope for this guide;
+please refer to the setup guide shipped with your device. The
+remainder of this page covers the detection procedure for a LUCIDAC or
+a single mREDAC.</p>
+<p>We make two assumptions throughout: that your device is connected to
+the same network as your client PC, and that a DHCP server is running
+on that network and has assigned an IP address to the device.</p>
+<h2 id="detecting-devices-via-the-cli">Detecting devices via the CLI<a class="headerlink" href="#detecting-devices-via-the-cli" title="Permanent link">&para;</a></h2>
+<p><code>pybrid</code> ships with an integrated command-line tool that we use for
+device discovery. Running it with <code>--help</code> shows the available
+top-level subcommands:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>--help
+</code></pre></div>
+<p>The output looks roughly like this, though the exact list of commands
+depends on which <code>pybrid-computing-*</code> packages you have installed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Usage: pybrid [OPTIONS] COMMAND [ARGS]...
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  Entrypoint for all functions in the pybrid command line tool.
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  Additional :code:`pybrid-computing` packages hook new subcommands into this
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  entrypoint. Please see their documentation for additional available
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  commands.
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>Options:
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  --log-level [CRITICAL|ERROR|WARNING|INFO|DEBUG]
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>                                  Set all &#39;pybrid&#39; loggers to the passed
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                                  level.
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>  --help                          Show this message and exit.
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>Commands:
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>  detect     Detect devices in local network.
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>  dummy      Start a DummyDAC mock server for testing purposes.
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>  lucidac    Entrypoint for all LUCIDAC commands.
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>  proxy      Start a native C++ proxy server in front of one or more...
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>  redac      Entrypoint for all REDAC commands.
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>  reset-usb  Hardware-reset USB-connected Teensy boards via tycmd.
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>  sim        Entrypoint for all commands interacting with the simulator.
+</code></pre></div>
+<p>The subcommand we need here is <code>detect</code>, which discovers all active
+LUCIDAC/mREDAC devices reachable in the local network via mDNS/zeroconf:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>detect
+</code></pre></div>
+<p>A typical run on a lab network with four devices prints their IP
+address, control port, and mDNS service name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>192.168.150.57 :5732 lucidac-17-E5-68._lucijsonl._tcp.local.
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>192.168.150.15 :5732 lucidac-17-E5-66._lucijsonl._tcp.local.
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>192.168.150.69 :5732 lucidac-18-16-43._lucijsonl._tcp.local.
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>192.168.150.17 :5732 lucidac-15-87-A0._lucijsonl._tcp.local.
+</code></pre></div>
+<h2 id="picking-your-device-from-the-output">Picking your device from the output<a class="headerlink" href="#picking-your-device-from-the-output" title="Permanent link">&para;</a></h2>
+<p>Every device in the LUCIDAC/REDAC family advertises itself with a
+hostname of the form <code>lucidac-XX-YY-ZZ</code>, where <code>XX-YY-ZZ</code> are the last
+six hex digits of the MAC address printed on the device's label. When
+several devices are visible at once, match the hostname against the
+label on the physical device to pick the one you want, and note its
+IP address (and the <code>5732</code> control port) for later use with <code>pybrid</code>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../setup/" class="btn btn-neutral float-left" title="Setup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../building-your-first-circuit/" class="btn btn-neutral float-right" title="Building Your First Circuit">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../setup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../building-your-first-circuit/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

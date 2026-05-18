@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Building Your First Circuit - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Building Your First Circuit";
+        var mkdocs_page_input_path = "user-guide/getting-started/building-your-first-circuit.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">User Guide</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Getting Started</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Building Your First Circuit</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#setting-up-the-script">Setting up the script</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#connecting-to-the-device">Connecting to the device</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuring-the-cluster">Configuring the cluster</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#m-block-integrators-and-initial-conditions">M-block: integrators and initial conditions</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#u-block-fan-out-routing">U-block: fan-out routing</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#c-block-coefficients">C-block: coefficients</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#i-block-closing-the-loop">I-block: closing the loop</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#capturing-the-integrator-outputs">Capturing the integrator outputs</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#running-the-circuit">Running the circuit</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#plotting-the-results">Plotting the results</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Using pybrid</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../using-pybrid/firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+          <li class="breadcrumb-item">Getting Started</li>
+      <li class="breadcrumb-item active">Building Your First Circuit</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="building-your-first-circuit">Building Your First Circuit<a class="headerlink" href="#building-your-first-circuit" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This tutorial uses the low-level <code>pybrid</code>-syntax which is compatible
+with all supported devices; for LUCIDACs, there is the higher-level
+<a href="../../using-pybrid/lucipy/">lucipy</a> syntax especially good for
+beginners.</p>
+</div>
+<p>Before starting on a simple circuit, you will need to set up <code>pybrid</code> and
+to find out the IP address of your device. Throughout this document we are
+assuming a LUCIDAC reachable at <code>192.168.1.2</code>. The circuit we are about to
+build models a <em>harmonic oscillator</em>, governed by the ODE
+$\frac{d^2}{dt^2}h(t) = -h(t)$ with $h(0) = 0.42$, and we will be capturing
+both $h(t)$ and $\dot{h}(t) = \frac{d}{dt}h$ via the analog-to-digital
+converters (ADCs) on the device. To understand <em>why</em> we configure the
+computer the way we do, please read the dedicated sections in the
+<a href="../../../hardware-architecture/">architecture guide</a>.</p>
+<p>(TBD: graphic for the circuit)</p>
+<h2 id="setting-up-the-script">Setting up the script<a class="headerlink" href="#setting-up-the-script" title="Permanent link">&para;</a></h2>
+<p>We start by importing the relevant classes from <code>pybrid</code>. The example uses
+the LUCIDAC controller, but the same code translates to an mREDAC by
+swapping the import for <code>from pybrid.redac.controller import Controller</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.lucidac.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAQConfig</span><span class="p">,</span> <span class="n">RunConfig</span>
+</code></pre></div>
+<p><code>pybrid</code> uses Python's <a href="https://docs.python.org/3/library/asyncio.html">async</a>
+machinery throughout to hide network latencies and I/O, so the rest of the
+example lives inside an <code>async</code> function:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="o">...</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<p>With that scaffolding in place, we are ready to configure the LUCIDAC.
+Before we touch any code, here are the two abstractions to keep in mind.
+A <code>Controller</code> is the client class for analog devices: it connects to
+hardware, builds the entity object model from what the device reports, and
+handles all communication with the device (see the
+<a href="../../../developer-guide/data-and-messaging-protocol/">protocol</a> for
+details). The <em>entity object model</em> is the in-memory representation of
+those hardware components in pure Python; it is created at connect time
+through automatic <em>deserialization</em> of the device's <em>hardware
+specification</em>, and is then configured by the user to realize a circuit
+before being <em>serialized</em> by the controller and transmitted as the
+<em>hardware configuration</em>. In short: a <em>specification</em> describes <em>what</em>
+hardware the analog device has, and a <em>configuration</em> describes how its
+coefficients, switches and so on are set.</p>
+<p>The most common usage pattern is the "configure-run-evaluate" loop. The
+controller connects to the device and downloads its specification, which
+is a hierarchical description of its hardware structure (see the
+<a href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">hierarchy</a>
+page). From that specification, <code>pybrid</code> generates the entity object model
+(the "computer"). The user then configures the computer in memory to
+realize a particular analog circuit. The computer's configuration is
+serialized into a protocol message and sent to the device, which runs
+auto-calibration and finally executes the circuit. While the circuit
+runs, the device streams the captured samples back over the network, and
+<code>pybrid</code> collects them into a consolidated list of channels in Python.</p>
+<h2 id="connecting-to-the-device">Connecting to the device<a class="headerlink" href="#connecting-to-the-device" title="Permanent link">&para;</a></h2>
+<p>The first step in our example is to instantiate a controller, have it
+connect to the device and reach into the entity object model:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">with</span> <span class="n">Controller</span><span class="p">()</span> <span class="k">as</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="c1"># connect to LUCIDAC</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="s2">&quot;192.168.1.2&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="mi">5732</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="c1"># retrieve the entity object model for the LUCIDAC (i.e. &quot;cluster&quot;)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">computer</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">computer</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">carrier</span> <span class="o">=</span> <span class="n">computer</span><span class="o">.</span><span class="n">carriers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">cluster</span> <span class="o">=</span> <span class="n">carrier</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+<p>The REDAC family has a hierarchical structure (again, see the
+<a href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">hierarchy</a>
+page) with carriers (mREDACs) as the smallest individually operable units.
+The LUCIDAC is somewhat special: it is roughly equivalent to a single
+<em>cluster</em> rather than to a full carrier, so in <code>pybrid</code> we model it as a
+carrier with exactly one cluster, and we configure the device by
+configuring that cluster.</p>
+<h2 id="configuring-the-cluster">Configuring the cluster<a class="headerlink" href="#configuring-the-cluster" title="Permanent link">&para;</a></h2>
+<p>With the <code>cluster</code> reference in hand we can start configuring its blocks.
+The order matters: we work outwards from the M-block, then route signals
+through the U-block, weight them with the C-block, and finally close the
+loop with the I-block. Use your IDE or IntelliSense to explore the
+<code>cluster</code> object and its members as you go.</p>
+<h3 id="m-block-integrators-and-initial-conditions">M-block: integrators and initial conditions<a class="headerlink" href="#m-block-integrators-and-initial-conditions" title="Permanent link">&para;</a></h3>
+<p>As shown in <a href="../../../hardware-architecture/list-of-blocks/">its architecture</a>,
+each cluster has two slots for M-blocks (M0 and M1). While they are
+exchangeable, the M0 slot in most cases contains an MInt block with eight
+integrators, where each integrator $i$ is wired to input $i$ and output
+$i$. Our ODE has $\ddot{h}$ as its highest-order derivative, so we need
+two integrators: integrator 0 will integrate $\dot{h}(t)$ to $h(t)$, and
+integrator 1 will integrate $\ddot{h}(t)$ to $\dot{h}(t)$. Integrators have
+two properties we can set. The first, <code>k_0</code>, is the acceleration factor
+(default 10,000), which makes the system run 10,000 times faster than
+real time. The second, <code>ic</code>, is the initial condition. In this example we
+leave $k_0$ at its default and only set the initial condition:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">cluster</span><span class="o">.</span><span class="n">m0block</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ic</span> <span class="o">=</span> <span class="mf">0.42</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">cluster</span><span class="o">.</span><span class="n">m0block</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ic</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 0 by default</span>
+</code></pre></div>
+<h3 id="u-block-fan-out-routing">U-block: fan-out routing<a class="headerlink" href="#u-block-fan-out-routing" title="Permanent link">&para;</a></h3>
+<p>In the C-block, almost all lanes are interchangeable (with the exception
+of analog I/O), so we are free to choose which integrator output sits on
+which lane. For simplicity we put integrator 0's output on lane 0 and
+integrator 1's output on lane 1:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">cluster</span><span class="o">.</span><span class="n">ublock</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">cluster</span><span class="o">.</span><span class="n">ublock</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div>
+<p>The U-block works by <em>fan-out</em>: for every output of the M-blocks, you can
+route the signal to multiple lanes in the C-block. The U-block also
+contains a <em>constant giver</em>, capable of producing the constants
+${0.1, 1}$, but we do not need it in this example.</p>
+<h3 id="c-block-coefficients">C-block: coefficients<a class="headerlink" href="#c-block-coefficients" title="Permanent link">&para;</a></h3>
+<p>The C-block has one reconfigurable coefficient per lane, with each
+coefficient living in the range $[-1.0, 1.0]$. Together with the I-block's
+<em>upscaling</em> feature (described below), the effective range becomes
+$[-8.0, 8.0]$. According to our circuit diagram we need to weigh integrator
+0's signal (lane 0) with $-1.0$ and integrator 1's signal (lane 1) with
+$1.0$:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">cluster</span><span class="o">.</span><span class="n">cblock</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">cluster</span><span class="o">.</span><span class="n">cblock</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="mf">1.0</span>
+</code></pre></div>
+<h3 id="i-block-closing-the-loop">I-block: closing the loop<a class="headerlink" href="#i-block-closing-the-loop" title="Permanent link">&para;</a></h3>
+<p>All that is left now is to close the loop by feeding the signal on lane 0
+back into integrator 1 and the signal on lane 1 back into integrator 0.
+The I-block works by implicit summation in a <em>fan-in</em> mode: for each
+output of the I-block (which is an input of the M-block), we assign a
+set of C-block lanes to be summed. The I-block can also <em>upscale</em> signals
+on individual lanes by a factor of 8, but we do not need that here:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">cluster</span><span class="o">.</span><span class="n">iblock</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">}</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">cluster</span><span class="o">.</span><span class="n">iblock</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="capturing-the-integrator-outputs">Capturing the integrator outputs<a class="headerlink" href="#capturing-the-integrator-outputs" title="Permanent link">&para;</a></h3>
+<p>The ADCs on LUCIDAC and REDAC devices are wired to M-block outputs. To
+capture the two integrator outputs we are interested in, we use the
+convenience function on the computer's DAQ object:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">computer</span><span class="o">.</span><span class="n">daq</span><span class="o">.</span><span class="n">capture</span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">cluster</span><span class="o">.</span><span class="n">m0block</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">cluster</span><span class="o">.</span><span class="n">m0block</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+<p>At this point the entity object model fully describes our ODE as a
+circuit. What is left is to configure the <em>execution</em> of that circuit and
+hand it to the device.</p>
+<h2 id="running-the-circuit">Running the circuit<a class="headerlink" href="#running-the-circuit" title="Permanent link">&para;</a></h2>
+<p>We control execution through a <code>Session</code> object, which we obtain from
+the controller so that it is wired up correctly (it carries a reference
+to the controller, among other things):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">session</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">create_session</span><span class="p">()</span>
+</code></pre></div>
+<p>All commands issued on a session use <em>deferred execution</em>: they are
+queued in the order they are added and only run when we finally call
+<code>execute()</code>. Before that, we configure how long the device should
+integrate and at what rate it should sample. The mode in which the
+analog computer actively integrates is called "OP", and the OP duration
+is set ahead of time with nanosecond precision:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">run_config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span><span class="n">op_time</span><span class="o">=</span><span class="mi">2_560_000</span><span class="p">)</span>
+</code></pre></div>
+<p>We also need to pick a sample rate, in samples per second. Note that
+the LUCIDAC's HybridController caps the total sampling rate at roughly
+500 kHz divided across all captured signals. Since we are capturing
+two signals, we have around 250,000 samples per channel per second to
+play with; for this example we use 100,000:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">daq_config</span> <span class="o">=</span> <span class="n">DAQConfig</span><span class="p">(</span><span class="n">sample_rate</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+</code></pre></div>
+<p>Thanks to the chaining syntax, a typical session can be assembled and
+fired off in a single sequence:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">runs</span> <span class="o">=</span> <span class="k">await</span> <span class="p">(</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>        <span class="n">session</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        <span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">computer</span><span class="p">)</span>  <span class="c1"># serialize and send configuration</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        <span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">gain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        <span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_config</span><span class="p">,</span> <span class="n">daq_config</span><span class="p">)</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="o">.</span><span class="n">execute</span><span class="p">()</span>  <span class="c1"># execute all of the former commands</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>Multiple <code>run()</code> commands inside the same session would result in
+multiple entries in the <code>runs</code> list. Since we only have one run, we
+pick the first entry with <code>run = runs[0]</code>.</p>
+<h2 id="plotting-the-results">Plotting the results<a class="headerlink" href="#plotting-the-results" title="Permanent link">&para;</a></h2>
+<p>To round things off we use <code>matplotlib</code> to plot the captured data:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude x&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;&#39;Time&#39; t&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p>That's it, you just ran your first circuit on your device. Note that the
+approach we are taking here, defining block routing by hand, is much like
+assembly programming on digital systems. In most cases users can use
+anabrid's <code>redacc</code> compiler to automate the transformation from ODE to
+circuit.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../identifying-your-device/" class="btn btn-neutral float-left" title="Identifying Your Device"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../further_examples/" class="btn btn-neutral float-right" title="Further Examples">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../identifying-your-device/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../further_examples/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Proxy Server - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Proxy Server";
+        var mkdocs_page_input_path = "developer-guide/native-networking/proxy-server.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../user-guide/">User Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/getting-started/">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/getting-started/setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/getting-started/identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/getting-started/building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/getting-started/further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Using pybrid</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/using-pybrid/">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/using-pybrid/file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/using-pybrid/programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/using-pybrid/lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/using-pybrid/using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/using-pybrid/proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../user-guide/using-pybrid/firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Native Networking Code</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Proxy Server</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#why-a-proxy">Why a proxy</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#architecture">Architecture</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#threading-model">Threading model</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#server_thread_-frontend">server_thread_ (frontend)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#session_thread_-worker">session_thread_ (worker)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#reconnect_thread_">reconnect_thread_</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#why-this-structure">Why this structure</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#components">Components</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#proxyserver">ProxyServer</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#clientsession">ClientSession</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#proxybackendhandler">ProxyBackendHandler</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#forwardingdatachannel">ForwardingDataChannel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#runcoordinator">RunCoordinator</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#message-dispatch-proxy_message_handlerscpp">Message dispatch (proxy_message_handlers.cpp)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#lifecycle-of-a-client-run">Lifecycle of a client run</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#special-cases">Special cases</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#ping">Ping</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#busy-wait">Busy-wait</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#backend-reconnect">Backend reconnect</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#udp-tcp-asymmetry">UDP / TCP asymmetry</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#see-also">See also</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer Guide</li>
+          <li class="breadcrumb-item">Native Networking Code</li>
+      <li class="breadcrumb-item active">Proxy Server</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="proxy-server">Proxy server<a class="headerlink" href="#proxy-server" title="Permanent link">&para;</a></h1>
+<p>The proxy time-shares a single-tenant LUCIDAC/REDAC device across multiple
+clients, admitting one as "active" at a time and politely queueing the rest.
+Clients always connect to the proxy over TCP only; the proxy in turn talks to
+each backend device over UDP (for samples) and TCP (for control). This page
+covers the C++ machinery in <code>packages/pybrid-computing-native/native/pybrid/proxy/</code>
+that makes this work. For the transport and channel layers it builds on, see
+<a href="../transport-and-channels/"><code>./transport-and-channels.md</code></a>.</p>
+<h2 id="why-a-proxy">Why a proxy<a class="headerlink" href="#why-a-proxy" title="Permanent link">&para;</a></h2>
+<p>Real LUCIDAC/REDAC hardware is single-tenant: only one client may drive a
+device at any given time. Clients need a TCP-only ingress because real client
+machines sit behind NAT and firewalls of every shape, and UDP does not survive
+them reliably. The proxy-to-device path stays on UDP so the DMA-fed sample
+stream never has to compete with a slow client <code>drain()</code> (the OS UDP receive
+buffer is too small to absorb a stall). A single proxy endpoint can also
+aggregate several backend mREDACs behind one TCP address, hiding the topology
+from clients.</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>The proxy process owns one <code>TCPServer</code> for client accepts, two long-lived
+worker threads, and a backend handler that aggregates one or more device
+connections. All <code>ClientSession</code>s live in a single <code>std::deque</code> and are
+driven by fixed threads, not by per-session threads. At most one session is
+"active" at any time; the rest are queued and receive <code>DeviceBusyMessage</code>
+until promoted.</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph Frontend["Client side (TCP only)"]
+        C1["Client 1"]:::client
+        C2["Client 2"]:::client
+        C3["Client 3"]:::client
+    end
+
+    subgraph ProxyProc["Proxy process"]
+        direction TB
+        TCPS["TCPServer&lt;br/&gt;(asio thread)"]
+        ST["server_thread_&lt;br/&gt;(frontend accept + queued-session polling)"]
+        SD["session_deque_&lt;br/&gt;(FIFO of ClientSessions)"]
+        WT["session_thread_&lt;br/&gt;(worker: drives the active session)"]
+        AS["active_&lt;br/&gt;(shared_ptr&amp;lt;ClientSession&amp;gt;)"]
+        RC["RunCoordinator"]
+        BH["ProxyBackendHandler&lt;br/&gt;+ reconnect_thread_"]
+        FDC1["ForwardingDataChannel #1"]
+        FDC2["ForwardingDataChannel #2"]
+    end
+
+    subgraph Backends["Device side (UDP + TCP)"]
+        D1["mREDAC 1"]
+        D2["mREDAC 2"]
+    end
+
+    C1 &amp; C2 &amp; C3 -- TCP --&gt; TCPS
+    TCPS --&gt; ST
+    ST --&gt;|push| SD
+    WT --&gt;|pop front| SD
+    WT --- AS
+    AS -. forwards data .- FDC1
+    AS -. forwards data .- FDC2
+    BH --- FDC1
+    BH --- FDC2
+    BH -- TCP messages --&gt; D1
+    BH -- TCP messages --&gt; D2
+    FDC1 -- UDP samples --&gt; D1
+    FDC2 -- UDP samples --&gt; D2
+    WT --- RC
+
+    classDef client fill:#eef,stroke:#669</code></pre>
+<p>Client TCP connections terminate at the proxy's <code>TCPServer</code>; nothing on the
+client side speaks UDP. The <code>server_thread_</code> accepts new connections and
+pushes <code>ClientSession</code>s onto <code>session_deque_</code>, while also polling queued
+sessions to keep them alive. The <code>session_thread_</code> (worker) pops the front
+session into <code>active_</code> once the backends are healthy and drives it through
+one full run. <code>ProxyBackendHandler</code> owns the backend devices and the
+<code>ForwardingDataChannel</code>s; it wires the active session in and out via
+<code>set_active_session()</code>. Each <code>ForwardingDataChannel</code> runs on its own
+backend-side asio thread and forwards <code>RunDataMessage</code>s to the active
+client's TCP transport. <code>RunCoordinator</code> synchronises take-off and DONE
+across all backends so the worker only releases the active session when the
+run is fully complete.</p>
+<h2 id="threading-model">Threading model<a class="headerlink" href="#threading-model" title="Permanent link">&para;</a></h2>
+<h3 id="server_thread_-frontend"><code>server_thread_</code> (frontend)<a class="headerlink" href="#server_thread_-frontend" title="Permanent link">&para;</a></h3>
+<p>The frontend thread runs <code>TCPServer::accept(0.1s)</code> in a loop on the listening
+socket. On every accepted socket it calls <code>peek_for_ping()</code> before any
+<code>ClientSession</code> is constructed; a pure ping is replied to and the connection
+closed. Otherwise it constructs a <code>ClientSession</code> (with an optional pending
+first-message buffer if a non-ping frame was already peeked) and pushes it
+onto <code>session_deque_</code>. It also polls all queued (non-active) sessions in
+<code>poll_queued()</code>: draining pending messages on each session's TCP transport,
+replying with <code>DeviceBusyMessage</code> to every command that is not auth or
+extract, and erasing sessions whose TCP transport has disconnected.</p>
+<h3 id="session_thread_-worker"><code>session_thread_</code> (worker)<a class="headerlink" href="#session_thread_-worker" title="Permanent link">&para;</a></h3>
+<p>The worker polls <code>session_deque_</code> every 50 ms (<code>WORKER_POLL_INTERVAL</code>) and
+waits for all backends to be <code>HEALTHY</code> before popping the front session into
+<code>active_</code> (the proxy's one active-session slot, a
+<code>shared_ptr&lt;ClientSession&gt;</code>). It then calls
+<code>ProxyBackendHandler::install_forwards(active_)</code> to wire the forwarding
+callbacks for every <code>ForwardingDataChannel</code>, drives the active session
+through one run (config, start, sample forwarding, DONE), tears down the
+forwards (<code>clear_forwards()</code>), and finally drops <code>active_</code> under
+<code>deque_mutex_</code> so <code>ClientSession</code> destruction is deterministic.</p>
+<h3 id="reconnect_thread_"><code>reconnect_thread_</code><a class="headerlink" href="#reconnect_thread_" title="Permanent link">&para;</a></h3>
+<p>This thread is owned by <code>ProxyBackendHandler</code>, not by <code>ProxyServer</code>. It
+re-establishes connections to disconnected backends and flips their health
+state back to <code>HEALTHY</code> on success. The session thread observes the health
+state on its next 50 ms tick and resumes promoting queued sessions.</p>
+<h3 id="why-this-structure">Why this structure<a class="headerlink" href="#why-this-structure" title="Permanent link">&para;</a></h3>
+<p>This layout avoids one thread per session, which was the root of the
+memory-leak incident on 2026-04-24 (every queued client kept a stack alive).
+<code>ClientSession</code> lifetime is deterministic: the destructor runs at the exact
+point <code>active_</code> is reset under <code>deque_mutex_</code>, so resources do not leak into
+the next session's run. The fixed thread count means RAM usage is bounded
+with respect to the number of clients.</p>
+<h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
+<h3 id="proxyserver"><code>ProxyServer</code><a class="headerlink" href="#proxyserver" title="Permanent link">&para;</a></h3>
+<p><code>ProxyServer</code> (in
+<code>packages/pybrid-computing-native/native/pybrid/proxy/proxy_server.h</code> and
+<code>proxy/proxy_server.cpp</code>) owns the frontend <code>TCPServer</code> and the two worker
+threads, holds <code>session_deque_</code> and the <code>active_</code> pointer under
+<code>deque_mutex_</code>, dispatches incoming protobuf messages on the active session
+to the handlers in <code>proxy_message_handlers.cpp</code>, and enforces authentication
+(every non-auth, non-extract command on a non-authenticated session is
+rejected).</p>
+<h3 id="clientsession"><code>ClientSession</code><a class="headerlink" href="#clientsession" title="Permanent link">&para;</a></h3>
+<p><code>ClientSession</code> (in <code>proxy/proxy_session.h</code>, <code>proxy/proxy_session.cpp</code>) holds
+the per-client state: a UUID identifying the session in logs and
+instrumentation, the <code>TCPTransport</code> owned by this session, the
+<code>authenticated</code> flag, the <code>done_received</code> flag (used by the worker to detect
+end-of-run), a pending first-message buffer (populated when
+<code>peek_for_ping()</code> consumed a non-ping frame during accept), and
+instrumentation counters (<code>alive_count</code>, <code>alive_peak</code>) tracking how many
+sessions are alive concurrently.</p>
+<h3 id="proxybackendhandler"><code>ProxyBackendHandler</code><a class="headerlink" href="#proxybackendhandler" title="Permanent link">&para;</a></h3>
+<p><code>ProxyBackendHandler</code> (in <code>proxy/proxy_backend_handler.h</code>,
+<code>proxy/proxy_backend_handler.cpp</code>) owns the <code>backends_</code> vector of backend
+device connections and maintains <code>path_to_backend_</code>, mapping device entity
+paths to the backend that hosts them. It also owns the <code>reconnect_thread_</code>
+and the per-backend health state, and exposes
+<code>set_active_session(weak_ptr&lt;ClientSession&gt;)</code> so the worker can wire and
+unwire the active session against every <code>ForwardingDataChannel</code>. For
+commands that must reach all backends (start run, reset, ...), it provides
+<code>broadcast_to_backends()</code>.</p>
+<h3 id="forwardingdatachannel"><code>ForwardingDataChannel</code><a class="headerlink" href="#forwardingdatachannel" title="Permanent link">&para;</a></h3>
+<p><code>ForwardingDataChannel</code> (in <code>proxy/forwarding_data_channel.h</code>,
+<code>proxy/forwarding_data_channel.cpp</code>) is a subclass of <code>DataChannel</code> (see
+<a href="../transport-and-channels/">transport and channels</a>) that overrides
+<code>handle_data_message</code>. It intercepts <code>RunDataMessage</code>s on the backend's own
+asio thread (one channel per backend) and invokes the <code>m_forward</code> lambda,
+which calls <code>session.send(msg)</code> on the active <code>ClientSession</code>'s TCP
+transport to forward the sample frame to the client. The lambda captures
+<code>weak_ptr&lt;ClientSession&gt;</code> and <code>lock()</code>s it before sending; if the active
+session has been dropped, the message is discarded (no dangling reference).
+The channel also tracks per-carrier sequence numbers so the client sees a
+contiguous stream even with multiple backends.</p>
+<h3 id="runcoordinator"><code>RunCoordinator</code><a class="headerlink" href="#runcoordinator" title="Permanent link">&para;</a></h3>
+<p><code>RunCoordinator</code> (in <code>proxy/proxy_run_coordinator.h</code>,
+<code>proxy/proxy_run_coordinator.cpp</code>) implements a per-run barrier across all
+backends. Its internal state is <code>run_id_</code>, <code>take_off_count_</code>, and
+<code>done_count_</code>. <code>on_done()</code> returns true only at the last backend's DONE
+message, signalling the worker that the run is finished and the active
+session may be released.</p>
+<h3 id="message-dispatch-proxy_message_handlerscpp">Message dispatch (<code>proxy_message_handlers.cpp</code>)<a class="headerlink" href="#message-dispatch-proxy_message_handlerscpp" title="Permanent link">&para;</a></h3>
+<p><code>proxy/proxy_message_handlers.cpp</code> contains pure routing logic with no
+thread management or lifetime decisions. The per-protobuf-field handlers
+are <code>handle_reset</code>, <code>handle_config</code>, <code>handle_extract</code>, <code>handle_start_run</code>,
+<code>handle_update</code>, and <code>handle_auth</code>, plus the remaining command handlers
+covered by <code>ProxyServer</code>'s dispatch.</p>
+<h2 id="lifecycle-of-a-client-run">Lifecycle of a client run<a class="headerlink" href="#lifecycle-of-a-client-run" title="Permanent link">&para;</a></h2>
+<p>The same picture as the static view above, but ordered in time. This is what
+one client looks like as it joins the proxy, waits its turn, runs, and leaves.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    participant C as Client
+    participant PS as "ProxyServer (server_thread_)"
+    participant SD as session_deque_
+    participant W as session_thread_
+    participant BH as BackendHandler
+    participant FDC as ForwardingDataChannel
+    participant D as "Device(s)"
+
+    C-&gt;&gt;PS: TCP connect
+    PS-&gt;&gt;PS: peek_for_ping()&lt;br/&gt;(short-circuit if ping)
+    PS-&gt;&gt;SD: push ClientSession (auth pending)
+    Note over SD,W: Worker polls every 50 ms
+
+    C-&gt;&gt;PS: AuthenticateCommand
+    PS-&gt;&gt;C: AuthResponse (ok)
+    Note over C,PS: still queued, non-auth/extract commands → DeviceBusy
+
+    W-&gt;&gt;SD: pop front (when backends HEALTHY)
+    W-&gt;&gt;BH: install_forwards(active_)
+    BH-&gt;&gt;FDC: set forward callback (lambda → session.send)
+
+    C-&gt;&gt;W: ConfigCommand → StartRunCommand
+    W-&gt;&gt;BH: broadcast to all backends
+    BH-&gt;&gt;D: StartRun
+    D--&gt;&gt;FDC: UDP RunDataMessage (samples)
+    FDC--&gt;&gt;C: TCP forward (active session)
+    D--&gt;&gt;BH: RunStateChange(DONE)
+    BH-&gt;&gt;W: RunCoordinator.on_done() → true at last backend
+    W-&gt;&gt;BH: clear_forwards()
+    W-&gt;&gt;SD: drop active_&lt;br/&gt;(ClientSession destructs)
+    C-&gt;&gt;PS: TCP close (or session swap to next queued)</code></pre>
+<p>The accept thread peeks the first frame; a pure ping returns immediately
+without ever creating a <code>ClientSession</code>, so liveness probes do not consume a
+queue slot. The new <code>ClientSession</code> is pushed to the back of <code>session_deque_</code>
+and remains there until the worker promotes it; meanwhile the
+<code>server_thread_</code> keeps it alive by draining its inbox and replying
+<code>DeviceBusy</code> to non-auth and non-extract commands. The worker only promotes
+the front session once every backend reports <code>HEALTHY</code>;
+<code>install_forwards(active_)</code> then wires the active session into every
+<code>ForwardingDataChannel</code>. During the run, sample frames travel over UDP from
+each device into its <code>ForwardingDataChannel</code>, which immediately forwards them
+over the active session's TCP transport (one hop, two threads in flight).
+When <code>RunCoordinator::on_done()</code> returns true at the last backend's DONE, the
+worker tears down the forwards and drops <code>active_</code>; dropping <code>active_</code> runs
+the <code>ClientSession</code> destructor under <code>deque_mutex_</code>, and the worker's next
+tick then picks up the next queued session, if any.</p>
+<h2 id="special-cases">Special cases<a class="headerlink" href="#special-cases" title="Permanent link">&para;</a></h2>
+<h3 id="ping">Ping<a class="headerlink" href="#ping" title="Permanent link">&para;</a></h3>
+<p>Ping is handled by <code>peek_for_ping()</code> on the <code>server_thread_</code> immediately
+after <code>accept</code>, before a <code>ClientSession</code> is constructed. A pure ping is
+replied to and the socket is closed, so no session slot is consumed and
+queued clients are not blocked or starved by liveness probes.</p>
+<h3 id="busy-wait">Busy-wait<a class="headerlink" href="#busy-wait" title="Permanent link">&para;</a></h3>
+<p>The retry-on-busy loop lives in C++ inside <code>ControlChannel::send_and_recv</code>,
+not at the proxy level. Queued clients receive a <code>DeviceBusyMessage</code> from
+<code>poll_queued()</code> for every non-auth, non-extract command they send, and their
+<code>ControlChannel</code> retries internally; Python callers therefore see a single
+blocking call that succeeds once their slot is granted, or fails with a
+clear timeout.</p>
+<h3 id="backend-reconnect">Backend reconnect<a class="headerlink" href="#backend-reconnect" title="Permanent link">&para;</a></h3>
+<p><code>reconnect_thread_</code> keeps trying to reconnect any backend that has fallen
+into the unhealthy state. The worker checks backend health on its 50 ms
+tick and only promotes a queued session once all backends are <code>HEALTHY</code>
+again. An in-flight active session whose backend disconnects is aborted;
+the client sees a normal channel error via the <code>on_error</code> path of its
+<code>ControlChannel</code>.</p>
+<h2 id="udp-tcp-asymmetry">UDP / TCP asymmetry<a class="headerlink" href="#udp-tcp-asymmetry" title="Permanent link">&para;</a></h2>
+<p>Clients never enable UDP when behind a proxy: the controller checks a
+<code>behind_proxy=True</code> flag and short-circuits <code>enable_udp()</code>. The proxy
+negotiates UDP with the device on the client's behalf and forwards the
+resulting samples back over the client's TCP transport. This is the rule
+that prevents the receiving thread (backend asio) from ever also being the
+forwarding thread (client TCP <code>send</code>); each socket keeps its own dedicated
+thread.</p>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../native-networking-code/">Native networking landing page</a> for the
+  full architecture overview and the Python boundary.</li>
+<li><a href="../transport-and-channels/">Transport and channels</a> for the buffer,
+  transport, and channel layers (including <code>DataChannel</code>, which
+  <code>ForwardingDataChannel</code> extends).</li>
+<li><a href="../../../user-guide/using-pybrid/proxy/">Proxy mode (user guide)</a> for the
+  user-facing "how to run a proxy".</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../transport-and-channels/" class="btn btn-neutral float-left" title="Transport and Channels"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../transport-and-channels/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

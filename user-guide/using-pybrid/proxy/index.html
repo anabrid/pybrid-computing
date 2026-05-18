@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Proxy - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Proxy";
+        var mkdocs_page_input_path = "user-guide/using-pybrid/proxy.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">User Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Using pybrid</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../programmatically/">Programmatically</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Proxy</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#functionality-of-the-proxy">Functionality of the proxy</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-use-the-proxy">How to use the proxy</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#starting-the-proxy-from-the-cli">Starting the proxy from the CLI</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#backend-specification-format">Backend specification format</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#choosing-between-lucidac-and-redac-backend-lists">Choosing between LUCIDAC and REDAC backend lists</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#running-the-proxy-as-a-systemd-user-service">Running the proxy as a systemd user service</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+          <li class="breadcrumb-item">Using pybrid</li>
+      <li class="breadcrumb-item active">Proxy</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="proxy">Proxy<a class="headerlink" href="#proxy" title="Permanent link">&para;</a></h1>
+<p>The "proxy" functionality covers a class of (digital) devices that sit
+between a client and an analog device and act as an invisible relay.
+Once set up, users connect to the proxy exactly as they would to the
+device itself: protocol-wise the proxy is fully transparent, and no
+code on the client side needs to change. The rule of thumb for when
+to reach for a proxy is: whenever you are not directly connected to
+the analog computer, or at least not in the same ethernet-based local
+network as the device.</p>
+<h2 id="functionality-of-the-proxy">Functionality of the proxy<a class="headerlink" href="#functionality-of-the-proxy" title="Permanent link">&para;</a></h2>
+<p>There are two main reasons to put a proxy in front of your analog
+devices.</p>
+<p><strong>Session management.</strong> The firmware on LUCIDAC and REDAC devices is
+kept deliberately simple in favor of performance: in particular, it
+has no notion of multiple connections and will treat every incoming
+message the same way, regardless of sender. If two users (or two
+scripts) connect to the same device at the same time, their commands
+interleave and interfere with each other. The proxy solves this by
+introducing the concept of a <code>ClientSession</code>: while a session is
+active, the proxy reserves the backend for that client and holds back
+traffic from other clients until the session is released. The session
+is released automatically after a configurable idle timeout (10
+seconds by default, see <code>--session-timeout</code> below), so a client that
+crashes does not lock up the device indefinitely.</p>
+<p><strong>Sample buffering.</strong> Devices have a sample buffer of limited size
+that fills up faster the higher the sample rate is. Since samples are
+streamed back to the client over the network, the network's latency
+and throughput effectively cap the sustainable sample rate. If the
+client cannot drain the buffer quickly enough, the device produces a
+<code>DMA overflow</code> error and aborts the run. The full per-device rate
+(around 500 kHz per mREDAC/LUCIDAC) therefore requires a full-speed,
+low-latency 100 Mbit/s connection to the client. A proxy placed on
+the local network next to the device can drain the buffer at line
+rate on behalf of a slower or more distant client, buffer the
+samples, and then forward them to the client over whatever connection
+is available. The client sees the full sample rate even when the path
+from client to proxy would not be able to sustain it on its own.</p>
+<h2 id="how-to-use-the-proxy">How to use the proxy<a class="headerlink" href="#how-to-use-the-proxy" title="Permanent link">&para;</a></h2>
+<p><code>pybrid-computing-native</code> ships with a ready-to-use proxy that is
+invoked through the <code>pybrid</code> CLI. The client side needs no special
+configuration: the proxy speaks the same wire protocol as the device,
+so all existing scripts, the <a href="../lucipy/">lucipy syntax</a>, and
+<a href="../programmatically/"><code>LUCIStack</code></a> simply point at the proxy's
+address instead of the device's.</p>
+<h3 id="starting-the-proxy-from-the-cli">Starting the proxy from the CLI<a class="headerlink" href="#starting-the-proxy-from-the-cli" title="Permanent link">&para;</a></h3>
+<p>The minimal invocation takes one or more backend addresses via <code>-b</code>
+and starts listening on <code>0.0.0.0:5732</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>proxy<span class="w"> </span>-b<span class="w"> </span><span class="m">192</span>.168.150.57<span class="w"> </span>-b<span class="w"> </span><span class="m">192</span>.168.150.58
+</code></pre></div>
+<p>Each <code>-b</code> value describes one backend, and the flag can be repeated
+for multi-device setups. The listen address and port are configurable
+via <code>--listen</code> and <code>--port</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pybrid<span class="w"> </span>proxy<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>-b<span class="w"> </span><span class="m">192</span>.168.150.57<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>--listen<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span>--port<span class="w"> </span><span class="m">5732</span>
+</code></pre></div>
+<p>Further options control behaviour rather than topology:</p>
+<ul>
+<li><code>--session-timeout</code> (seconds, default <code>10.0</code>) sets how long a
+  session may stay idle, that is, receive no traffic at all, before
+  it is released to the next client.</li>
+<li><code>--auth</code> / <code>--no-auth</code> enables proxy-level authentication; when on,
+  the shared secret is read from the <code>PYBRID_AUTHENTICATION</code>
+  environment variable.</li>
+<li><code>--debug</code> turns on verbose logging of session lifecycle events,
+  run transitions, and errors. Useful for troubleshooting, noisy in
+  production.</li>
+</ul>
+<h3 id="backend-specification-format">Backend specification format<a class="headerlink" href="#backend-specification-format" title="Permanent link">&para;</a></h3>
+<p>For anything beyond a single device, spelling out every backend on
+the command line every time quickly gets tedious and error-prone. We
+therefore recommend keeping the list of backends in a plain text file
+and passing that file's path to <code>-b</code>: the file can be
+version-controlled, commented, and reused across invocations, so your
+lab topology is described in one place. Canonical examples live under
+<code>examples/proxy/</code> in the repository and are the basis for the
+snippets in the following section.</p>
+<div class="admonition info">
+<p class="admonition-title">Pin device IP addresses on the DHCP side</p>
+<p>The entries in a backend file are plain IP addresses, so every
+time DHCP hands one of your devices a new lease the file needs
+updating. To avoid this, pin each device's address on the DHCP
+server (a static reservation keyed on the device's MAC). Once
+done, the backend file effectively becomes a permanent
+description of your setup.</p>
+</div>
+<p>A single backend entry is a string of the form
+<code>HOST[:PORT][/STACK/CARRIER]</code>. The host part is either an IP address
+or a DNS name; the port defaults to <code>5732</code> when omitted. The optional
+<code>/STACK/CARRIER</code> suffix supplies the device's location inside a REDAC
+and is discussed in the next section. Inside a backend file, there is
+one such entry per line; blank lines and lines beginning with <code>#</code> are
+ignored.</p>
+<p>For quick one-offs, <code>-b</code> also accepts the same entries inline:</p>
+<ul>
+<li>A single spec, e.g. <code>-b 192.168.150.57</code> or
+  <code>-b 192.168.150.57:5732/0/0</code>.</li>
+<li>A comma-separated list of specs in one argument, e.g.
+  <code>-b 192.168.150.57/0/0,192.168.150.58/0/1</code>.</li>
+</ul>
+<h3 id="choosing-between-lucidac-and-redac-backend-lists">Choosing between LUCIDAC and REDAC backend lists<a class="headerlink" href="#choosing-between-lucidac-and-redac-backend-lists" title="Permanent link">&para;</a></h3>
+<p>The decision between the two list styles is driven entirely by which
+hardware sits behind the proxy.</p>
+<p>A proxy in front of one or more <strong>LUCIDACs</strong> (each of which is a
+single, self-contained device) uses bare host entries without any
+location suffix. The proxy treats the listed devices as a flat set of
+equivalent carriers with no spatial relationship between them. A
+single-device list, taken from
+<code>examples/proxy/list-lucidac-daniel.txt</code>, is as short as it gets:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>192.168.150.17
+</code></pre></div>
+<p>Multiple LUCIDACs behind the same proxy (a "LUCIStack") are listed
+one per line, still without a suffix
+(<code>examples/proxy/list-lucistack-bernd.txt</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>192.168.150.15
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>192.168.150.57
+</code></pre></div>
+<p>A proxy in front of a <strong>REDAC</strong>, by contrast, must carry location
+information for each mREDAC. A REDAC is assembled from one or more
+iREDACs, where each iREDAC is itself a physical stack that groups
+several mREDACs. <code>pybrid</code> needs the <code>STACK/CARRIER</code> pair to route
+signals between mREDACs correctly: the <code>STACK</code> index identifies the
+iREDAC, and the <code>CARRIER</code> index identifies the mREDAC within that
+iREDAC. A single mREDAC is therefore written as
+<code>HOST/STACK/CARRIER</code> even when no other mREDACs are present
+(<code>examples/proxy/list-mredac-single.txt</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>192.168.150.69/0/0
+</code></pre></div>
+<p>A full iREDAC is a contiguous block of entries sharing the same
+<code>STACK</code> index, with <code>CARRIER</code> indices running from <code>0</code> upwards, one
+per mREDAC in the stack. The MAC addresses in the <code>#</code>-comments make
+it easy to cross-check the list against the device labels, as in
+<code>examples/proxy/list-iredac0-prod.txt</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a># 04-E9-E5-17-E5-67
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>192.168.110.91/0/0
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a># 04-E9-E5-18-14-88
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>192.168.110.98/0/1
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a># ... five more carriers at 0/2 through 0/6 ...
+</code></pre></div>
+<p>A full REDAC assembly is then several such blocks on top of each
+other, one per iREDAC, with <code>STACK</code> indices <code>0</code>, <code>1</code>, <code>2</code>, ... and
+<code>CARRIER</code> indices restarting from <code>0</code> inside each iREDAC (see
+<code>examples/proxy/list-redac-0.txt</code>).</p>
+<div class="admonition warning">
+<p class="admonition-title">Missing location information on REDAC backends</p>
+<p>If you pass bare host entries for a REDAC, <code>pybrid</code> issues a
+warning along the lines of <em>"Without REDAC addresses, all
+carriers will be treated equal"</em> and will not be able to route
+signals automatically between carriers. The warning is safe to
+ignore for pure LUCIDAC setups but indicates a broken
+configuration for a REDAC.</p>
+</div>
+<h3 id="running-the-proxy-as-a-systemd-user-service">Running the proxy as a systemd user service<a class="headerlink" href="#running-the-proxy-as-a-systemd-user-service" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Linux-only section</p>
+<p>The instructions below apply to Linux hosts running <code>systemd</code> as
+their init system (which covers essentially all current desktop
+and server distributions). Running the proxy as a background
+service on Windows or macOS is out of scope for this guide;
+please use the native service mechanisms of those platforms or
+a lightweight process supervisor of your choice.</p>
+</div>
+<p>On a lab machine the proxy is typically something you want to start
+once and forget about. Running it as a systemd <em>user</em> service
+(so no root privileges are needed) fits this usage well. The service
+definition lives under <code>~/.config/systemd/user/</code> and references the
+<code>pybrid</code> entry point and the backend list by absolute path.</p>
+<p>Before going further, check that your distribution ships <code>systemd</code>
+and that a user instance is available for your account. A quick
+round-trip through the two standard commands confirms both:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># prints the systemd version (exit code 0 on any systemd system)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>systemctl<span class="w"> </span>--version
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># lists services running under your user manager; any output, or an</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># empty list without an error, means the user instance is available</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>systemctl<span class="w"> </span>--user<span class="w"> </span>list-units<span class="w"> </span>--type<span class="o">=</span>service
+</code></pre></div>
+<p>If the first command is missing, your host does not run <code>systemd</code> and
+the rest of this section does not apply. If the second command errors
+out with something like <em>"Failed to connect to bus"</em>, your login
+session is not attached to a user manager; logging out and back in, or
+starting a fresh <code>systemd --user</code> instance via your display manager,
+usually resolves it.</p>
+<p>A minimal unit file at
+<code>~/.config/systemd/user/pybrid-proxy.service</code> looks like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[Unit]</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="na">Description</span><span class="o">=</span><span class="s">pybrid proxy for LUCIDAC/REDAC</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="na">After</span><span class="o">=</span><span class="s">network-online.target</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="na">Wants</span><span class="o">=</span><span class="s">network-online.target</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">[Service]</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="na">Type</span><span class="o">=</span><span class="s">simple</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">/home/USER/.venvs/pybrid/bin/pybrid proxy -b /home/USER/pybrid/backends.txt</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="na">Restart</span><span class="o">=</span><span class="s">on-failure</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="na">RestartSec</span><span class="o">=</span><span class="s">5</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="k">[Install]</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">default.target</span>
+</code></pre></div>
+<p>Replace <code>USER</code> and the two paths with the location of your virtual
+environment and your backend list. After editing the unit, reload the
+user daemon and enable the service:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>systemctl<span class="w"> </span>--user<span class="w"> </span>daemon-reload
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>pybrid-proxy.service
+</code></pre></div>
+<p><code>systemctl --user status pybrid-proxy.service</code> reports the current
+state, and the live log is available through the user journal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>journalctl<span class="w"> </span>--user<span class="w"> </span>-u<span class="w"> </span>pybrid-proxy.service<span class="w"> </span>-f
+</code></pre></div>
+<p>By default a user service only runs while the owning user has an
+active login session and is stopped when the last session ends. To
+have the proxy survive logouts and reboots, enable <em>lingering</em> for
+the user once:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>sudo<span class="w"> </span>loginctl<span class="w"> </span>enable-linger<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USER</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>With linger enabled, the user manager is started at boot, and any
+<code>--user</code> service that has been <code>enable</code>d (as above) comes up
+automatically with the machine.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../using-the-cli/" class="btn btn-neutral float-left" title="Using the CLI"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../firmware-update/" class="btn btn-neutral float-right" title="Firmware Update (OTA)">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../using-the-cli/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../firmware-update/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

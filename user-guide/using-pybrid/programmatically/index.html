@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Programmatically - pybrid-computing</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Programmatically";
+        var mkdocs_page_input_path = "user-guide/using-pybrid/programmatically.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> pybrid-computing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/pybrid/">pybrid</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/place-in-the-software-stack/">Place in the Software Stack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../overview/public-and-developer-version/">Public and Developer Version</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../">User Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/">Getting started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/setup/">Setup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/identifying-your-device/">Identifying Your Device</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/building-your-first-circuit/">Building Your First Circuit</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/further_examples/">Further Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Using pybrid</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../">Using pybrid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../file-formats/">File Formats</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Programmatically</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#main-packages">Main packages</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#abstractions-and-device-backends">Abstractions and device backends</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#protocol-file-io-and-shared-utilities">Protocol, file I/O and shared utilities</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#cli-mock-server-and-developer-helpers">CLI, mock server and developer helpers</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#native-extension-pybrid-computing-native">Native extension: pybrid-computing-native</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#code-idioms">Code idioms</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#establish-a-connection-with-a-controller">Establish a connection with a controller</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-the-entity-object-model-after-connecting">Get the entity object model after connecting</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#retrieve-a-device-specification-and-store-it-in-an-apb-file">Retrieve a device specification and store it in an .apb file</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#create-a-session-that-runs-a-configured-circuit">Create a session that runs a configured circuit</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#interpret-the-lifecycle-of-a-run">Interpret the lifecycle of a run</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#serialize-and-store-a-configured-computer-object">Serialize and store a configured computer object</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lucipy/">Lucipy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../using-the-cli/">Using the CLI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../proxy/">Proxy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../firmware-update/">Firmware Update (OTA)</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Hardware Architecture</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/">Hardware Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/hierarchy-from-cluster-to-the-redac/">Hierarchy: From Cluster to the REDAC</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../hardware-architecture/configuration-items/">Configuration Items</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >List of Blocks</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/list-of-blocks/">List of Blocks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >M Blocks</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/">M Blocks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-int/">MInt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mul/">MMul</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../hardware-architecture/m-blocks/m-mdr/">MMDR</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/u-block/">U Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/i-block/">I Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/c-block/">C Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/t-block/">T Block</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../hardware-architecture/sh-block/">SH Block</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/">Developer Guide</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/data-and-messaging-protocol/">Data and Messaging Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../developer-guide/device-object-representation/">Device Object Representation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Native Networking Code</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking-code/">Native Networking Code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/transport-and-channels/">Transport and Channels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../developer-guide/native-networking/proxy-server/">Proxy Server</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">pybrid-computing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+          <li class="breadcrumb-item">Using pybrid</li>
+      <li class="breadcrumb-item active">Programmatically</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="programmatically">Programmatically<a class="headerlink" href="#programmatically" title="Permanent link">&para;</a></h1>
+<p><code>pybrid</code> is distributed as two installable packages that both share the
+top-level <code>pybrid</code> namespace: the pure-Python <code>pybrid-computing</code> package, which
+contains the public API that user code interacts with, and the C++ extension
+<code>pybrid-computing-native</code>, which is a required dependency of <code>pybrid-computing</code>
+and is pulled in automatically during installation. The native extension is
+used internally and rarely touched by user code directly. For a deeper look at
+the individual classes, refer to the <a href="../../../developer-guide/">developer guide</a>.</p>
+<h2 id="main-packages">Main packages<a class="headerlink" href="#main-packages" title="Permanent link">&para;</a></h2>
+<h3 id="abstractions-and-device-backends">Abstractions and device backends<a class="headerlink" href="#abstractions-and-device-backends" title="Permanent link">&para;</a></h3>
+<p>At the core of <code>pybrid-computing</code> sits the <code>pybrid.base.hybrid</code> subpackage,
+which defines the abstract base classes that every device backend inherits
+from. The classes a user is most likely to encounter are:</p>
+<ul>
+<li><code>Computer</code> is the Python model of a device and represents it as a hierarchy
+of <em>entities</em>. The term "computer" is used throughout this documentation as an
+umbrella term for LUCIDAC- and REDAC-class devices.</li>
+<li><code>Controller</code> is the central primitive to interact with a device. It manages
+the connections to the hardware, implements the communication protocol and
+initializes the entity object model (<code>Computer</code>) from the specification it
+receives upon connecting.</li>
+<li><code>Run</code> is the data structure carrying all information about a single execution
+(IC/OP) cycle of a circuit, including its status and the captured measurements.</li>
+<li><code>Serializer</code> and its counterpart deserializer translate a <code>Computer</code> object to
+and from the <a href="../../../developer-guide/data-and-messaging-protocol/">protobuf</a>
+binary format that is both sent over the wire and stored on disk (see also
+<a href="../file-formats/">file formats</a>).</li>
+<li><code>Entity</code> is the common base class for every configurable hardware component.
+Entities are hierarchical (each has a list of <code>children</code>) and addressable via
+a <code>/</code>-separated path beginning with its carrier's MAC address, e.g.
+<code>AA-BB-CC-DD-EE-FF/0/M0</code> refers to the M0 block of cluster 0 on the carrier with
+MAC <code>AA-BB-CC-DD-EE-FF</code>.</li>
+</ul>
+<p>Each supported device has its own subpackage that concretises the abstractions
+above. Internally, <code>pybrid.redac</code> is the canonical implementation and the other
+device backends inherit from it, abstracting away device-specific peculiarities:</p>
+<ul>
+<li><code>pybrid.redac</code> provides the REDAC <code>Controller</code>, <code>Session</code> and <code>Run</code> objects
+that every other device backend builds upon. Alongside, it ships the block-level
+models under <code>pybrid.redac.blocks</code> (<code>MIntBlock</code>, <code>MMulBlock</code>, <code>UBlock</code>,
+<code>CBlock</code>, <code>IBlock</code>, <code>SHBlock</code>, <code>TBlock</code>), the serializer and deserializer
+under <code>pybrid.redac.protocol</code>, proxy-mode support under <code>pybrid.redac.proxy</code>
+(see <a href="../proxy/">proxy details</a>) and zeroconf-based device auto-detection via
+<code>pybrid.redac.detect</code>.</li>
+<li><code>pybrid.lucidac</code> is a thin specialisation of <code>pybrid.redac</code> for the LUCIDAC,
+which is modelled as a single-carrier REDAC with one cluster. It adds the
+LUCIDAC-specific <code>FrontPanel</code> and <code>FrontPlane</code> entities that expose the LED
+indicators and the ACL analog I/O.</li>
+<li><code>pybrid.sim</code> is the device backend for the <code>pybrid</code> simulator and is useful
+for running circuits without a physical device attached.</li>
+<li><code>pybrid.lucipy</code> is a thin wrapper on top of <code>pybrid.lucidac</code> that reproduces
+the notation of the original <code>lucipy</code> client for the simple configuration of
+LUCIDACs and their circuits. See the <a href="../lucipy/">lucipy syntax</a> page for
+details.</li>
+</ul>
+<h3 id="protocol-file-io-and-shared-utilities">Protocol, file I/O and shared utilities<a class="headerlink" href="#protocol-file-io-and-shared-utilities" title="Permanent link">&para;</a></h3>
+<p>The remaining modules under <code>pybrid.base</code> provide device-agnostic building
+blocks that all device layers rely on:</p>
+<ul>
+<li><code>pybrid.base.proto</code> bundles the protobuf bindings and file I/O helpers. It
+exposes the auto-generated message classes (<code>main_pb2.File</code>, <code>Module</code>, <code>Item</code>,
+...), the <code>ProtoIO</code> helper for loading and storing <code>Module</code>s as <code>.apb</code> binary
+files, and <code>ProtoVersioning</code>, which tracks the current schema version used when
+writing new files.</li>
+<li><code>pybrid.base.analog</code> contains device-agnostic analog primitives, most notably
+the <code>computations</code> module that describes analog computation elements such as
+<code>Integration</code>, <code>Multiplication</code>, <code>Summation</code>, <code>SquareRoot</code> and <code>Identity</code>.</li>
+<li><code>pybrid.base.utils</code> holds shared utilities used throughout the stack:
+<code>Path</code> addressing for entities, descriptor helpers, logging configuration and
+dynamic imports.</li>
+</ul>
+<h3 id="cli-mock-server-and-developer-helpers">CLI, mock server and developer helpers<a class="headerlink" href="#cli-mock-server-and-developer-helpers" title="Permanent link">&para;</a></h3>
+<p>Alongside the library code, <code>pybrid-computing</code> ships a few packages that make
+day-to-day development easier:</p>
+<ul>
+<li><code>pybrid.cli</code> is the <code>pybrid</code> command-line entrypoint built on <code>asyncclick</code>
+and provides the <code>dummy</code>, <code>lucidac</code>, <code>redac</code> and <code>sim</code> subcommands. See
+<a href="../using-the-cli/">Using the CLI</a> for details.</li>
+<li><code>pybrid.mock</code> offers an in-process mock server (<code>DummyDAC</code>) that emulates a
+LUCIDAC over TCP for testing and offline development. Its behaviour is
+configurable via <code>DummyDACConfig</code>, including error-injection hooks
+(<code>DummyDACErrorStage</code>) that are useful for exercising error paths in client
+code.</li>
+<li><code>pybrid.util</code> contains general-purpose helpers that are not tied to a
+specific device, such as progress reporting.</li>
+</ul>
+<h3 id="native-extension-pybrid-computing-native">Native extension: <code>pybrid-computing-native</code><a class="headerlink" href="#native-extension-pybrid-computing-native" title="Permanent link">&para;</a></h3>
+<p><code>pybrid-computing-native</code> provides a low-level C++ implementation of the
+networking stack and the proxy infrastructure (see
+<a href="../proxy/">proxy details</a>) that <code>pybrid-computing</code> uses internally. It is
+declared as a required dependency and is installed automatically alongside
+<code>pybrid-computing</code>, so there is nothing to set up manually, and user code will
+normally not import from it directly.</p>
+<h2 id="code-idioms">Code idioms<a class="headerlink" href="#code-idioms" title="Permanent link">&para;</a></h2>
+<p>Since <code>pybrid</code> is open source, we invite users and developers to use their IDEs
+and/or coding agents to view the documentation of classes mentioned above. However,
+it is generally helpful to see some of the "idioms", i.e. reuseable code blocks
+and patterns for <code>pybrid</code> usage. Some of those idioms are shown in the remainder of this
+section.</p>
+<h3 id="establish-a-connection-with-a-controller">Establish a connection with a controller<a class="headerlink" href="#establish-a-connection-with-a-controller" title="Permanent link">&para;</a></h3>
+<p>The controller is the main entry point: instantiate it, register one or more
+devices via <code>add_device(host, port)</code>, and use it as an async context manager so
+that connections are properly closed when you are done. After entering the
+context, calling <code>controller.reset()</code> puts the device into a known state.</p>
+<p>For a single LUCIDAC, use the LUCIDAC-specific controller:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.lucidac.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span> <span class="k">as</span> <span class="n">LUCIDACController</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">controller</span> <span class="o">=</span> <span class="n">LUCIDACController</span><span class="p">()</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="c1"># ... interact with the device ...</span>
+</code></pre></div></p>
+<p>For multiple LUCIDACs, simply call <code>add_device()</code> multiple times; the
+controller's computer model will then expose all of them as carriers. Note
+that, in order to operate multiple LUCIDACs synchronously, they must be wired
+together via a flatband cable as described in the LUCIDAC manual:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.lucidac.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span> <span class="k">as</span> <span class="n">LUCIDACController</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">controller</span> <span class="o">=</span> <span class="n">LUCIDACController</span><span class="p">()</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="s2">&quot;192.168.1.101&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</code></pre></div></p>
+<p>For an mREDAC/iREDAC (single endpoint, possibly fronting many carriers in
+proxy mode), use the REDAC controller instead:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span> <span class="k">as</span> <span class="n">REDACController</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">controller</span> <span class="o">=</span> <span class="n">REDACController</span><span class="p">()</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="mi">5732</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</code></pre></div></p>
+<h3 id="get-the-entity-object-model-after-connecting">Get the entity object model after connecting<a class="headerlink" href="#get-the-entity-object-model-after-connecting" title="Permanent link">&para;</a></h3>
+<p>Once a controller is connected, its <code>computer</code> attribute exposes the device's
+entity hierarchy. You can drill down into carriers, clusters and individual
+blocks (M, U, C, I, ...) and access (or modify) their elements directly:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">computer</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">computer</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">for</span> <span class="n">carrier</span> <span class="ow">in</span> <span class="n">computer</span><span class="o">.</span><span class="n">carriers</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="n">carrier</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>            <span class="n">mblock</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">m0block</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">mblock</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>                <span class="nb">print</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="retrieve-a-device-specification-and-store-it-in-an-apb-file">Retrieve a device specification and store it in an <code>.apb</code> file<a class="headerlink" href="#retrieve-a-device-specification-and-store-it-in-an-apb-file" title="Permanent link">&para;</a></h3>
+<p><code>controller.extract()</code> returns a cached <code>pb.Module</code> containing the hardware
+specification (the entity hierarchy reported by the device). Pass this module to
+<code>ProtoIO.store_module()</code> to persist it as an <code>.apb</code> file that can later be
+loaded by, e.g., the simulator:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.base.proto.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtoIO</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">module</span> <span class="o">=</span> <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">ProtoIO</span><span class="o">.</span><span class="n">store_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;device_spec.apb&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="create-a-session-that-runs-a-configured-circuit">Create a session that runs a configured circuit<a class="headerlink" href="#create-a-session-that-runs-a-configured-circuit" title="Permanent link">&para;</a></h3>
+<p>Configuration changes made on the in-memory <code>computer</code> object are not
+yet visible to the hardware. They become effective only once they are
+wrapped into a <code>Session</code> and that session is executed. Sessions exist
+for two reasons: <strong>deferred execution</strong>, so that a
+configure/calibrate/run chain is sent to the device as a single
+coherent pipeline rather than step by step, and <strong>mutual exclusion</strong>,
+so that two coroutines sharing a controller cannot interleave their
+traffic on the wire.</p>
+<p>A session is a single-use pipeline. You obtain one from
+<code>controller.create_session()</code>, append commands to it via a set of
+chainable builder methods, and fire the whole thing off with
+<code>execute()</code>. The builder methods you will reach for most often are:</p>
+<ul>
+<li><code>set_config(computer)</code> / <code>set_module(module)</code>: enqueue a
+  configuration write, either from the current in-memory <code>computer</code>
+  object or from a previously loaded <code>.apb</code> module.</li>
+<li><code>calibrate(...)</code>: enqueue a calibration pass over the analog core
+  before the run executes. The default arguments cover the gain and
+  offset calibrations users want most of the time.</li>
+<li><code>run(config, daq=...)</code>: enqueue the actual execution, parameterised
+  by <code>RunConfig</code> (phase durations) and <code>DAQConfig</code> (which channels at
+  which rate). A session can contain several <code>run()</code> calls in a row
+  if you want to execute several computations back-to-back without
+  reconfiguring in between.</li>
+<li><code>set_firmware(path)</code>: stage an OTA firmware update. The CLI
+  <a href="../using-the-cli/#prefix-update-ota-firmware-update"><code>update</code> command</a>
+  is a thin wrapper around this operation. This causes a disconnect when the
+  device reboots and is <em>not</em> recommended to be used with the other commands.</li>
+</ul>
+<p><code>execute()</code> awaits until every buffered step has returned and gives
+back a <code>list[Run]</code> with one entry per <code>run()</code> call, in order. A
+session instance cannot be executed twice; create a fresh session for
+the next pipeline. While <code>execute()</code> is in flight, the controller's
+internal session lock is held, so any other coroutine trying to open
+a session against the same controller is suspended until the current
+pipeline finishes.</p>
+<p>The canonical pattern is therefore:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.redac</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">DAQConfig</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">controller</span><span class="p">:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">computer</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">computer</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="c1"># ... modify entities on `computer` to build the circuit ...</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">run_config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span><span class="n">op_time</span><span class="o">=</span><span class="mi">2_560_000</span><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">daq_config</span> <span class="o">=</span> <span class="n">DAQConfig</span><span class="p">(</span><span class="n">num_channels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">session</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">create_session</span><span class="p">()</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="n">runs</span> <span class="o">=</span> <span class="k">await</span> <span class="p">(</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        <span class="n">session</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>        <span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">computer</span><span class="p">)</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>        <span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">gain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_config</span><span class="p">,</span> <span class="n">daq</span><span class="o">=</span><span class="n">daq_config</span><span class="p">)</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        <span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>    <span class="p">)</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>    <span class="n">run</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>    <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>        <span class="o">...</span>  <span class="c1"># process samples</span>
+</code></pre></div>
+<h3 id="interpret-the-lifecycle-of-a-run">Interpret the lifecycle of a run<a class="headerlink" href="#interpret-the-lifecycle-of-a-run" title="Permanent link">&para;</a></h3>
+<p>A <code>Run</code> tracks a single execution on the analog computer as it moves
+through a small state machine. Understanding the states is useful
+both when interpreting <code>run.state</code> after <code>execute()</code> returns and when
+reading live updates off an attached debugger or log. The happy path
+is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>NEW → QUEUED → TAKE_OFF → IC → OP → OP_END → DONE
+</code></pre></div>
+<p>The first three states cover bookkeeping: <code>NEW</code> is the freshly created
+run object, <code>QUEUED</code> describes a run that is sitting in the session
+pipeline, and <code>TAKE_OFF</code> is the brief preparation phase between "the
+device accepted the run" and "the analog core is actually doing
+something." The interesting states from a circuit-design perspective
+are:</p>
+<ul>
+<li><strong><code>IC</code> (initial condition).</strong> The analog core loads each
+  integrator's <code>.ic</code> value onto its capacitor. Nothing else happens
+  yet and no integration is taking place. The IC phase has a
+  configurable duration (<code>RunConfig.ic_time</code>, in nanoseconds).</li>
+<li><strong><code>OP</code> (operating).</strong> This is the phase during which the analog
+  computer actually integrates: signals flow, feedback loops close,
+  and the DAQ captures samples at the configured rate. The OP phase
+  has a configurable duration (<code>RunConfig.op_time</code>, in nanoseconds)
+  and ends automatically when that duration elapses.</li>
+<li><strong><code>OP_END</code>.</strong> A short finalisation phase after <code>OP</code> that flushes
+  any remaining samples. <code>DAQConfig.sample_op_end</code> controls whether
+  samples captured during this phase are kept.</li>
+</ul>
+<p>A run can also land in two non-happy states:</p>
+<ul>
+<li><strong><code>ERROR</code></strong>: something went wrong. Inspect <code>run.overloaded</code> for a
+  list of elements that saturated during integration, and consult
+  the controller's logs for the protocol-level reason.</li>
+<li><strong><code>TMP_HALT</code></strong>: the device was temporarily paused, either by an
+  external halt trigger (signalled by <code>run.externally_halted</code>) or by
+  an explicit halt command from the client, and can still be
+  resumed.</li>
+</ul>
+<p><code>DONE</code> and <code>ERROR</code> are the two terminal states. The convenience
+<code>run.state.is_done()</code> returns true exactly for those two, which is
+the check to use when you want to be certain a run has stopped
+moving. For the precise mapping between protobuf-level states and
+Python-level states, refer to <code>pybrid.redac.run.RunState</code>.</p>
+<h3 id="serialize-and-store-a-configured-computer-object">Serialize and store a configured computer object<a class="headerlink" href="#serialize-and-store-a-configured-computer-object" title="Permanent link">&para;</a></h3>
+<p>To persist a fully configured computer (specification <em>and</em> configuration of
+all entities), ask the computer for its serializer class, instantiate it, and
+serialize. The result is a <code>pb.Module</code> that can again be written via
+<code>ProtoIO.store_module()</code>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pybrid.base.proto.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtoIO</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">computer</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># ... configure entities on `computer` here (e.g. cluster.route(...),</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1">#     mblock.elements[i].ic = ..., computer.daq.capture(...)) ...</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">serializer</span> <span class="o">=</span> <span class="n">computer</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">()()</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="n">module</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">computer</span><span class="p">)</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="n">ProtoIO</span><span class="o">.</span><span class="n">store_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;full_config.apb&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../file-formats/" class="btn btn-neutral float-left" title="File Formats"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../lucipy/" class="btn btn-neutral float-right" title="Lucipy">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" class="fa fa-code-fork" style="color: #fcfcfc"> pybrid-computing</a>
+        </span>
+    
+    
+      <span><a href="../file-formats/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../lucipy/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      <script src="../../../js/mermaid-init.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
