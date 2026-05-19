@@ -55,7 +55,11 @@ void ProxyServer::start(const std::string& host, uint16_t port) {
         throw std::runtime_error("ProxyServer::start(): no backends have been added");
     }
 
-    server_.bind(port);
+    if (host.empty()) {
+        server_.bind(port);
+    } else {
+        server_.bind(host, port);
+    }
     server_.start();
 
     run_coordinator_.configure(backend_handler_.size());

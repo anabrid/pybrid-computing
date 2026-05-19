@@ -297,10 +297,10 @@ Example:
         .def(py::init<>())
         .def(
             "bind",
-            &TCPServer::bind,
+            static_cast<uint16_t (TCPServer::*)(uint16_t)>(&TCPServer::bind),
             py::arg("port") = 0,
             R"doc(
-Bind to a TCP port.
+Bind to any IPv4 interface (0.0.0.0) on the given port.
 
 Args:
     port: Port number to bind (0 for ephemeral/random port).
@@ -310,6 +310,26 @@ Returns:
 
 Raises:
     RuntimeError: If bind fails or already bound.
+)doc")
+        .def(
+            "bind",
+            static_cast<uint16_t (TCPServer::*)(const std::string&, uint16_t)>(&TCPServer::bind),
+            py::arg("host"),
+            py::arg("port"),
+            R"doc(
+Bind to a specific *host* (hostname or numeric IPv4/IPv6 literal) on the given port.
+
+The hostname is resolved via the system resolver (getaddrinfo).
+
+Args:
+    host: Bind address; either an IP literal or a hostname.
+    port: Port number to bind (0 for ephemeral/random port).
+
+Returns:
+    The actual bound port number.
+
+Raises:
+    RuntimeError: If resolution fails, bind fails, or already bound.
 )doc")
         .def("start", &TCPServer::start, "Start accepting connections.")
         .def("stop", &TCPServer::stop, "Stop accepting and close server socket.")

@@ -163,7 +163,7 @@ class Controller(BaseController):
         .. deprecated::
         """
         warnings.warn(
-            "controller.protocols is deprecated. " "Use controller.connection_manager.connections instead.",
+            "controller.protocols is deprecated. Use controller.connection_manager.connections instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -176,7 +176,7 @@ class Controller(BaseController):
         .. deprecated::
         """
         warnings.warn(
-            "controller.devices is deprecated. " "Use controller.connection_manager.connections instead.",
+            "controller.devices is deprecated. Use controller.connection_manager.connections instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -186,7 +186,7 @@ class Controller(BaseController):
     def devices(self, value) -> None:
         """Deprecated setter — silently ignored."""
         warnings.warn(
-            "Setting controller.devices is deprecated. " "Use controller.connection_manager.connections instead.",
+            "Setting controller.devices is deprecated. Use controller.connection_manager.connections instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -197,7 +197,7 @@ class Controller(BaseController):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await super().__aexit__(exc_type, exc_val, exc_tb)
 
-    async def add_device(self, host, port, specification: Optional[pb.Module] = None):
+    async def add_device(self, host: str, port: int = 5732, specification: Optional[pb.Module] = None):
         """Add a device endpoint to this controller.
 
         After the base class discovers and connects to the device, walks
@@ -246,7 +246,7 @@ class Controller(BaseController):
             Use ``session.set_module(module).execute()`` instead.
         """
         warnings.warn(
-            "controller.forward_set_config() is deprecated. " "Use session.set_module(module).execute() instead.",
+            "controller.forward_set_config() is deprecated. Use session.set_module(module).execute() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -264,7 +264,7 @@ class Controller(BaseController):
             Use ``session.set_config(computer).execute()`` instead.
         """
         warnings.warn(
-            "controller.set_computer() is deprecated. " "Use session.set_config(computer).execute() instead.",
+            "controller.set_computer() is deprecated. Use session.set_config(computer).execute() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -281,7 +281,7 @@ class Controller(BaseController):
             Use ``session.run(config).execute()`` instead.
         """
         warnings.warn(
-            "controller.start_and_await_run() is deprecated. " "Use session.run(config).execute() instead.",
+            "controller.start_and_await_run() is deprecated. Use session.run(config).execute() instead.",
             DeprecationWarning,
             stacklevel=2,
         )

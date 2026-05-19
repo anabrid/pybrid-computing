@@ -50,7 +50,7 @@ class BaseController(ABC):
         self._default_session = None
         self._session_lock = asyncio.Lock()
 
-    async def add_device(self, host: str, port: int, specification: Optional[pb.Module] = None) -> None:
+    async def add_device(self, host: str, port: int = 5732, specification: Optional[pb.Module] = None) -> None:
         """Add device(s) from a network endpoint.
 
         Delegates discovery and connection management to :attr:`connection_manager`.
@@ -83,7 +83,7 @@ class BaseController(ABC):
     async def start_and_await_run(self, run=None, timeout: int = 100):
         """.. deprecated:: Use ``session.run(config).execute()`` instead."""
         raise NotImplementedError(
-            "start_and_await_run() is deprecated. " "Override in the concrete controller subclass for now."
+            "start_and_await_run() is deprecated. Override in the concrete controller subclass for now."
         )
 
     async def start(self) -> None:
