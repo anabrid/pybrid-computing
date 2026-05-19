@@ -304,7 +304,7 @@ async def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", default="192.168.104.244", help="Host IP address")
+    parser.add_argument("--host", default="192.168.104.244", help="Host name or IP address")
     parser.add_argument("--port", type=int, default=5732, help="Port number")
     parser.add_argument("--lucidac", action="store_true", help="Use LUCIDAC controller")
     args = parser.parse_args()

@@ -75,7 +75,7 @@ class ConnectionManager:
         return self._topology_mode
 
     async def add_device(
-        self, host: str, port: int, specification: Optional[pb.Module] = None
+        self, host: str, port: int = 5732, specification: Optional[pb.Module] = None
     ) -> tuple[list[CarrierInfo], dict[Path, DeviceConnection]]:
         """Discover, classify, connect, and register one endpoint.
 
@@ -140,7 +140,7 @@ class ConnectionManager:
             self._topology_mode = None
 
         if errors:
-            raise RuntimeError(f"close_all() encountered {len(errors)} error(s) while stopping " f"channels: {errors}")
+            raise RuntimeError(f"close_all() encountered {len(errors)} error(s) while stopping channels: {errors}")
 
     async def _discover_device(self, host: str, port: int) -> pb.Module:
         """Open a temporary control channel, extract the device specification, and close."""

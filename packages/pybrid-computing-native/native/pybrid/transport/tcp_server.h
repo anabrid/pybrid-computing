@@ -41,8 +41,14 @@ public:
     TCPServer(const TCPServer&) = delete;
     TCPServer& operator=(const TCPServer&) = delete;
 
+    /// Bind to any-v4 (0.0.0.0) on *port*.
     /// @return Actual bound port (useful when port=0 was requested).
     uint16_t bind(uint16_t port = 0);
+
+    /// Bind to a specific *host* (hostname or numeric IPv4/IPv6 literal) on *port*.
+    /// The hostname is resolved via getaddrinfo; the first usable endpoint wins.
+    /// @return Actual bound port (useful when port=0 was requested).
+    uint16_t bind(const std::string& host, uint16_t port);
 
     void start();
     void stop();

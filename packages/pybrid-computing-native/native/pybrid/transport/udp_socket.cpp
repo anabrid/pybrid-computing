@@ -196,13 +196,17 @@ uint16_t UDPSocket::local_port() const {
 }
 
 void UDPSocket::connect(const std::string& host, uint16_t port) {
+    // Resolver handles numeric literals and DNS names via getaddrinfo.
+    // The first usable endpoint wins; we do not try to chain UDP connect
+    // attempts the way TCP does because UDP has no per-endpoint validation.
+    asio::ip::udp::resolver resolver(io_);
     asio::error_code ec;
-    auto addr = asio::ip::make_address(host, ec);
-    if (ec) {
-        throw std::runtime_error("Invalid IP address: " + host);
+    auto results = resolver.resolve(host, std::to_string(port), ec);
+    if (ec || results.empty()) {
+        throw std::runtime_error("Failed to resolve host: " + host);
     }
 
-    remote_endpoint_ = asio::ip::udp::endpoint(addr, port);
+    remote_endpoint_ = results.begin()->endpoint();
     connected_ = true;
 }
 
@@ -225,13 +229,14 @@ bool UDPSocket::send_to(const void* data, size_t len, const std::string& host, u
             "Packet too large: " + std::to_string(len) + " bytes (max: " + std::to_string(MAX_UDP_PACKET_SIZE) + ")");
     }
 
+    asio::ip::udp::resolver resolver(io_);
     asio::error_code ec;
-    auto addr = asio::ip::make_address(host, ec);
-    if (ec) {
-        throw std::runtime_error("Invalid IP address: " + host);
+    auto results = resolver.resolve(host, std::to_string(port), ec);
+    if (ec || results.empty()) {
+        throw std::runtime_error("Failed to resolve host: " + host);
     }
 
-    asio::ip::udp::endpoint dest(addr, port);
+    asio::ip::udp::endpoint dest = results.begin()->endpoint();
 
     std::lock_guard<std::mutex> lock(socket_mutex_);
     if (!socket_ || !socket_->is_open()) {

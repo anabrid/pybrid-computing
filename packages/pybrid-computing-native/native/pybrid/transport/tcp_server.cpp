@@ -11,37 +11,60 @@ TCPServer::~TCPServer() {
     stop();
 }
 
-uint16_t TCPServer::bind(uint16_t port) {
-    if (acceptor_) {
-        throw std::runtime_error("TCPServer already bound");
-    }
-
-    acceptor_ = std::make_unique<asio::ip::tcp::acceptor>(io_);
-
-    asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port);
+static uint16_t bind_endpoint(
+    std::unique_ptr<asio::ip::tcp::acceptor>& acceptor,
+    asio::io_context& io,
+    const asio::ip::tcp::endpoint& endpoint) {
+    acceptor = std::make_unique<asio::ip::tcp::acceptor>(io);
 
     asio::error_code ec;
-    acceptor_->open(endpoint.protocol(), ec);
+    acceptor->open(endpoint.protocol(), ec);
     if (ec) {
         throw std::runtime_error("Failed to open acceptor: " + ec.message());
     }
 
-    acceptor_->set_option(asio::socket_base::reuse_address(true), ec);
+    acceptor->set_option(asio::socket_base::reuse_address(true), ec);
     if (ec) {
         throw std::runtime_error("Failed to set reuse_address: " + ec.message());
     }
 
-    acceptor_->bind(endpoint, ec);
+    acceptor->bind(endpoint, ec);
     if (ec) {
         throw std::runtime_error("Failed to bind: " + ec.message());
     }
 
-    acceptor_->listen(asio::socket_base::max_listen_connections, ec);
+    acceptor->listen(asio::socket_base::max_listen_connections, ec);
     if (ec) {
         throw std::runtime_error("Failed to listen: " + ec.message());
     }
 
-    local_port_ = acceptor_->local_endpoint().port();
+    return acceptor->local_endpoint().port();
+}
+
+uint16_t TCPServer::bind(uint16_t port) {
+    if (acceptor_) {
+        throw std::runtime_error("TCPServer already bound");
+    }
+    local_port_ = bind_endpoint(acceptor_, io_, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port));
+    return local_port_;
+}
+
+uint16_t TCPServer::bind(const std::string& host, uint16_t port) {
+    if (acceptor_) {
+        throw std::runtime_error("TCPServer already bound");
+    }
+
+    asio::ip::tcp::resolver resolver(io_);
+    asio::error_code resolve_ec;
+    auto results = resolver.resolve(
+        host, std::to_string(port),
+        asio::ip::resolver_base::passive | asio::ip::resolver_base::address_configured,
+        resolve_ec);
+    if (resolve_ec || results.empty()) {
+        throw std::runtime_error("Failed to resolve bind host '" + host + "': " + resolve_ec.message());
+    }
+
+    local_port_ = bind_endpoint(acceptor_, io_, results.begin()->endpoint());
     return local_port_;
 }
 

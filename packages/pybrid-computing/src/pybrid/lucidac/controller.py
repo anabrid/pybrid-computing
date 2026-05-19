@@ -57,7 +57,7 @@ class Controller(REDACController):
         super().__init__()
         self.computer = LUCIStack(entities=[])
 
-    async def add_device(self, host, port):
+    async def add_device(self, host: str, port: int = 5732):
         """
         Add a LUCIDAC endpoint (direct or proxy) to this controller.
 
@@ -76,7 +76,7 @@ class Controller(REDACController):
 
         new_conns = len(self.connection_manager.connections) - prev_conns
         if new_conns < 1:
-            raise Exception(f"Failed adding LUCIDAC {host}:{port} " f"(new carriers={new_conns})")
+            raise Exception(f"Failed adding LUCIDAC {host}:{port} (new carriers={new_conns})")
 
         # Log every newly discovered carrier MAC.
         all_paths = list(self.connection_manager.connections.keys())

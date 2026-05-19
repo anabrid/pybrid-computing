@@ -71,6 +71,9 @@ class AsyncControlChannel:
         """Create and connect an :class:`AsyncControlChannel`.
 
         Uses the default executor for the TCP connect so the event loop is not blocked.
+
+        *host* may be a numeric IPv4/IPv6 literal or a DNS/mDNS hostname; the
+        native transport resolves names via ``getaddrinfo``.
         """
         loop = asyncio.get_running_loop()
         native = await loop.run_in_executor(

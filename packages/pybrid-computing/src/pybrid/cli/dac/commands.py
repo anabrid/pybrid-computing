@@ -355,7 +355,7 @@ async def detect(obj):
     type=str,
     multiple=True,
     required=True,
-    help="Backend device address(es) in HOST[:PORT][/STACK/CARRIER] format. Accepts a single spec, a comma-separated list, or a path to a file with one spec per line. Can be specified multiple times.",
+    help="Backend device address(es) in HOST[:PORT][/STACK/CARRIER] format, where HOST is a hostname or IP. Accepts a single spec, a comma-separated list, or a path to a file with one spec per line. Can be specified multiple times.",
 )
 @click.option(
     "--session-timeout",
