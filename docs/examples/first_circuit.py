@@ -10,9 +10,8 @@ from pybrid.redac import DAQConfig, RunConfig
 async def main():
 
     async with Controller() as controller:
-
         # connect to LUCIDAC
-        await controller.add_device("192.168.1.2", 5732)
+        await controller.add_device("192.168.150.17", 5732)
 
         # retrieve the entity object model for the LUCIDAC (i.e. "cluster")
         computer = controller.computer
@@ -29,11 +28,11 @@ async def main():
 
         # connnect integrators through U, C, I blocks
         cluster.ublock.outputs[0] = 0
-        cluster.cblock.elements[0] = -1.0
+        cluster.cblock.elements[0].computation.factor = -1.0
         cluster.iblock.outputs[1] = [0]
 
         cluster.ublock.outputs[1] = 1
-        cluster.cblock.elements[1] = 1.0
+        cluster.cblock.elements[1].computation.factor = 1.0
         cluster.iblock.outputs[0] = [1]
 
         # ALTERNATIVE: connect via convenient router() functionality
