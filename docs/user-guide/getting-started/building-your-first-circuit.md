@@ -154,8 +154,8 @@ $[-8.0, 8.0]$. According to our circuit diagram we need to weigh integrator
 $1.0$:
 
 ```python
-cluster.cblock.elements[0].factor = -1.0
-cluster.cblock.elements[1].factor = 1.0
+cluster.cblock.elements[0].computation.factor = -1.0
+cluster.cblock.elements[1].computation.factor = 1.0
 ```
 
 ### I-block: closing the loop
@@ -254,3 +254,12 @@ approach we are taking here, defining block routing by hand, is much like
 assembly programming on digital systems. In most cases users can use
 anabrid's `redacc` compiler to automate the transformation from ODE to
 circuit.
+
+## Full example
+
+The complete script is available for download:
+[`first_circuit.py`](../../examples/first_circuit.py).
+
+```python
+--8<-- "docs/examples/first_circuit.py"
+```

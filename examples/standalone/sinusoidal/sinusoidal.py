@@ -16,8 +16,9 @@ set_pybrid_logging_level(logging.DEBUG)
 async def main():
     controller = Controller()
 
-    for host, port, name in await detect_in_network(ip_network("0.0.0.0/0")):
-        await controller.add_device(host, port)
+    # for host, port, name in await detect_in_network(ip_network("0.0.0.0/0")):
+    #    await controller.add_device(host, port)
+    await controller.add_device("lucidac-15-87-A0.local")
 
     async with controller:
         await controller.reset()
