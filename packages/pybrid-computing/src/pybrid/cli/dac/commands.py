@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import pybrid.base.proto.main_pb2 as pb
 from pybrid.base.proto.io import ProtoIO
 from pybrid.cli.base import cli
-from pybrid.cli.dac.backend import expand_args, parse_backend_spec
+from pybrid.cli.dac.backend import BackendStringParser
 from pybrid.lucidac.controller import Controller as LUCIDACController
 from pybrid.mock import DummyDAC, DummyDACConfig, DummyDACMacMode
 from pybrid.redac.controller import Controller as REDACController
@@ -387,11 +387,15 @@ async def proxy(listen: str, port: int, backend: tuple[str, ...], session_timeou
 
     Example usage:
 
-        pybrid proxy -b 192.168.150.57 -b 192.168.150.58
-        pybrid proxy -b 192.168.150.57/0/0,192.168.150.58/0/1
         pybrid proxy -b /path/to/backends.txt
+        pybrid proxy -b 192.168.150.57 -b 192.168.150.58
+        pybrid proxy -b 192.168.150.57/0/0,hostname/0/1
         pybrid proxy -b 192.168.150.57:5732/0/0 -l 0.0.0.0 -p 5732
-        pybrid proxy -b 192.168.150.57 --auth
+        pybrid proxy -b lucidac-AA-BB-CC --auth
+
+    The recommended source of truth is a backend file using the
+    `carrier ...` / `wire ...` syntax (see docs/user-guide/using-pybrid/proxy.md
+    for details). The legacy positional forms shown above remain supported.
     """
     try:
         from pybrid.native import ProxyServer
@@ -399,18 +403,34 @@ async def proxy(listen: str, port: int, backend: tuple[str, ...], session_timeou
         click.echo("Error: Native C++ extension not available. Build pybrid-computing-native first.", err=True)
         raise SystemExit(1)
 
-    raw_backends = expand_args(backend)
-    if not raw_backends:
-        click.echo("Error: No backend addresses resolved from the provided -b values.", err=True)
-        raise SystemExit(1)
-
-    specs = [parse_backend_spec(raw) for raw in raw_backends]
+    backend_str = backend[0] if len(backend) == 1 else ",".join(backend)
+    specs, wires = BackendStringParser.parse(backend_str)
 
     has_any_location = any(s.stack is not None for s in specs)
     if not has_any_location:
         click.echo(
             "Warning: Without REDAC addresses, all carriers will be treated equal. For LUCIDACs, you can safely ignore this warning. When using a REDAC, this means that pybrid will not be able to route signals automatically."
         )
+
+    carrier_locs = {(s.stack, s.carrier) for s in specs}
+    for wire in wires:
+        for stack, carrier, role in (
+            (wire.source_stack, wire.source_carrier, "source"),
+            (wire.target_stack, wire.target_carrier, "target"),
+        ):
+            if (stack, carrier) not in carrier_locs:
+                loc_str = f"{stack}/{carrier}" if stack is not None else f"{carrier}"
+                click.echo(
+                    f"Error: wire {role} location {loc_str} has no matching carrier definition.",
+                    err=True,
+                )
+                raise SystemExit(1)
+        if (wire.source_stack is None) != (wire.target_stack is None):
+            click.echo(
+                "Error: wire endpoints must either both specify a stack or both omit it.",
+                err=True,
+            )
+            raise SystemExit(1)
 
     proxy_server = ProxyServer(auth)
     if debug:
@@ -419,6 +439,16 @@ async def proxy(listen: str, port: int, backend: tuple[str, ...], session_timeou
     for spec in specs:
         click.echo(f"Connecting to backend {spec.host}:{spec.port}...")
         proxy_server.add_backend(spec.host, spec.port, stack=spec.stack, carrier=spec.carrier)
+
+    for wire in wires:
+        proxy_server.add_wire(
+            wire.source_stack,
+            wire.source_carrier,
+            wire.source_pin,
+            wire.target_stack,
+            wire.target_carrier,
+            wire.target_pin,
+        )
 
     proxy_server.set_session_timeout(session_timeout)
     proxy_server.start(listen, port)

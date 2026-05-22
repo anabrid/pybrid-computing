@@ -51,6 +51,7 @@ def _start_dummy_dac(
     stop_event: threading.Event,
     port_holder: list,
     port: int = 0,
+    physical: bool = False,
 ) -> threading.Thread:
     """
     Launch DummyDAC in a background thread with its own event loop.
@@ -65,6 +66,9 @@ def _start_dummy_dac(
         stop_event:   Set by the caller to request teardown.
         port_holder:  Single-element list; receives the bound port number.
         port:         Port to bind to (0 = OS-assigned ephemeral port).
+        physical:     When True, use the class-level counter to generate unique
+                      per-instance MAC addresses (aa-bb-cc-dd-ee-XX). Useful
+                      when multiple DummyDAC instances must have distinct MACs.
 
     Returns:
         The started (daemon) thread.
@@ -72,7 +76,7 @@ def _start_dummy_dac(
 
     def _run() -> None:
         async def _async_run() -> None:
-            async with DummyDAC(LOCALHOST, port, config) as dac:
+            async with DummyDAC(LOCALHOST, port, config, physical=physical) as dac:
                 port_holder[0] = dac.port
                 ready_event.set()
                 while not stop_event.is_set():
@@ -1277,3 +1281,87 @@ class TestActivateNextSessionRecovery:
                 dac_thread2.join(timeout=SHORT_TIMEOUT)  # type: ignore[possibly-undefined]
             except NameError:
                 pass
+
+
+class TestWiringSpecThroughProxy:
+    """Verify that add_wire() injects a WiringSpecification visible to clients via extract()."""
+
+    def test_extract_returns_injected_wiring_spec(self) -> None:
+        """add_wire() on two stacked backends produces a wiring_specification item that a client sees via extract()."""
+        # Reset counter so MACs are deterministic: aa-bb-cc-dd-ee-01/02 for
+        # the first carrier of each instance, aa-bb-cc-dd-ee-03/04 for the second.
+        DummyDAC._physical_instance_counter = 0
+
+        config = DummyDACConfig(mac_mode=DummyDACMacMode.PHYSICAL)
+
+        ready1, ready2 = threading.Event(), threading.Event()
+        stop1, stop2 = threading.Event(), threading.Event()
+        port1_holder, port2_holder = [0], [0]
+
+        t1 = _start_dummy_dac(config, ready1, stop1, port1_holder, physical=True)
+        t2 = _start_dummy_dac(config, ready2, stop2, port2_holder, physical=True)
+        _wait_ready(ready1)
+        _wait_ready(ready2)
+
+        proxy = ProxyServer()
+        proxy.set_session_timeout(SESSION_TIMEOUT)
+        client = None
+
+        try:
+            proxy.add_backend(LOCALHOST, port1_holder[0], stack=0, carrier=0)
+            proxy.add_backend(LOCALHOST, port2_holder[0], stack=0, carrier=1)
+            proxy.add_wire(
+                source_stack=0,
+                source_carrier=0,
+                source_pin=4,
+                target_stack=0,
+                target_carrier=1,
+                target_pin=4,
+            )
+            proxy.start(LOCALHOST, 0)
+
+            client = ControlChannel.create(LOCALHOST, proxy.local_port(), timeout=SHORT_TIMEOUT)
+            client.start()
+
+            module_bytes = client.extract(recursive=True, specification=True, timeout=SHORT_TIMEOUT)
+            module = pb.Module()
+            module.ParseFromString(module_bytes)
+
+            wire_items = [it for it in module.items if it.WhichOneof("kind") == "wiring_specification"]
+
+            assert len(wire_items) == 1, (
+                f"Expected exactly 1 wiring_specification item, got {len(wire_items)}: "
+                f"{[str(it) for it in wire_items]}"
+            )
+
+            item = wire_items[0]
+            assert item.entity.path == "", (
+                f"Wiring item entity path must be empty (root), got {item.entity.path!r}"
+            )
+
+            ws = item.wiring_specification
+            assert ws.source.entity.path.startswith("/"), (
+                f"source.entity.path must start with '/', got {ws.source.entity.path!r}"
+            )
+            assert ws.source.WhichOneof("kind") == "indexed_pin", (
+                f"source pin kind must be indexed_pin, got {ws.source.WhichOneof('kind')!r}"
+            )
+            assert ws.source.indexed_pin == 4, f"source.indexed_pin must be 4, got {ws.source.indexed_pin}"
+            assert ws.target.entity.path.startswith("/"), (
+                f"target.entity.path must start with '/', got {ws.target.entity.path!r}"
+            )
+            assert ws.target.WhichOneof("kind") == "indexed_pin", (
+                f"target pin kind must be indexed_pin, got {ws.target.WhichOneof('kind')!r}"
+            )
+            assert ws.target.indexed_pin == 4, f"target.indexed_pin must be 4, got {ws.target.indexed_pin}"
+            assert ws.source.entity.path != ws.target.entity.path, (
+                f"source and target entity paths must differ; both are {ws.source.entity.path!r}"
+            )
+        finally:
+            if client is not None:
+                client.stop()
+            proxy.stop()
+            stop1.set()
+            stop2.set()
+            t1.join(timeout=SHORT_TIMEOUT)
+            t2.join(timeout=SHORT_TIMEOUT)

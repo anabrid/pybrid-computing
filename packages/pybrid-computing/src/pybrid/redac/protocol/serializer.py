@@ -7,7 +7,7 @@ import typing
 from functools import singledispatchmethod
 from typing import Any, Dict, List
 
-from pybrid.base.hybrid.computer import AnalogComputer
+from pybrid.base.hybrid.computer import AnalogComputer, WiringSpec
 from pybrid.base.hybrid.entities import Entity
 from pybrid.base.hybrid.serializer import Deserializer, Serializer
 from pybrid.base.proto import main_pb2 as pb
@@ -397,9 +397,29 @@ class REDACSerializer(Serializer):
         self.serialize_dependency_info(computer)
         # self.serialize_ip_lookup_table()
 
+    def serialize_specification_payloads(self, computer: AnalogComputer) -> List[pb.Item]:
+        """Emit one :class:`pb.Item` per wiring spec on the computer."""
+        items: List[pb.Item] = []
+        for spec in computer.wiring_specs:
+            item = pb.Item(entity=pb.EntityId(path=""))
+            item.wiring_specification.source.entity.path = spec.source_entity_path
+            if isinstance(spec.source_pin, str):
+                item.wiring_specification.source.named_pin = spec.source_pin
+            else:
+                item.wiring_specification.source.indexed_pin = spec.source_pin
+            item.wiring_specification.target.entity.path = spec.target_entity_path
+            if isinstance(spec.target_pin, str):
+                item.wiring_specification.target.named_pin = spec.target_pin
+            else:
+                item.wiring_specification.target.indexed_pin = spec.target_pin
+            items.append(item)
+        return items
+
 
 class REDACDeserializer(Deserializer):
     """Unified deserializer for REDAC entity-tree specification and operational configuration."""
+
+    SPEC_PAYLOAD_KINDS = {"entity_specification", "wiring_specification"}
 
     # Registry: EntityClass enum → method name (str).
     # Subclasses extend via dict merge: {**REDACDeserializer._spec_handlers, ...}
@@ -411,6 +431,40 @@ class REDACDeserializer(Deserializer):
 
     def __init__(self, computer=None):
         super().__init__(computer)
+
+    @singledispatchmethod
+    def _deserialize_specification(self, payload):
+        return super()._deserialize_specification(payload)
+
+    @_deserialize_specification.register
+    def _(self, payload: pb.EntitySpecification):
+        path = Path.parse(self._current_full_config.entity.path)
+        self.deserialize_specification(payload.entity, path)
+
+    @_deserialize_specification.register
+    def _(self, payload: pb.WiringSpecification):
+        source_kind = payload.source.WhichOneof("kind")
+        if source_kind == "named_pin":
+            source_pin = payload.source.named_pin
+        elif source_kind == "indexed_pin":
+            source_pin = payload.source.indexed_pin
+        else:
+            raise ValueError(f"unknown WiringPin oneof kind {source_kind!r}")
+        target_kind = payload.target.WhichOneof("kind")
+        if target_kind == "named_pin":
+            target_pin = payload.target.named_pin
+        elif target_kind == "indexed_pin":
+            target_pin = payload.target.indexed_pin
+        else:
+            raise ValueError(f"unknown WiringPin oneof kind {target_kind!r}")
+        self.computer.wiring_specs.append(
+            WiringSpec(
+                source_entity_path=payload.source.entity.path,
+                source_pin=source_pin,
+                target_entity_path=payload.target.entity.path,
+                target_pin=target_pin,
+            )
+        )
 
     def deserialize_specification(self, entity: pb.Entity, path: Path, location: Loc = None) -> Entity:
         """Resolve handler by EntityClass, fall back to generic function-block handler."""

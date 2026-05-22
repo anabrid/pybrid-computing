@@ -1,2 +1,14 @@
-192.168.150.17
-192.168.150.57
+# Upper LUCIDAC (glass lid)
+carrier 192.168.150.57 0
+# Lower LUCIDAC (gray chassis)
+carrier 192.168.150.17 1
+
+# I/O wiring between systems (coordinates: stack / carrier / pin)
+wire 0/4 1/4
+wire 0/5 1/5
+wire 0/6 1/6
+wire 0/7 1/7
+wire 1/4 0/4
+wire 1/5 0/5
+wire 1/6 0/6
+wire 1/7 0/7

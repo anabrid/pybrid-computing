@@ -1,13 +1,9 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-from typing import Optional as _Optional
-from typing import Union as _Union
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -416,8 +412,26 @@ class EntitySpecification(_message.Message):
     entity: Entity
     def __init__(self, entity: _Optional[_Union[Entity, _Mapping]] = ...) -> None: ...
 
+class WiringPin(_message.Message):
+    __slots__ = ("entity", "named_pin", "indexed_pin")
+    ENTITY_FIELD_NUMBER: _ClassVar[int]
+    NAMED_PIN_FIELD_NUMBER: _ClassVar[int]
+    INDEXED_PIN_FIELD_NUMBER: _ClassVar[int]
+    entity: EntityId
+    named_pin: str
+    indexed_pin: int
+    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., named_pin: _Optional[str] = ..., indexed_pin: _Optional[int] = ...) -> None: ...
+
+class WiringSpecification(_message.Message):
+    __slots__ = ("source", "target")
+    SOURCE_FIELD_NUMBER: _ClassVar[int]
+    TARGET_FIELD_NUMBER: _ClassVar[int]
+    source: WiringPin
+    target: WiringPin
+    def __init__(self, source: _Optional[_Union[WiringPin, _Mapping]] = ..., target: _Optional[_Union[WiringPin, _Mapping]] = ...) -> None: ...
+
 class Item(_message.Message):
-    __slots__ = ("entity", "adc_config", "cluster_config", "mul_config", "shift_hold_config", "coef_config", "itor_config", "select_config", "sum_config", "switch_config", "device_config", "limiter_config", "front_panel_config", "signal_generator_config", "port_config", "backpanel_config", "bpl_switch_config", "cmp_config", "entity_specification", "dependency_info", "ip_lookup_table", "front_panel_io_config", "mdr_config", "sim_config")
+    __slots__ = ("entity", "adc_config", "cluster_config", "mul_config", "shift_hold_config", "coef_config", "itor_config", "select_config", "sum_config", "switch_config", "device_config", "limiter_config", "front_panel_config", "signal_generator_config", "port_config", "backpanel_config", "bpl_switch_config", "cmp_config", "entity_specification", "dependency_info", "ip_lookup_table", "front_panel_io_config", "mdr_config", "wiring_specification", "sim_config")
     ENTITY_FIELD_NUMBER: _ClassVar[int]
     ADC_CONFIG_FIELD_NUMBER: _ClassVar[int]
     CLUSTER_CONFIG_FIELD_NUMBER: _ClassVar[int]
@@ -441,6 +455,7 @@ class Item(_message.Message):
     IP_LOOKUP_TABLE_FIELD_NUMBER: _ClassVar[int]
     FRONT_PANEL_IO_CONFIG_FIELD_NUMBER: _ClassVar[int]
     MDR_CONFIG_FIELD_NUMBER: _ClassVar[int]
+    WIRING_SPECIFICATION_FIELD_NUMBER: _ClassVar[int]
     SIM_CONFIG_FIELD_NUMBER: _ClassVar[int]
     entity: EntityId
     adc_config: AdcConfig
@@ -465,8 +480,9 @@ class Item(_message.Message):
     ip_lookup_table: IpLookupTable
     front_panel_io_config: FrontPanelIOConfig
     mdr_config: MDRConfig
+    wiring_specification: WiringSpecification
     sim_config: SimConfig
-    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., adc_config: _Optional[_Union[AdcConfig, _Mapping]] = ..., cluster_config: _Optional[_Union[ClusterConfig, _Mapping]] = ..., mul_config: _Optional[_Union[MulConfig, _Mapping]] = ..., shift_hold_config: _Optional[_Union[ShiftHoldConfig, _Mapping]] = ..., coef_config: _Optional[_Union[CoefConfig, _Mapping]] = ..., itor_config: _Optional[_Union[ItorConfig, _Mapping]] = ..., select_config: _Optional[_Union[SelectConfig, _Mapping]] = ..., sum_config: _Optional[_Union[SumConfig, _Mapping]] = ..., switch_config: _Optional[_Union[SwitchConfig, _Mapping]] = ..., device_config: _Optional[_Union[DeviceConfig, _Mapping]] = ..., limiter_config: _Optional[_Union[LimiterConfig, _Mapping]] = ..., front_panel_config: _Optional[_Union[FrontPanelConfig, _Mapping]] = ..., signal_generator_config: _Optional[_Union[SignalGeneratorConfig, _Mapping]] = ..., port_config: _Optional[_Union[PortConfig, _Mapping]] = ..., backpanel_config: _Optional[_Union[BackpanelConfig, _Mapping]] = ..., bpl_switch_config: _Optional[_Union[BPLSwitchConfig, _Mapping]] = ..., cmp_config: _Optional[_Union[CmpConfig, _Mapping]] = ..., entity_specification: _Optional[_Union[EntitySpecification, _Mapping]] = ..., dependency_info: _Optional[_Union[DependencyInfo, _Mapping]] = ..., ip_lookup_table: _Optional[_Union[IpLookupTable, _Mapping]] = ..., front_panel_io_config: _Optional[_Union[FrontPanelIOConfig, _Mapping]] = ..., mdr_config: _Optional[_Union[MDRConfig, _Mapping]] = ..., sim_config: _Optional[_Union[SimConfig, _Mapping]] = ...) -> None: ...
+    def __init__(self, entity: _Optional[_Union[EntityId, _Mapping]] = ..., adc_config: _Optional[_Union[AdcConfig, _Mapping]] = ..., cluster_config: _Optional[_Union[ClusterConfig, _Mapping]] = ..., mul_config: _Optional[_Union[MulConfig, _Mapping]] = ..., shift_hold_config: _Optional[_Union[ShiftHoldConfig, _Mapping]] = ..., coef_config: _Optional[_Union[CoefConfig, _Mapping]] = ..., itor_config: _Optional[_Union[ItorConfig, _Mapping]] = ..., select_config: _Optional[_Union[SelectConfig, _Mapping]] = ..., sum_config: _Optional[_Union[SumConfig, _Mapping]] = ..., switch_config: _Optional[_Union[SwitchConfig, _Mapping]] = ..., device_config: _Optional[_Union[DeviceConfig, _Mapping]] = ..., limiter_config: _Optional[_Union[LimiterConfig, _Mapping]] = ..., front_panel_config: _Optional[_Union[FrontPanelConfig, _Mapping]] = ..., signal_generator_config: _Optional[_Union[SignalGeneratorConfig, _Mapping]] = ..., port_config: _Optional[_Union[PortConfig, _Mapping]] = ..., backpanel_config: _Optional[_Union[BackpanelConfig, _Mapping]] = ..., bpl_switch_config: _Optional[_Union[BPLSwitchConfig, _Mapping]] = ..., cmp_config: _Optional[_Union[CmpConfig, _Mapping]] = ..., entity_specification: _Optional[_Union[EntitySpecification, _Mapping]] = ..., dependency_info: _Optional[_Union[DependencyInfo, _Mapping]] = ..., ip_lookup_table: _Optional[_Union[IpLookupTable, _Mapping]] = ..., front_panel_io_config: _Optional[_Union[FrontPanelIOConfig, _Mapping]] = ..., mdr_config: _Optional[_Union[MDRConfig, _Mapping]] = ..., wiring_specification: _Optional[_Union[WiringSpecification, _Mapping]] = ..., sim_config: _Optional[_Union[SimConfig, _Mapping]] = ...) -> None: ...
 
 class EntityId(_message.Message):
     __slots__ = ("path",)

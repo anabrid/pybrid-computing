@@ -2,7 +2,7 @@
 # Contact: https://www.anabrid.com/licensing/
 # SPDX-License-Identifier: MIT OR GPL-2.0-or-later
 import queue
-from abc import ABC, abstractmethod
+from abc import ABC
 from functools import singledispatchmethod
 from typing import List
 
@@ -54,7 +54,6 @@ class Serializer(ABC):
                     f"Validation failed with {len(all_errors)} error(s):\n" + "\n".join(f"  - {e}" for e in all_errors)
                 )
 
-        # serialize specification and configuration in mixed mode
         items = []
 
         for entity in computer.entities:
@@ -63,8 +62,17 @@ class Serializer(ABC):
             config.entity_specification.entity.CopyFrom(pb_entity)
             items.append(config)
 
+        items.extend(self.serialize_specification_payloads(computer))
         items.extend(self.serialize_configuration(computer))
         return pb.Module(items=items)
+
+    def serialize_specification_payloads(self, computer: AnalogComputer) -> List[pb.Item]:
+        """Hook for non-entity-tree specification items (e.g. wiring specifications).
+
+        Subclasses override to emit additional spec-side Items whose payloads
+        sit on a different oneof arm than ``entity_specification``.
+        """
+        return []
 
     def serialize_specification(self, entity: Entity) -> pb.Entity:
         """Serialize a single entity's specification (structure, not state)."""
@@ -102,30 +110,40 @@ class Serializer(ABC):
 class Deserializer(ABC):
     """Unified deserializer for both entity-tree specification and operational configuration."""
 
+    #: Set of ``Item.kind`` oneof field names that carry spec-level payloads.
+    #: Subclasses extend this with their own kinds (e.g. ``wiring_specification``);
+    #: the matching payload type must be registered on :meth:`_deserialize_specification`.
+    SPEC_PAYLOAD_KINDS: set = {"entity_specification"}
+
     computer: AnalogComputer
 
     def __init__(self, computer: AnalogComputer = None):
         self.computer = computer
 
     def deserialize(self, module: pb.Module):
-        """Process a full module: specification entries first, then configuration entries."""
-        spec_configs = []
+        """Process a full module: specification payloads first, then operational configuration."""
+        spec_items = []
         op_configs = []
         for conf in module.items:
-            if conf.WhichOneof("kind") == "entity_specification":
-                spec_configs.append(conf)
+            if conf.WhichOneof("kind") in self.SPEC_PAYLOAD_KINDS:
+                spec_items.append(conf)
             else:
                 op_configs.append(conf)
-        for conf in spec_configs:
-            entity = conf.entity_specification.entity
-            path = Path.parse(conf.entity.path)
-            self.deserialize_specification(entity, path)
+        for conf in spec_items:
+            self._current_full_config = conf
+            kind = conf.WhichOneof("kind")
+            self._deserialize_specification(getattr(conf, kind))
         self.deserialize_configuration(op_configs)
 
-    @abstractmethod
-    def deserialize_specification(self, entity: pb.Entity, path: Path) -> Entity:
-        """Deserialize a pb.Entity tree into Python entity objects."""
-        ...
+    @singledispatchmethod
+    def _deserialize_specification(self, payload):
+        """Dispatch on pb payload type for specification-level Items.
+
+        Subclasses register arms for each ``SPEC_PAYLOAD_KINDS`` entry. The
+        full enclosing :class:`pb.Item` is accessible via
+        ``self._current_full_config`` for arms that need the entity path.
+        """
+        pass
 
     def deserialize_configuration(self, configs: List[pb.Item]):
         """Apply operational config entries to self.computer."""
