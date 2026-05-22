@@ -95,3 +95,4 @@ nav:
           - developer-guide/native-networking-code.md
           - Transport and Channels: developer-guide/native-networking/transport-and-channels.md
           - Proxy Server: developer-guide/native-networking/proxy-server.md
+      - Public Release: developer-guide/public-release.md

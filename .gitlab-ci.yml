@@ -189,6 +189,33 @@ publish:github-pages:
     - when: manual
       allow_failure: true
 
+# Mirror the source tree to the public GitHub repository.
+# The internal `public` branch contains a single commit on top of `main` that
+# rewrites the `proto/` submodule URL to its public GitHub address. The job
+# rebases that commit onto the current `main` and force-pushes the result to
+# GitHub. See developer-guide/public-release.md.
+publish:github:
+  image:
+    name: alpine:latest
+  stage: publish
+  before_script:
+    - apk add --no-cache git
+  script:
+    - git config --global user.name "GitLab CI"
+    - git config --global user.email "ci@gitlab"
+    - git fetch origin --tags
+    - git checkout -B public origin/public
+    - git rebase origin/main
+    - git remote add github https://${GITHUB_TOKEN}@github.com/${GITHUB_PAGES_REPO}.git
+    - git fetch github
+    - git push --force-with-lease=main github HEAD:main
+    - git push github 'refs/tags/v*:refs/tags/v*'
+    - git push github 'refs/tags/[0-9]*:refs/tags/[0-9]*'
+  rules:
+    - if: $CI_COMMIT_TAG
+    - when: manual
+      allow_failure: true
+
 # for externals, push all the packages to a Github repo as well
 publish:pypi:
   extends: [.anabrid-uv-job, .anabrid-if-release-job]

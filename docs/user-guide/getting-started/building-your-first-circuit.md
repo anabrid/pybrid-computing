@@ -17,8 +17,6 @@ converters (ADCs) on the device. To understand _why_ we configure the
 computer the way we do, please read the dedicated sections in the
 [architecture guide](../../hardware-architecture/index.md).
 
-(TBD: graphic for the circuit)
-
 ## Setting up the script
 
 We start by importing the relevant classes from `pybrid`. The example uses
