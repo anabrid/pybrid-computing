@@ -61,6 +61,23 @@ public:
         std::optional<uint32_t> stack = std::nullopt,
         std::optional<uint32_t> carrier = std::nullopt);
 
+    /// Register an ACL wire between two backend carriers. The (stack, carrier)
+    /// coordinates are matched against locations passed to add_backend(); the
+    /// wire is injected as a WiringSpecification item into the source
+    /// backend's cached module at start() time.
+    ///
+    /// Each pin endpoint is either a zero-based numeric index (uint32_t) or a
+    /// named-pin string. The set of valid named pins is defined and enforced
+    /// on the Python side; this method trusts the input.
+    /// @throws std::logic_error if called after start().
+    void add_wire(
+        std::optional<uint32_t> source_stack,
+        uint32_t source_carrier,
+        ProxyBackendHandler::PinVariant source_pin,
+        std::optional<uint32_t> target_stack,
+        uint32_t target_carrier,
+        ProxyBackendHandler::PinVariant target_pin);
+
     /// Bind and start accepting client connections.
     /// @throws std::runtime_error if bind fails or no backends were added.
     void start(const std::string& host, uint16_t port);

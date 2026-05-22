@@ -42,6 +42,36 @@ class FrontPanelIOMode(int, Enum):
     DIGITAL_IN = 3
 
 
+class ACLPlugKind(int, Enum):
+    """Mirror of :class:`pb.ACLPlug.Kind`."""
+
+    DEVICE = 0
+    PLUGIN = 1
+
+
+@dataclass
+class ACLPlug:
+    """One endpoint of an :class:`ACLWire`. Mirror of :class:`pb.ACLPlug`.
+
+    ``entity_path`` follows the proxy convention ``"/<MAC>/<pin>"`` for
+    device-side plugs.
+    """
+
+    entity_path: str
+    kind: ACLPlugKind = ACLPlugKind.DEVICE
+
+
+@dataclass
+class ACLWire:
+    """Directed ACL connection between two plugs. Mirror of :class:`pb.ACLWire`.
+
+    Signal flow is ``source -> target``.
+    """
+
+    source: ACLPlug
+    target: ACLPlug
+
+
 @dataclass(kw_only=True)
 class Carrier(Entity):
     """

@@ -93,17 +93,20 @@ class ConnectionManager:
 
         if use_discovery:
             module = await self._discover_device(host, port)
-            entities = [
-                item.entity_specification.entity for item in module.items if item.HasField("entity_specification")
-            ]
         else:
-            entities = [
-                c.entity_specification.entity for c in specification.items if c.HasField("entity_specification")
-            ]
+            module = specification
+
+        entities = [item.entity_specification.entity for item in module.items if item.HasField("entity_specification")]
 
         for entity in entities:
             self.cache_descriptions.items.append(pb.Item(entity_specification=pb.EntitySpecification(entity=entity)))
             carriers.extend(self._detect_topology(entity))
+
+        # Preserve spec-level non-entity payloads (ACL wires, etc.) so they
+        # reach session.set_module / deserializer.deserialize downstream.
+        for item in module.items:
+            if item.WhichOneof("kind") == "wiring_specification":
+                self.cache_descriptions.items.append(item)
 
         new_connections = await self._create_connections(host, port, carriers)
         self._register(carriers, new_connections)

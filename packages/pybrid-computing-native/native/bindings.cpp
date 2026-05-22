@@ -1366,6 +1366,61 @@ Raises:
     RuntimeError: If connection or handshake fails.
 )doc")
         .def(
+            "add_wire",
+            [](ProxyServer& self,
+               std::optional<uint32_t> source_stack,
+               uint32_t source_carrier,
+               py::object source_pin,
+               std::optional<uint32_t> target_stack,
+               uint32_t target_carrier,
+               py::object target_pin) {
+                auto to_pin_variant = [](const py::object& o, const char* arg_name) -> ProxyBackendHandler::PinVariant {
+                    if (py::isinstance<py::int_>(o)) {
+                        return o.cast<uint32_t>();
+                    }
+                    if (py::isinstance<py::str>(o)) {
+                        return o.cast<std::string>();
+                    }
+                    throw py::type_error(std::string(arg_name) + " must be int or str");
+                };
+
+                self.add_wire(
+                    source_stack,
+                    source_carrier,
+                    to_pin_variant(source_pin, "source_pin"),
+                    target_stack,
+                    target_carrier,
+                    to_pin_variant(target_pin, "target_pin"));
+            },
+            py::arg("source_stack"),
+            py::arg("source_carrier"),
+            py::arg("source_pin"),
+            py::arg("target_stack"),
+            py::arg("target_carrier"),
+            py::arg("target_pin"),
+            R"doc(
+Register an ACL wire between two backend carriers.
+
+At start() time the wire is materialised as a WiringSpecification item
+attached to the source backend's cached module. The (stack, carrier)
+coordinates must match locations previously passed to add_backend(); a stack
+value of None matches backends added without a stack.
+
+Args:
+    source_stack:   Source carrier's stack (None if unstacked).
+    source_carrier: Source carrier index.
+    source_pin:     Source pin: an int (indexed ACL pin, 0-based) or a
+                    named-pin string. Validity of named pins is enforced
+                    on the Python caller side.
+    target_stack:   Target carrier's stack (None if unstacked).
+    target_carrier: Target carrier index.
+    target_pin:     Target pin (same shape as ``source_pin``).
+
+Raises:
+    RuntimeError:   If called after start().
+    TypeError:      If a pin value is not an int or a str.
+)doc")
+        .def(
             "start",
             [](ProxyServer& self, const std::string& host, uint16_t port) {
                 py::gil_scoped_release release;

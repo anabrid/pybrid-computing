@@ -3,13 +3,30 @@
 #include <future>
 #include <iostream>
 #include <stdexcept>
+#include <string>
+#include <type_traits>
 #include <utility>
+#include <variant>
 
 #include "pybrid/proto/main.pb.h"
 #include "pybrid/proxy/proxy_run_coordinator.h"
 #include "pybrid/transport/tcp_transport.h"
 
 namespace anabrid::pybrid::native {
+
+namespace {
+
+std::string pin_to_string(const ProxyBackendHandler::PinVariant& pin) {
+    return std::visit(
+        [](const auto& v) -> std::string {
+            using T = std::decay_t<decltype(v)>;
+            if constexpr (std::is_same_v<T, std::string>) return v;
+            else return std::to_string(v);
+        },
+        pin);
+}
+
+}  // namespace
 
 BackendDevice::BackendDevice(BackendDevice&& other) noexcept
     : host(std::move(other.host)),
@@ -133,6 +150,29 @@ void ProxyBackendHandler::add_backend(
     }
 }
 
+void ProxyBackendHandler::add_wire(const WireEntry& wire) {
+    if (!is_accepting_backends_) {
+        throw std::logic_error("Backends have been finalized, no more changes are permitted.");
+    }
+    std::lock_guard<std::mutex> lock(backends_mutex_);
+    wires_.push_back(wire);
+}
+
+namespace {
+
+BackendDevice* find_backend_for_location(
+    std::vector<BackendDevice>& backends, std::optional<uint32_t> stack, uint32_t carrier) {
+    for (auto& backend : backends) {
+        if (backend.location_stack == stack && backend.location_carrier.has_value() &&
+            backend.location_carrier.value() == carrier) {
+            return &backend;
+        }
+    }
+    return nullptr;
+}
+
+}  // namespace
+
 void ProxyBackendHandler::set_debug(bool enabled) {
     debug_ = enabled;
 }
@@ -174,6 +214,56 @@ void ProxyBackendHandler::start(RunCoordinator& run_coord, ErrorToClient error_c
             for (const auto& path : backend.carrier_paths) {
                 path_to_backend_[path] = &backend;
             }
+        }
+
+        for (const auto& wire : wires_) {
+            BackendDevice* source = find_backend_for_location(backends_, wire.source_stack, wire.source_carrier);
+            BackendDevice* target = find_backend_for_location(backends_, wire.target_stack, wire.target_carrier);
+            if (!source || source->carrier_paths.empty() || !target || target->carrier_paths.empty()) {
+                std::cerr << "[ProxyServer] WARNING: wire endpoints not resolvable to backends, skipping\n";
+                continue;
+            }
+
+            const std::string& source_mac = source->carrier_paths.front();
+            const std::string& target_mac = target->carrier_paths.front();
+
+            pb::Item* item = source->cached_module.add_items();
+            item->mutable_entity()->set_path("");
+            pb::WiringSpecification* spec = item->mutable_wiring_specification();
+
+            pb::WiringPin* src = spec->mutable_source();
+            src->mutable_entity()->set_path("/" + source_mac);
+            std::visit(
+                [&](const auto& v) {
+                    using T = std::decay_t<decltype(v)>;
+                    if constexpr (std::is_same_v<T, std::string>) src->set_named_pin(v);
+                    else src->set_indexed_pin(v);
+                },
+                wire.source_pin);
+
+            pb::WiringPin* tgt = spec->mutable_target();
+            tgt->mutable_entity()->set_path("/" + target_mac);
+            std::visit(
+                [&](const auto& v) {
+                    using T = std::decay_t<decltype(v)>;
+                    if constexpr (std::is_same_v<T, std::string>) tgt->set_named_pin(v);
+                    else tgt->set_indexed_pin(v);
+                },
+                wire.target_pin);
+
+            const std::string src_pin_str = pin_to_string(wire.source_pin);
+            const std::string tgt_pin_str = pin_to_string(wire.target_pin);
+            std::cerr << "[ProxyServer] Wire /" << source_mac << "/" << src_pin_str
+                      << " -> /" << target_mac << "/" << tgt_pin_str;
+            if (wire.source_stack.has_value()) {
+                std::cerr << " (stack " << wire.source_stack.value() << "/carrier " << wire.source_carrier
+                          << "/pin " << src_pin_str << " -> stack " << wire.target_stack.value() << "/carrier "
+                          << wire.target_carrier << "/pin " << tgt_pin_str << ")";
+            } else {
+                std::cerr << " (carrier " << wire.source_carrier << "/pin " << src_pin_str << " -> carrier "
+                          << wire.target_carrier << "/pin " << tgt_pin_str << ")";
+            }
+            std::cerr << "\n";
         }
     }
 

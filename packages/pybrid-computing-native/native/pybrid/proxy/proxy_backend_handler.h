@@ -11,6 +11,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 #include "pybrid/channel/control_channel.h"
@@ -96,9 +97,27 @@ public:
     ProxyBackendHandler(ProxyBackendHandler&&) = delete;
     ProxyBackendHandler& operator=(ProxyBackendHandler&&) = delete;
 
+    /// Pin endpoint: a named-pin string or a zero-based numeric index. The set
+    /// of valid named pins is defined and enforced on the Python side
+    /// (``pybrid.base.hybrid.computer.NamedPin``); C++ trusts the input.
+    using PinVariant = std::variant<std::string, uint32_t>;
+
+    /// Wiring entry between two backend carriers, injected as a
+    /// WiringSpecification item into the source backend's cached module at
+    /// start() time.
+    struct WireEntry {
+        std::optional<uint32_t> source_stack;
+        uint32_t source_carrier;
+        PinVariant source_pin;
+        std::optional<uint32_t> target_stack;
+        uint32_t target_carrier;
+        PinVariant target_pin;
+    };
+
     // Pre-start configuration
     void add_backend(
         const std::string& host, uint16_t port, std::optional<uint32_t> stack, std::optional<uint32_t> carrier);
+    void add_wire(const WireEntry& wire);
     void set_debug(bool enabled);
 
     // Lifecycle
@@ -156,6 +175,7 @@ private:
     mutable std::mutex backends_mutex_;
     std::vector<BackendDevice> backends_;
     std::unordered_map<std::string, BackendDevice*> path_to_backend_;
+    std::vector<WireEntry> wires_;
     bool is_accepting_backends_{true};
 
     std::atomic<bool> running_{false};

@@ -44,6 +44,20 @@ void ProxyServer::add_backend(
     backend_handler_.add_backend(host, port, stack, carrier);
 }
 
+void ProxyServer::add_wire(
+    std::optional<uint32_t> source_stack,
+    uint32_t source_carrier,
+    ProxyBackendHandler::PinVariant source_pin,
+    std::optional<uint32_t> target_stack,
+    uint32_t target_carrier,
+    ProxyBackendHandler::PinVariant target_pin) {
+    if (running_.load()) {
+        throw std::logic_error("ProxyServer::add_wire(): must be called before start()");
+    }
+    backend_handler_.add_wire(
+        {source_stack, source_carrier, std::move(source_pin), target_stack, target_carrier, std::move(target_pin)});
+}
+
 void ProxyServer::start(const std::string& host, uint16_t port) {
     bool expected = false;
     if (!running_.compare_exchange_strong(expected, true)) {
