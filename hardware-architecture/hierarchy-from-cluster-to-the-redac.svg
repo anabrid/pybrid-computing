@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1280"
+   height="720"
+   viewBox="0 0 1280 720"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg46"
+   sodipodi:docname="hierarchy-from-cluster-to-the-redac.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview46"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="2.1944444"
+     inkscape:cx="483.03798"
+     inkscape:cy="309.87342"
+     inkscape:window-width="4300"
+     inkscape:window-height="1712"
+     inkscape:window-x="-8"
+     inkscape:window-y="11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg46" />
+  <title
+     id="title">Hierarchy from cluster to REDAC</title>
+  <desc
+     id="desc">Structural hierarchy showing cluster, mREDAC, iREDAC, and REDAC levels with thick arrows between equally spaced blocks.</desc>
+  <defs
+     id="defs3">
+    <marker
+       style="overflow:visible"
+       id="Tail"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow tail"
+       markerWidth="5"
+       markerHeight="5"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:context-stroke;stroke-width:1;stroke-linecap:round"
+         d="M -0.33043975,-3 2.7797858,0 -0.33043975,3 M -3.3304398,-3 -0.33043975,0 -3.3304398,3 m -3.0000001,0 3.0000001,-3 -3.0000001,-3"
+         sodipodi:nodetypes="ccccccccc"
+         id="path10" />
+    </marker>
+    <style
+       id="style1">
+      .bg { fill: #f8fafc; }
+      .title { font: 700 30px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 14px Arial, sans-serif; fill: #334155; }
+      .label { font: 700 20px Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .small { font: 14px Arial, sans-serif; fill: #334155; text-anchor: middle; }
+      .tiny { font: 12px Arial, sans-serif; fill: #475569; text-anchor: middle; }
+      .cluster { fill: #ecfeff; stroke: #0891b2; stroke-width: 2; rx: 18; }
+      .block { fill: #ffffff; stroke: #0891b2; stroke-width: 1.5; rx: 10; }
+      .mredac { fill: #eef2ff; stroke: #4f46e5; stroke-width: 2; rx: 18; }
+      .routing { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 1.5; rx: 10; }
+      .control { fill: #e0f2fe; stroke: #0284c7; stroke-width: 1.5; rx: 10; }
+      .iredac { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; rx: 18; }
+      .backplane { fill: #dcfce7; stroke: #16a34a; stroke-width: 1.5; rx: 10; }
+      .redac { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; rx: 18; }
+      .service { fill: #ffedd5; stroke: #ea580c; stroke-width: 1.5; rx: 10; }
+      .arrow-mredac { fill: none; stroke: #4f46e5; stroke-width: 5; stroke-linecap: round; marker-end: url(#arrow-mredac); }
+      .arrow-iredac { fill: none; stroke: #16a34a; stroke-width: 5; stroke-linecap: round; marker-end: url(#arrow-iredac); }
+      .arrow-redac { fill: none; stroke: #ea580c; stroke-width: 5; stroke-linecap: round; marker-end: url(#arrow-redac); }
+    </style>
+    <marker
+       id="arrow-mredac"
+       markerWidth="14"
+       markerHeight="12"
+       refX="13"
+       refY="6"
+       orient="auto"
+       markerUnits="userSpaceOnUse">
+      <path
+         d="M 0 0 L 14 6 L 0 12 z"
+         fill="#4f46e5"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrow-iredac"
+       markerWidth="14"
+       markerHeight="12"
+       refX="13"
+       refY="6"
+       orient="auto"
+       markerUnits="userSpaceOnUse">
+      <path
+         d="M 0 0 L 14 6 L 0 12 z"
+         fill="#16a34a"
+         id="path2" />
+    </marker>
+    <marker
+       id="arrow-redac"
+       markerWidth="14"
+       markerHeight="12"
+       refX="13"
+       refY="6"
+       orient="auto"
+       markerUnits="userSpaceOnUse">
+      <path
+         d="M 0 0 L 14 6 L 0 12 z"
+         fill="#ea580c"
+         id="path3" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Tail-0"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow tail"
+       markerWidth="5"
+       markerHeight="5"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:context-stroke;stroke-width:1;stroke-linecap:round"
+         d="M -0.33043975,-3 2.7797858,0 -0.33043975,3 M -3.3304398,-3 -0.33043975,0 -3.3304398,3 m -3.0000001,0 3.0000001,-3 -3.0000001,-3"
+         sodipodi:nodetypes="ccccccccc"
+         id="path10-9" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Tail-0-8"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow tail"
+       markerWidth="5"
+       markerHeight="5"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:context-stroke;stroke-width:1;stroke-linecap:round"
+         d="M -0.33043975,-3 2.7797858,0 -0.33043975,3 M -3.3304398,-3 -0.33043975,0 -3.3304398,3 m -3.0000001,0 3.0000001,-3 -3.0000001,-3"
+         sodipodi:nodetypes="ccccccccc"
+         id="path10-9-2" />
+    </marker>
+  </defs>
+  <rect
+     class="bg"
+     width="1280"
+     height="720"
+     id="rect3" />
+  <text
+     class="title"
+     x="70"
+     y="55"
+     id="text3">Hierarchy: Cluster to REDAC</text>
+  <text
+     class="subtitle"
+     x="70"
+     y="85"
+     id="text4">Hardware structure from the computation section to the rack-level analog computer.</text>
+  <rect
+     class="cluster"
+     x="60"
+     y="130"
+     width="250"
+     height="460"
+     id="rect4" />
+  <text
+     class="label"
+     x="185"
+     y="170"
+     id="text5">Cluster</text>
+  <text
+     class="small"
+     x="185"
+     y="196"
+     id="text6"> Computation section</text>
+  <rect
+     class="block"
+     x="92"
+     y="235"
+     width="75"
+     height="44"
+     id="rect6" />
+  <text
+     class="tiny"
+     x="129.5"
+     y="262"
+     id="text7">U-Block</text>
+  <rect
+     class="block"
+     x="202"
+     y="235"
+     width="75"
+     height="44"
+     id="rect7" />
+  <text
+     class="tiny"
+     x="239.5"
+     y="262"
+     id="text8">C-Block</text>
+  <rect
+     class="block"
+     x="92"
+     y="305"
+     width="75"
+     height="44"
+     id="rect8" />
+  <text
+     class="tiny"
+     x="129.5"
+     y="332"
+     id="text9">I-Block</text>
+  <rect
+     class="block"
+     x="202"
+     y="305"
+     width="75"
+     height="44"
+     id="rect9" />
+  <text
+     class="tiny"
+     x="239.5"
+     y="332"
+     id="text10">SH-Block</text>
+  <rect
+     class="block"
+     x="92"
+     y="375"
+     width="75"
+     height="44"
+     id="rect10" />
+  <text
+     class="tiny"
+     x="129.5"
+     y="402"
+     id="text11">M-Block</text>
+  <rect
+     class="block"
+     x="202"
+     y="375"
+     width="75"
+     height="44"
+     id="rect11" />
+  <text
+     class="tiny"
+     x="239.5"
+     y="402"
+     id="text12">M-Block</text>
+  <text
+     class="tiny"
+     x="185"
+     y="485"
+     id="text13">2 generic Math Block positions</text>
+  <rect
+     class="mredac"
+     x="370"
+     y="130"
+     width="250"
+     height="460"
+     id="rect13" />
+  <text
+     class="label"
+     x="495"
+     y="170"
+     id="text14">mREDAC</text>
+  <text
+     class="small"
+     x="495"
+     y="196"
+     id="text15">Module-level analog unit</text>
+  <rect
+     class="cluster"
+     x="400"
+     y="235"
+     width="54"
+     height="58"
+     id="rect15" />
+  <text
+     class="tiny"
+     x="427"
+     y="260"
+     id="text16">Cluster</text>
+  <text
+     class="tiny"
+     x="427"
+     y="276"
+     id="text17">0</text>
+  <rect
+     class="cluster"
+     x="468"
+     y="235"
+     width="54"
+     height="58"
+     id="rect17" />
+  <text
+     class="tiny"
+     x="495"
+     y="260"
+     id="text18">Cluster</text>
+  <text
+     class="tiny"
+     x="495"
+     y="276"
+     id="text19">1</text>
+  <rect
+     class="cluster"
+     x="536"
+     y="235"
+     width="54"
+     height="58"
+     id="rect19" />
+  <text
+     class="tiny"
+     x="563"
+     y="260"
+     id="text20">Cluster</text>
+  <text
+     class="tiny"
+     x="563"
+     y="276"
+     id="text21">2</text>
+  <rect
+     class="routing"
+     x="400"
+     y="325"
+     width="190"
+     height="48"
+     id="rect21" />
+  <text
+     class="tiny"
+     x="495"
+     y="354"
+     id="text22">T-Block routing</text>
+  <rect
+     class="control"
+     x="400"
+     y="405"
+     width="85"
+     height="48"
+     id="rect22" />
+  <text
+     class="tiny"
+     x="442.5"
+     y="434"
+     id="text23">Ctrl-Block</text>
+  <rect
+     class="control"
+     x="505"
+     y="405"
+     width="85"
+     height="48"
+     id="rect23" />
+  <text
+     class="tiny"
+     x="547.5"
+     y="434"
+     id="text24">Frontplane</text>
+  <text
+     class="tiny"
+     x="495"
+     y="515"
+     id="text25">3 clusters + shared routing/control/I/O</text>
+  <rect
+     class="iredac"
+     x="680"
+     y="130"
+     width="250"
+     height="460"
+     id="rect25" />
+  <text
+     class="label"
+     x="805"
+     y="170"
+     id="text26">iREDAC</text>
+  <text
+     class="small"
+     x="805"
+     y="196"
+     id="text27">One complete stack level</text>
+  <rect
+     class="backplane"
+     x="710"
+     y="225"
+     width="190"
+     height="48"
+     id="rect27" />
+  <text
+     class="tiny"
+     x="805"
+     y="254"
+     id="text28">Backplane carrier</text>
+  <rect
+     class="mredac"
+     x="710"
+     y="305"
+     width="45"
+     height="46"
+     id="rect28" />
+  <text
+     class="tiny"
+     x="732.5"
+     y="333"
+     id="text29">mR0</text>
+  <rect
+     class="mredac"
+     x="770"
+     y="305"
+     width="45"
+     height="46"
+     id="rect29" />
+  <text
+     class="tiny"
+     x="792.5"
+     y="333"
+     id="text30">mR1</text>
+  <text
+     class="tiny"
+     x="835"
+     y="333"
+     id="text31">...</text>
+  <rect
+     class="mredac"
+     x="855"
+     y="305"
+     width="45"
+     height="46"
+     id="rect31" />
+  <text
+     class="tiny"
+     x="877.5"
+     y="333"
+     id="text32">mR6</text>
+  <rect
+     class="routing"
+     x="710"
+     y="383"
+     width="85"
+     height="48"
+     id="rect32" />
+  <text
+     class="tiny"
+     x="752.5"
+     y="412"
+     id="text33">T-Block BPL</text>
+  <rect
+     class="control"
+     x="815"
+     y="383"
+     width="85"
+     height="48"
+     id="rect33" />
+  <text
+     class="tiny"
+     x="857.5"
+     y="412"
+     id="text34">Sync paths</text>
+  <rect
+     class="backplane"
+     x="710"
+     y="465"
+     width="190"
+     height="40"
+     id="rect34" />
+  <text
+     class="tiny"
+     x="805"
+     y="490"
+     id="text35">Rear coverplane</text>
+  <rect
+     class="redac"
+     x="990"
+     y="130"
+     width="250"
+     height="460"
+     id="rect35" />
+  <text
+     class="label"
+     x="1115"
+     y="170"
+     id="text36">REDAC</text>
+  <text
+     class="small"
+     x="1115"
+     y="196"
+     id="text37">Rack-level analog computer</text>
+  <rect
+     class="iredac"
+     x="1020"
+     y="235"
+     width="85"
+     height="44"
+     id="rect37" />
+  <text
+     class="tiny"
+     x="1062.5"
+     y="262"
+     id="text38">iREDAC 0</text>
+  <rect
+     class="iredac"
+     x="1125"
+     y="235"
+     width="85"
+     height="44"
+     id="rect38" />
+  <text
+     class="tiny"
+     x="1167.5"
+     y="262"
+     id="text39">iREDAC 1</text>
+  <rect
+     class="iredac"
+     x="1020"
+     y="305"
+     width="85"
+     height="44"
+     id="rect39" />
+  <text
+     class="tiny"
+     x="1062.5"
+     y="332"
+     id="text40">iREDAC 2</text>
+  <rect
+     class="iredac"
+     x="1125"
+     y="305"
+     width="85"
+     height="44"
+     id="rect40" />
+  <text
+     class="tiny"
+     x="1167.5"
+     y="332"
+     id="text41">iREDAC 3</text>
+  <rect
+     class="service"
+     x="1020"
+     y="385"
+     width="85"
+     height="44"
+     id="rect41" />
+  <text
+     class="tiny"
+     x="1062.5"
+     y="412"
+     id="text42">Power</text>
+  <rect
+     class="service"
+     x="1125"
+     y="385"
+     width="85"
+     height="44"
+     id="rect42" />
+  <text
+     class="tiny"
+     x="1167.5"
+     y="412"
+     id="text43">LAN switch</text>
+  <rect
+     class="service"
+     x="1067.8481"
+     y="463.65823"
+     width="85"
+     height="44"
+     id="rect43" />
+  <text
+     class="tiny"
+     x="1109.8925"
+     y="484.27847"
+     id="text44"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif"><tspan
+       sodipodi:role="line"
+       id="tspan1"
+       x="1109.8925"
+       y="484.27847">Super</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2"
+       x="1109.8925"
+       y="499.27847">Controller</tspan></text>
+  <path
+     style="display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:0, 11;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Tail)"
+     d="m 289.36709,356.81013 59.71729,0.055"
+     id="path46"
+     inkscape:connector-type="polyline"
+     inkscape:connector-curvature="0" />
+  <path
+     style="display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:0, 11;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Tail-0)"
+     d="m 598.88608,352.38554 59.71729,0.055"
+     id="path46-8"
+     inkscape:connector-type="polyline"
+     inkscape:connector-curvature="0" />
+  <path
+     style="display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:0, 11;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Tail-0-8)"
+     d="m 909.08861,349.92985 59.71729,0.055"
+     id="path46-8-5"
+     inkscape:connector-type="polyline"
+     inkscape:connector-curvature="0" />
+</svg>

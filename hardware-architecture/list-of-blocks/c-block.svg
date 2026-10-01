@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1120"
+   height="670"
+   viewBox="0 0 1120 670"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg41"
+   sodipodi:docname="c-block.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview41"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="2.2626866"
+     inkscape:cx="559.95382"
+     inkscape:cy="343.83905"
+     inkscape:window-width="4300"
+     inkscape:window-height="1712"
+     inkscape:window-x="-8"
+     inkscape:window-y="11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg41" />
+  <title
+     id="title">C-Block architecture</title>
+  <desc
+     id="desc">Block diagram showing 32 lane-aligned coefficient channels between the U-Block source selection and the I-Block or T-Block destinations, with lanes 0 through 7 direct local and lanes 8 through 31 routed or shareable.</desc>
+  <defs
+     id="defs2">
+    <marker
+       id="arrow"
+       markerWidth="10"
+       markerHeight="10"
+       refX="9"
+       refY="3"
+       orient="auto"
+       markerUnits="strokeWidth">
+      <path
+         d="M0,0 L0,6 L9,3 z"
+         fill="#1f2937"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrowBlue"
+       markerWidth="10"
+       markerHeight="10"
+       refX="9"
+       refY="3"
+       orient="auto"
+       markerUnits="strokeWidth">
+      <path
+         d="M0,0 L0,6 L9,3 z"
+         fill="#2563eb"
+         id="path2" />
+    </marker>
+    <style
+       id="style2">
+      .bg { fill: #f8fafc; }
+      .title { font: 700 28px Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 15px Arial, sans-serif; fill: #4b5563; }
+      .label { font: 700 16px Arial, sans-serif; fill: #111827; }
+      .small { font: 13px Arial, sans-serif; fill: #374151; }
+      .tiny { font: 12px Arial, sans-serif; fill: #4b5563; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 14; }
+      .soft { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 12; }
+      .coeff { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 10; }
+      .digital { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 12; }
+      .lane { stroke: #1f2937; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .control { stroke: #2563eb; stroke-width: 2.5; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrowBlue); }
+      .divider { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 5 5; }
+    </style>
+  </defs>
+  <rect
+     class="bg"
+     x="1.1826569e-07"
+     y="-72.922165"
+     width="1120"
+     height="723.91821"
+     id="rect2"
+     style="stroke-width:1.03946" />
+  <text
+     class="title"
+     x="40"
+     y="48"
+     id="text2">C-Block: Per-Lane Coefficient Multiplication</text>
+  <text
+     class="subtitle"
+     x="40"
+     y="75"
+     id="text3">Thirty-two independent scalar multiplication channels: lanes 0..7 are direct local paths, lanes 8..31 are routed/shareable paths.</text>
+  <rect
+     class="soft"
+     x="45"
+     y="215"
+     width="210"
+     height="250"
+     id="rect3" />
+  <text
+     class="label"
+     x="95"
+     y="248"
+     id="text4">U-Block</text>
+  <text
+     class="small"
+     x="72"
+     y="278"
+     id="text5">Source selection</text>
+  <text
+     class="tiny"
+     x="72"
+     y="306"
+     id="text6">M-Block outputs</text>
+  <text
+     class="tiny"
+     x="72"
+     y="328"
+     id="text7">Reference constants</text>
+  <text
+     class="tiny"
+     x="72"
+     y="350"
+     id="text8">External/routed sources</text>
+  <text
+     class="small"
+     x="72"
+     y="400"
+     id="text9">Output lanes</text>
+  <text
+     class="tiny"
+     x="72"
+     y="424"
+     id="text10">0 .. 31</text>
+  <rect
+     class="box"
+     x="348.35892"
+     y="203.7151"
+     width="430.35342"
+     height="250.58429"
+     id="rect10" />
+  <text
+     class="label"
+     x="521.9776"
+     y="234.68205"
+     id="text11"
+     style="font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;font-size:16px;line-height:normal;font-family:Arial, sans-serif">C-Block</text>
+  <text
+     class="small"
+     x="456.12006"
+     y="257.58838"
+     id="text12"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13px;line-height:normal;font-family:Arial, sans-serif">32 independent coefficient channels</text>
+  <rect
+     class="coeff"
+     x="393.97757"
+     y="281.21371"
+     width="340"
+     height="58"
+     id="rect12" />
+  <text
+     class="small"
+     x="433.97757"
+     y="305.21371"
+     id="text13"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13px;line-height:normal;font-family:Arial, sans-serif">Coefficient channels 0..7</text>
+  <text
+     class="tiny"
+     x="433.97757"
+     y="325.21371"
+     id="text14"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif">direct local lanes to same-cluster I-Block</text>
+  <rect
+     class="coeff"
+     x="393.97757"
+     y="361.21371"
+     width="340"
+     height="58"
+     id="rect14" />
+  <text
+     class="small"
+     x="433.97757"
+     y="385.21371"
+     id="text15"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13px;line-height:normal;font-family:Arial, sans-serif">Coefficient channels 8..31</text>
+  <text
+     class="tiny"
+     x="433.97757"
+     y="405.65567"
+     id="text16"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif">routed/shareable lanes via T-Block</text>
+  <rect
+     class="digital"
+     x="375"
+     y="92"
+     width="370"
+     height="58"
+     id="rect19" />
+  <text
+     class="label"
+     x="461"
+     y="117"
+     id="text20">Digital Configuration</text>
+  <text
+     class="tiny"
+     x="420"
+     y="137"
+     id="text21">sets 32 coefficient factors through channel DAC control</text>
+  <rect
+     class="soft"
+     x="865"
+     y="195"
+     width="210"
+     height="130"
+     id="rect21" />
+  <text
+     class="label"
+     x="930"
+     y="228"
+     id="text22">I-Block</text>
+  <text
+     class="small"
+     x="895"
+     y="258"
+     id="text23">Local destination</text>
+  <text
+     class="tiny"
+     x="895"
+     y="282"
+     id="text24">direct lanes 0..7</text>
+  <text
+     class="tiny"
+     x="895"
+     y="302"
+     id="text25">and selected lanes 8..31</text>
+  <rect
+     class="soft"
+     x="865"
+     y="395"
+     width="210"
+     height="130"
+     id="rect25" />
+  <text
+     class="label"
+     x="928"
+     y="428"
+     id="text26">T-Block</text>
+  <text
+     class="small"
+     x="895"
+     y="458"
+     id="text27">Routed destination</text>
+  <text
+     class="tiny"
+     x="895"
+     y="482"
+     id="text28">copies lanes 8..31</text>
+  <text
+     class="tiny"
+     x="895"
+     y="502"
+     id="text29">to clusters/backplane</text>
+  <path
+     class="lane"
+     d="M255 285 L390 285"
+     id="path29" />
+  <path
+     class="lane"
+     d="m 255.88391,388.86544 h 135"
+     id="path30" />
+  <text
+     class="tiny"
+     x="278"
+     y="266"
+     id="text31">lanes 0..7</text>
+  <text
+     class="tiny"
+     x="276.23218"
+     y="379.58838"
+     id="text32"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif"><tspan
+       sodipodi:role="line"
+       id="tspan41"
+       x="276.23218"
+       y="379.58838">lanes 8..31</tspan><tspan
+       sodipodi:role="line"
+       id="tspan42"
+       x="276.23218"
+       y="394.58838" /></text>
+  <path
+     class="lane"
+     d="M730 285 C790 285, 805 260, 865 260"
+     id="path33" />
+  <path
+     class="lane"
+     d="M730 365 C800 365, 805 450, 865 450"
+     id="path34" />
+  <text
+     class="tiny"
+     x="780.23224"
+     y="230.50923"
+     id="text35"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif"><tspan
+       sodipodi:role="line"
+       id="tspan46"
+       x="780.23224"
+       y="230.50923">direct local</tspan><tspan
+       sodipodi:role="line"
+       id="tspan47"
+       x="780.23224"
+       y="245.50923">weighted lanes</tspan></text>
+  <text
+     class="tiny"
+     x="744"
+     y="566"
+     id="text37"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif" />
+  <path
+     class="control"
+     d="m 560,150 v 51.66227"
+     id="path37" />
+  <rect
+     class="box"
+     x="115"
+     y="585"
+     width="890"
+     height="58"
+     id="rect39" />
+  <text
+     class="small"
+     x="143"
+     y="610"
+     id="text39">Lane invariant:</text>
+  <text
+     class="tiny"
+     x="245"
+     y="610"
+     id="text40">U-Block output lane n feeds C-Block channel n, and C-Block output lane n remains lane n.</text>
+  <text
+     class="tiny"
+     x="245"
+     y="630"
+     id="text41">Lanes 0..7 are hard-wired local paths; lanes 8..31 are bitwise routed/shareable paths.</text>
+  <text
+     class="tiny"
+     x="712.17938"
+     y="480.38126"
+     id="text36"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif"><tspan
+       sodipodi:role="line"
+       id="tspan43"
+       x="712.17938"
+       y="480.38126">weighted lanes 8..31 can be</tspan><tspan
+       sodipodi:role="line"
+       id="tspan44"
+       x="712.17938"
+       y="495.38126">shared/copied via T-Block</tspan></text>
+</svg>

@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1180"
+   height="760"
+   viewBox="0 0 1180 760"
+   role="img"
+   aria-labelledby="title desc"
+   font-family="Arial, Helvetica, sans-serif"
+   version="1.1"
+   id="svg80"
+   sodipodi:docname="m-mul.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview80"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.0394737"
+     inkscape:cx="589.72152"
+     inkscape:cy="399.24051"
+     inkscape:window-width="1920"
+     inkscape:window-height="992"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg80" />
+  <title
+     id="title">M-Block MUL architecture</title>
+  <desc
+     id="desc">Block diagram showing eight logical MUL inputs, four fixed multiplier cells, product outputs, ID path outputs, digital calibration, overload monitoring, and constant-giver shadowing for two ID outputs.</desc>
+  <defs
+     id="defs3">
+    <marker
+       id="arrow-analog"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#334155"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrow-pass"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#c2410c"
+         id="path2" />
+    </marker>
+    <marker
+       id="arrow-control"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#2563eb"
+         id="path3" />
+    </marker>
+    <style
+       id="style3">
+      .bg { fill: #ffffff; }
+      .frame { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 14; }
+      .title { fill: #0f172a; font-size: 28px; font-weight: 700; }
+      .subtitle { fill: #4b5563; font-size: 15px; }
+      .section { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 14; }
+      .input { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 10; }
+      .cell { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 12; }
+      .cellInner { fill: #ffffff; stroke: #047857; stroke-width: 2; rx: 8; }
+      .output { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 10; }
+      .control { fill: #eef2ff; stroke: #2563eb; stroke-width: 2; rx: 12; }
+      .warn { fill: #fff1f2; stroke: #be123c; stroke-width: 2; rx: 12; }
+      .label { fill: #111827; font-size: 16px; font-weight: 700; }
+      .text { fill: #1f2937; font-size: 13px; }
+      .small { fill: #374151; font-size: 13px; }
+      .tiny { fill: #4b5563; font-size: 12px; }
+      .analog { fill: none; stroke: #334155; stroke-width: 2.5; marker-end: url(#arrow-analog); }
+      .pass { fill: none; stroke: #c2410c; stroke-width: 2.5; marker-end: url(#arrow-pass); }
+      .controlLine { fill: none; stroke: #2563eb; stroke-width: 2.5; stroke-dasharray: 7 5; marker-end: url(#arrow-control); }
+      .sense { fill: none; stroke: #be123c; stroke-width: 2; stroke-dasharray: 5 5; }
+    </style>
+    <marker
+       id="arrow-analog-0"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#334155"
+         id="path1-9" />
+    </marker>
+  </defs>
+  <rect
+     x="0"
+     y="0"
+     width="1180"
+     height="760"
+     class="bg"
+     id="rect3" />
+  <rect
+     x="20"
+     y="20"
+     width="1140"
+     height="720"
+     class="frame"
+     id="rect4" />
+  <text
+     x="42"
+     y="62"
+     class="title"
+     id="text4">M-Block MUL: Fixed Analog Multipliers</text>
+  <text
+     x="44"
+     y="92"
+     class="subtitle"
+     id="text5">One M-Block slot, eight logical inputs, four fixed multiplier cells, four product outputs, four ID path outputs.</text>
+  <rect
+     x="50"
+     y="122"
+     width="1080"
+     height="86"
+     class="section"
+     id="rect5" />
+  <text
+     x="72"
+     y="151"
+     class="label"
+     id="text6">Cluster Context</text>
+  <text
+     x="72"
+     y="178"
+     class="text"
+     id="text7"><tspan
+       sodipodi:role="line"
+       id="tspan80"
+       x="72"
+       y="178">I-Block provides prepared operand inputs; MUL computes products;</tspan><tspan
+       sodipodi:role="line"
+       id="tspan81"
+       x="72"
+       y="194.25">U-Block can reuse product and ID path outputs as sources.</tspan></text>
+  <rect
+     x="490.70886"
+     y="141.03798"
+     width="130"
+     height="38"
+     class="input"
+     id="rect7" />
+  <rect
+     x="674.03937"
+     y="141.2039"
+     width="71.820076"
+     height="38.503624"
+     class="input"
+     id="rect7-2"
+     style="fill:none;stroke:#020207;stroke-width:1.4965;stroke-dasharray:5.986, 1.4965;stroke-dashoffset:0;stroke-opacity:1" />
+  <text
+     x="512.05066"
+     y="166"
+     class="small"
+     id="text8">I-Block inputs</text>
+  <rect
+     x="790"
+     y="142"
+     width="130"
+     height="38"
+     class="cell"
+     id="rect8" />
+  <text
+     x="820"
+     y="166"
+     class="small"
+     id="text9">MUL slot</text>
+  <text
+     x="681.8656"
+     y="164.88"
+     class="small"
+     id="text9-5"
+     style="font-size:13px;fill:#374151">SH-Block</text>
+  <rect
+     x="970"
+     y="142"
+     width="110"
+     height="38"
+     class="output"
+     id="rect9" />
+  <text
+     x="997"
+     y="166"
+     class="small"
+     id="text10">U-Block</text>
+  <path
+     d="m 745.77215,161 h 44.42304"
+     class="analog"
+     id="path10" />
+  <path
+     d="m 623.06329,160.5981 h 50"
+     class="analog"
+     id="path10-8"
+     style="fill:none;stroke:#334155;stroke-width:2.5;marker-end:url(#arrow-analog-0)" />
+  <path
+     d="M920 161 L970 161"
+     class="analog"
+     id="path11" />
+  <rect
+     x="50"
+     y="238"
+     width="180"
+     height="382"
+     class="section"
+     id="rect11" />
+  <text
+     x="75"
+     y="268"
+     class="label"
+     id="text11">Logical Inputs</text>
+  <text
+     x="78"
+     y="292"
+     class="small"
+     id="text12">from I-Block summing nodes</text>
+  <g
+     class="text"
+     text-anchor="middle"
+     id="g20">
+    <rect
+       x="115"
+       y="308"
+       width="68"
+       height="25"
+       class="input"
+       id="rect12" />
+    <text
+       x="149"
+       y="325"
+       id="text13">in 0</text>
+    <rect
+       x="115"
+       y="342"
+       width="68"
+       height="25"
+       class="input"
+       id="rect13" />
+    <text
+       x="149"
+       y="359"
+       id="text14">in 1</text>
+    <rect
+       x="115"
+       y="376"
+       width="68"
+       height="25"
+       class="input"
+       id="rect14" />
+    <text
+       x="149"
+       y="393"
+       id="text15">in 2</text>
+    <rect
+       x="115"
+       y="410"
+       width="68"
+       height="25"
+       class="input"
+       id="rect15" />
+    <text
+       x="149"
+       y="427"
+       id="text16">in 3</text>
+    <rect
+       x="115"
+       y="444"
+       width="68"
+       height="25"
+       class="input"
+       id="rect16" />
+    <text
+       x="149"
+       y="461"
+       id="text17">in 4</text>
+    <rect
+       x="115"
+       y="478"
+       width="68"
+       height="25"
+       class="input"
+       id="rect17" />
+    <text
+       x="149"
+       y="495"
+       id="text18">in 5</text>
+    <rect
+       x="115"
+       y="512"
+       width="68"
+       height="25"
+       class="input"
+       id="rect18" />
+    <text
+       x="149"
+       y="529"
+       id="text19">in 6</text>
+    <rect
+       x="115"
+       y="546"
+       width="68"
+       height="25"
+       class="input"
+       id="rect19" />
+    <text
+       x="149"
+       y="563"
+       id="text20">in 7</text>
+  </g>
+  <text
+     x="77"
+     y="325"
+     class="tiny"
+     id="text21">x0 / ID</text>
+  <text
+     x="77"
+     y="359"
+     class="tiny"
+     id="text22">y0 / ID</text>
+  <text
+     x="77"
+     y="393"
+     class="tiny"
+     id="text23">x1 / ID</text>
+  <text
+     x="77"
+     y="427"
+     class="tiny"
+     id="text24">y1 / ID</text>
+  <text
+     x="77"
+     y="461"
+     class="tiny"
+     id="text25">x2</text>
+  <text
+     x="77"
+     y="495"
+     class="tiny"
+     id="text26">y2</text>
+  <text
+     x="77"
+     y="529"
+     class="tiny"
+     id="text27">x3</text>
+  <text
+     x="77"
+     y="563"
+     class="tiny"
+     id="text28">y3</text>
+  <rect
+     x="286"
+     y="238"
+     width="548"
+     height="382"
+     class="section"
+     id="rect28" />
+  <text
+     x="308"
+     y="268"
+     class="label"
+     id="text29">Four Fixed Multiplier Cells</text>
+  <text
+     x="308"
+     y="292"
+     class="small"
+     id="text30">fixed operation for every element: z = x * y</text>
+  <g
+     id="g38">
+    <rect
+       x="430"
+       y="315"
+       width="250"
+       height="48"
+       class="cell"
+       id="rect30" />
+    <text
+       x="455"
+       y="335"
+       class="label"
+       id="text31">MUL element 0</text>
+    <text
+       x="455"
+       y="353"
+       class="small"
+       id="text32">x=in0, y=in1 -&gt; out0</text>
+    <rect
+       x="430"
+       y="382"
+       width="250"
+       height="48"
+       class="cell"
+       id="rect32" />
+    <text
+       x="455"
+       y="402"
+       class="label"
+       id="text33">MUL element 1</text>
+    <text
+       x="455"
+       y="420"
+       class="small"
+       id="text34">x=in2, y=in3 -&gt; out1</text>
+    <rect
+       x="430"
+       y="449"
+       width="250"
+       height="48"
+       class="cell"
+       id="rect34" />
+    <text
+       x="455"
+       y="469"
+       class="label"
+       id="text35">MUL element 2</text>
+    <text
+       x="455"
+       y="487"
+       class="small"
+       id="text36">x=in4, y=in5 -&gt; out2</text>
+    <rect
+       x="430"
+       y="516"
+       width="250"
+       height="48"
+       class="cell"
+       id="rect36" />
+    <text
+       x="455"
+       y="536"
+       class="label"
+       id="text37">MUL element 3</text>
+    <text
+       x="455"
+       y="554"
+       class="small"
+       id="text38">x=in6, y=in7 -&gt; out3</text>
+  </g>
+  <rect
+     x="330"
+     y="580"
+     width="450"
+     height="34"
+     class="cellInner"
+     id="rect38" />
+  <text
+     x="352"
+     y="595"
+     class="text"
+     id="text39">each cell: analog multiplier core plus local offset trim</text>
+  <text
+     x="352"
+     y="609"
+     class="tiny"
+     id="text40">x/y/z offset trim from shared calibration path; overload monitoring</text>
+  <rect
+     x="890"
+     y="238"
+     width="210"
+     height="382"
+     class="section"
+     id="rect40" />
+  <text
+     x="914"
+     y="268"
+     class="label"
+     id="text41">Logical Outputs</text>
+  <text
+     x="914"
+     y="292"
+     class="small"
+     id="text42">products and ID paths</text>
+  <g
+     class="text"
+     text-anchor="middle"
+     id="g50">
+    <rect
+       x="965"
+       y="308"
+       width="68"
+       height="25"
+       class="output"
+       id="rect42" />
+    <text
+       x="999"
+       y="325"
+       id="text43">out 0</text>
+    <rect
+       x="965"
+       y="342"
+       width="68"
+       height="25"
+       class="output"
+       id="rect43" />
+    <text
+       x="999"
+       y="359"
+       id="text44">out 4</text>
+    <rect
+       x="965"
+       y="376"
+       width="68"
+       height="25"
+       class="output"
+       id="rect44" />
+    <text
+       x="999"
+       y="393"
+       id="text45">out 1</text>
+    <rect
+       x="965"
+       y="410"
+       width="68"
+       height="25"
+       class="output"
+       id="rect45" />
+    <text
+       x="999"
+       y="427"
+       id="text46">out 5</text>
+    <rect
+       x="965"
+       y="444"
+       width="68"
+       height="25"
+       class="output"
+       id="rect46" />
+    <text
+       x="999"
+       y="461"
+       id="text47">out 2</text>
+    <rect
+       x="965"
+       y="478"
+       width="68"
+       height="25"
+       class="output"
+       id="rect47" />
+    <text
+       x="999"
+       y="495"
+       id="text48">out 6</text>
+    <rect
+       x="965"
+       y="512"
+       width="68"
+       height="25"
+       class="output"
+       id="rect48" />
+    <text
+       x="999"
+       y="529"
+       id="text49">out 3</text>
+    <rect
+       x="965"
+       y="546"
+       width="68"
+       height="25"
+       class="output"
+       id="rect49" />
+    <text
+       x="999"
+       y="563"
+       id="text50">out 7</text>
+  </g>
+  <text
+     x="1045"
+     y="325"
+     class="tiny"
+     id="text51">product0</text>
+  <text
+     x="1045"
+     y="359"
+     class="tiny"
+     id="text52">ID in0</text>
+  <text
+     x="1045"
+     y="393"
+     class="tiny"
+     id="text53">product1</text>
+  <text
+     x="1045"
+     y="427"
+     class="tiny"
+     id="text54">ID in1</text>
+  <text
+     x="1045"
+     y="461"
+     class="tiny"
+     id="text55">product2</text>
+  <text
+     x="1045"
+     y="495"
+     class="tiny"
+     id="text56">ID in2*</text>
+  <text
+     x="1045"
+     y="529"
+     class="tiny"
+     id="text57">product3</text>
+  <text
+     x="1045"
+     y="563"
+     class="tiny"
+     id="text58">ID in3*</text>
+  <path
+     d="M183 321 L430 330"
+     class="analog"
+     id="path58" />
+  <path
+     d="M183 355 L430 351"
+     class="analog"
+     id="path59" />
+  <path
+     d="M183 389 L430 397"
+     class="analog"
+     id="path60" />
+  <path
+     d="M183 423 L430 418"
+     class="analog"
+     id="path61" />
+  <path
+     d="M183 457 L430 464"
+     class="analog"
+     id="path62" />
+  <path
+     d="M183 491 L430 485"
+     class="analog"
+     id="path63" />
+  <path
+     d="M183 525 L430 531"
+     class="analog"
+     id="path64" />
+  <path
+     d="M183 559 L430 552"
+     class="analog"
+     id="path65" />
+  <path
+     d="M680 339 L965 321"
+     class="analog"
+     id="path66" />
+  <path
+     d="M680 406 L965 389"
+     class="analog"
+     id="path67" />
+  <path
+     d="M680 473 L965 457"
+     class="analog"
+     id="path68" />
+  <path
+     d="M680 540 L965 525"
+     class="analog"
+     id="path69" />
+  <path
+     d="m 183.98151,320.01904 88.57569,0.96203 v 51.03786 l 606.78502,0.96203 0.96202,-18.93668 84.74081,0.96203"
+     class="pass"
+     id="path70"
+     sodipodi:nodetypes="cccccc" />
+  <path
+     d="m 180.1074,354.04427 77.286,0.96203 v 83.9874 h 626.85964 v -15.9976 h 80.73198"
+     class="pass"
+     id="path71"
+     sodipodi:nodetypes="cccccc" />
+  <path
+     d="m 181.04638,390.95223 67.32998,1.92405 v 114.09554 h 637.40806 v -15.99236 h 79.14835"
+     class="pass"
+     id="path72"
+     sodipodi:nodetypes="cccccc" />
+  <path
+     d="m 181.02823,425.92304 55.20647,0.96202 v 146.04002 h 632.09933 v -12.90962 h 97.53156"
+     class="pass"
+     id="path73"
+     sodipodi:nodetypes="cccccc" />
+  <rect
+     x="70"
+     y="650"
+     width="300"
+     height="52"
+     class="control"
+     id="rect73" />
+  <text
+     x="92"
+     y="671"
+     class="text"
+     id="text73">Digital control / calibration</text>
+  <text
+     x="92"
+     y="689"
+     class="tiny"
+     id="text74">identification, offset trims, overload readout/reset</text>
+  <rect
+     x="420"
+     y="650"
+     width="310"
+     height="52"
+     class="warn"
+     id="rect74" />
+  <text
+     x="442"
+     y="671"
+     class="text"
+     id="text75">Overload and constant Monitoring</text>
+  <text
+     x="442"
+     y="689"
+     class="tiny"
+     id="text76">keep operands/results in range</text>
+  <path
+     d="M575 650 C575 636 575 626 575 614"
+     class="sense"
+     id="path76" />
+  <path
+     d="m 340.37974,647.3924 10.58228,-23.49367"
+     class="sense"
+     id="path76-1"
+     style="fill:none;stroke:#2c3aeb;stroke-width:1.71204;stroke-dasharray:4.28011, 4.28011;marker-end:url(#arrow-control);stroke-opacity:1"
+     sodipodi:nodetypes="cc" />
+  <rect
+     x="780"
+     y="650"
+     width="299.03796"
+     height="75.544304"
+     class="section"
+     id="rect76" />
+  <text
+     x="802"
+     y="668"
+     class="text"
+     id="text77">Legend</text>
+  <g
+     id="g80">
+    <line
+       x1="802"
+       y1="680"
+       x2="832"
+       y2="680"
+       class="analog"
+       id="line77" />
+    <text
+       x="842"
+       y="684"
+       class="tiny"
+       id="text78">operand / computed product path</text>
+    <line
+       x1="802"
+       y1="696"
+       x2="832"
+       y2="696"
+       class="pass"
+       id="line78" />
+    <text
+       x="842"
+       y="700"
+       class="tiny"
+       id="text79">ID path: direct input-to-output path</text>
+    <line
+       x1="802"
+       y1="710"
+       x2="832"
+       y2="710"
+       class="controlLine"
+       id="line79" />
+    <text
+       x="842"
+       y="714"
+       class="tiny"
+       id="text80">digital control / calibration</text>
+  </g>
+</svg>

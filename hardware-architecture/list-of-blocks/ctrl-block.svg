@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1120"
+   height="760"
+   viewBox="0 0 1120 760"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg49"
+   sodipodi:docname="ctrl-block.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview49"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.4812026"
+     inkscape:cx="497.2311"
+     inkscape:cy="320.68537"
+     inkscape:window-width="4300"
+     inkscape:window-height="1712"
+     inkscape:window-x="4291"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg49" />
+  <title
+     id="title">Ctrl-Block Architecture</title>
+  <desc
+     id="desc">Digital control and ADC measurement architecture of the Ctrl-Block.</desc>
+  <defs
+     id="defs3">
+    <marker
+       id="arrow"
+       markerWidth="10"
+       markerHeight="10"
+       refX="9"
+       refY="3"
+       orient="auto"
+       markerUnits="strokeWidth">
+      <path
+         d="M0,0 L0,6 L9,3 z"
+         fill="#32465a"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrowBlue"
+       markerWidth="10"
+       markerHeight="10"
+       refX="9"
+       refY="3"
+       orient="auto"
+       markerUnits="strokeWidth">
+      <path
+         d="M0,0 L0,6 L9,3 z"
+         fill="#1d6fa5"
+         id="path2" />
+    </marker>
+    <marker
+       id="arrowGreen"
+       markerWidth="10"
+       markerHeight="10"
+       refX="9"
+       refY="3"
+       orient="auto"
+       markerUnits="strokeWidth">
+      <path
+         d="M0,0 L0,6 L9,3 z"
+         fill="#3d7d4f"
+         id="path3" />
+    </marker>
+    <style
+       id="style3">
+      .bg { fill: #f7f9fc; }
+      .title { font: 700 28px Arial, sans-serif; fill: #1f2d3a; }
+      .subtitle { font: 15px Arial, sans-serif; fill: #4d5d6c; }
+      .box { fill: #ffffff; stroke: #4f6f8f; stroke-width: 2; rx: 14; }
+      .box2 { fill: #eef7ff; stroke: #1d6fa5; stroke-width: 2; rx: 14; }
+      .box3 { fill: #f0fbf1; stroke: #3d7d4f; stroke-width: 2; rx: 14; }
+      .box4 { fill: #fff7ec; stroke: #c17322; stroke-width: 2; rx: 14; }
+      .label { font: 700 16px Arial, sans-serif; fill: #203040; }
+      .text { font: 13px Arial, sans-serif; fill: #314151; }
+      .small { font: 12px Arial, sans-serif; fill: #415264; }
+      .lane { stroke: #32465a; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .blue { stroke: #1d6fa5; stroke-width: 2.4; fill: none; marker-end: url(#arrowBlue); }
+      .green { stroke: #3d7d4f; stroke-width: 2.4; fill: none; marker-end: url(#arrowGreen); }
+      .dash { stroke-dasharray: 7 5; }
+      .bus { stroke: #6d7f90; stroke-width: 5; fill: none; opacity: 0.6; }
+    </style>
+  </defs>
+  <rect
+     class="bg"
+     x="0"
+     y="0"
+     width="1120"
+     height="760"
+     id="rect3" />
+  <text
+     class="title"
+     x="40"
+     y="45"
+     id="text3">Ctrl-Block</text>
+  <text
+     class="subtitle"
+     x="40"
+     y="70"
+     id="text4">Carrier digital control, synchronization, and ADC measurement interface</text>
+  <rect
+     class="box2"
+     x="40"
+     y="120"
+     width="250"
+     height="190"
+     id="rect4" />
+  <text
+     class="label"
+     x="65"
+     y="152"
+     id="text5">Controller Interface</text>
+  <text
+     class="text"
+     x="65"
+     y="182"
+     id="text6">SPI_CLK, MOSI, MISO</text>
+  <text
+     class="text"
+     x="65"
+     y="205"
+     id="text7">ADDR_0..5</text>
+  <text
+     class="text"
+     x="65"
+     y="228"
+     id="text8">MADDR_0..4, Mselect</text>
+  <text
+     class="text"
+     x="65"
+     y="251"
+     id="text9">MODEIC, MODEOP</text>
+  <text
+     class="text"
+     x="65"
+     y="274"
+     id="text10">SYNC_CLK, SYNC_ID</text>
+  <rect
+     class="box"
+     x="370"
+     y="115"
+     width="330"
+     height="210"
+     id="rect10" />
+  <text
+     class="label"
+     x="400"
+     y="150"
+     id="text11">Digital Control Fan-Out</text>
+  <text
+     class="text"
+     x="400"
+     y="182"
+     id="text12">Addressed module selection</text>
+  <text
+     class="text"
+     x="400"
+     y="205"
+     id="text13">Configuration bus distribution</text>
+  <text
+     class="text"
+     x="400"
+     y="228"
+     id="text14">Mode and run-state control</text>
+  <text
+     class="text"
+     x="400"
+     y="251"
+     id="text15">Synchronized execution support</text>
+  <text
+     class="text"
+     x="400"
+     y="274"
+     id="text16">Fault and halt propagation</text>
+  <rect
+     class="box3"
+     x="800"
+     y="120"
+     width="260"
+     height="190"
+     id="rect16" />
+  <text
+     class="label"
+     x="825"
+     y="152"
+     id="text17"
+     style="font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;font-size:16px;line-height:normal;font-family:Arial, sans-serif">mREDAC Blocks</text>
+  <text
+     class="text"
+     x="825"
+     y="182"
+     id="text18">routing blocks</text>
+  <text
+     class="text"
+     x="825"
+     y="205"
+     id="text19">coefficient and summation blocks</text>
+  <text
+     class="text"
+     x="825"
+     y="228"
+     id="text20">math blocks</text>
+  <text
+     class="text"
+     x="825"
+     y="251"
+     id="text21">status/protection signals</text>
+  <path
+     class="blue"
+     d="M290 200 C325 200, 335 200, 370 200"
+     id="path21" />
+  <path
+     class="green"
+     d="M700 200 C740 200, 760 200, 800 200"
+     id="path22" />
+  <path
+     class="lane dash"
+     d="M800 260 C760 260, 740 260, 700 260"
+     id="path23" />
+  <text
+     class="small"
+     x="300.82233"
+     y="188"
+     id="text23"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif">control bus</text>
+  <text
+     class="small"
+     x="720"
+     y="188"
+     id="text24">configuration</text>
+  <text
+     class="small"
+     x="732.15228"
+     y="279.97461"
+     id="text25"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif">status</text>
+  <rect
+     class="box4"
+     x="75"
+     y="405"
+     width="240"
+     height="190"
+     id="rect25" />
+  <text
+     class="label"
+     x="102"
+     y="438"
+     id="text26"
+     style="font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;font-size:16px;line-height:normal;font-family:Arial, sans-serif">Analog Signals</text>
+  <text
+     class="text"
+     x="102"
+     y="470"
+     id="text27">ADC0_IN..ADC7_IN</text>
+  <text
+     class="text"
+     x="102"
+     y="493"
+     id="text28">selected carrier monitor points</text>
+  <text
+     class="text"
+     x="102"
+     y="516"
+     id="text29">single-ended/reference paths</text>
+  <text
+     class="text"
+     x="102"
+     y="539"
+     id="text30">protected input range</text>
+  <rect
+     class="box"
+     x="388.57379"
+     y="406.12711"
+     width="300.15195"
+     height="187.74585"
+     id="rect30" />
+  <text
+     class="label"
+     x="420"
+     y="425"
+     id="text31">Input Selection and Conditioning</text>
+  <text
+     class="text"
+     x="420"
+     y="457"
+     id="text32">channel steering</text>
+  <text
+     class="text"
+     x="420"
+     y="480"
+     id="text33">reference and offset handling</text>
+  <text
+     class="text"
+     x="420"
+     y="503"
+     id="text34">common-level/clamp support</text>
+  <text
+     class="text"
+     x="420"
+     y="526"
+     id="text35">ADC input scaling</text>
+  <text
+     class="small"
+     x="420"
+     y="565"
+     id="text36">Ref+, BRef+/BRef-, Vsingle, Vcl, AVdd</text>
+  <rect
+     class="box2"
+     x="800"
+     y="375"
+     width="260"
+     height="260"
+     id="rect36" />
+  <text
+     class="label"
+     x="881.9848"
+     y="410.67514"
+     id="text37"
+     style="font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;font-size:16px;line-height:normal;font-family:Arial, sans-serif">ADC Groups</text>
+  <text
+     class="text"
+     x="830"
+     y="445"
+     id="text38">channels 0..1: CLK01 / CS01</text>
+  <text
+     class="text"
+     x="830"
+     y="470"
+     id="text39">channels 2..3: CLK23 / CS23</text>
+  <text
+     class="text"
+     x="830"
+     y="495"
+     id="text40">channels 4..5: CLK45 / CS45</text>
+  <text
+     class="text"
+     x="830"
+     y="520"
+     id="text41">channels 6..7: CLK67 / CS67</text>
+  <text
+     class="text"
+     x="830"
+     y="555"
+     id="text42">serial sample return</text>
+  <text
+     class="text"
+     x="830"
+     y="580"
+     id="text43">controller-timed acquisition</text>
+  <path
+     class="green"
+     d="M315 500 C350 500, 355 500, 390 500"
+     id="path43" />
+  <path
+     class="green"
+     d="M690 500 C735 500, 755 500, 800 500"
+     id="path44" />
+  <path
+     class="blue dash"
+     d="M535 325 L535 390"
+     id="path45" />
+  <path
+     class="blue dash"
+     d="M930 375 C930 335, 930 325, 930 310"
+     id="path46" />
+  <text
+     class="small"
+     x="316.49747"
+     y="485.97461"
+     id="text46"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif">analog inputs</text>
+  <text
+     class="small"
+     x="703.64972"
+     y="469.09644"
+     id="text47"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:normal;font-family:Arial, sans-serif"><tspan
+       sodipodi:role="line"
+       id="tspan49"
+       x="703.64972"
+       y="469.09644">conditioned</tspan><tspan
+       sodipodi:role="line"
+       id="tspan50"
+       x="703.64972"
+       y="484.09644">ADC inputs</tspan></text>
+  <text
+     class="small"
+     x="550"
+     y="360"
+     id="text48">timing/control</text>
+  <path
+     class="bus"
+     d="M150 675 H970"
+     id="path48" />
+</svg>

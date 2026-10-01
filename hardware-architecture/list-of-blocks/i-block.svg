@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1100"
+   height="700"
+   viewBox="0 0 1100 700"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg44"
+   sodipodi:docname="i-block.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview44"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.1371429"
+     inkscape:cx="549.62312"
+     inkscape:cy="350"
+     inkscape:window-width="1920"
+     inkscape:window-height="992"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg44" />
+  <title
+     id="title">I-Block architecture</title>
+  <desc
+      id="desc">Diagram showing C-Block and routed lanes entering the I-Block, voltage-to-current conversion with optional upscaling, a 32 by 16 summation matrix, and summed outputs entering the SH-Block offset-compensation stage.</desc>
+  <defs
+     id="defs1">
+    <marker
+       id="arrow"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#334155"
+         id="path1" />
+    </marker>
+    <style
+       id="style1">
+      .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 12; }
+      .main { fill: #fff7ed; stroke: #c2410c; stroke-width: 3; rx: 14; }
+      .matrix { fill: #ffedd5; stroke: #ea580c; stroke-width: 2; rx: 10; }
+      .scale { fill: #eef2ff; stroke: #4f46e5; stroke-width: 2; rx: 10; }
+      .shblock { fill: #f0fdf4; stroke: #15803d; stroke-width: 2; rx: 12; }
+      .direct { stroke: #2563eb; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .route { stroke: #9333ea; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .current { stroke: #dc2626; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .control { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-dasharray: 8 7; }
+      .thin { stroke: #94a3b8; stroke-width: 2; fill: none; }
+      .text { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 20px; }
+      .small { font-family: Arial, Helvetica, sans-serif; fill: #334155; font-size: 15px; }
+      .tiny { font-family: Arial, Helvetica, sans-serif; fill: #475569; font-size: 13px; }
+      .label { font-family: Arial, Helvetica, sans-serif; fill: #1e293b; font-size: 16px; font-weight: 700; }
+      .title { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 28px; font-weight: 700; }
+    </style>
+  </defs>
+  <rect
+     x="-0.87939698"
+     y="-26.38191"
+     width="1100"
+     height="700"
+     fill="#ffffff"
+     id="rect1" />
+  <text
+     x="40"
+     y="45"
+     class="title"
+     id="text1">I-Block: Current Summation Matrix</text>
+  <text
+     x="40"
+     y="73"
+     class="small"
+      id="text2">32 weighted voltage lanes are selected and summed into 16 outputs feeding the SH-Block.</text>
+  <rect
+     x="44.935806"
+     y="124.93581"
+     width="183.74648"
+     height="150.12839"
+     class="box"
+     id="rect2" />
+  <text
+     x="75"
+     y="160"
+     class="text"
+     id="text3">Local C-Block</text>
+  <text
+     x="75"
+     y="188"
+     class="small"
+     id="text4">weighted outputs</text>
+  <text
+     x="75"
+     y="222"
+     class="label"
+     id="text5">lanes 0..7</text>
+  <text
+     x="75"
+     y="248"
+     class="tiny"
+     id="text6">direct local paths</text>
+  <rect
+     x="44.937992"
+     y="339.93799"
+     width="184.62151"
+     height="160.12401"
+     class="box"
+     id="rect6" />
+  <text
+     x="75"
+     y="375"
+     class="text"
+     id="text7"
+     style="white-space:pre;inline-size:78.4444"
+     xml:space="preserve"><tspan
+       x="75"
+       y="375"
+       id="tspan1">T-Block</tspan></text>
+  <text
+     x="75"
+     y="403"
+     class="small"
+     id="text8">selected sources</text>
+  <text
+     x="75"
+     y="437"
+     class="label"
+     id="text9">lanes 8..31</text>
+  <text
+     x="75"
+     y="463"
+     class="tiny"
+     id="text10">same lane index</text>
+  <text
+     x="75"
+     y="486"
+     class="tiny"
+     id="text11">from cluster/backplane</text>
+  <rect
+     x="330"
+     y="115"
+     width="420"
+     height="435"
+     class="main"
+     id="rect11" />
+  <text
+     x="465"
+     y="153"
+     class="title"
+     id="text12">I-Block</text>
+  <rect
+     x="365"
+     y="185"
+     width="150"
+     height="285"
+     class="scale"
+     id="rect12" />
+  <text
+     x="388"
+     y="216"
+     class="text"
+     id="text13">V/I Stage</text>
+  <text
+     x="389"
+     y="246"
+     class="small"
+     id="text14">per-lane</text>
+  <text
+     x="389"
+     y="269"
+     class="small"
+     id="text15">input resistor</text>
+  <line
+     x1="385"
+     y1="305"
+     x2="495"
+     y2="305"
+     class="thin"
+     id="line15" />
+  <text
+     x="389"
+     y="336"
+     class="small"
+     id="text16">upscaling flags</text>
+  <text
+     x="389"
+     y="360"
+     class="small"
+     id="text17">lane 0..31</text>
+  <text
+     x="389"
+     y="405"
+     class="tiny"
+     id="text18">voltage input</text>
+  <text
+     x="389"
+     y="428"
+     class="tiny"
+     id="text19">to current contribution</text>
+  <rect
+     x="560"
+     y="185"
+     width="155"
+     height="285"
+     class="matrix"
+     id="rect19" />
+  <text
+     x="587"
+     y="216"
+     class="text"
+     id="text20">32 x 16</text>
+  <text
+     x="583"
+     y="244"
+     class="text"
+     id="text21">Matrix</text>
+  <text
+     x="588"
+     y="278"
+     class="small"
+     id="text22">each output</text>
+  <text
+     x="588"
+     y="301"
+     class="small"
+     id="text23">sums a set</text>
+  <text
+     x="588"
+     y="324"
+     class="small"
+     id="text24">of lanes</text>
+  <line
+     x1="585"
+     y1="360"
+     x2="690"
+     y2="360"
+     class="thin"
+     id="line24" />
+  <text
+     x="588"
+     y="394"
+     class="tiny"
+     id="text25">outputs[0]</text>
+  <text
+     x="588"
+     y="417"
+     class="tiny"
+     id="text26">...</text>
+  <text
+     x="588"
+     y="440"
+     class="tiny"
+     id="text27">outputs[15]</text>
+   <rect
+      x="830"
+      y="155"
+      width="220"
+      height="320"
+      class="shblock"
+      id="rect27" />
+   <text
+      x="880"
+      y="192"
+      class="text"
+      id="text28">SH-Block</text>
+   <text
+      x="866"
+      y="222"
+      class="small"
+      id="text29">offset compensation</text>
+   <text
+      x="866"
+      y="245"
+      class="small"
+      id="text30">sample and hold</text>
+   <line
+      x1="865"
+      y1="285"
+      x2="1015"
+      y2="285"
+      class="thin"
+      id="line30" />
+   <text
+      x="875"
+      y="322"
+      class="label"
+      id="text31">inputs 0..15</text>
+   <text
+      x="875"
+      y="350"
+      class="tiny"
+      id="text32">summed outputs</text>
+   <text
+      x="875"
+      y="373"
+      class="tiny"
+      id="text33">offset-corrected</text>
+   
+  <path
+     d="m 230.37689,200 c 39.45491,0 59.18237,0 98.63728,0"
+     class="direct"
+     id="path34" />
+  <text
+     x="241.80905"
+     y="177.68845"
+     class="small"
+     id="text35"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15px;font-family:Arial, Helvetica, sans-serif;-inkscape-font-specification:'Arial, Helvetica, sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#334155"><tspan
+       sodipodi:role="line"
+       id="tspan44"
+       x="241.80905"
+       y="177.68845">direct lanes</tspan></text>
+  <path
+     d="m 232.13568,420 c 38.77148,0 58.15722,0 96.9287,0"
+     class="route"
+     id="path35" />
+  <text
+     x="233.89447"
+     y="383.6181"
+     class="small"
+     id="text36"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15px;font-family:Sans;-inkscape-font-specification:'Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#334155"><tspan
+       sodipodi:role="line"
+       id="tspan45"
+       x="233.89447"
+       y="383.6181"> T-block</tspan><tspan
+       sodipodi:role="line"
+       id="tspan46"
+       x="233.89447"
+       y="402.3681">routed lanes</tspan></text>
+  <path
+     d="M515 318 C535 318 540 318 560 318"
+     class="current"
+     id="path36" />
+  <path
+      d="M715 260 C765 260 780 260 830 260"
+     class="current"
+     id="path37" />
+  <path
+      d="M715 330 C765 330 780 330 830 330"
+     class="current"
+     id="path38" />
+  <path
+      d="M715 400 C765 400 780 400 830 400"
+     class="current"
+     id="path39" />
+  <text
+     x="758.55273"
+     y="212.34171"
+     class="small"
+     id="text39"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15px;font-family:Arial, Helvetica, sans-serif;-inkscape-font-specification:'Arial, Helvetica, sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#334155"><tspan
+       sodipodi:role="line"
+       id="tspan47"
+       x="758.55273"
+       y="212.34171">summed</tspan><tspan
+       sodipodi:role="line"
+       id="tspan48"
+       x="758.55273"
+       y="231.09171">outputs</tspan></text>
+  <rect
+     x="330.06262"
+     y="590.06262"
+     width="475.27676"
+     height="57.874752"
+     class="box"
+     id="rect39" />
+  <text
+     x="360"
+     y="625"
+     class="small"
+     id="text40">Digital configuration: outputs[16 sets] and upscaling[32 booleans]</text>
+  <path
+     d="M540 590 C540 555 540 540 540 505"
+     class="control"
+     id="path40" />
+  <text
+     x="45"
+     y="665"
+     class="tiny"
+     id="text44">Signal convention: blue = direct local lanes, purple = routed/shareable lanes, red = current-domain summation, dashed = digital configuration.</text>
+</svg>

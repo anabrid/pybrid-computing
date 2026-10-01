@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1120"
+   height="720"
+   viewBox="0 0 1120 720"
+   version="1.1"
+   id="svg49"
+   sodipodi:docname="sh-block.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview49"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.5517065"
+     inkscape:cx="531.67271"
+     inkscape:cy="415.67139"
+     inkscape:window-width="1920"
+     inkscape:window-height="992"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg49" />
+  <defs
+     id="defs4">
+    <style
+       id="style1">
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 18; }
+      .slot { fill: #f8fafc; stroke: #64748b; stroke-width: 2; rx: 10; }
+      .slotActive { fill: #ecfeff; stroke: #0891b2; stroke-width: 3; rx: 12; }
+      .iblock { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 12; }
+      .core { fill: #f0fdfa; stroke: #0f766e; stroke-width: 3; rx: 16; }
+      .cell { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; rx: 12; }
+      .offsetCell { fill: #fdf2f8; stroke: #db2777; stroke-width: 2; rx: 12; }
+      .logic { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; rx: 12; }
+      .output { fill: #eef2ff; stroke: #4f46e5; stroke-width: 2; rx: 12; }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 28px; fill: #0f172a; font-weight: 700; }
+      .text { font-family: Arial, Helvetica, sans-serif; font-size: 21px; fill: #0f172a; font-weight: 700; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 17px; fill: #0f172a; font-weight: 700; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #334155; }
+      .tiny { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #475569; }
+      .analog { stroke: #2563eb; stroke-width: 4; fill: none; marker-end: url(#arrowBlue); }
+      .held { stroke: #16a34a; stroke-width: 4; fill: none; marker-end: url(#arrowGreen); }
+      .offset { stroke: #db2777; stroke-width: 3; fill: none; marker-end: url(#arrowPink); }
+      .control { stroke: #ea580c; stroke-width: 3; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrowOrange); }
+      .thin { stroke: #94a3b8; stroke-width: 1.5; }
+    </style>
+    <marker
+       id="arrowBlue"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#2563eb"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrowGreen"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#16a34a"
+         id="path2" />
+    </marker>
+    <marker
+       id="arrowPink"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#db2777"
+         id="path3" />
+    </marker>
+    <marker
+       id="arrowOrange"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#ea580c"
+         id="path4" />
+    </marker>
+    <marker
+       id="arrowBlue-0"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="8"
+       markerHeight="8"
+       orient="auto-start-reverse">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#2563eb"
+         id="path1-9" />
+    </marker>
+  </defs>
+  <rect
+     x="20"
+     y="20"
+     width="1080"
+     height="680"
+     class="frame"
+     id="rect4" />
+  <text
+     x="40"
+     y="62"
+     class="title"
+     id="text4">SH-Block: Offset-Compensated Sample And Hold</text>
+  <text
+     x="42"
+     y="92"
+     class="small"
+     id="text5">Physical position: immediately adjacent to the I-Block in the mREDAC cluster module row.</text>
+  <rect
+     x="70"
+     y="125"
+     width="980"
+     height="80"
+     class="slot"
+     id="rect5" />
+  <text
+     x="92"
+     y="154"
+     class="label"
+     id="text6">Carrier Placement Context</text>
+  <rect
+     x="330"
+     y="145"
+     width="145"
+     height="42"
+     class="iblock"
+     id="rect6" />
+  <text
+     x="374"
+     y="172"
+     class="small"
+     id="text7">I-Block</text>
+  <rect
+     x="500"
+     y="139"
+     width="165"
+     height="54"
+     class="slotActive"
+     id="rect7" />
+  <text
+     x="543"
+     y="163"
+     class="label"
+     id="text8">SH-Block</text>
+  <text
+     x="526"
+     y="183"
+     class="tiny"
+     id="text9">adjacent position</text>
+  <rect
+     x="690"
+     y="145"
+     width="145"
+     height="42"
+     class="slot"
+     id="rect9" />
+  <text
+     x="721.06665"
+     y="171.35555"
+     class="small"
+     id="text10">M-Blocks</text>
+  <path
+     d="M475 166 C485 166 490 166 500 166"
+     class="analog"
+     id="path10" />
+  <path
+     d="m 666.24452,164.53349 c 10,0 15,0 25,0"
+     class="analog"
+     id="path10-8"
+     style="fill:none;stroke:#2563eb;stroke-width:4;marker-end:url(#arrowBlue-0)" />
+  <text
+     x="370"
+     y="120"
+     class="tiny"
+     id="text11">summed channels</text>
+  <text
+     x="712"
+     y="120"
+     class="tiny"
+     id="text12">held / passed analog values</text>
+  <rect
+     x="70"
+     y="250"
+     width="205"
+     height="250"
+     class="iblock"
+     id="rect12" />
+  <text
+     x="116"
+     y="286"
+     class="text"
+     id="text13">From I-Block</text>
+  <text
+     x="103"
+     y="320"
+     class="small"
+     id="text14">16 summed output /</text>
+  <text
+     x="103"
+     y="343"
+     class="small"
+     id="text15">input-path channels</text>
+  <line
+     x1="103"
+     y1="374"
+     x2="240"
+     y2="374"
+     class="thin"
+     id="line15" />
+  <text
+     x="103"
+     y="410"
+     class="tiny"
+     id="text16">current summation is</text>
+  <text
+     x="103"
+     y="431"
+     class="tiny"
+     id="text17">already complete</text>
+  <text
+     x="103"
+     y="458"
+     class="tiny"
+     id="text18">SH does not route lanes</text>
+  <rect
+     x="365"
+     y="230"
+     width="390"
+     height="305"
+     class="core"
+     id="rect18" />
+  <text
+     x="465"
+     y="268"
+     class="text"
+     id="text19">16 SH Channels</text>
+  <rect
+     x="400"
+     y="305"
+     width="135"
+     height="82"
+     class="cell"
+     id="rect19" />
+  <text
+     x="426"
+     y="337"
+     class="label"
+     id="text20">Track Path</text>
+  <text
+     x="423"
+     y="362"
+     class="tiny"
+     id="text21">follows input</text>
+  <rect
+     x="585"
+     y="305"
+     width="135"
+     height="82"
+     class="offsetCell"
+     id="rect21" />
+  <text
+     x="609"
+     y="337"
+     class="label"
+     id="text22">Offset Path</text>
+  <text
+     x="604"
+     y="362"
+     class="tiny"
+     id="text23">samples offset</text>
+  <rect
+     x="400"
+     y="430"
+     width="135"
+     height="82"
+     class="cell"
+     id="rect23" />
+  <text
+     x="430"
+     y="462"
+     class="label"
+     id="text24">Hold</text>
+  <text
+     x="421"
+     y="487"
+     class="tiny"
+     id="text25">stores signal</text>
+  <rect
+     x="585"
+     y="430"
+     width="135"
+     height="82"
+     class="cell"
+     id="rect25" />
+  <text
+     x="626"
+     y="462"
+     class="label"
+     id="text26">Buffer</text>
+  <text
+     x="604"
+     y="487"
+     class="tiny"
+     id="text27">drives output</text>
+  <path
+     d="M535 346 C555 346 565 346 585 346"
+     class="offset"
+     id="path27" />
+  <text
+     x="534.68878"
+     y="324.19992"
+     class="tiny"
+     id="text28">measure</text>
+  <path
+     d="M468 387 C468 405 468 412 468 430"
+     class="held"
+     id="path28" />
+  <text
+     x="483"
+     y="412"
+     class="tiny"
+     id="text29">sample</text>
+  <path
+     d="M535 471 C555 471 565 471 585 471"
+     class="held"
+     id="path29" />
+  <rect
+     x="845"
+     y="250"
+     width="205"
+     height="250"
+     class="output"
+     id="rect30" />
+  <text
+     x="888"
+     y="286"
+     class="text"
+     id="text31">Outputs</text>
+  <text
+     x="878"
+     y="320"
+     class="small"
+     id="text32">held, tracking,</text>
+  <text
+     x="878"
+     y="343"
+     class="small"
+     id="text33">injected, or passed</text>
+  <line
+     x1="878"
+     y1="374"
+     x2="1015"
+     y2="374"
+     class="thin"
+     id="line33" />
+  <text
+     x="878"
+     y="410"
+     class="tiny"
+     id="text34">offset-corrected values</text>
+  <text
+     x="878"
+     y="431"
+     class="tiny"
+     id="text35">stable during hold</text>
+  <text
+     x="878"
+     y="458"
+     class="tiny"
+     id="text36">available downstream</text>
+  <path
+     d="M275 375 C315 375 325 375 365 375"
+     class="analog"
+     id="path36" />
+  <text
+     x="285.08859"
+     y="314.98734"
+     class="small"
+     id="text37"><tspan
+       sodipodi:role="line"
+       id="tspan49"
+       x="285.08859"
+       y="314.98734">analog</tspan><tspan
+       sodipodi:role="line"
+       id="tspan50"
+       x="285.08859"
+       y="333.73734">channels</tspan><tspan
+       sodipodi:role="line"
+       x="285.08859"
+       y="352.48734"
+       id="tspan51">0..15</tspan></text>
+  <path
+     d="M755 382 C795 382 805 382 845 382"
+     class="held"
+     id="path37" />
+  <text
+     x="763.26581"
+     y="333.83545"
+     class="small"
+     id="text38"><tspan
+       sodipodi:role="line"
+       id="tspan52"
+       x="763.26581"
+       y="333.83545">corrected /</tspan><tspan
+       sodipodi:role="line"
+       id="tspan53"
+       x="763.26581"
+       y="352.58545">held values</tspan></text>
+  <rect
+     x="95"
+     y="575"
+     width="250"
+     height="78"
+     class="logic"
+     id="rect38" />
+  <text
+     x="133"
+     y="606"
+     class="label"
+     id="text39">Block State</text>
+  <text
+     x="119"
+     y="632"
+     class="tiny"
+     id="text40">TRACK, TRACK_AT_IC, INJECT,</text>
+  <text
+     x="119"
+     y="650"
+     class="tiny"
+     id="text41">GAIN banks, PASSTHROUGH</text>
+  <rect
+     x="435"
+     y="575"
+     width="250"
+     height="78"
+     class="logic"
+     id="rect41" />
+  <text
+     x="481"
+     y="606"
+     class="label"
+     id="text42">Track Groups</text>
+  <text
+     x="470"
+     y="632"
+     class="tiny"
+     id="text43">4 grouped track controls</text>
+  <text
+     x="470"
+     y="650"
+     class="tiny"
+     id="text44">select track or hold phase</text>
+  <rect
+     x="803.90863"
+     y="573.83264"
+     width="137.49925"
+     height="78.511909"
+     class="logic"
+     id="rect44" />
+  <text
+     x="820"
+     y="606"
+     class="label"
+     id="text45">Gain Banks</text>
+  <text
+     x="822.02533"
+     y="628.35443"
+     class="tiny"
+     id="text46">0..7 / 8..15 select</text>
+  <path
+     d="M 220,575 C 265.59531,525.22863 328.98463,492.66894 432,387"
+     class="control"
+     id="path47"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="M560 575 C560 552 560 545 560 535"
+     class="control"
+     id="path48" />
+  <path
+     d="M 873.59013,574.00555 C 847.04888,564.53265 818.14487,546.94707 760.33686,520.5687"
+     class="control"
+     id="path49"
+     sodipodi:nodetypes="cc" />
+  <text
+     x="798.62244"
+     y="536.11127"
+     class="tiny"
+     id="text48a">bank select</text>
+  <text
+     x="58"
+     y="684"
+     class="tiny"
+     id="text49">Signal convention: blue = incoming analog value, green = held/corrected analog value, pink = offset-compensation path, dashed orange = digital state/control.</text>
+</svg>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="title desc" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">Frontplane architecture</title>
+  <desc id="desc">Block diagram showing four AUX frontplane connectors associated with Cluster 0 lanes 28 through 31, selectable analog input or output mode, and fixed digital functions.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1f2937" />
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 28px Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 15px Arial, sans-serif; fill: #4b5563; }
+      .label { font: 700 16px Arial, sans-serif; fill: #111827; }
+      .small { font: 13px Arial, sans-serif; fill: #374151; }
+      .tiny { font: 12px Arial, sans-serif; fill: #4b5563; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 14; }
+      .soft { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 12; }
+      .analog { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 12; }
+      .digital { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 12; }
+      .lane { stroke: #1f2937; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .control { stroke: #2563eb; stroke-width: 2.5; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrowBlue); }
+      .divider { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 5 5; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1120" height="640" />
+  <text class="title" x="40" y="48">Frontplane: mREDAC Front I/O</text>
+  <text class="subtitle" x="40" y="75">Four AUX connectors provide selectable analog front I/O and fixed digital functions on Cluster 0 lanes 28..31.</text>
+
+  <rect class="box" x="45" y="130" width="250" height="380" />
+  <text class="label" x="94" y="165">AUX connectors</text>
+  <text class="tiny" x="76" y="190">MCX front-side signal access</text>
+
+  <rect class="soft" x="75" y="220" width="190" height="45" />
+  <text class="label" x="128" y="248">AUX 0</text>
+  <rect class="soft" x="75" y="290" width="190" height="45" />
+  <text class="label" x="128" y="318">AUX 1</text>
+  <rect class="soft" x="75" y="360" width="190" height="45" />
+  <text class="label" x="128" y="388">AUX 2</text>
+  <rect class="soft" x="75" y="430" width="190" height="45" />
+  <text class="label" x="128" y="458">AUX 3</text>
+
+  <rect class="analog" x="420" y="145" width="260" height="330" />
+  <text class="label" x="474" y="180">Analog front I/O</text>
+  <text class="small" x="455" y="215">Selectable per connector:</text>
+  <text class="small" x="470" y="245">ANALOG_IN</text>
+  <text class="small" x="470" y="272">ANALOG_OUT</text>
+  <line class="divider" x1="450" y1="300" x2="650" y2="300" />
+  <text class="small" x="455" y="332">Nominal range: -2 V..+2 V</text>
+  <text class="small" x="455" y="360">Common signal ground</text>
+  <text class="small" x="455" y="388">AUX 0..3 map to lanes 28..31</text>
+
+  <rect class="box" x="805" y="130" width="250" height="380" />
+  <text class="label" x="842" y="165">Cluster 0 lane side</text>
+  <text class="tiny" x="846" y="190">Fixed frontplane associations</text>
+
+  <rect class="analog" x="835" y="220" width="190" height="45" />
+  <text class="label" x="873" y="248">Lane 28</text>
+  <rect class="analog" x="835" y="290" width="190" height="45" />
+  <text class="label" x="873" y="318">Lane 29</text>
+  <rect class="analog" x="835" y="360" width="190" height="45" />
+  <text class="label" x="873" y="388">Lane 30</text>
+  <rect class="analog" x="835" y="430" width="190" height="45" />
+  <text class="label" x="873" y="458">Lane 31</text>
+
+  <path class="lane" d="M265,242 L420,242" />
+  <path class="lane" d="M265,312 L420,312" />
+  <path class="lane" d="M265,382 L420,382" />
+  <path class="lane" d="M265,452 L420,452" />
+  <path class="lane" d="M680,242 L835,242" />
+  <path class="lane" d="M680,312 L835,312" />
+  <path class="lane" d="M680,382 L835,382" />
+  <path class="lane" d="M680,452 L835,452" />
+
+  <rect class="digital" x="345" y="500" width="430" height="95" />
+  <text class="label" x="444" y="532">Fixed digital functions</text>
+  <text class="small" x="375" y="560">AUX 0: External Halt input</text>
+  <text class="small" x="375" y="582">AUX 1: Digital 6 reserved output</text>
+  <text class="small" x="595" y="560">AUX 2: ModeIC output</text>
+  <text class="small" x="595" y="582">AUX 3: ModeOP output</text>
+
+  <path class="control" d="M560,500 L560,445" />
+  <text class="tiny" x="592" y="478">DIGITAL_IN / DIGITAL_OUT modes select fixed functions</text>
+</svg>

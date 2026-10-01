@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-labelledby="title desc" font-family="Arial, Helvetica, sans-serif">
+  <title id="title">M-Block INT architecture</title>
+  <desc id="desc">Block diagram showing eight logical INT inputs, eight inverting integrator cells, eight state outputs, initial-condition generation, range selection, limiter controls, and overload monitoring.</desc>
+  <defs>
+    <marker id="arrow-analog" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <marker id="arrow-control" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-limit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .frame { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 14; }
+      .title { fill: #0f172a; font-size: 28px; font-weight: 700; }
+      .subtitle { fill: #4b5563; font-size: 15px; }
+      .section { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 14; }
+      .input { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 10; }
+      .cell { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 12; }
+      .cellInner { fill: #ffffff; stroke: #047857; stroke-width: 2; rx: 8; }
+      .output { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 10; }
+      .control { fill: #eef2ff; stroke: #2563eb; stroke-width: 2; rx: 12; }
+      .warn { fill: #fff1f2; stroke: #be123c; stroke-width: 2; rx: 12; }
+      .label { fill: #111827; font-size: 16px; font-weight: 700; }
+      .text { fill: #1f2937; font-size: 13px; }
+      .small { fill: #374151; font-size: 13px; }
+      .tiny { fill: #4b5563; font-size: 12px; }
+      .analog { fill: none; stroke: #334155; stroke-width: 2.5; marker-end: url(#arrow-analog); }
+      .controlLine { fill: none; stroke: #2563eb; stroke-width: 2.5; stroke-dasharray: 7 5; marker-end: url(#arrow-control); }
+      .limitLine { fill: none; stroke: #be123c; stroke-width: 2.2; stroke-dasharray: 5 5; marker-end: url(#arrow-limit); }
+      .sense { fill: none; stroke: #be123c; stroke-width: 2; stroke-dasharray: 5 5; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="760" class="bg"/>
+  <rect x="20" y="20" width="1140" height="720" class="frame"/>
+  <text x="42" y="62" class="title">M-Block INT: Eight Inverting Integrators</text>
+  <text x="44" y="92" class="subtitle">One M-Block slot, eight logical inputs, eight integrator state cells, eight logical outputs.</text>
+
+  <rect x="50" y="122" width="1080" height="86" class="section"/>
+  <text x="72" y="151" class="label">Cluster Context</text>
+  <text x="72" y="178" class="text">I-Block provides prepared physical integrator inputs; INT stores state; U-Block can reuse state outputs as sources.</text>
+  <rect x="610" y="142" width="130" height="38" class="input"/>
+  <text x="640" y="166" class="small">I-Block inputs</text>
+  <rect x="790" y="142" width="130" height="38" class="cell"/>
+  <text x="820" y="166" class="small">INT slot</text>
+  <rect x="970" y="142" width="110" height="38" class="output"/>
+  <text x="997" y="166" class="small">U-Block</text>
+  <path d="M740 161 L790 161" class="analog"/>
+  <path d="M920 161 L970 161" class="analog"/>
+
+  <rect x="50" y="238" width="180" height="382" class="section"/>
+  <text x="75" y="268" class="label">Logical Inputs</text>
+  <text x="78" y="292" class="small">from I-Block summing nodes</text>
+
+  <g class="text" text-anchor="middle">
+    <rect x="115" y="308" width="68" height="25" class="input"/><text x="149" y="325">in 0</text>
+    <rect x="115" y="342" width="68" height="25" class="input"/><text x="149" y="359">in 1</text>
+    <rect x="115" y="376" width="68" height="25" class="input"/><text x="149" y="393">in 2</text>
+    <rect x="115" y="410" width="68" height="25" class="input"/><text x="149" y="427">in 3</text>
+    <rect x="115" y="444" width="68" height="25" class="input"/><text x="149" y="461">in 4</text>
+    <rect x="115" y="478" width="68" height="25" class="input"/><text x="149" y="495">in 5</text>
+    <rect x="115" y="512" width="68" height="25" class="input"/><text x="149" y="529">in 6</text>
+    <rect x="115" y="546" width="68" height="25" class="input"/><text x="149" y="563">in 7</text>
+  </g>
+  <text x="78" y="325" class="tiny">u0</text><text x="78" y="359" class="tiny">u1</text>
+  <text x="78" y="393" class="tiny">u2</text><text x="78" y="427" class="tiny">u3</text>
+  <text x="78" y="461" class="tiny">u4</text><text x="78" y="495" class="tiny">u5</text>
+  <text x="78" y="529" class="tiny">u6</text><text x="78" y="563" class="tiny">u7</text>
+
+  <rect x="286" y="238" width="548" height="382" class="section"/>
+  <text x="308" y="268" class="label">Eight Integrator Cells</text>
+  <text x="308" y="292" class="small">hardware convention per cell: y = ic - k * integral(u dt)</text>
+
+  <g>
+    <rect x="430" y="307" width="250" height="31" class="cell"/><text x="455" y="327" class="small">INT0: ic0, k0, limiter0</text>
+    <rect x="430" y="341" width="250" height="31" class="cell"/><text x="455" y="361" class="small">INT1: ic1, k1, limiter1</text>
+    <rect x="430" y="375" width="250" height="31" class="cell"/><text x="455" y="395" class="small">INT2: ic2, k2, limiter2</text>
+    <rect x="430" y="409" width="250" height="31" class="cell"/><text x="455" y="429" class="small">INT3: ic3, k3, limiter3</text>
+    <rect x="430" y="443" width="250" height="31" class="cell"/><text x="455" y="463" class="small">INT4: ic4, k4, limiter4</text>
+    <rect x="430" y="477" width="250" height="31" class="cell"/><text x="455" y="497" class="small">INT5: ic5, k5, limiter5</text>
+    <rect x="430" y="511" width="250" height="31" class="cell"/><text x="455" y="531" class="small">INT6: ic6, k6, limiter6</text>
+    <rect x="430" y="545" width="250" height="31" class="cell"/><text x="455" y="565" class="small">INT7: ic7, k7, limiter7</text>
+  </g>
+
+  <rect x="330" y="586" width="450" height="28" class="cellInner"/>
+  <text x="352" y="604" class="tiny">implemented as repeated integrator pairs with shared control/reference infrastructure</text>
+
+  <rect x="890" y="238" width="210" height="382" class="section"/>
+  <text x="914" y="268" class="label">State Outputs</text>
+  <text x="914" y="292" class="small">one output per integrator</text>
+
+  <g class="text" text-anchor="middle">
+    <rect x="965" y="308" width="68" height="25" class="output"/><text x="999" y="325">out 0</text>
+    <rect x="965" y="342" width="68" height="25" class="output"/><text x="999" y="359">out 1</text>
+    <rect x="965" y="376" width="68" height="25" class="output"/><text x="999" y="393">out 2</text>
+    <rect x="965" y="410" width="68" height="25" class="output"/><text x="999" y="427">out 3</text>
+    <rect x="965" y="444" width="68" height="25" class="output"/><text x="999" y="461">out 4</text>
+    <rect x="965" y="478" width="68" height="25" class="output"/><text x="999" y="495">out 5</text>
+    <rect x="965" y="512" width="68" height="25" class="output"/><text x="999" y="529">out 6</text>
+    <rect x="965" y="546" width="68" height="25" class="output"/><text x="999" y="563">out 7</text>
+  </g>
+  <text x="1045" y="325" class="tiny">state0</text><text x="1045" y="359" class="tiny">state1</text>
+  <text x="1045" y="393" class="tiny">state2</text><text x="1045" y="427" class="tiny">state3</text>
+  <text x="1045" y="461" class="tiny">state4</text><text x="1045" y="495" class="tiny">state5</text>
+  <text x="1045" y="529" class="tiny">state6</text><text x="1045" y="563" class="tiny">state7</text>
+
+  <path d="M183 321 L430 322" class="analog"/>
+  <path d="M183 355 L430 356" class="analog"/>
+  <path d="M183 389 L430 390" class="analog"/>
+  <path d="M183 423 L430 424" class="analog"/>
+  <path d="M183 457 L430 458" class="analog"/>
+  <path d="M183 491 L430 492" class="analog"/>
+  <path d="M183 525 L430 526" class="analog"/>
+  <path d="M183 559 L430 560" class="analog"/>
+
+  <path d="M680 322 L965 321" class="analog"/>
+  <path d="M680 356 L965 355" class="analog"/>
+  <path d="M680 390 L965 389" class="analog"/>
+  <path d="M680 424 L965 423" class="analog"/>
+  <path d="M680 458 L965 457" class="analog"/>
+  <path d="M680 492 L965 491" class="analog"/>
+  <path d="M680 526 L965 525" class="analog"/>
+  <path d="M680 560 L965 559" class="analog"/>
+
+  <rect x="70" y="650" width="300" height="52" class="control"/>
+  <text x="92" y="671" class="text">Initial condition and range control</text>
+  <text x="92" y="689" class="tiny">per-cell ic voltage and k selection: 100 or 10000</text>
+  <path d="M370 676 C435 642 502 620 555 614" class="controlLine"/>
+
+  <rect x="420" y="650" width="310" height="52" class="warn"/>
+  <text x="442" y="671" class="text">Limiter and overload monitoring</text>
+  <text x="442" y="689" class="tiny">per-cell limiter bits; overload readout/reset support</text>
+  <path d="M575 650 C575 636 575 626 575 614" class="sense"/>
+
+  <rect x="780" y="650" width="300" height="64" class="section"/>
+  <text x="802" y="668" class="text">Legend</text>
+  <g>
+    <line x1="802" y1="680" x2="832" y2="680" class="analog"/>
+    <text x="842" y="684" class="tiny">analog input / state output path</text>
+    <line x1="802" y1="696" x2="832" y2="696" class="controlLine"/>
+    <text x="842" y="700" class="tiny">initial condition and range control</text>
+    <line x1="802" y1="710" x2="832" y2="710" class="limitLine"/>
+    <text x="842" y="714" class="tiny">limiter and overload control</text>
+  </g>
+</svg>

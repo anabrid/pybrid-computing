@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1280"
+   height="940"
+   viewBox="0 0 1280 940"
+   role="img"
+   aria-labelledby="title desc"
+   font-family="Arial, Helvetica, sans-serif"
+   version="1.1"
+   id="svg80"
+   sodipodi:docname="mREDAC.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview80"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.1885412"
+     inkscape:cx="385.34634"
+     inkscape:cy="438.35249"
+     inkscape:window-width="4300"
+     inkscape:window-height="1712"
+     inkscape:window-x="4291"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg80" />
+  <title
+     id="title">mREDAC architecture overview</title>
+  <desc
+     id="desc">Block diagram showing one mREDAC module holder with three clusters connected through one shared T-Block. C-Block routed lanes 8 through 31 feed the T-Block, and T-Block outputs feed destination I-Block inputs. C-Block local lanes 0 through 7 bypass the T-Block and feed the same-cluster I-Block directly. M-Block outputs feed back to U-Block inputs. Frontplane signals connect to Cluster 0 lanes 28 through 31.</desc>
+  <defs
+     id="defs3">
+    <marker
+       style="overflow:visible"
+       id="Triangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
+    </marker>
+    <marker
+       id="arrow-analog"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#334155"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrow-route"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#2563eb"
+         id="path2" />
+    </marker>
+    <marker
+       id="arrow-control"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#ea580c"
+         id="path3" />
+    </marker>
+    <marker
+       id="arrow-feedback"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#7c3aed"
+         id="path-feedback" />
+    </marker>
+    <style
+       id="style3">
+      .bg { fill: #ffffff; }
+      .frame { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 16; }
+      .title { fill: #0f172a; font-size: 28px; font-weight: 700; }
+      .subtitle { fill: #4b5563; font-size: 15px; }
+      .frontplane { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 12; }
+      .ctrl { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; rx: 12; }
+      .cluster { fill: #f8fafc; stroke: #475569; stroke-width: 2; rx: 14; }
+      .tblock { fill: #eff6ff; stroke: #2563eb; stroke-width: 2.5; rx: 16; }
+      .ublock { fill: #ecfeff; stroke: #0891b2; stroke-width: 2; rx: 10; }
+      .cblock { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 10; }
+      .iblock { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 10; }
+      .shblock { fill: #fdf2f8; stroke: #db2777; stroke-width: 2; rx: 10; }
+      .mblock { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 10; }
+      .note { fill: #f1f5f9; stroke: #64748b; stroke-width: 1.5; rx: 10; }
+      .legend { fill: #ffffff; stroke: #64748b; stroke-width: 1.5; rx: 12; }
+      .label { fill: #111827; font-size: 16px; font-weight: 700; }
+      .text { fill: #1f2937; font-size: 13px; }
+      .small { fill: #374151; font-size: 12px; }
+      .tiny { fill: #4b5563; font-size: 11px; }
+      .analog { fill: none; stroke: #334155; stroke-width: 2.5; marker-end: url(#arrow-analog); }
+      .local { fill: none; stroke: #334155; stroke-width: 2.4; stroke-dasharray: 5 4; marker-end: url(#arrow-analog); }
+      .route { fill: none; stroke: #2563eb; stroke-width: 3; marker-end: url(#arrow-route); }
+      .routeReturn { fill: none; stroke: #2563eb; stroke-width: 3; stroke-dasharray: 8 5; marker-end: url(#arrow-route); }
+      .feedback { fill: none; stroke: #7c3aed; stroke-width: 2.7; stroke-dasharray: 9 5; marker-end: url(#arrow-feedback); }
+      .ioLine { fill: none; stroke: #4338ca; stroke-width: 2.5; stroke-dasharray: 6 5; }
+      .controlLine { fill: none; stroke: #ea580c; stroke-width: 2.5; stroke-dasharray: 7 5; marker-end: url(#arrow-control); }
+    </style>
+    <marker
+       style="overflow:visible"
+       id="Triangle-2"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135-7" />
+    </marker>
+  </defs>
+  <rect
+     x="0"
+     y="0"
+     width="1280"
+     height="940"
+     class="bg"
+     id="rect3" />
+  <rect
+     x="20"
+     y="20"
+     width="1240"
+     height="900"
+     class="frame"
+     id="rect4" />
+  <text
+     x="42"
+     y="62"
+     class="title"
+     id="text4">mREDAC: Module Holder Architecture</text>
+  <text
+     x="44"
+     y="92"
+     class="subtitle"
+     id="text5">Three repeated clusters share one T-Block: C-Block routed lanes 8..31 enter the T-Block, and T-Block outputs feed destination I-Block inputs.</text>
+  <rect
+     x="60"
+     y="122"
+     width="260"
+     height="86"
+     class="frontplane"
+     id="rect5" />
+  <text
+     x="84"
+     y="154"
+     class="label"
+     id="text6">Frontplane</text>
+  <text
+     x="84"
+     y="178"
+     class="text"
+     id="text7">module-level interface</text>
+  <text
+     x="84"
+     y="196"
+     class="tiny"
+     id="text8">MCX, AUX, and system paths</text>
+  <rect
+     x="370"
+     y="122"
+     width="280"
+     height="86"
+     class="note"
+     id="rect8" />
+  <text
+     x="395"
+     y="152"
+     class="label"
+     id="text9">Dedicated Front Signals</text>
+  <text
+     x="395"
+     y="176"
+     class="text"
+     id="text10">Cluster 0 lanes 28..31</text>
+  <text
+     x="395"
+     y="194"
+     class="tiny"
+     id="text11">MCX/AUX signal access</text>
+  <path
+     d="M320 165 L370 165"
+     class="ioLine"
+     id="path11" />
+  <path
+     d="m 1199.0175,164.71889 h 50"
+     class="ioLine"
+     id="path11-2"
+     style="fill:#f8fafc;stroke:#ea580c;stroke-width:2.5;stroke-dasharray:6, 5;fill-opacity:1;stroke-opacity:1" />
+  <path
+     d="m 1197.6003,316.06949 h 50"
+     class="ioLine"
+     id="path11-2-1"
+     style="fill:#f8fafc;fill-opacity:1;stroke:#ea580c;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1" />
+  <path
+     d="m 1200,510.44983 h 50"
+     class="ioLine"
+     id="path11-2-11"
+     style="fill:#f8fafc;fill-opacity:1;stroke:#ea580c;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1" />
+  <path
+     d="m 1195.5863,697.33239 h 50"
+     class="ioLine"
+     id="path11-2-2"
+     style="fill:#f8fafc;fill-opacity:1;stroke:#ea580c;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1" />
+  <path
+     d="m 1248.1242,168.20545 0.5197,530.57519"
+     class="ioLine"
+     id="path11-2-5"
+     style="fill:#f8fafc;fill-opacity:1;stroke:#ea580c;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1"
+     sodipodi:nodetypes="cc" />
+  <rect
+     x="900"
+     y="122"
+     width="300"
+     height="86"
+     class="ctrl"
+     id="rect11" />
+  <text
+     x="1010"
+     y="154"
+     class="label"
+     id="text12">Ctrl-Block</text>
+  <text
+     x="950"
+     y="178"
+     class="text"
+     id="text13">configuration and supervision</text>
+  <text
+     x="935"
+     y="196"
+     class="tiny"
+     id="text14">control states, measurement, diagnostics</text>
+  <rect
+     x="60"
+     y="240"
+     width="1160"
+     height="170"
+     class="cluster"
+     id="rect14" />
+  <text
+     x="86"
+     y="272"
+     class="label"
+     id="text15">Cluster 0</text>
+  <rect
+     x="636"
+     y="252"
+     width="210"
+     height="38"
+     class="note"
+     id="rect15" />
+  <text
+     x="658"
+     y="276"
+     class="tiny"
+     id="text16">frontplane signals: lanes 28..31</text>
+  <path
+     d="m 650.01366,165.04595 c 50.44774,20.95875 85.76115,52.39688 91.81488,91.17057"
+     class="ioLine"
+     id="path16" />
+  <rect
+     x="86"
+     y="310"
+     width="112"
+     height="54"
+     class="ublock"
+     id="rect16" />
+  <text
+     x="116"
+     y="342"
+     class="small"
+     id="text17">U-Block</text>
+  <rect
+     x="240"
+     y="310"
+     width="112"
+     height="54"
+     class="cblock"
+     id="rect17" />
+  <text
+     x="270"
+     y="342"
+     class="small"
+     id="text18">C-Block</text>
+  <rect
+     x="648"
+     y="310"
+     width="112"
+     height="54"
+     class="iblock"
+     id="rect18" />
+  <text
+     x="678"
+     y="342"
+     class="small"
+     id="text19">I-Block</text>
+  <rect
+     x="804"
+     y="310"
+     width="112"
+     height="54"
+     class="shblock"
+     id="rect19" />
+  <text
+     x="832"
+     y="342"
+     class="small"
+     id="text20">SH-Block</text>
+  <rect
+     x="970"
+     y="284"
+     width="160"
+     height="46"
+     class="mblock"
+     id="rect20" />
+  <text
+     x="1004"
+     y="312"
+     class="small"
+     id="text21">M-Block 0</text>
+  <rect
+     x="970"
+     y="344"
+     width="160"
+     height="46"
+     class="mblock"
+     id="rect21" />
+  <text
+     x="1004"
+     y="372"
+     class="small"
+     id="text22">M-Block 1</text>
+  <path
+     d="M198 337 L240 337"
+     class="analog"
+     id="path22" />
+  <path
+     d="M352 324 L392 324"
+     class="route"
+     id="path23" />
+  <path
+     d="M608 324 L648 324"
+     class="routeReturn"
+     id="path24" />
+  <path
+     d="M760 337 L804 337"
+     class="analog"
+     id="path26" />
+  <path
+     d="M916 337 L970 307"
+     class="analog"
+     id="path27" />
+  <path
+     d="M916 337 L970 367"
+     class="analog"
+     id="path28" />
+  <text
+     x="928"
+     y="266"
+     class="tiny"
+     id="feedback-label0">M outputs feed U inputs</text>
+  <text
+     x="282"
+     y="304"
+     class="tiny"
+     id="text28">lanes 8..31</text>
+  <text
+     x="646"
+     y="396"
+     class="tiny"
+     id="text30">local lanes 0..7 bypass T-Block</text>
+  <rect
+     x="60"
+     y="430"
+     width="1160"
+     height="170"
+     class="cluster"
+     id="rect30" />
+  <text
+     x="86"
+     y="462"
+     class="label"
+     id="text31">Cluster 1</text>
+  <rect
+     x="86"
+     y="500"
+     width="112"
+     height="54"
+     class="ublock"
+     id="rect31" />
+  <text
+     x="116"
+     y="532"
+     class="small"
+     id="text32">U-Block</text>
+  <rect
+     x="240"
+     y="500"
+     width="112"
+     height="54"
+     class="cblock"
+     id="rect32" />
+  <text
+     x="270"
+     y="532"
+     class="small"
+     id="text33">C-Block</text>
+  <rect
+     x="648"
+     y="500"
+     width="112"
+     height="54"
+     class="iblock"
+     id="rect33" />
+  <text
+     x="678"
+     y="532"
+     class="small"
+     id="text34">I-Block</text>
+  <rect
+     x="804"
+     y="500"
+     width="112"
+     height="54"
+     class="shblock"
+     id="rect34" />
+  <text
+     x="832"
+     y="532"
+     class="small"
+     id="text35">SH-Block</text>
+  <rect
+     x="970"
+     y="474"
+     width="160"
+     height="46"
+     class="mblock"
+     id="rect35" />
+  <text
+     x="1004"
+     y="502"
+     class="small"
+     id="text36">M-Block 0</text>
+  <rect
+     x="970"
+     y="534"
+     width="160"
+     height="46"
+     class="mblock"
+     id="rect36" />
+  <text
+     x="1004"
+     y="562"
+     class="small"
+     id="text37">M-Block 1</text>
+  <path
+     d="M198 527 L240 527"
+     class="analog"
+     id="path37" />
+  <path
+     d="M352 514 L392 514"
+     class="route"
+     id="path38" />
+  <path
+     d="M608 514 L648 514"
+     class="routeReturn"
+     id="path39" />
+  <path
+     d="M760 527 L804 527"
+     class="analog"
+     id="path41" />
+  <path
+     d="M916 527 L970 497"
+     class="analog"
+     id="path42" />
+  <path
+     d="M916 527 L970 557"
+     class="analog"
+     id="path43" />
+  <text
+     x="928"
+     y="456"
+     class="tiny"
+     id="feedback-label1">M outputs feed U inputs</text>
+  <text
+     x="282"
+     y="494"
+     class="tiny"
+     id="text43">lanes 8..31</text>
+  <text
+     x="646"
+     y="586"
+     class="tiny"
+     id="text45">local lanes 0..7 bypass T-Block</text>
+  <rect
+     x="60"
+     y="620"
+     width="1160"
+     height="170"
+     class="cluster"
+     id="rect45" />
+  <text
+     x="86"
+     y="652"
+     class="label"
+     id="text46">Cluster 2</text>
+  <rect
+     x="86"
+     y="690"
+     width="112"
+     height="54"
+     class="ublock"
+     id="rect46" />
+  <text
+     x="116"
+     y="722"
+     class="small"
+     id="text47">U-Block</text>
+  <rect
+     x="240"
+     y="690"
+     width="112"
+     height="54"
+     class="cblock"
+     id="rect47" />
+  <rect
+     x="392"
+     y="250"
+     width="216"
+     height="500"
+     class="tblock"
+     id="rect60"
+     style="opacity:0.99999999" />
+  <text
+     x="270"
+     y="722"
+     class="small"
+     id="text48">C-Block</text>
+  <rect
+     x="648"
+     y="690"
+     width="112"
+     height="54"
+     class="iblock"
+     id="rect48" />
+  <text
+     x="678"
+     y="722"
+     class="small"
+     id="text49">I-Block</text>
+  <rect
+     x="804"
+     y="690"
+     width="112"
+     height="54"
+     class="shblock"
+     id="rect49" />
+  <text
+     x="832"
+     y="722"
+     class="small"
+     id="text50">SH-Block</text>
+  <rect
+     x="970"
+     y="664"
+     width="160"
+     height="46"
+     class="mblock"
+     id="rect50" />
+  <text
+     x="1004"
+     y="692"
+     class="small"
+     id="text51">M-Block 0</text>
+  <rect
+     x="970"
+     y="724"
+     width="160"
+     height="46"
+     class="mblock"
+     id="rect51" />
+  <text
+     x="1004"
+     y="752"
+     class="small"
+     id="text52">M-Block 1</text>
+  <path
+     d="M198 717 L240 717"
+     class="analog"
+     id="path52" />
+  <path
+     d="M352 704 L392 704"
+     class="route"
+     id="path53" />
+  <path
+     d="M608 704 L648 704"
+     class="routeReturn"
+     id="path54" />
+  <path
+     d="M352 738 C430 782 570 782 648 738"
+     class="local"
+     id="path55" />
+  <path
+     d="M760 717 L804 717"
+     class="analog"
+     id="path56" />
+  <path
+     d="M916 717 L970 687"
+     class="analog"
+     id="path57" />
+  <path
+     d="M916 717 L970 747"
+     class="analog"
+     id="path58" />
+  <text
+     x="928"
+     y="646"
+     class="tiny"
+     id="feedback-label2">M outputs feed U inputs</text>
+  <text
+     x="282"
+     y="684"
+     class="tiny"
+     id="text58">lanes 8..31</text>
+  <text
+     x="431.22784"
+     y="781.59491"
+     class="tiny"
+     id="text60">local lanes 0..7 bypass T-Block</text>
+  <text
+     x="417.33081"
+     y="591.96759"
+     class="tiny"
+     id="text60-9"
+     style="font-size:11px;fill:#4b5563">local lanes 0..7 bypass T-Block</text>
+  <text
+     x="419.86246"
+     y="406.49924"
+     class="tiny"
+     id="text60-8"
+     style="font-size:11px;fill:#4b5563">local lanes 0..7 bypass T-Block</text>
+  <path
+     d="M352 548 C430 592 570 592 648 548"
+     class="local"
+     id="path40" />
+  <path
+     d="M352 358 C430 402 570 402 648 358"
+     class="local"
+     id="path25" />
+  <text
+     x="467"
+     y="287"
+     class="label"
+     id="text61">T-Block</text>
+  <text
+     x="429.75949"
+     y="309.6076"
+     class="tiny"
+     id="text63">inputs: C-Block lanes 8..31</text>
+  <text
+     x="428.75949"
+     y="327.6076"
+     class="tiny"
+     id="text64">outputs: destination I inputs</text>
+  <path
+     d="M352 324 L392 324"
+     class="route"
+     id="path65" />
+  <path
+     d="M608 324 L648 324"
+     class="routeReturn"
+     id="path66" />
+  <path
+     d="M352 514 L392 514"
+     class="route"
+     id="path67" />
+  <path
+     d="M608 514 L648 514"
+     class="routeReturn"
+     id="path68" />
+  <path
+     d="M352 704 L392 704"
+     class="route"
+     id="path69" />
+  <path
+     d="M608 704 L648 704"
+     class="routeReturn"
+     id="path70" />
+  <rect
+     x="60.021782"
+     y="814.02179"
+     width="1159.9564"
+     height="97.425323"
+     class="legend"
+     id="rect73" />
+  <path
+     d="m 896.64069,840.07735 h 50"
+     class="ioLine"
+     id="path11-2-6"
+     style="fill:#f8fafc;fill-opacity:1;stroke:#ea580c;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1" />
+  <text
+     x="86"
+     y="842"
+     class="label"
+     id="text73">Legend</text>
+  <path
+     d="M180 838 L245 838"
+     class="analog"
+     id="path74" />
+  <text
+     x="258"
+     y="842"
+     class="small"
+     id="text74">normal analog signal path</text>
+  <path
+     d="M430 838 L495 838"
+     class="route"
+     id="path75" />
+  <text
+     x="508"
+     y="842"
+     class="small"
+     id="text75">C-Block output lanes 8..31 into shared T-Block</text>
+  <path
+     d="M180 870 L245 870"
+     class="routeReturn"
+     id="path76" />
+  <text
+     x="258"
+     y="874"
+     class="small"
+     id="text76">T-Block output to destination I-Block input</text>
+  <path
+     d="M560 870 L625 870"
+     class="local"
+     id="path77" />
+  <g
+     id="g1">
+    <path
+       d="m 1045.5793,420.23786 -0.067,-31.71776"
+       class="ioLine"
+       id="path11-2-5-9-8-2"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="M 1044.0492,418.87253 144.95516,418.64989"
+       class="ioLine"
+       id="path11-2-5-9"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="m 146.1488,420.05176 0.0559,-45.75238"
+       class="ioLine"
+       id="path11-2-5-9-8"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1;marker-end:url(#Triangle)"
+       sodipodi:nodetypes="cc" />
+  </g>
+  <text
+     x="638"
+     y="874"
+     class="small"
+     id="text77">cluster-local C lanes 0..7 bypass T-Block</text>
+  <text
+     x="968"
+     y="842"
+     class="small"
+     id="text78">configuration/control/measurements</text>
+  <path
+     d="M890 870 L955 870"
+     class="ioLine"
+     id="path79" />
+  <text
+     x="968"
+     y="874"
+     class="small"
+     id="text79">frontplane signals on Cluster 0 lanes 28..31</text>
+  <path
+     d="m 429.15863,898.31726 h 65"
+     class="feedback"
+     id="path-feedback-legend"
+     style="stroke:#ed3f3a;stroke-opacity:1;marker-end:url(#Triangle)" />
+  <text
+     x="508"
+     y="904"
+     class="small"
+     id="text-feedback-legend">M-Block outputs feed back to U-Block inputs</text>
+  <g
+     id="g6"
+     transform="translate(-2.9746835,190.97468)">
+    <path
+       d="m 1045.5793,420.23786 -0.067,-31.71776"
+       class="ioLine"
+       id="path4"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="M 1044.0492,418.87253 144.95516,418.64989"
+       class="ioLine"
+       id="path5"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="m 146.1488,420.05176 0.0559,-45.75238"
+       class="ioLine"
+       id="path6"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1;marker-end:url(#Triangle)"
+       sodipodi:nodetypes="cc" />
+  </g>
+  <g
+     id="g6-1"
+     transform="translate(-4.2069165,382.48189)">
+    <path
+       d="m 1045.5793,420.23786 -0.067,-31.71776"
+       class="ioLine"
+       id="path4-4"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="M 1044.0492,418.87253 144.95516,418.64989"
+       class="ioLine"
+       id="path5-2"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="m 146.1488,420.05176 0.0559,-45.75238"
+       class="ioLine"
+       id="path6-3"
+       style="fill:#f8fafc;fill-opacity:1;stroke:#0891b2;stroke-width:2.5;stroke-dasharray:6, 5;stroke-opacity:1;marker-end:url(#Triangle-2)"
+       sodipodi:nodetypes="cc" />
+  </g>
+</svg>

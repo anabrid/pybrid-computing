@@ -1,0 +1,3109 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python library for anabrid's LUCIDAC/REDAC analog-digital hybrid computers">
+      
+      
+      
+      
+        <link rel="prev" href="../m-comm/">
+      
+      
+        <link rel="next" href="../m-fund/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>M-FUNA - pybrid-computing</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#m-block-funa" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="pybrid-computing" class="md-header__button md-logo" aria-label="pybrid-computing" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybrid-computing
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              M-FUNA
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybrid-computing
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="pybrid-computing" class="md-nav__button md-logo" aria-label="pybrid-computing" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    pybrid-computing
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://lab.2b.anabrid.com/2b/pybrid-computing" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybrid-computing
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../overview/pybrid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybrid
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../overview/place-in-the-software-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Place in the Software Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../overview/public-and-developer-version/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Public and Developer Version
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/identifying-your-device/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifying Your Device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/building-your-first-circuit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building Your First Circuit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/getting-started/further_examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Further Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using pybrid
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Using pybrid
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/using-pybrid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using pybrid
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/using-pybrid/file-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/using-pybrid/programmatically/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programmatically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/using-pybrid/lucipy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lucipy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/using-pybrid/using-the-cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/using-pybrid/proxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proxy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/using-pybrid/firmware-update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Update (OTA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hardware Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../hierarchy-from-cluster-to-the-redac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hierarchy: From Cluster to the REDAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../REDAC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REDAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../iREDAC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    iREDAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../mREDAC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mREDAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    List of Blocks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    List of Blocks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    List of Blocks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_6_2" id="__nav_4_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M Blocks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_6_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    M Blocks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-Blocks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../m-int/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-Int
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../m-mul/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-Mul
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../m-mdr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-MDR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../m-comm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-COMM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-FUNA
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-FUNA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#element-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Element Organization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-lanes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity Lanes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minmax-cells" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MIN/MAX Cells
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MIN/MAX Cells">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#typical-uses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typical Uses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lex-cells" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LEX Cells
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LEX Cells">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logarithm-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logarithm Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exponential-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exponential Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sensitivity-and-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensitivity And Reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#input-and-output-polarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input And Output Polarity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bias-settings-and-calibration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bias Settings And Calibration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bias Settings And Calibration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calibration-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Calibration Procedure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#firmware-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firmware Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operating-range-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operating Range And Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-signal-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Signal Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Signal Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limiting-a-signal-with-a-minmax-cell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting A Signal With A MIN/MAX Cell
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-decade-mapped-logarithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Decade-Mapped Logarithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplication-through-log-and-exp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiplication Through Log And Exp
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybrid-programming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pybrid Programming
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../m-fund/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    M-FUND
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../u-block/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    U Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../i-block/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../c-block/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sh-block/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SH Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ctrl-block/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CTRL Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../t-block/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    T Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Back Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../t-block-bpl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    T Block BPL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Front Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../developer-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../developer-guide/data-and-messaging-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data and Messaging Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../developer-guide/device-object-representation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Device Object Representation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native Networking Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Native Networking Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../developer-guide/native-networking-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native Networking Code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../developer-guide/native-networking/transport-and-channels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transport and Channels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../developer-guide/native-networking/proxy-server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proxy Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../developer-guide/public-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Public Release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#hardware-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Role
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#element-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Element Organization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-lanes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity Lanes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minmax-cells" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MIN/MAX Cells
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MIN/MAX Cells">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#typical-uses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typical Uses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lex-cells" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LEX Cells
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LEX Cells">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logarithm-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logarithm Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exponential-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exponential Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sensitivity-and-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensitivity And Reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#input-and-output-polarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input And Output Polarity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bias-settings-and-calibration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bias Settings And Calibration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bias Settings And Calibration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calibration-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Calibration Procedure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#firmware-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firmware Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operating-range-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operating Range And Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-signal-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Signal Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Signal Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limiting-a-signal-with-a-minmax-cell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting A Signal With A MIN/MAX Cell
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-decade-mapped-logarithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Decade-Mapped Logarithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplication-through-log-and-exp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiplication Through Log And Exp
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybrid-programming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pybrid Programming
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="m-block-funa">M-Block FUNA<a class="headerlink" href="#m-block-funa" title="Permanent link">&para;</a></h1>
+<p>The M-Block FUNA is the analog function generator M-Block variant. It occupies one M-Block slot in a cluster and provides nonlinear functions that cannot be expressed with integration, coefficient weighting, or multiplication alone. FUNA stands for <strong>fun</strong>ction generator, <strong>a</strong>nalog: the functions are produced by continuous analog circuitry on the module, not by a table lookup or by a microcontroller. The digital counterpart is the <a href="../m-fund/">M-FUND</a> block.</p>
+<p>One FUNA module presents the normal M-Block interface of eight logical inputs and eight logical outputs. Internally it provides two different kinds of function element:</p>
+<ul>
+<li>three <strong>MIN/MAX cells</strong>, each with two inputs and two outputs, delivering <code>min(a, b)</code> and <code>max(a, b)</code>, or passing the operands through unchanged</li>
+<li>two <strong>LEX cells</strong> (logarithm/exponential), each with one input and one output, delivering <code>log</code> or <code>exp</code></li>
+</ul>
+<p><img alt="M-FUNA block architecture" src="../m-funa.svg" /></p>
+<h2 id="hardware-role">Hardware Role<a class="headerlink" href="#hardware-role" title="Permanent link">&para;</a></h2>
+<p>The FUNA block is an M-Block, so it is part of the cluster-local analog computation loop:</p>
+<ul>
+<li>The I-Block forms the logical M-Block input values by summing weighted lane currents.</li>
+<li>The FUNA block consumes those logical input values.</li>
+<li>The FUNA block produces analog output voltages on the M-Block output path.</li>
+<li>The U-Block can then select those outputs again as sources for later routes.</li>
+</ul>
+<p>The FUNA block receives already prepared analog operands and applies the selected nonlinear function. Coefficient weighting, summation, source selection, and lane routing remain the job of the surrounding C-Block, I-Block, U-Block, and T-Block resources.</p>
+<p>Unlike the INT block, FUNA does not participate in the run-mode state machine. It uses neither the mode lines nor the external halt line of the DIMM interface, and it does not drive the cluster overload line. Its outputs follow their inputs continuously, in every machine mode.</p>
+<h2 id="element-organization">Element Organization<a class="headerlink" href="#element-organization" title="Permanent link">&para;</a></h2>
+<p>One FUNA module contains five function elements distributed over the eight logical lanes:</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Type</th>
+<th>Inputs</th>
+<th>Outputs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MINMAX 0</code></td>
+<td>MIN/MAX cell</td>
+<td>input <code>0</code>, input <code>1</code></td>
+<td>output <code>0</code>, output <code>1</code></td>
+</tr>
+<tr>
+<td><code>MINMAX 1</code></td>
+<td>MIN/MAX cell</td>
+<td>input <code>2</code>, input <code>3</code></td>
+<td>output <code>2</code>, output <code>3</code></td>
+</tr>
+<tr>
+<td><code>MINMAX 2</code></td>
+<td>MIN/MAX cell</td>
+<td>input <code>4</code>, input <code>5</code></td>
+<td>output <code>4</code>, output <code>5</code></td>
+</tr>
+<tr>
+<td><code>LEX 0</code></td>
+<td>log/exp cell</td>
+<td>input <code>6</code></td>
+<td>output <code>6</code></td>
+</tr>
+<tr>
+<td><code>LEX 1</code></td>
+<td>log/exp cell</td>
+<td>input <code>7</code></td>
+<td>output <code>7</code></td>
+</tr>
+</tbody>
+</table>
+<p>For MIN/MAX cell <code>i</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>a input   = 2*i
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>b input   = 2*i + 1
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>a output  = 2*i        -&gt; min(a, b) or id(a)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>b output  = 2*i + 1    -&gt; max(a, b) or id(b)
+</code></pre></div>
+<p>For LEX cell <code>j</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>input     = 6 + j
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>output    = 6 + j      -&gt; log(x) or exp(x)
+</code></pre></div>
+<p>The lane assignment is fixed on the module. As always, these are slot-local indices. One cluster has 16 logical M-Block lanes, so the cluster-level index is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cluster lane = slot_offset + local index
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>slot_offset = 0   for the first M-Block slot
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>slot_offset = 8   for the second M-Block slot
+</code></pre></div>
+<p>A FUNA block in the second slot therefore answers on cluster inputs <code>8..15</code>, with its two LEX cells on lanes <code>14</code> and <code>15</code>.</p>
+<h2 id="identity-lanes">Identity Lanes<a class="headerlink" href="#identity-lanes" title="Permanent link">&para;</a></h2>
+<p>Unlike the MDR or MUL blocks, FUNA has no separate identity outputs on extra lanes. Instead, each of the six MIN/MAX lanes can be switched individually so that its output carries an unmodified copy of its own input:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>output 0 -&gt; id(input 0)      output 3 -&gt; id(input 3)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>output 1 -&gt; id(input 1)      output 4 -&gt; id(input 4)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>output 2 -&gt; id(input 2)      output 5 -&gt; id(input 5)
+</code></pre></div>
+<p>The two LEX lanes have no identity option: outputs <code>6</code> and <code>7</code> always carry the log or exp result.</p>
+<p>The identity path is the prepared operand as it enters the selection circuitry, so it is a genuine copy and not a second, separately calibrated path. That makes it useful for the same purposes as the MDR ID path:</p>
+<ul>
+<li>A known analog signal can be routed in and observed on the output side.</li>
+<li>Routing and output-path behavior can be separated from the nonlinear behavior.</li>
+<li>A calibration routine can compare the identity path against the <code>min</code>/<code>max</code> path.</li>
+</ul>
+<p>Switching an output to identity does not affect the other output of the same cell. A cell can therefore deliver <code>min</code> and <code>max</code> at the same time, or <code>min</code> on one lane and an untouched copy of the second operand on the other.</p>
+<p>The firmware exposes this as a six-bit set, plus a helper that puts all six lanes into identity mode at once, which is what the cluster-wide routing calibration uses.</p>
+<h2 id="minmax-cells">MIN/MAX Cells<a class="headerlink" href="#minmax-cells" title="Permanent link">&para;</a></h2>
+<p>A MIN/MAX cell takes two prepared operands and makes both the smaller and the larger of them available, each on its own output lane:</p>
+<table>
+<thead>
+<tr>
+<th>Output lane</th>
+<th>Default</th>
+<th>Identity mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2*i</code> (A side)</td>
+<td><code>min(a, b)</code></td>
+<td><code>id(a)</code></td>
+</tr>
+<tr>
+<td><code>2*i + 1</code> (B side)</td>
+<td><code>max(a, b)</code></td>
+<td><code>id(b)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Both results are produced continuously; selecting one output as identity does not disturb the other. Getting <code>min</code> and <code>max</code> of the same operand pair therefore costs one cell and no extra routing.</p>
+<p>After a block reset the identity bits are cleared, so every MIN/MAX cell powers up in <code>min</code>/<code>max</code> operation.</p>
+<p>MIN/MAX cells need no bias settings and have no calibration parameters of their own. Their accuracy comes from the precision input conversion and the matched selection circuitry on the module.</p>
+<h3 id="typical-uses">Typical Uses<a class="headerlink" href="#typical-uses" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Limiting</strong>, by taking the <code>min</code> against a constant to cap a signal from above, or the <code>max</code> against a constant to floor it from below</li>
+<li><strong>Saturation and dead-band models</strong>, by combining a limit with a subtraction in the I-Block</li>
+<li><strong>Absolute value and comparison logic</strong>, by feeding a signal and its negation into one cell</li>
+<li><strong>Envelope forming</strong>, by taking the running <code>max</code> of two prepared signals</li>
+</ul>
+<h2 id="lex-cells">LEX Cells<a class="headerlink" href="#lex-cells" title="Permanent link">&para;</a></h2>
+<p>A LEX cell computes either a logarithm or an exponential on a single lane. Both functions come from the same circuitry; a mode setting selects which one is active. Each of the two LEX cells is configured independently.</p>
+<h3 id="logarithm-mode">Logarithm Mode<a class="headerlink" href="#logarithm-mode" title="Permanent link">&para;</a></h3>
+<p>Logarithm mode is the default after reset. The cell produces a base-10 logarithm of the input value, referred to a programmable reference current:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>out = 0.375 * log10( in / ref )
+</code></pre></div>
+<p>Both <code>in</code> and <code>out</code> are normalized machine values, where <code>1.0</code> is full scale. The two constants in this expression are what a model has to work with:</p>
+<ul>
+<li><strong><code>0.375</code> per decade.</strong> One decade of input change produces <code>0.375</code> of output change. This scale factor is deliberately left as it is rather than being rescaled on the module, because there is always a C-Block coefficient behind the function that can absorb the scaling at no extra cost.</li>
+<li><strong><code>ref</code>, the reference point.</strong> The output crosses zero where the input equals the reference. The reference is set through the bias settings described below, so it is the knob that positions the usable window over the expected input range.</li>
+</ul>
+<p>Staying inside the normalized <code>±1.0</code> range of the rest of the cluster limits a single route to roughly <code>±2.6</code> decades around the reference point. The cell itself can cover more, but values beyond <code>±1.0</code> leave the range the surrounding blocks are calibrated for.</p>
+<p>The logarithm is only defined for a positive argument, and the input accepts one polarity only:</p>
+<ul>
+<li>A zero argument drives the output towards its negative limit.</li>
+<li>An argument of the wrong polarity is not a valid operating point, and the output will rail.</li>
+</ul>
+<p>As with the MDR square-root mode, the route sign is part of the hardware interface and has to be chosen deliberately when the model is programmed. The firmware test sweep exercises the cell over the positive input range <code>0.01</code> to <code>1.0</code>, which is the two decades that comfortably fit inside the normalized output range.</p>
+<p>Example, with the reference placed at full scale:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>in = 1.00   -&gt;  out =  0.000
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>in = 0.10   -&gt;  out = -0.375
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>in = 0.01   -&gt;  out = -0.750
+</code></pre></div>
+<h3 id="exponential-mode">Exponential Mode<a class="headerlink" href="#exponential-mode" title="Permanent link">&para;</a></h3>
+<p>Exponential mode inverts the transfer function of the same cell, so the output becomes an exponential of the input. Three properties follow from how that inversion works and are worth keeping in mind while programming a model:</p>
+<ul>
+<li><strong>The output is positive only.</strong> There is no negative branch.</li>
+<li><strong>The usable span is about four decades</strong>, roughly 100 µV to 1 V at the module output. Signals below about 100 µV cannot be carried reliably through the U/C/I matrix, so the theoretical span is larger than the usable one.</li>
+<li><strong>The output scales with the reference.</strong> Changing the reference current moves the whole exponential curve, exactly as it moves the zero crossing of the logarithm.</li>
+</ul>
+<p>In the default sensitivity setting the cell is dimensioned so that one normalized input unit corresponds to one decade of output, to within about 0.1 %. That makes the default the natural choice for models expressed in decades:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>in = 0.0   -&gt;  out = 1.0  * full-scale reference level
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>in = 1.0   -&gt;  out = 0.1  * full-scale reference level
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>in = 2.0   -&gt;  out = 0.01 * full-scale reference level
+</code></pre></div>
+<h3 id="sensitivity-and-reset">Sensitivity And Reset<a class="headerlink" href="#sensitivity-and-reset" title="Permanent link">&para;</a></h3>
+<p>Each LEX cell is configured with one of four modes:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LOG</code></td>
+<td>logarithm, the reset default</td>
+</tr>
+<tr>
+<td><code>EXP</code></td>
+<td>exponential at default sensitivity, about one decade per normalized input unit</td>
+</tr>
+<tr>
+<td><code>EXP_HIGH_SENSE</code></td>
+<td>exponential at high sensitivity, roughly 1.6 decades per normalized input unit</td>
+</tr>
+<tr>
+<td><code>EXP_RESET</code></td>
+<td>exponential path forced into its defined parked state</td>
+</tr>
+</tbody>
+</table>
+<p><code>EXP_HIGH_SENSE</code> compresses more decades into the same input span. The exact decade scaling of each setting is a calibration result; treat the figures above as design intent rather than as calibrated constants.</p>
+<p><code>EXP_RESET</code> exists because the exponential configuration closes a feedback loop around the nonlinear element. If that loop is driven outside its valid range it can saturate, and the output then stays wrong even after the input returns to a valid value. Selecting <code>EXP_RESET</code> and then returning to <code>EXP</code> or <code>EXP_HIGH_SENSE</code> re-establishes the loop from a defined starting point. This is the same class of problem as the latch-up recovery of the MDR block, and the same discipline applies: it is far better to keep the inputs in range than to rely on the recovery.</p>
+<div class="admonition warning">
+<p class="admonition-title">Exponential latch-up</p>
+<p>The exponential configuration can saturate if it is driven out of its valid range, and results stay wrong after the input comes back. Keep every operand and result inside <code>±1.0</code>, and use the reset mode to recover a cell that has saturated. Logarithm mode cannot latch in this way.</p>
+</div>
+<p>Logarithm mode needs no reset handling. It is the safe default and the state the block powers up in.</p>
+<h2 id="input-and-output-polarity">Input And Output Polarity<a class="headerlink" href="#input-and-output-polarity" title="Permanent link">&para;</a></h2>
+<p>As with the other M-Blocks, the FUNA documentation has to distinguish between the mathematical operand and the physical signal polarity at a measurement point. Values reach an M-Block input through the U-Block, C-Block, and I-Block, and that path carries the sign convention of the cluster input/output interface.</p>
+<p>Inside FUNA, the MIN/MAX input conversion is inverting, as it is on every M-Block. Which mathematical extremum ends up on the A output and which on the B output therefore depends on the cluster-level sign convention, and should be confirmed once during bring-up rather than assumed.</p>
+<p>The LEX cells are more restrictive still: the logarithm accepts only one input polarity at all, and the exponential produces only one output polarity. When documenting a model, use the values actually present at the element inputs for the equations, and state separately which coefficient and input index produce them.</p>
+<h2 id="bias-settings-and-calibration">Bias Settings And Calibration<a class="headerlink" href="#bias-settings-and-calibration" title="Permanent link">&para;</a></h2>
+<p>Each LEX cell carries three bias settings. They are stored per cell and written to the module together with the mode settings:</p>
+<table>
+<thead>
+<tr>
+<th>Bias setting</th>
+<th>Range</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>reference current</td>
+<td><code>0</code> to <code>200 µA</code></td>
+<td>sets the reference point of the logarithm and the output level of the exponential</td>
+</tr>
+<tr>
+<td>A12 bias</td>
+<td><code>-400</code> to <code>+400 mV</code></td>
+<td>input-side offset, which mainly shows up as a gain error of the logarithm</td>
+</tr>
+<tr>
+<td>A30 bias</td>
+<td><code>-70</code> to <code>+735 mV</code></td>
+<td>output-side offset of the function result</td>
+</tr>
+</tbody>
+</table>
+<p>The reference current is generated from a coarse and a fine contribution, each with 12-bit resolution. The coarse contribution covers most of the range, the fine one covers roughly a fifth of it. The firmware splits a requested current between the two automatically, so a caller simply asks for a value in microamperes and gets a much finer effective resolution than a single 12-bit setting would give.</p>
+<p>Two properties of the module make LEX calibration iterative rather than a single pass:</p>
+<ul>
+<li><strong>Coupled input offset.</strong> The signal input and the reference input share one input-side offset setting. Trimming the offset for the signal path also moves the reference current, so the reference has to be re-trimmed afterwards. Two or three iterations are typically needed.</li>
+<li><strong>Parasitic input resistance.</strong> The LEX input has a small parasitic resistance in series with the I-Block input resistor. Across the standard input resistor this is a linear error of about 0.15 %, compensated by increasing the coefficient by the same amount. With the I-Block upscaling range the same parasitic resistance becomes a 1.5 % error.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Mixing upscaled and non-upscaled signals</p>
+<p>The parasitic input resistance of the LEX input produces a ten times larger error when the I-Block upscaling range is used. Adding an upscaled and a non-upscaled contribution into the same I-Block summing node gives two different correction factors on one signal, which cannot be compensated with a single coefficient. Avoid that combination.</p>
+</div>
+<h3 id="calibration-procedure">Calibration Procedure<a class="headerlink" href="#calibration-procedure" title="Permanent link">&para;</a></h3>
+<p>The firmware calibrates the two LEX cells automatically as part of the block calibration. The procedure runs entirely from the cluster: it routes a constant into the LEX inputs, reads the LEX outputs back through the ADC path, and closes the loop in software.</p>
+<ol>
+<li><strong>Prepare.</strong> Reset the cluster, route a positive constant of <code>1.0</code> into LEX input <code>6</code> and LEX input <code>7</code>, and assign the two LEX outputs to ADC channels. Calibrate the routes so the measurement is not biased by the path itself.</li>
+<li><strong>Find the reference current.</strong> With the input at <code>1.0</code>, the logarithm must produce exactly <code>0.000</code>, because the input equals the reference. Starting from a rough estimate taken from the first measurement, the reference current is adjusted in a bounded control loop until the measured output is within <code>0.001</code> of zero.</li>
+<li><strong>Trim the input offset.</strong> Reduce the input to a small value, <code>0.01</code> in the firmware routine, where the expected output is <code>0.375 * log10(0.01)</code>. The deviation between the measured and the expected output is a gain error caused by the input-side offset, and the A12 bias is adjusted in a second bounded control loop to remove it.</li>
+<li><strong>Iterate.</strong> Because step 3 also moves the reference current, the two steps have to be repeated until both settle.</li>
+</ol>
+<p>Both loops are bounded: if a bias setting runs into its minimum or maximum, calibration stops for that cell and reports which limit was reached. That is the signal that the module or the surrounding routing needs attention, not that the loop should be widened.</p>
+<p>Keep the input currents at or below the full-scale value during calibration so that the parasitic input resistance contributes as little error as possible.</p>
+<p>A block reset clears the mode settings back to <code>LOG</code> and <code>min</code>/<code>max</code>. A calibration reset additionally discards the stored bias values for both LEX cells, so a full calibration run is required before the block is used again.</p>
+<h2 id="firmware-model">Firmware Model<a class="headerlink" href="#firmware-model" title="Permanent link">&para;</a></h2>
+<p>FUNA is supported by the REDAC firmware. A module is detected through its stored identity, which reports the M-Block entity class and the block type <code>FUNA8</code>. The firmware then instantiates the FUNA block object and its hardware abstraction for the installed hardware revision.</p>
+<p>The firmware exposes the block through these settings:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>identity lanes</td>
+<td>six independent flags, one per MIN/MAX lane, selecting identity instead of <code>min</code>/<code>max</code></td>
+</tr>
+<tr>
+<td>LEX 0 mode</td>
+<td><code>LOG</code>, <code>EXP</code>, <code>EXP_HIGH_SENSE</code>, or <code>EXP_RESET</code></td>
+</tr>
+<tr>
+<td>LEX 1 mode</td>
+<td><code>LOG</code>, <code>EXP</code>, <code>EXP_HIGH_SENSE</code>, or <code>EXP_RESET</code></td>
+</tr>
+<tr>
+<td>LEX bias values</td>
+<td>reference current, A12 bias, and A30 bias per cell</td>
+</tr>
+</tbody>
+</table>
+<p>All mode settings are gathered into a single 16-bit mode register that is transferred to the module in one write and takes effect when it is latched:</p>
+<table>
+<thead>
+<tr>
+<th>Register bits</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code> to <code>5</code></td>
+<td>identity flag for MIN/MAX lanes <code>0</code> to <code>5</code></td>
+</tr>
+<tr>
+<td><code>6</code>, <code>7</code></td>
+<td>unused</td>
+</tr>
+<tr>
+<td><code>8</code> to <code>10</code></td>
+<td>LEX 0 mode</td>
+</tr>
+<tr>
+<td><code>11</code> to <code>13</code></td>
+<td>LEX 1 mode</td>
+</tr>
+<tr>
+<td><code>14</code>, <code>15</code></td>
+<td>unused</td>
+</tr>
+</tbody>
+</table>
+<p>The three bias values per cell are written separately. The firmware offers them in physical units, microamperes for the reference current and millivolts for the two offsets, and rejects values outside the ranges listed above.</p>
+<p>Two firmware properties are worth noting for anyone planning work with this block:</p>
+<ul>
+<li><strong>No overload flags.</strong> FUNA has no overload detection, and the firmware reports no overload for this block type. Keeping the block inside its valid range is entirely the responsibility of the model.</li>
+<li><strong>Protocol configuration is not complete.</strong> The firmware object model, the mode register, and the calibration routine are in place, but the handler that applies a configuration received over the protocol is still a placeholder. FUNA is therefore usable from firmware-level test code today, not yet from a client configuration.</li>
+</ul>
+<h2 id="operating-range-and-limits">Operating Range And Limits<a class="headerlink" href="#operating-range-and-limits" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Keep every operand and every result within <code>±1.0</code>.</li>
+<li>Never route a zero or wrong-polarity argument into a LEX cell in logarithm mode.</li>
+<li>Do not expect exponential outputs below about 100 µV to survive the U/C/I matrix.</li>
+<li>Apply the parasitic-resistance correction on the coefficient, and do not mix upscaled and non-upscaled contributions on a LEX input.</li>
+<li>Remember that the logarithm covers roughly <code>±2.6</code> decades before it leaves the normalized range, and place the reference so that the interesting part of the input range falls inside that window.</li>
+<li>There is no overload reporting, so an invalid operating point shows up as a wrong result, not as an error.</li>
+</ul>
+<h2 id="example-signal-flow">Example Signal Flow<a class="headerlink" href="#example-signal-flow" title="Permanent link">&para;</a></h2>
+<h3 id="limiting-a-signal-with-a-minmax-cell">Limiting A Signal With A MIN/MAX Cell<a class="headerlink" href="#limiting-a-signal-with-a-minmax-cell" title="Permanent link">&para;</a></h3>
+<p>Suppose MIN/MAX cell <code>0</code> should limit a signal from above:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>out = min(x, 0.8)
+</code></pre></div>
+<p>A typical cluster-level setup is:</p>
+<ol>
+<li>Enable a constant source or route an existing M-Block output through the U-Block.</li>
+<li>Use a C-Block coefficient to create the operand <code>x</code> and connect it through the I-Block to FUNA input <code>0</code>.</li>
+<li>Use a second C-Block coefficient set to <code>0.8</code> and connect it through the I-Block to FUNA input <code>1</code>.</li>
+<li>Leave the identity flags of lanes <code>0</code> and <code>1</code> cleared, so cell <code>0</code> runs in <code>min</code>/<code>max</code> operation.</li>
+<li>Read output <code>0</code> as the limited signal.</li>
+</ol>
+<p>Output <code>1</code> of the same cell simultaneously carries <code>max(x, 0.8)</code>, which costs nothing extra and is available to the U-Block as an independent source. If the model does not need it, that lane can be switched to identity instead and will then carry an untouched copy of the constant.</p>
+<h3 id="a-decade-mapped-logarithm">A Decade-Mapped Logarithm<a class="headerlink" href="#a-decade-mapped-logarithm" title="Permanent link">&para;</a></h3>
+<p>To compute a logarithm on input <code>6</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>out = 0.375 * log10( x / xRef )
+</code></pre></div>
+<ol>
+<li>Route the strictly positive operand <code>x</code> to FUNA input <code>6</code>.</li>
+<li>Choose the reference current so that the reference point <code>xRef</code> sits in the middle of the expected input range.</li>
+<li>Leave LEX 0 in its default <code>LOG</code> mode.</li>
+<li>Use the C-Block coefficient behind output <code>6</code> to apply whatever scaling the model needs, including the parasitic-resistance correction.</li>
+</ol>
+<p>With the reference at full scale, an input of <code>0.1</code> gives <code>-0.375</code> and an input of <code>0.01</code> gives <code>-0.750</code>.</p>
+<h3 id="multiplication-through-log-and-exp">Multiplication Through Log And Exp<a class="headerlink" href="#multiplication-through-log-and-exp" title="Permanent link">&para;</a></h3>
+<p>The two LEX cells and the surrounding cluster resources can form a product without using a multiplier block, which is the classical reason for having log and exp elements in an analog computer:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>log(a) + log(b) = log(a * b)
+</code></pre></div>
+<ol>
+<li>Route <code>a</code> into LEX 0 and <code>b</code> into LEX 1, both in <code>LOG</code> mode, both strictly positive.</li>
+<li>Sum the two logarithmic outputs in an I-Block summing node, applying the coefficient scaling that matches the decade constants.</li>
+<li>Route the sum into a third element configured for <code>EXP</code> to recover the product.</li>
+</ol>
+<p>Because a FUNA module has only two LEX cells, the exponential step needs a LEX cell on a second FUNA block, or the intermediate sum has to be carried to another cluster. Plan the resource usage before committing to this construction; for a plain product, an MDR or MUL block is the cheaper choice.</p>
+<h2 id="pybrid-programming">Pybrid Programming<a class="headerlink" href="#pybrid-programming" title="Permanent link">&para;</a></h2>
+<p>The pybrid programming interface for M-FUNA is under development. Firmware support exists, but there is no FUNA block class in the current public pybrid entity model, and the mode register described above is not yet serialized by the REDAC run path. This section will be updated when the public configuration model is available.</p>
+<h2 id="related-documents">Related Documents<a class="headerlink" href="#related-documents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../">M-Blocks</a></li>
+<li><a href="../m-mdr/">M-MDR</a></li>
+<li><a href="../m-mul/">M-MUL</a></li>
+<li><a href="../m-fund/">M-FUND</a></li>
+<li><a href="../../i-block/">I-Block</a></li>
+<li><a href="../../../mREDAC/">mREDAC</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="../../../../js/mermaid-init.js"></script>
+      
+        <script src="../../../../js/mathjax-init.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

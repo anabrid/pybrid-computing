@@ -1,0 +1,899 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1200"
+   height="1000"
+   viewBox="0 0 1200 1000"
+   role="img"
+   aria-labelledby="title desc"
+   font-family="Arial, Helvetica, sans-serif"
+   version="1.1"
+   id="svg-mfuna"
+   sodipodi:docname="m-funa.svg"
+   inkscape:export-filename="m-funa.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview105"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="3.16"
+     inkscape:cx="331.64557"
+     inkscape:cy="162.97468"
+     inkscape:window-width="4300"
+     inkscape:window-height="1712"
+     inkscape:window-x="4291"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg-mfuna" />
+  <title
+     id="title">M-Block FUNA architecture</title>
+  <desc
+     id="desc">Block diagram showing eight logical FUNA inputs, three MIN/MAX cells on lanes 0 to 5, two LEX logarithm and exponential cells on lanes 6 and 7, the eight logical outputs, and the mode register and bias settings that configure them.</desc>
+  <defs
+     id="defs3">
+    <marker
+       id="arrow-analog"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#334155"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrow-pass"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#c2410c"
+         id="path2" />
+    </marker>
+    <marker
+       id="arrow-control"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#2563eb"
+         id="path3" />
+    </marker>
+    <style
+       id="style3">
+      .bg { fill: #ffffff; }
+      .frame { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 14; }
+      .title { fill: #0f172a; font-size: 28px; font-weight: 700; }
+      .subtitle { fill: #4b5563; font-size: 15px; }
+      .section { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 14; }
+      .input { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 10; }
+      .cell { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 12; }
+      .cellAlt { fill: #f5f3ff; stroke: #6d28d9; stroke-width: 2; rx: 12; }
+      .cellInner { fill: #ffffff; stroke: #047857; stroke-width: 2; rx: 8; }
+      .cellInnerAlt { fill: #ffffff; stroke: #6d28d9; stroke-width: 2; rx: 8; }
+      .output { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 10; }
+      .control { fill: #eef2ff; stroke: #2563eb; stroke-width: 2; rx: 12; }
+      .warn { fill: #fff1f2; stroke: #be123c; stroke-width: 2; rx: 12; }
+      .label { fill: #111827; font-size: 16px; font-weight: 700; }
+      .group { fill: #0f172a; font-size: 15px; font-weight: 700; }
+      .text { fill: #1f2937; font-size: 13px; }
+      .small { fill: #374151; font-size: 13px; }
+      .tiny { fill: #4b5563; font-size: 12px; }
+      .analog { fill: none; stroke: #334155; stroke-width: 2.5; marker-end: url(#arrow-analog); }
+      .pass { fill: none; stroke: #c2410c; stroke-width: 2.5; marker-end: url(#arrow-pass); }
+      .controlLine { fill: none; stroke: #2563eb; stroke-width: 2.5; stroke-dasharray: 7 5; marker-end: url(#arrow-control); }
+    </style>
+  </defs>
+  <rect
+     x="0"
+     y="0"
+     width="1200"
+     height="1000"
+     class="bg"
+     id="rect3" />
+  <rect
+     x="20"
+     y="20"
+     width="1160"
+     height="960"
+     class="frame"
+     id="rect4" />
+  <text
+     x="42"
+     y="64"
+     class="title"
+     id="text4">M-Block FUNA: Analog Function Generator</text>
+  <text
+     x="42"
+     y="90"
+     class="subtitle"
+     id="text5">Three MIN/MAX cells on lanes 0 to 5, two LOG/EXP (LEX) cells on lanes 6 and 7, in one M-Block slot</text>
+  <!-- sections -->
+  <rect
+     x="40"
+     y="120"
+     width="170"
+     height="680"
+     class="section"
+     id="rect5" />
+  <text
+     x="56"
+     y="148"
+     class="label"
+     id="text6">Logical Inputs</text>
+  <text
+     x="56"
+     y="166"
+     class="tiny"
+     id="text7">from I-Block summing nodes</text>
+  <rect
+     x="240"
+     y="120"
+     width="650"
+     height="680"
+     class="section"
+     id="rect7" />
+  <text
+     x="262"
+     y="148"
+     class="label"
+     id="text8">Function Elements</text>
+  <rect
+     x="920"
+     y="120"
+     width="220"
+     height="680"
+     class="section"
+     id="rect8" />
+  <text
+     x="938"
+     y="148"
+     class="label"
+     id="text9">Logical Outputs</text>
+  <text
+     x="938"
+     y="166"
+     class="tiny"
+     id="text10">reusable as U-Block sources</text>
+  <!-- group headers -->
+  <text
+     x="262"
+     y="180"
+     class="group"
+     id="text11">MIN / MAX group</text>
+  <text
+     x="430"
+     y="180"
+     class="tiny"
+     id="text12">two operands in, smaller and larger out</text>
+  <text
+     x="262"
+     y="528"
+     class="group"
+     id="text13">LOG / EXP group</text>
+  <text
+     x="430"
+     y="528"
+     class="tiny"
+     id="text14">one operand in, logarithm or exponential out</text>
+  <!-- input pills -->
+  <rect
+     x="55"
+     y="190"
+     width="140"
+     height="30"
+     class="input"
+     id="rect14" />
+  <text
+     x="70"
+     y="210"
+     class="small"
+     id="text15">in 0</text>
+  <text
+     x="130"
+     y="210"
+     class="tiny"
+     id="text16">operand a</text>
+  <rect
+     x="55"
+     y="235"
+     width="140"
+     height="30"
+     class="input"
+     id="rect16" />
+  <text
+     x="70"
+     y="255"
+     class="small"
+     id="text17">in 1</text>
+  <text
+     x="130"
+     y="255"
+     class="tiny"
+     id="text18">operand b</text>
+  <rect
+     x="55"
+     y="300"
+     width="140"
+     height="30"
+     class="input"
+     id="rect18" />
+  <text
+     x="70"
+     y="320"
+     class="small"
+     id="text19">in 2</text>
+  <text
+     x="130"
+     y="320"
+     class="tiny"
+     id="text20">operand a</text>
+  <rect
+     x="55"
+     y="345"
+     width="140"
+     height="30"
+     class="input"
+     id="rect20" />
+  <text
+     x="70"
+     y="365"
+     class="small"
+     id="text21">in 3</text>
+  <text
+     x="130"
+     y="365"
+     class="tiny"
+     id="text22">operand b</text>
+  <rect
+     x="55"
+     y="410"
+     width="140"
+     height="30"
+     class="input"
+     id="rect22" />
+  <text
+     x="70"
+     y="430"
+     class="small"
+     id="text23">in 4</text>
+  <text
+     x="130"
+     y="430"
+     class="tiny"
+     id="text24">operand a</text>
+  <rect
+     x="55"
+     y="455"
+     width="140"
+     height="30"
+     class="input"
+     id="rect24" />
+  <text
+     x="70"
+     y="475"
+     class="small"
+     id="text25">in 5</text>
+  <text
+     x="130"
+     y="475"
+     class="tiny"
+     id="text26">operand b</text>
+  <rect
+     x="55"
+     y="585"
+     width="140"
+     height="30"
+     class="input"
+     id="rect26" />
+  <text
+     x="70"
+     y="605"
+     class="small"
+     id="text27">in 6</text>
+  <text
+     x="122"
+     y="605"
+     class="tiny"
+     id="text28">argument</text>
+  <rect
+     x="55"
+     y="707"
+     width="140"
+     height="30"
+     class="input"
+     id="rect28" />
+  <text
+     x="70"
+     y="727"
+     class="small"
+     id="text29">in 7</text>
+  <text
+     x="122"
+     y="727"
+     class="tiny"
+     id="text30">argument</text>
+  <!-- MIN/MAX cells -->
+  <rect
+     x="265"
+     y="188"
+     width="600"
+     height="92"
+     class="cell"
+     id="rect30" />
+  <text
+     x="285"
+     y="212"
+     class="label"
+     id="text31">MINMAX cell 0</text>
+  <text
+     x="285"
+     y="234"
+     class="tiny"
+     id="text32">no bias settings,</text>
+  <text
+     x="285"
+     y="252"
+     class="tiny"
+     id="text33">no calibration</text>
+  <rect
+     x="440"
+     y="198"
+     width="210"
+     height="34"
+     class="cellInner"
+     id="rect33" />
+  <text
+     x="452"
+     y="220"
+     class="text"
+     id="text34">out 0 = min(a, b) | id(a)</text>
+  <rect
+     x="440"
+     y="238"
+     width="210"
+     height="34"
+     class="cellInner"
+     id="rect34" />
+  <text
+     x="452"
+     y="260"
+     class="text"
+     id="text35">out 1 = max(a, b) | id(b)</text>
+  <text
+     x="668"
+     y="222"
+     class="tiny"
+     id="text36">both results available at once</text>
+  <text
+     x="668"
+     y="248"
+     class="tiny"
+     id="text37">identity bits 0 and 1</text>
+  <rect
+     x="265"
+     y="295"
+     width="600"
+     height="92"
+     class="cell"
+     id="rect37" />
+  <text
+     x="285"
+     y="319"
+     class="label"
+     id="text38">MINMAX cell 1</text>
+  <rect
+     x="440"
+     y="305"
+     width="210"
+     height="34"
+     class="cellInner"
+     id="rect38" />
+  <text
+     x="452"
+     y="327"
+     class="text"
+     id="text39">out 2 = min(a, b) | id(a)</text>
+  <rect
+     x="440"
+     y="345"
+     width="210"
+     height="34"
+     class="cellInner"
+     id="rect39" />
+  <text
+     x="452"
+     y="367"
+     class="text"
+     id="text40">out 3 = max(a, b) | id(b)</text>
+  <text
+     x="668"
+     y="329"
+     class="tiny"
+     id="text41">each output switches on its own</text>
+  <text
+     x="668"
+     y="355"
+     class="tiny"
+     id="text42">identity bits 2 and 3</text>
+  <rect
+     x="265"
+     y="402"
+     width="600"
+     height="92"
+     class="cell"
+     id="rect42" />
+  <text
+     x="285"
+     y="426"
+     class="label"
+     id="text43">MINMAX cell 2</text>
+  <rect
+     x="440"
+     y="412"
+     width="210"
+     height="34"
+     class="cellInner"
+     id="rect43" />
+  <text
+     x="452"
+     y="434"
+     class="text"
+     id="text44">out 4 = min(a, b) | id(a)</text>
+  <rect
+     x="440"
+     y="452"
+     width="210"
+     height="34"
+     class="cellInner"
+     id="rect44" />
+  <text
+     x="452"
+     y="474"
+     class="text"
+     id="text45">out 5 = max(a, b) | id(b)</text>
+  <text
+     x="668"
+     y="436"
+     class="tiny"
+     id="text46">identity is a true copy of the input</text>
+  <text
+     x="668"
+     y="462"
+     class="tiny"
+     id="text47">identity bits 4 and 5</text>
+  <!-- LEX cells -->
+  <rect
+     x="265"
+     y="545"
+     width="600"
+     height="110"
+     class="cellAlt"
+     id="rect47" />
+  <text
+     x="285"
+     y="570"
+     class="label"
+     id="text48">LEX cell 0</text>
+  <text
+     x="285"
+     y="592"
+     class="tiny"
+     id="text49">bias settings:</text>
+  <text
+     x="285"
+     y="610"
+     class="tiny"
+     id="text50">reference, A12, A30</text>
+  <rect
+     x="430"
+     y="556"
+     width="228"
+     height="34"
+     class="cellInnerAlt"
+     id="rect50" />
+  <text
+     x="442"
+     y="578"
+     class="text"
+     id="text51">out 6 = 0.375 per decade log</text>
+  <rect
+     x="430"
+     y="596"
+     width="228"
+     height="34"
+     class="cellInnerAlt"
+     id="rect51" />
+  <text
+     x="442"
+     y="618"
+     class="text"
+     id="text52">or exponential, positive only</text>
+  <text
+     x="676"
+     y="578"
+     class="tiny"
+     id="text53">mode: LOG | EXP |</text>
+  <text
+     x="676"
+     y="598"
+     class="tiny"
+     id="text54">EXP_HIGH_SENSE | EXP_RESET</text>
+  <text
+     x="676"
+     y="618"
+     class="tiny"
+     id="text55">mode register bits 8 to 10</text>
+  <text
+     x="285"
+     y="643"
+     class="tiny"
+     id="text56">one input polarity only, about +/- 2.6 decades inside the normalized range</text>
+  <rect
+     x="265"
+     y="667"
+     width="600"
+     height="110"
+     class="cellAlt"
+     id="rect56" />
+  <text
+     x="285"
+     y="692"
+     class="label"
+     id="text57">LEX cell 1</text>
+  <text
+     x="285"
+     y="714"
+     class="tiny"
+     id="text58">bias settings:</text>
+  <text
+     x="285"
+     y="732"
+     class="tiny"
+     id="text59">reference, A12, A30</text>
+  <rect
+     x="430"
+     y="678"
+     width="228"
+     height="34"
+     class="cellInnerAlt"
+     id="rect59" />
+  <text
+     x="442"
+     y="700"
+     class="text"
+     id="text60">out 7 = 0.375 per decade log</text>
+  <rect
+     x="430"
+     y="718"
+     width="228"
+     height="34"
+     class="cellInnerAlt"
+     id="rect60" />
+  <text
+     x="442"
+     y="740"
+     class="text"
+     id="text61">or exponential, positive only</text>
+  <text
+     x="676"
+     y="700"
+     class="tiny"
+     id="text62">mode: LOG | EXP |</text>
+  <text
+     x="676"
+     y="720"
+     class="tiny"
+     id="text63">EXP_HIGH_SENSE | EXP_RESET</text>
+  <text
+     x="676"
+     y="740"
+     class="tiny"
+     id="text64">mode register bits 11 to 13</text>
+  <text
+     x="285"
+     y="765"
+     class="tiny"
+     id="text65">exponential path can saturate, EXP_RESET returns it to a defined state</text>
+  <!-- output pills -->
+  <rect
+     x="935"
+     y="190"
+     width="190"
+     height="30"
+     class="output"
+     id="rect65" />
+  <text
+     x="950"
+     y="210"
+     class="small"
+     id="text66">out 0</text>
+  <text
+     x="1015"
+     y="210"
+     class="tiny"
+     id="text67">min / id(a)</text>
+  <rect
+     x="935"
+     y="235"
+     width="190"
+     height="30"
+     class="output"
+     id="rect67" />
+  <text
+     x="950"
+     y="255"
+     class="small"
+     id="text68">out 1</text>
+  <text
+     x="1015"
+     y="255"
+     class="tiny"
+     id="text69">max / id(b)</text>
+  <rect
+     x="935"
+     y="300"
+     width="190"
+     height="30"
+     class="output"
+     id="rect69" />
+  <text
+     x="950"
+     y="320"
+     class="small"
+     id="text70">out 2</text>
+  <text
+     x="1015"
+     y="320"
+     class="tiny"
+     id="text71">min / id(a)</text>
+  <rect
+     x="935"
+     y="345"
+     width="190"
+     height="30"
+     class="output"
+     id="rect71" />
+  <text
+     x="950"
+     y="365"
+     class="small"
+     id="text72">out 3</text>
+  <text
+     x="1015"
+     y="365"
+     class="tiny"
+     id="text73">max / id(b)</text>
+  <rect
+     x="935"
+     y="410"
+     width="190"
+     height="30"
+     class="output"
+     id="rect73" />
+  <text
+     x="950"
+     y="430"
+     class="small"
+     id="text74">out 4</text>
+  <text
+     x="1015"
+     y="430"
+     class="tiny"
+     id="text75">min / id(a)</text>
+  <rect
+     x="935"
+     y="455"
+     width="190"
+     height="30"
+     class="output"
+     id="rect75" />
+  <text
+     x="950"
+     y="475"
+     class="small"
+     id="text76">out 5</text>
+  <text
+     x="1015"
+     y="475"
+     class="tiny"
+     id="text77">max / id(b)</text>
+  <rect
+     x="935"
+     y="585"
+     width="190"
+     height="30"
+     class="output"
+     id="rect77" />
+  <text
+     x="950"
+     y="605"
+     class="small"
+     id="text78">out 6</text>
+  <text
+     x="1015"
+     y="605"
+     class="tiny"
+     id="text79">log / exp</text>
+  <rect
+     x="935"
+     y="707"
+     width="190"
+     height="30"
+     class="output"
+     id="rect79" />
+  <text
+     x="950"
+     y="727"
+     class="small"
+     id="text80">out 7</text>
+  <text
+     x="1015"
+     y="727"
+     class="tiny"
+     id="text81">log / exp</text>
+  <!-- input arrows -->
+  <path
+     class="analog"
+     d="M 195 205 L 258 205"
+     id="path81" />
+  <path
+     class="analog"
+     d="M 195 250 L 258 250"
+     id="path82" />
+  <path
+     class="analog"
+     d="M 195 315 L 258 315"
+     id="path83" />
+  <path
+     class="analog"
+     d="M 195 360 L 258 360"
+     id="path84" />
+  <path
+     class="analog"
+     d="M 195 425 L 258 425"
+     id="path85" />
+  <path
+     class="analog"
+     d="M 195 470 L 258 470"
+     id="path86" />
+  <path
+     class="analog"
+     d="M 195 600 L 258 600"
+     id="path87" />
+  <path
+     class="analog"
+     d="M 195 722 L 258 722"
+     id="path88" />
+  <!-- output arrows -->
+  <path
+     class="pass"
+     d="M 865 205 L 928 205"
+     id="path89" />
+  <path
+     class="pass"
+     d="M 865 250 L 928 250"
+     id="path90" />
+  <path
+     class="pass"
+     d="M 865 315 L 928 315"
+     id="path91" />
+  <path
+     class="pass"
+     d="M 865 360 L 928 360"
+     id="path92" />
+  <path
+     class="pass"
+     d="M 865 425 L 928 425"
+     id="path93" />
+  <path
+     class="pass"
+     d="M 865 470 L 928 470"
+     id="path94" />
+  <path
+     class="pass"
+     d="M 865 600 L 928 600"
+     id="path95" />
+  <path
+     class="pass"
+     d="M 865 722 L 928 722"
+     id="path96" />
+  <!-- bottom: configuration -->
+  <rect
+     x="40"
+     y="825"
+     width="640"
+     height="135"
+     class="control"
+     id="rect96" />
+  <text
+     x="60"
+     y="852"
+     class="label"
+     id="text96">Configuration and calibration</text>
+  <text
+     x="60"
+     y="876"
+     class="small"
+     id="text97">One 16-bit mode register holds all identity flags and both LEX modes</text>
+  <text
+     x="60"
+     y="896"
+     class="small"
+     id="text98">Three bias values per LEX cell: reference current, A12 and A30 offset</text>
+  <text
+     x="60"
+     y="916"
+     class="small"
+     id="text99">Firmware calibrates both LEX cells against the cluster ADC readout</text>
+  <text
+     x="60"
+     y="940"
+     class="tiny"
+     id="text100">Reset state: min/max on every MIN/MAX cell, both LEX cells in LOG mode</text>
+  <!-- control lines into the two groups -->
+  <path
+     class="controlLine"
+     d="m 360,825 0.31646,-16.32911 h 110 L 470,782"
+     id="path100"
+     sodipodi:nodetypes="cccc" />
+  <path
+     class="controlLine"
+     d="M 229.53165,825 V 506.64557 493.67089 l 0.63291,-46.64557 29.73418,0.94936"
+     id="path101"
+     sodipodi:nodetypes="ccccc" />
+  <!-- bottom: limits -->
+  <rect
+     x="700"
+     y="825"
+     width="440"
+     height="135"
+     class="warn"
+     id="rect101" />
+  <text
+     x="720"
+     y="852"
+     class="label"
+     id="text101">Operating range</text>
+  <text
+     x="720"
+     y="876"
+     class="small"
+     id="text102">Keep every operand and result within +/- 1.0</text>
+  <text
+     x="720"
+     y="896"
+     class="small"
+     id="text103">Logarithm accepts one polarity only, never zero</text>
+  <text
+     x="720"
+     y="916"
+     class="small"
+     id="text104">No overload detection on this block</text>
+  <text
+     x="720"
+     y="940"
+     class="tiny"
+     id="text105">Add the 0.15 % coefficient correction on LEX inputs</text>
+</svg>

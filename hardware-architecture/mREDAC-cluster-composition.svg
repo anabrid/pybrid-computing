@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1180"
+   height="700"
+   viewBox="0 0 1180 700"
+   role="img"
+   aria-labelledby="title desc"
+   font-family="Arial, Helvetica, sans-serif"
+   version="1.1"
+   id="svg41"
+   sodipodi:docname="mREDAC-cluster-composition.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview41"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.596041"
+     inkscape:cx="750.60729"
+     inkscape:cy="230.57052"
+     inkscape:window-width="4300"
+     inkscape:window-height="1712"
+     inkscape:window-x="4291"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg41" />
+  <title
+     id="title">mREDAC cluster composition</title>
+  <desc
+     id="desc">Block diagram of one mREDAC cluster showing selected sources through U-Block and C-Block, local lanes 0..7, T-Block-routed lanes 8..31, I-Block, SH-Block, two generic M-Block positions, and M-Block output feedback to U-Block source selection.</desc>
+  <defs
+     id="defs3">
+    <marker
+       id="arrow-analog"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#334155"
+         id="path1" />
+    </marker>
+    <marker
+       id="arrow-route"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#2563eb"
+         id="path2" />
+    </marker>
+    <marker
+       id="arrow-control"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#ea580c"
+         id="path3" />
+    </marker>
+    <marker
+       id="arrow-feedback"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="0.001"
+       markerHeight="0.001"
+       orient="auto"
+       preserveAspectRatio="xMidYMid"
+       markerUnits="strokeWidth">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#7c3aed"
+         id="path-feedback" />
+    </marker>
+    <style
+       id="style3">
+      .bg { fill: #ffffff; }
+      .frame { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 16; }
+      .section { fill: #ffffff; stroke: #475569; stroke-width: 2; rx: 14; }
+      .title { fill: #0f172a; font-size: 28px; font-weight: 700; }
+      .subtitle { fill: #4b5563; font-size: 15px; }
+      .label { fill: #111827; font-size: 16px; font-weight: 700; }
+      .text { fill: #1f2937; font-size: 13px; }
+      .small { fill: #374151; font-size: 12px; }
+      .tiny { fill: #4b5563; font-size: 11px; }
+      .source { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 12; }
+      .ublock { fill: #ecfeff; stroke: #0891b2; stroke-width: 2.5; rx: 12; }
+      .cblock { fill: #ecfdf5; stroke: #047857; stroke-width: 2.5; rx: 12; }
+      .iblock { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2.5; rx: 12; }
+      .shblock { fill: #fdf2f8; stroke: #db2777; stroke-width: 2.5; rx: 12; }
+      .tblock { fill: #eff6ff; stroke: #2563eb; stroke-width: 2.5; rx: 12; }
+      .mblock { fill: #fff7ed; stroke: #c2410c; stroke-width: 2.5; rx: 12; }
+      .output { fill: #f1f5f9; stroke: #64748b; stroke-width: 2; rx: 12; }
+      .control { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; rx: 12; }
+      .analog { fill: none; stroke: #334155; stroke-width: 3; marker-end: url(#arrow-analog); }
+      .route { fill: none; stroke: #2563eb; stroke-width: 3; marker-end: url(#arrow-route); }
+      .feedback { fill: none; stroke: #7c3aed; stroke-width: 2.8; stroke-dasharray: 9 5; marker-end: url(#arrow-feedback); }
+      .controlLine { fill: none; stroke: #ea580c; stroke-width: 2.5; stroke-dasharray: 7 5; marker-end: url(#arrow-control); }
+    </style>
+    <marker
+       id="arrow-analog-0"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="1"
+       markerHeight="1"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#334155"
+         id="path1-9" />
+    </marker>
+    <marker
+       id="arrow-analog-8"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#334155"
+         id="path1-2" />
+    </marker>
+    <marker
+       id="arrow-feedback-0"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#7c3aed"
+         id="path-feedback-9" />
+    </marker>
+    <marker
+       id="arrow-feedback-0-8"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#7c3aed"
+         id="path-feedback-9-2" />
+    </marker>
+    <marker
+       id="arrow-feedback-0-8-5"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#7c3aed"
+         id="path-feedback-9-2-1" />
+    </marker>
+    <marker
+       id="arrow-feedback-0-8-1"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#7c3aed"
+         id="path-feedback-9-2-5" />
+    </marker>
+    <marker
+       id="arrow-feedback-0-6"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#7c3aed"
+         id="path-feedback-9-1" />
+    </marker>
+    <marker
+       id="arrow-analog-0-0"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#334155"
+         id="path1-9-9" />
+    </marker>
+    <marker
+       id="arrow-analog-0-8"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="0.001"
+       markerHeight="0.001"
+       orient="auto">
+      <path
+         d="M 0,0 10,5 0,10 Z"
+         fill="#334155"
+         id="path1-9-2" />
+    </marker>
+  </defs>
+  <rect
+     x="0"
+     y="0"
+     width="1180"
+     height="700"
+     class="bg"
+     id="rect3" />
+  <rect
+     x="20"
+     y="20"
+     width="1140"
+     height="660"
+     class="frame"
+     id="rect4" />
+  <text
+     x="42"
+     y="62"
+     class="title"
+     id="text4">Cluster Composition</text>
+  <text
+     x="44"
+     y="92"
+     class="subtitle"
+     id="text5">One mREDAC cluster selects, weights, sums, and prepares analog channels for two generic Math Block positions.</text>
+  <rect
+     x="63.101265"
+     y="122.34177"
+     width="1060"
+     height="390"
+     class="section"
+     id="rect5" />
+  <path
+     d="m 846.8538,453.72318 -0.40507,39.87342"
+     class="feedback"
+     id="feedback-legend-line-8-5"
+     style="fill:none;stroke:#7c3aed;stroke-width:2.8;stroke-dasharray:9, 5;marker-end:url(#arrow-feedback-0-8)"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 1032.5697,455.03954 -0.4051,39.87342"
+     class="feedback"
+     id="feedback-legend-line-8-5-7"
+     style="fill:none;stroke:#7c3aed;stroke-width:2.8;stroke-dasharray:9, 5;marker-end:url(#arrow-feedback-0-8-1)"
+     sodipodi:nodetypes="cc" />
+  <text
+     x="88"
+     y="158"
+     class="label"
+     id="text6">Common Cluster Signal Path</text>
+  <text
+     x="88"
+     y="181"
+     class="small"
+     id="text7">Source selection, weighting, lane routing, summation, and sample/hold behavior are separated before the installed M-Blocks consume the analog channels.</text>
+  <rect
+     x="85"
+     y="245"
+     width="145"
+     height="86"
+     class="source"
+     id="rect7" />
+  <text
+     x="124.05064"
+     y="269.86078"
+     class="label"
+     id="text9"><tspan
+       sodipodi:role="line"
+       id="tspan3"
+       x="124.05064"
+       y="269.86078">Signal</tspan><tspan
+       sodipodi:role="line"
+       id="tspan4"
+       x="124.05064"
+       y="289.86078">Sources</tspan></text>
+  <text
+     x="119.17722"
+     y="306.25317"
+     class="tiny"
+     id="text10"><tspan
+       sodipodi:role="line"
+       id="tspan1"
+       x="119.17722"
+       y="306.25317">M outputs, refs,</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2"
+       x="119.17722"
+       y="320.00317">supported paths</tspan></text>
+  <rect
+     x="285"
+     y="235"
+     width="135"
+     height="106"
+     class="ublock"
+     id="rect10" />
+  <text
+     x="322"
+     y="265"
+     class="label"
+     id="text11">U-Block</text>
+  <text
+     x="323.3038"
+     y="289"
+     class="small"
+     id="text12">select and</text>
+  <text
+     x="318.3038"
+     y="307"
+     class="small"
+     id="text13">fan-out signals</text>
+  <rect
+     x="475"
+     y="235"
+     width="135"
+     height="106"
+     class="cblock"
+     id="rect13" />
+  <text
+     x="512"
+     y="265"
+     class="label"
+     id="text14">C-Block</text>
+  <text
+     x="511.51898"
+     y="289"
+     class="small"
+     id="text15">coefficient</text>
+  <text
+     x="514.51898"
+     y="307"
+     class="small"
+     id="text16">and sign</text>
+  <rect
+     x="665"
+     y="235"
+     width="135"
+     height="106"
+     class="iblock"
+     id="rect16" />
+  <text
+     x="704"
+     y="265"
+     class="label"
+     id="text17">I-Block</text>
+  <text
+     x="698"
+     y="289"
+     class="small"
+     id="text18">sum into</text>
+  <text
+     x="689"
+     y="307"
+     class="small"
+     id="text19">16 channels</text>
+  <rect
+     x="855"
+     y="235"
+     width="135"
+     height="106"
+     class="shblock"
+     id="rect19" />
+  <text
+     x="886"
+     y="265"
+     class="label"
+     id="text20">SH-Block</text>
+  <text
+     x="879"
+     y="289"
+     class="small"
+     id="text21">track, hold,</text>
+  <text
+     x="869"
+     y="307"
+     class="small"
+     id="text22">inject, or pass</text>
+  <path
+     d="M230 288 L285 288"
+     class="route"
+     id="path22" />
+  <path
+     d="M420 288 L475 288"
+     class="analog"
+     id="path23" />
+  <path
+     d="M610 288 L665 288"
+     class="analog"
+     id="path24" />
+  <text
+     x="611.79749"
+     y="269.22784"
+     class="tiny"
+     id="text24"><tspan
+       sodipodi:role="line"
+       id="tspan42"
+       x="611.79749"
+       y="269.22784">local lanes</tspan><tspan
+       sodipodi:role="line"
+       id="tspan43"
+       x="611.79749"
+       y="282.97784">0..7</tspan></text>
+  <path
+     d="M800 288 L855 288"
+     class="analog"
+     id="path25" />
+  <rect
+     x="510"
+     y="385"
+     width="250"
+     height="70"
+     class="tblock"
+     id="rect25" />
+  <text
+     x="603"
+     y="413"
+     class="label"
+     id="text25">T-Block</text>
+  <text
+     x="552"
+     y="434"
+     class="tiny"
+     id="text26">routed lanes 8..31 to destination I lanes</text>
+  <path
+     d="M542 341 L542 385"
+     class="route"
+     id="path26" />
+  <path
+     d="M 731.64557,385.44304 732,341"
+     class="route"
+     id="path27"
+     sodipodi:nodetypes="cc" />
+  <rect
+     x="780"
+     y="405"
+     width="150"
+     height="50"
+     class="mblock"
+     id="rect27" />
+  <text
+     x="813"
+     y="435"
+     class="small"
+     id="text27">M-Block 0</text>
+  <rect
+     x="970"
+     y="405"
+     width="150"
+     height="50"
+     class="mblock"
+     id="rect28" />
+  <text
+     x="1003"
+     y="435"
+     class="small"
+     id="text28">M-Block 1</text>
+  <text
+     x="842.13922"
+     y="379.53162"
+     class="tiny"
+     id="text29">generic Math Block positions</text>
+  <text
+     x="842.13922"
+     y="395.53162"
+     class="tiny"
+     id="text30">installed type defines the function</text>
+  <path
+     d="m 867.06329,341.88608 -67,64"
+     class="analog"
+     id="path30" />
+  <path
+     d="M958 341 L1045 405"
+     class="analog"
+     id="path31" />
+  <text
+     x="409.73355"
+     y="488.8273"
+     class="tiny"
+     id="feedback-label">M-Block outputs return to U-Block source selection</text>
+  <rect
+     x="60"
+     y="545"
+     width="320"
+     height="84"
+     class="control"
+     id="rect31" />
+  <text
+     x="88"
+     y="575"
+     class="label"
+     id="text31">Configured By pybrid</text>
+  <text
+     x="88"
+     y="598"
+     class="small"
+     id="text32">routes, coefficients, SH states,</text>
+  <text
+     x="88"
+     y="616"
+     class="small"
+     id="text33">and M-Block settings for installed types</text>
+  <rect
+     x="780"
+     y="545"
+     width="340"
+     height="84"
+     class="output"
+     id="rect36" />
+  <path
+     d="m 911.00088,544.1561 c 1.95796,-8.69648 -35.57472,-79.19337 -32.18952,-88.34674"
+     class="analog"
+     id="path41-8-5"
+     sodipodi:nodetypes="cc"
+     style="fill:none;stroke:#334155;stroke-width:2.217;marker-end:url(#arrow-analog-0-8)" />
+  <text
+     x="808"
+     y="575"
+     class="label"
+     id="text37">Cluster Computation Outputs</text>
+  <text
+     x="808"
+     y="598"
+     class="small"
+     id="text38">M-Block results can be routed onward,</text>
+  <text
+     x="808"
+     y="616"
+     class="small"
+     id="text39">measured, or reused in later computation</text>
+  <rect
+     x="430"
+     y="645"
+     width="300"
+     height="24"
+     class="output"
+     id="feedback-legend-box" />
+  <path
+     d="M 452 657 L 510 657"
+     class="feedback"
+     id="feedback-legend-line"
+     style="marker-end:url(#arrow-feedback-0-8)" />
+  <path
+     d="M 358.83342,498.93925 358.42835,340.77468"
+     class="feedback"
+     id="feedback-legend-line-8"
+     style="fill:none;stroke:#7c3aed;stroke-width:2.8;stroke-dasharray:9, 5;marker-end:url(#arrow-feedback-0)"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 1034.031,499.93911 -675.19024,0.65542"
+     class="feedback"
+     id="feedback-legend-line-8-2"
+     style="fill:none;stroke:#7c3aed;stroke-width:2.8;stroke-dasharray:9, 5"
+     sodipodi:nodetypes="cc" />
+  <text
+     x="526"
+     y="661"
+     class="tiny"
+     id="feedback-legend-text">feedback: M outputs to U inputs</text>
+  <path
+     d="m 960.15602,544.30617 c 20,-40 29.3038,-64.26265 32.19944,-87.89556"
+     class="analog"
+     id="path41-8"
+     sodipodi:nodetypes="cc"
+     style="fill:none;stroke:#334155;stroke-width:2.217;marker-end:url(#arrow-analog-0)" />
+</svg>

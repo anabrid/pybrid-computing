@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1280"
+   height="920"
+   viewBox="0 0 1280 920"
+   role="img"
+   aria-labelledby="title desc"
+   font-family="Arial, Helvetica, sans-serif"
+   version="1.1"
+   id="svg40"
+   sodipodi:docname="REDAC.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview40"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.6413043"
+     inkscape:cx="639.7351"
+     inkscape:cy="411.25828"
+     inkscape:window-width="4300"
+     inkscape:window-height="1712"
+     inkscape:window-x="-8"
+     inkscape:window-y="11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg40" />
+  <title
+     id="title">REDAC rack architecture overview</title>
+  <desc
+     id="desc">Simplified block diagram of a REDAC as a 19-inch rack containing power supply, LAN switch, super controller, reserved expansion/service space and four stacked iREDAC levels.</desc>
+  <defs
+     id="defs1">
+    <marker
+       id="arrow"
+       viewBox="0 0 10 10"
+       refX="9"
+       refY="5"
+       markerWidth="9"
+       markerHeight="9"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#334155"
+         id="path1" />
+    </marker>
+    <style
+       id="style1">
+      .page { fill: #f8fafc; }
+      .title { fill: #0f172a; font-size: 32px; font-weight: 700; }
+      .subtitle { fill: #475569; font-size: 17px; }
+      .label { fill: #0f172a; font-size: 16px; font-weight: 700; }
+      .small { fill: #334155; font-size: 13px; }
+      .tiny { fill: #475569; font-size: 12px; }
+      .rack { fill: #ffffff; stroke: #0f172a; stroke-width: 2.4; rx: 18; }
+      .rail { fill: #e2e8f0; stroke: #64748b; stroke-width: 1.5; }
+      .iredac { fill: #e0f2fe; stroke: #0369a1; stroke-width: 2; rx: 10; }
+      .space { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 1.6; rx: 8; }
+      .infra { fill: #fef3c7; stroke: #b45309; stroke-width: 1.8; rx: 8; }
+      .controller { fill: #f3e8ff; stroke: #7e22ce; stroke-width: 2; rx: 8; }
+      .network { fill: #ecfdf5; stroke: #047857; stroke-width: 1.8; rx: 8; }
+      .power { fill: #fee2e2; stroke: #b91c1c; stroke-width: 1.8; rx: 8; }
+      .fan { fill: #e2e8f0; stroke: #475569; stroke-width: 1.8; rx: 8; }
+      .note { fill: #ffffff; stroke: #64748b; stroke-width: 1.6; rx: 14; }
+      .line { fill: none; stroke: #334155; stroke-width: 2.2; marker-end: url(#arrow); }
+      .dash { fill: none; stroke: #64748b; stroke-width: 2; stroke-dasharray: 8 6; marker-end: url(#arrow); }
+      .bus { fill: none; stroke: #047857; stroke-width: 3; marker-end: url(#arrow); }
+      .powerline { fill: none; stroke: #b91c1c; stroke-width: 3; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect
+     class="page"
+     x="0"
+     y="0"
+     width="1280"
+     height="920"
+     id="rect1" />
+  <text
+     class="title"
+     x="60"
+     y="58"
+     id="text1">REDAC Rack Architecture</text>
+  <text
+     class="subtitle"
+     x="60"
+     y="88"
+     id="text2">Multiple iREDAC levels stacked in a 19-inch server rack with shared power, networking and super controller infrastructure.</text>
+  <rect
+     class="rack"
+     x="70"
+     y="164.1192"
+     width="430"
+     height="720"
+     id="rect2" />
+  <rect
+     class="rail"
+     x="90.7351"
+     y="198.99338"
+     width="28"
+     height="660"
+     id="rect3" />
+  <rect
+     class="rail"
+     x="445.78146"
+     y="200.8212"
+     width="28"
+     height="660"
+     id="rect4" />
+  <text
+     class="label"
+     x="240.19867"
+     y="206.13245"
+     id="text4">19-inch rack</text>
+  <text
+     class="tiny"
+     x="145"
+     y="805"
+     id="text5">Current populated stack: 4 iREDACs</text>
+  <rect
+     class="iredac"
+     x="145"
+     y="238"
+     width="280"
+     height="96"
+     id="rect7" />
+  <text
+     class="label"
+     x="245"
+     y="278"
+     id="text8">iREDAC 3</text>
+  <text
+     class="small"
+     x="250"
+     y="303"
+     id="text9">stack level</text>
+  <rect
+     class="iredac"
+     x="145"
+     y="340"
+     width="280"
+     height="96"
+     id="rect9" />
+  <text
+     class="label"
+     x="245"
+     y="380"
+     id="text10">iREDAC 2</text>
+  <text
+     class="small"
+     x="250"
+     y="405"
+     id="text11">stack level</text>
+  <rect
+     class="iredac"
+     x="145"
+     y="442"
+     width="280"
+     height="96"
+     id="rect11" />
+  <text
+     class="label"
+     x="245"
+     y="482"
+     id="text12">iREDAC 1</text>
+  <text
+     class="small"
+     x="250"
+     y="507"
+     id="text13">stack level</text>
+  <rect
+     class="iredac"
+     x="145"
+     y="544"
+     width="280"
+     height="96"
+     id="rect13" />
+  <text
+     class="label"
+     x="245"
+     y="584"
+     id="text14">iREDAC 0</text>
+  <text
+     class="small"
+     x="250"
+     y="609"
+     id="text15">stack level</text>
+  <rect
+     class="space"
+     x="145"
+     y="646"
+     width="280"
+     height="128"
+     id="rect15" />
+  <text
+     class="label"
+     x="180"
+     y="703"
+     id="text16">Reserved expansion space</text>
+  <text
+     class="small"
+     x="188"
+     y="730"
+     id="text17">Free rack space for expansion/service</text>
+  <rect
+     class="controller"
+     x="145"
+     y="780"
+     width="280"
+     height="24"
+     id="rect17" />
+  <text
+     class="small"
+     x="230"
+     y="797"
+     id="text18">Super controller</text>
+  <rect
+     class="network"
+     x="145"
+     y="808"
+     width="280"
+     height="24"
+     id="rect18" />
+  <text
+     class="small"
+     x="251"
+     y="825"
+     id="text19">LAN switch</text>
+  <rect
+     class="power"
+     x="145"
+     y="836"
+     width="280"
+     height="24"
+     id="rect19" />
+  <text
+     class="small"
+     x="240"
+     y="853"
+     id="text20">Power supply</text>
+  <rect
+     class="iredac"
+     x="560"
+     y="145"
+     width="620"
+     height="165"
+     id="rect20" />
+  <text
+     class="label"
+     x="590"
+     y="180"
+     id="text21">REDAC system role</text>
+  <text
+     class="small"
+     x="590"
+     y="212"
+     id="text22">The REDAC is the rack-level system that combines multiple iREDAC stack levels.</text>
+  <text
+     class="small"
+     x="590"
+     y="238"
+     id="text23">Each iREDAC contributes its own backplane, mREDAC slots, routing, sync, and interfaces.</text>
+  <text
+     class="small"
+     x="590"
+     y="264"
+     id="text24">The current rack uses four iREDAC levels; reserved space can support expansion.</text>
+  <rect
+     class="controller"
+     x="560"
+     y="340"
+     width="285"
+     height="170"
+     id="rect24" />
+  <text
+     class="label"
+     x="590"
+     y="375"
+     id="text25">Super controller</text>
+  <text
+     class="small"
+     x="590"
+     y="407"
+     id="text26">Server-level computer</text>
+  <text
+     class="small"
+     x="590"
+     y="433"
+     id="text27">Network configuration point</text>
+  <text
+     class="small"
+     x="590"
+     y="459"
+     id="text28">Computation configuration gateway</text>
+  <text
+     class="small"
+     x="590"
+     y="485"
+     id="text29">Controller coordination point</text>
+  <rect
+     class="network"
+     x="895"
+     y="340"
+     width="285"
+     height="170"
+     id="rect29" />
+  <text
+     class="label"
+     x="925"
+     y="375"
+     id="text30">LAN switch</text>
+  <text
+     class="small"
+     x="925"
+     y="407"
+     id="text31">Rack-level Ethernet switching</text>
+  <text
+     class="small"
+     x="925"
+     y="433"
+     id="text32">Connects super controller</text>
+  <text
+     class="small"
+     x="925"
+     y="459"
+     id="text33">Provides network path to iREDACs</text>
+  <text
+     class="small"
+     x="925"
+     y="485"
+     id="text34">Carries controller traffic</text>
+  <rect
+     class="iredac"
+     x="560"
+     y="555"
+     width="620"
+     height="185"
+     id="rect34" />
+  <text
+     class="label"
+     x="590"
+     y="590"
+     id="text35">Stacked iREDAC levels</text>
+  <text
+     class="small"
+     x="590"
+     y="622"
+     id="text36">iREDAC 0..3 are the populated analog-computing stack levels.</text>
+  <text
+     class="small"
+     x="590"
+     y="648"
+     id="text37">Stack-level routing and synchronization paths allow iREDACs to operate together.</text>
+  <text
+     class="small"
+     x="590"
+     y="674"
+     id="text38">A fifth iREDAC can be added in a supported rack configuration.</text>
+  <text
+     class="small"
+     x="590"
+     y="700"
+     id="text39">Additional REDAC racks can also be connected for larger systems.</text>
+  <text
+     class="small"
+     x="590"
+     y="726"
+     id="text40">Rack services provide power, network access and controller configuration.</text>
+</svg>
